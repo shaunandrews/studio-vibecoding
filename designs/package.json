@@ -11,6 +11,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "agentation": "^2.0.0",
     "agentation-mcp": "^1.0.2",
     "concurrently": "^9.1.2",
     "http-server": "^14.1.1"
