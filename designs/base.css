@@ -146,32 +146,43 @@ input, button, textarea, select {
 }
 
 /* Site status indicator - on the right */
+/* Fixed-size container to keep clickable area stable during transitions */
 .site-status {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  cursor: pointer;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* The actual icon shape */
+.site-status::after {
+  content: '';
   width: 10px;
   height: 10px;
   border-radius: var(--radius-full);
   background: var(--color-status-running);
-  flex-shrink: 0;
-  cursor: pointer;
-  position: relative;
   transition: all var(--transition-fast);
 }
 
-.site-status.stopped {
+.site-status.stopped::after {
   background: var(--color-gray-50);
 }
 
 /* Hover states - only on the dot itself */
-.site-status.running:hover {
+.site-status.running:hover::after {
   background: var(--color-red-40);
   border-radius: var(--radius-sm);
 }
 
-.site-status.stopped:hover {
+.site-status.stopped:hover::after {
   background: transparent;
   width: 0;
   height: 0;
-  border-left: 6px solid var(--color-status-running);
+  border-left: 8px solid var(--color-status-running);
   border-top: 5px solid transparent;
   border-bottom: 5px solid transparent;
   border-radius: 0;
