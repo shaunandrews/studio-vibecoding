@@ -7,20 +7,6 @@
   <link rel="stylesheet" href="base.css">
   <style>
     /* Page-specific styles */
-    .section-title {
-      font-size: var(--font-size-sm);
-      font-weight: var(--font-weight-semibold);
-      color: var(--color-text-primary);
-      margin-bottom: var(--spacing-4);
-    }
-    
-    .card {
-      background: var(--color-white);
-      border: 1px solid var(--color-border-light);
-      border-radius: var(--radius-lg);
-      padding: var(--spacing-4);
-    }
-    
     .section-header {
       display: flex;
       justify-content: space-between;
@@ -28,32 +14,31 @@
       margin-bottom: var(--spacing-4);
     }
     
-    .copy-btn {
-      background: none;
-      border: none;
-      cursor: pointer;
-      color: var(--color-text-muted);
-      padding: var(--spacing-1);
+    .section-title {
+      font-size: var(--font-size-sm);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-text-primary);
     }
     
-    .copy-btn:hover {
-      color: var(--color-text-primary);
+    .section-title-row {
+      padding-top: var(--spacing-4);
+    }
+    
+    .section-title-row th {
+      padding-bottom: var(--spacing-4);
     }
     
     .helper-text {
       font-size: var(--font-size-xs);
       color: var(--color-text-secondary);
       margin-top: var(--spacing-1);
+      max-width: 380px;
     }
     
     .badge {
-      display: inline-flex;
-      align-items: center;
-      padding: 2px 8px;
-      font-size: var(--font-size-xxs);
-      font-weight: var(--font-weight-medium);
-      border-radius: var(--radius-sm);
-      background: var(--color-gray-0);
+      display: inline;
+      font-size: var(--font-size-sm);
+      font-weight: var(--font-weight-normal);
       color: var(--color-text-secondary);
     }
     
@@ -80,30 +65,10 @@
       border-color: rgba(255, 255, 255, 0.3);
     }
     
-    /* Icon placeholders */
-    .icon {
-      width: 16px;
-      height: 16px;
-      display: inline-block;
-    }
-    
-    .icon-arrow {
-      position: relative;
-    }
-    
-    .icon-arrow::after {
-      content: '↗';
-      font-size: 12px;
-    }
-    
-    .icon-copy::after {
-      content: '⧉';
-      font-size: 14px;
-    }
-    
-    .icon-sparkle::before {
-      content: '✦';
-      font-size: 12px;
+    /* Content padding adjustment */
+    .content {
+      padding: var(--spacing-8);
+      padding-right: var(--spacing-4);
     }
   </style>
 </head>
@@ -153,13 +118,16 @@
         <div class="header-left">
           <h1 class="header-title">Downstreet Cafe</h1>
           <div class="header-links">
-            <a href="#" class="header-link">WP admin <span class="icon icon-arrow"></span></a>
-            <a href="#" class="header-link">Open site <span class="icon icon-arrow"></span></a>
+            <a href="#" class="header-link">WP admin <span style="font-size: 12px;">↗</span></a>
+            <a href="#" class="header-link">Open site <span style="font-size: 12px;">↗</span></a>
           </div>
         </div>
         <div class="header-actions">
           <button class="btn btn-primary">
-            <span>⬆</span> Publish site
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 19V5M5 12l7-7 7 7"/>
+            </svg>
+            Publish site
           </button>
           <div class="status-badge">
             <span class="status-dot"></span>
@@ -178,7 +146,10 @@
           <button class="tab active">Settings</button>
         </div>
         <button class="tab tab-assistant">
-          <span class="icon-sparkle"></span> Assistant
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2L9.19 8.63L2 9.24L7.46 13.97L5.82 21L12 17.27L18.18 21L16.54 13.97L22 9.24L14.81 8.63L12 2Z"/>
+          </svg>
+          Assistant
         </button>
       </nav>
       
@@ -186,81 +157,112 @@
       <div class="content">
         <div class="section-header">
           <h2 class="section-title">Site details</h2>
-          <div class="flex gap-2">
+          <div class="flex items-center gap-1">
             <button class="btn btn-secondary">Edit site</button>
-            <button class="btn btn-secondary" style="padding: var(--spacing-2);">⋮</button>
+            <button class="btn-icon" aria-label="More options">
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <circle cx="12" cy="5" r="1.5"/>
+                <circle cx="12" cy="12" r="1.5"/>
+                <circle cx="12" cy="19" r="1.5"/>
+              </svg>
+            </button>
           </div>
         </div>
         
-        <div class="details-list">
-          <div class="details-row">
-            <div class="details-label">Site name</div>
-            <div class="details-value">Downstreet Cafe</div>
-          </div>
-          <div class="details-row">
-            <div class="details-label">Site URL</div>
-            <div class="details-value">
-              localhost:8884 
-              <button class="copy-btn"><span class="icon icon-copy"></span></button>
-            </div>
-          </div>
-          <div class="details-row">
-            <div class="details-label">HTTPS</div>
-            <div class="details-value">Disabled</div>
-          </div>
-          <div class="details-row">
-            <div class="details-label">Local path</div>
-            <div class="details-value">
-              /Users/shaun/Studio/cafe-theme-dev 
-              <button class="copy-btn"><span class="icon icon-copy"></span></button>
-            </div>
-          </div>
-          <div class="details-row">
-            <div class="details-label">WordPress version</div>
-            <div class="details-value">6.4.7</div>
-          </div>
-          <div class="details-row">
-            <div class="details-label">PHP version</div>
-            <div class="details-value">8.2</div>
-          </div>
-          <div class="details-row">
-            <div class="details-label">Hot Reload</div>
-            <div class="details-value">
-              <span>Disabled</span>
-              <span class="badge">Experimental</span>
-            </div>
-          </div>
-        </div>
-        
-        <div class="helper-text" style="margin-top: var(--spacing-2); margin-left: 160px;">
-          Automatically reload the site when files change. Instantly see updates to CSS/JS, and smart reload for PHP changes.
-        </div>
-        
-        <h2 class="section-title" style="margin-top: var(--spacing-8);">WP Admin</h2>
-        
-        <div class="details-list">
-          <div class="details-row">
-            <div class="details-label">Username</div>
-            <div class="details-value">
-              admin 
-              <button class="copy-btn"><span class="icon icon-copy"></span></button>
-            </div>
-          </div>
-          <div class="details-row">
-            <div class="details-label">Password</div>
-            <div class="details-value">
-              ************ 
-              <button class="copy-btn"><span class="icon icon-copy"></span></button>
-            </div>
-          </div>
-          <div class="details-row">
-            <div class="details-label">Admin URL</div>
-            <div class="details-value">
-              localhost:8884/wp-admin 
-              <button class="copy-btn"><span class="icon icon-copy"></span></button>
-            </div>
-          </div>
-        </div>
+        <table class="details-table">
+          <tbody>
+            <tr>
+              <th>Site name</th>
+              <td>Downstreet Cafe</td>
+            </tr>
+            <tr>
+              <th>Site URL</th>
+              <td>
+                <a href="#" class="copy-value">
+                  localhost:8884
+                  <svg class="copy-icon" viewBox="0 0 24 24">
+                    <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+                  </svg>
+                </a>
+              </td>
+            </tr>
+            <tr>
+              <th>HTTPS</th>
+              <td>Disabled</td>
+            </tr>
+            <tr>
+              <th>Local path</th>
+              <td>
+                <a href="#" class="copy-value">
+                  /Users/shaun/Studio/cafe-theme-dev
+                  <svg class="copy-icon" viewBox="0 0 24 24">
+                    <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+                  </svg>
+                </a>
+              </td>
+            </tr>
+            <tr>
+              <th>WordPress version</th>
+              <td>6.9.1</td>
+            </tr>
+            <tr>
+              <th>PHP version</th>
+              <td>8.3</td>
+            </tr>
+            <tr>
+              <th>Hot Reload</th>
+              <td>
+                <div>
+                  <span>Disabled</span>
+                  <span class="badge">(Experimental)</span>
+                </div>
+                <div class="helper-text">
+                  Automatically reload the site when files change. Instantly see updates to CSS/JS, and smart reload for PHP changes.
+                </div>
+              </td>
+            </tr>
+            
+            <tr class="section-title-row">
+              <th colspan="2">
+                <h3 class="section-title" style="margin-top: var(--spacing-4);">WP Admin</h3>
+              </th>
+            </tr>
+            
+            <tr>
+              <th>Username</th>
+              <td>
+                <a href="#" class="copy-value">
+                  admin
+                  <svg class="copy-icon" viewBox="0 0 24 24">
+                    <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+                  </svg>
+                </a>
+              </td>
+            </tr>
+            <tr>
+              <th>Password</th>
+              <td>
+                <a href="#" class="copy-value">
+                  ************
+                  <svg class="copy-icon" viewBox="0 0 24 24">
+                    <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+                  </svg>
+                </a>
+              </td>
+            </tr>
+            <tr>
+              <th>Admin URL</th>
+              <td>
+                <a href="#" class="copy-value">
+                  localhost:8884/wp-admin
+                  <svg class="copy-icon" viewBox="0 0 24 24">
+                    <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+                  </svg>
+                </a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </main>
   </div>

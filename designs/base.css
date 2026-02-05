@@ -402,6 +402,29 @@ input, button, textarea, select {
   background: var(--color-blue-5);
 }
 
+/* Icon-only button (like the more menu) */
+.btn-icon {
+  background: transparent;
+  border: none;
+  padding: var(--spacing-2);
+  color: var(--color-text-primary);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+}
+
+.btn-icon:hover {
+  background: var(--color-gray-0);
+}
+
+.btn-icon svg {
+  width: 24px;
+  height: 24px;
+  fill: currentColor;
+}
+
 /* Status badge (Running indicator) */
 .status-badge {
   display: inline-flex;
@@ -452,38 +475,58 @@ input, button, textarea, select {
 }
 
 /* ============================================
-   DETAILS LIST
+   DETAILS LIST (Settings table)
    ============================================ */
 
-.details-list {
-  display: flex;
-  flex-direction: column;
+.details-table {
+  width: 100%;
+  border-collapse: collapse;
 }
 
-.details-row {
-  display: flex;
-  padding: var(--spacing-3) 0;
-  border-bottom: 1px solid var(--color-border-light);
+.details-table th,
+.details-table td {
+  padding: 0 0 var(--spacing-4) 0;
+  text-align: left;
+  vertical-align: top;
+  font-weight: var(--font-weight-normal);
 }
 
-.details-row:last-child {
-  border-bottom: none;
-}
-
-.details-label {
-  width: 160px;
-  flex-shrink: 0;
+.details-table th {
+  width: 140px;
+  padding-right: var(--spacing-10);
   font-size: var(--font-size-sm);
   color: var(--color-text-secondary);
+  white-space: nowrap;
 }
 
-.details-value {
-  flex: 1;
+.details-table td {
   font-size: var(--font-size-sm);
   color: var(--color-text-primary);
-  display: flex;
+}
+
+/* Copyable value with icon */
+.copy-value {
+  display: inline-flex;
   align-items: center;
-  gap: var(--spacing-2);
+  gap: var(--spacing-1);
+  cursor: pointer;
+  color: var(--color-text-primary);
+  text-decoration: none;
+}
+
+.copy-value:hover {
+  color: var(--color-blue-60);
+}
+
+.copy-value:hover .copy-icon {
+  fill: var(--color-blue-60);
+}
+
+.copy-icon {
+  width: 13px;
+  height: 13px;
+  fill: currentColor;
+  flex-shrink: 0;
 }
 
 /* ============================================
