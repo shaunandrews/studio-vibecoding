@@ -1,0 +1,23 @@
+{
+  "name": "studio-vibecoding",
+  "version": "1.0.0",
+  "description": "Transforming WordPress Studio into a vibe coding workbench with AI agent integration.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "start": "npx concurrently \"npm run serve\" \"npm run agentation\"",
+    "serve": "npx http-server designs -p 3500 -o -c-1",
+    "agentation": "npx agentation-mcp server"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "agentation-mcp": "^1.0.2",
+    "concurrently": "^9.1.2",
+    "http-server": "^14.1.1"
+  }
+}
