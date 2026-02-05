@@ -1,6 +1,9 @@
 # Logs - development session logs, not for version control
 logs/
 
+# Studio app clone (separate repo)
+studio/
+
 # Dependencies
 node_modules/
 vendor/
