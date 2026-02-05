@@ -1,19 +1,35 @@
 {
-  "name": "studio-vibecoding-designs",
-  "version": "1.0.0",
-  "description": "Design mockups for Studio AI integration",
+  "name": "studio-designs",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
   "scripts": {
-    "start": "npx concurrently \"npm run serve\" \"npm run agentation\"",
-    "serve": "npx http-server . -p 3500 -o -c-1",
-    "agentation": "npx agentation-mcp server"
+    "dev": "vite --port 3500",
+    "start": "concurrently \"npm run dev\" \"npm run agentation\"",
+    "agentation": "npx agentation-mcp server",
+    "build": "tsc -b && vite build",
+    "lint": "eslint .",
+    "preview": "vite preview"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "devDependencies": {
+  "dependencies": {
     "agentation": "^2.0.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.1",
+    "@types/node": "^24.10.1",
+    "@types/react": "^19.2.5",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^5.1.1",
     "agentation-mcp": "^1.0.2",
-    "concurrently": "^9.1.2",
-    "http-server": "^14.1.1"
+    "concurrently": "^9.2.1",
+    "eslint": "^9.39.1",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "eslint-plugin-react-refresh": "^0.4.24",
+    "globals": "^16.5.0",
+    "typescript": "~5.9.3",
+    "typescript-eslint": "^8.46.4",
+    "vite": "^7.2.4"
   }
 }
