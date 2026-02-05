@@ -31,6 +31,7 @@ James LePage's initiative to bring AI-powered development workflows directly int
 | Doc | Description |
 |-----|-------------|
 | [summary.md](docs/summary.md) | Executive summary of the initiative |
+| [action-items.md](docs/action-items.md) | Prioritized action items and roadmap |
 | [pr-2511-analysis.md](docs/pr-2511-analysis.md) | Deep dive into PR #2511 architecture |
 | [ux-observations.md](docs/ux-observations.md) | Hands-on UX testing observations |
 | [james-p2-post.md](docs/james-p2-post.md) | James LePage's original P2 post |
