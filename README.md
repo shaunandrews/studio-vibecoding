@@ -32,6 +32,7 @@ James LePage's initiative to bring AI-powered development workflows directly int
 |-----|-------------|
 | [summary.md](docs/summary.md) | Executive summary of the initiative |
 | [pr-2511-analysis.md](docs/pr-2511-analysis.md) | Deep dive into PR #2511 architecture |
+| [ux-observations.md](docs/ux-observations.md) | Hands-on UX testing observations |
 | [james-p2-post.md](docs/james-p2-post.md) | James LePage's original P2 post |
 | [pablo-p2-post.md](docs/pablo-p2-post.md) | Pablo Postigo's Claude Cowork + Studio experiment |
 | [comments.md](docs/comments.md) | Community feedback compilation |
