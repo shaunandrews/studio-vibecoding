@@ -1,0 +1,287 @@
+/**
+ * Studio Design System Tokens
+ * Extracted from Studio source code (tailwind.config.js + @automattic/color-studio)
+ */
+
+:root {
+  /* ============================================
+     COLORS - Automattic Color Studio Palette
+     ============================================ */
+  
+  /* Grays */
+  --color-white: #fff;
+  --color-black: #000;
+  --color-gray-0: #f6f7f7;
+  --color-gray-5: #dcdcde;
+  --color-gray-10: #c3c4c7;
+  --color-gray-20: #a7aaad;
+  --color-gray-30: #8c8f94;
+  --color-gray-40: #787c82;
+  --color-gray-50: #646970;
+  --color-gray-60: #50575e;
+  --color-gray-70: #3c434a;
+  --color-gray-80: #2c3338;
+  --color-gray-90: #1d2327;
+  --color-gray-100: #101517;
+  
+  /* Extended grays (Gutenberg) */
+  --color-gray-900: #1e1e1e;
+  --color-gray-800: #2f2f2f;
+  --color-gray-700: #757575;
+  --color-gray-600: #949494;
+  --color-gray-400: #ccc;
+  
+  /* Blues (WordPress Blue) */
+  --color-blue-0: #fbfcfe;
+  --color-blue-5: #f7f8fe;
+  --color-blue-10: #d6ddf9;
+  --color-blue-20: #adbaf3;
+  --color-blue-30: #7b90ff;
+  --color-blue-40: #546ff3;
+  --color-blue-50: #3858e9;
+  --color-blue-60: #2a46ce;
+  --color-blue-70: #1d35b4;
+  --color-blue-80: #1f3286;
+  --color-blue-90: #14215a;
+  --color-blue-100: #0a112d;
+  
+  /* Reds */
+  --color-red-0: #f7ebec;
+  --color-red-5: #facfd2;
+  --color-red-10: #ffabaf;
+  --color-red-20: #ff8085;
+  --color-red-30: #f86368;
+  --color-red-40: #e65054;
+  --color-red-50: #d63638;
+  --color-red-60: #b32d2e;
+  --color-red-70: #8a2424;
+  --color-red-80: #691c1c;
+  --color-red-90: #451313;
+  --color-red-100: #240a0a;
+  
+  /* Greens */
+  --color-green-0: #eaf8e6;
+  --color-green-5: #c6efc0;
+  --color-green-10: #9ee595;
+  --color-green-20: #6ed864;
+  --color-green-30: #4ab866;
+  --color-green-40: #2f9e55;
+  --color-green-50: #008a20;
+  --color-green-60: #007017;
+  --color-green-70: #005c12;
+  --color-green-80: #00450c;
+  --color-green-90: #003008;
+  --color-green-100: #001c04;
+  
+  /* Oranges */
+  --color-orange-0: #f5ece6;
+  --color-orange-5: #f7dcc6;
+  --color-orange-10: #ffbf86;
+  --color-orange-20: #faa754;
+  --color-orange-30: #e68b28;
+  --color-orange-40: #d67709;
+  --color-orange-50: #b26200;
+  
+  /* Yellows */
+  --color-yellow-0: #f5f1e1;
+  --color-yellow-5: #f5e6b3;
+  --color-yellow-10: #f2d76b;
+  --color-yellow-20: #f0c930;
+  
+  /* ============================================
+     SEMANTIC COLORS
+     ============================================ */
+  
+  /* Chrome (app frame) */
+  --color-chrome: rgba(30, 30, 30, 1);
+  --color-chrome-inverted: #fff;
+  
+  /* Status indicators */
+  --color-status-running: #069e08;
+  --color-status-staging: #f7ba42;
+  --color-status-error: var(--color-red-50);
+  
+  /* Interactive */
+  --color-primary: var(--color-blue-50);
+  --color-primary-hover: var(--color-blue-60);
+  --color-primary-text: var(--color-white);
+  
+  /* Backgrounds */
+  --color-bg-primary: var(--color-white);
+  --color-bg-secondary: var(--color-gray-0);
+  --color-bg-sidebar: var(--color-chrome);
+  
+  /* Borders */
+  --color-border: var(--color-gray-5);
+  --color-border-light: var(--color-gray-0);
+  
+  /* Text */
+  --color-text-primary: var(--color-gray-90);
+  --color-text-secondary: var(--color-gray-50);
+  --color-text-muted: var(--color-gray-30);
+  --color-text-inverted: var(--color-white);
+  
+  /* ============================================
+     TYPOGRAPHY
+     ============================================ */
+  
+  --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 
+                 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', 
+                 'Noto Sans', 'Arial Unicode MS', sans-serif;
+  --font-family-mono: 'Courier New', Courier, monospace;
+  
+  /* Font sizes */
+  --font-size-xxs: 0.6875rem;   /* 11px */
+  --font-size-xs: 0.75rem;      /* 12px */
+  --font-size-sm: 0.8125rem;    /* 13px - body */
+  --font-size-base: 1rem;       /* 16px */
+  --font-size-lg: 1.25rem;      /* 20px */
+  --font-size-xl: 1.5rem;       /* 24px */
+  --font-size-2xl: 2rem;        /* 32px */
+  
+  /* Line heights */
+  --line-height-tight: 1;
+  --line-height-snug: 1.25;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.625;
+  
+  /* Font weights */
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  
+  /* ============================================
+     SPACING
+     ============================================ */
+  
+  --spacing-0: 0;
+  --spacing-1: 0.25rem;   /* 4px */
+  --spacing-2: 0.5rem;    /* 8px */
+  --spacing-3: 0.75rem;   /* 12px */
+  --spacing-4: 1rem;      /* 16px */
+  --spacing-5: 1.25rem;   /* 20px */
+  --spacing-6: 1.5rem;    /* 24px */
+  --spacing-8: 2rem;      /* 32px */
+  --spacing-10: 2.5rem;   /* 40px */
+  --spacing-12: 3rem;     /* 48px */
+  
+  /* App-specific spacing */
+  --spacing-chrome: 10px;
+  --spacing-sidebar: 6px;
+  --spacing-sidebar-mac: 10px;
+  
+  /* ============================================
+     LAYOUT
+     ============================================ */
+  
+  --width-sidebar: 208px;
+  --width-main-min: 712px;
+  --width-default: 900px;
+  --height-main-min: 600px;
+  --height-titlebar-win: 32px;
+  --height-tab: 40px;
+  
+  /* Window controls */
+  --width-window-controls-mac: 80px;
+  --width-window-controls-win: 138px;
+  
+  /* ============================================
+     BORDERS & RADIUS
+     ============================================ */
+  
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-lg: 5px;
+  --radius-xl: 8px;
+  --radius-full: 9999px;
+  
+  --border-width: 1px;
+  
+  /* ============================================
+     SHADOWS
+     ============================================ */
+  
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  
+  /* ============================================
+     TRANSITIONS
+     ============================================ */
+  
+  --transition-fast: 150ms ease;
+  --transition-normal: 200ms ease;
+  --transition-slow: 300ms ease;
+  
+  /* ============================================
+     Z-INDEX
+     ============================================ */
+  
+  --z-base: 0;
+  --z-dropdown: 100;
+  --z-sticky: 200;
+  --z-modal: 1000;
+  --z-popover: 1000001;
+  --z-tooltip: 1000002;
+}
+
+/* ============================================
+   TYPOGRAPHY PRESETS
+   ============================================ */
+
+.text-title-large {
+  font-size: 2rem;
+  font-weight: 400;
+  line-height: 2.5rem;
+}
+
+.text-title-medium {
+  font-size: 1.5rem;
+  font-weight: 400;
+  line-height: 2rem;
+}
+
+.text-title-small {
+  font-size: 1.25rem;
+  font-weight: 400;
+  line-height: 1.75rem;
+}
+
+.text-subtitle {
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.5rem;
+}
+
+.text-subtitle-small {
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.25rem;
+}
+
+.text-body {
+  font-size: 0.8125rem;
+  font-weight: 400;
+  line-height: 1.25rem;
+}
+
+.text-body-small {
+  font-size: 0.75rem;
+  font-weight: 400;
+  line-height: 1rem;
+}
+
+.text-label {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  line-height: 1rem;
+  text-transform: uppercase;
+}
+
+.text-helper {
+  font-size: 0.75rem;
+  font-weight: 400;
+  line-height: 1rem;
+  color: var(--color-text-secondary);
+}

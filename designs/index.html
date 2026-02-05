@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Studio Vibe Coding — Design Mockups</title>
+  <link rel="stylesheet" href="tokens.css">
+  <style>
+    body {
+      font-family: var(--font-family);
+      background: var(--color-gray-0);
+      color: var(--color-text-primary);
+      padding: 48px;
+      line-height: 1.5;
+    }
+    
+    h1 {
+      font-size: 2rem;
+      font-weight: 400;
+      margin-bottom: 8px;
+    }
+    
+    .subtitle {
+      color: var(--color-text-secondary);
+      margin-bottom: 48px;
+    }
+    
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 24px;
+    }
+    
+    .card {
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      transition: box-shadow 0.2s, transform 0.2s;
+    }
+    
+    .card:hover {
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      transform: translateY(-2px);
+    }
+    
+    .card-preview {
+      height: 200px;
+      background: var(--color-gray-5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--color-text-muted);
+      font-size: 0.875rem;
+    }
+    
+    .card-preview iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      transform: scale(0.5);
+      transform-origin: top left;
+      width: 200%;
+      height: 200%;
+      pointer-events: none;
+    }
+    
+    .card-body {
+      padding: 16px;
+    }
+    
+    .card-title {
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    
+    .card-desc {
+      font-size: 0.875rem;
+      color: var(--color-text-secondary);
+      margin-bottom: 12px;
+    }
+    
+    .card-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      color: var(--color-primary);
+      text-decoration: none;
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+    
+    .card-link:hover {
+      text-decoration: underline;
+    }
+    
+    .section {
+      margin-bottom: 48px;
+    }
+    
+    .section-title {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--color-text-secondary);
+      margin-bottom: 16px;
+    }
+    
+    hr {
+      border: none;
+      border-top: 1px solid var(--color-border);
+      margin: 48px 0;
+    }
+    
+    .token-section {
+      margin-bottom: 32px;
+    }
+    
+    .token-section h3 {
+      font-size: 0.875rem;
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+    
+    .color-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      gap: 8px;
+    }
+    
+    .color-swatch {
+      aspect-ratio: 1;
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 8px;
+      font-size: 0.625rem;
+      color: white;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+    }
+    
+    .color-swatch.light {
+      color: var(--color-text-primary);
+      text-shadow: none;
+    }
+  </style>
+</head>
+<body>
+  <h1>Studio Vibe Coding</h1>
+  <p class="subtitle">Design mockups and explorations</p>
+  
+  <div class="section">
+    <h2 class="section-title">Mockups</h2>
+    <div class="grid">
+      <div class="card">
+        <div class="card-preview">
+          <iframe src="current-ui.html"></iframe>
+        </div>
+        <div class="card-body">
+          <div class="card-title">Current UI</div>
+          <div class="card-desc">Recreation of the current Studio interface for reference.</div>
+          <a href="current-ui.html" class="card-link">View mockup →</a>
+        </div>
+      </div>
+      
+      <!-- Placeholder for future mockups -->
+      <div class="card">
+        <div class="card-preview">Two-pane chat view</div>
+        <div class="card-body">
+          <div class="card-title">Vibe Coding View</div>
+          <div class="card-desc">Chat on left, live preview on right. Minimal chrome.</div>
+          <span class="card-link" style="color: var(--color-text-muted);">Coming soon</span>
+        </div>
+      </div>
+      
+      <div class="card">
+        <div class="card-preview">Sync progress</div>
+        <div class="card-body">
+          <div class="card-title">Sync Takeover</div>
+          <div class="card-desc">Full-screen deploy progress with clear status.</div>
+          <span class="card-link" style="color: var(--color-text-muted);">Coming soon</span>
+        </div>
+      </div>
+      
+      <div class="card">
+        <div class="card-preview">Chat interface</div>
+        <div class="card-body">
+          <div class="card-title">Clean Chat UI</div>
+          <div class="card-desc">Focused chat interface with history sidebar.</div>
+          <span class="card-link" style="color: var(--color-text-muted);">Coming soon</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <hr>
+  
+  <div class="section">
+    <h2 class="section-title">Design Tokens</h2>
+    
+    <div class="token-section">
+      <h3>Colors — Grays</h3>
+      <div class="color-grid">
+        <div class="color-swatch light" style="background: var(--color-gray-0);">Gray 0<br>#f6f7f7</div>
+        <div class="color-swatch light" style="background: var(--color-gray-5);">Gray 5<br>#dcdcde</div>
+        <div class="color-swatch light" style="background: var(--color-gray-10);">Gray 10<br>#c3c4c7</div>
+        <div class="color-swatch light" style="background: var(--color-gray-20);">Gray 20<br>#a7aaad</div>
+        <div class="color-swatch" style="background: var(--color-gray-50);">Gray 50<br>#646970</div>
+        <div class="color-swatch" style="background: var(--color-gray-70);">Gray 70<br>#3c434a</div>
+        <div class="color-swatch" style="background: var(--color-gray-90);">Gray 90<br>#1d2327</div>
+        <div class="color-swatch" style="background: var(--color-chrome);">Chrome<br>#1e1e1e</div>
+      </div>
+    </div>
+    
+    <div class="token-section">
+      <h3>Colors — Blues</h3>
+      <div class="color-grid">
+        <div class="color-swatch light" style="background: var(--color-blue-5);">Blue 5<br>#f7f8fe</div>
+        <div class="color-swatch light" style="background: var(--color-blue-10);">Blue 10<br>#d6ddf9</div>
+        <div class="color-swatch light" style="background: var(--color-blue-20);">Blue 20<br>#adbaf3</div>
+        <div class="color-swatch" style="background: var(--color-blue-50);">Blue 50<br>#3858e9</div>
+        <div class="color-swatch" style="background: var(--color-blue-60);">Blue 60<br>#2a46ce</div>
+        <div class="color-swatch" style="background: var(--color-blue-70);">Blue 70<br>#1d35b4</div>
+      </div>
+    </div>
+    
+    <div class="token-section">
+      <h3>Colors — Status</h3>
+      <div class="color-grid">
+        <div class="color-swatch" style="background: var(--color-status-running);">Running<br>#069e08</div>
+        <div class="color-swatch" style="background: var(--color-status-staging);">Staging<br>#f7ba42</div>
+        <div class="color-swatch" style="background: var(--color-red-50);">Error<br>#d63638</div>
+      </div>
+    </div>
+    
+    <div class="token-section">
+      <h3>Typography</h3>
+      <div style="background: white; padding: 24px; border-radius: 8px;">
+        <p class="text-title-large" style="margin-bottom: 8px;">Title Large (32px)</p>
+        <p class="text-title-medium" style="margin-bottom: 8px;">Title Medium (24px)</p>
+        <p class="text-title-small" style="margin-bottom: 8px;">Title Small (20px)</p>
+        <p class="text-subtitle" style="margin-bottom: 8px;">Subtitle (16px semibold)</p>
+        <p class="text-body" style="margin-bottom: 8px;">Body text (13px) — The quick brown fox jumps over the lazy dog.</p>
+        <p class="text-body-small" style="margin-bottom: 8px;">Body small (12px) — Secondary information and helper text.</p>
+        <p class="text-label">LABEL TEXT (11px uppercase)</p>
+      </div>
+    </div>
+  </div>
+  
+  <hr>
+  
+  <div class="section">
+    <h2 class="section-title">Files</h2>
+    <ul style="list-style: none; padding: 0;">
+      <li style="margin-bottom: 8px;"><a href="tokens.css">tokens.css</a> — Design system tokens (colors, typography, spacing)</li>
+      <li style="margin-bottom: 8px;"><a href="base.css">base.css</a> — Base component styles</li>
+      <li style="margin-bottom: 8px;"><a href="current-ui.html">current-ui.html</a> — Current Studio UI recreation</li>
+    </ul>
+  </div>
+</body>
+</html>

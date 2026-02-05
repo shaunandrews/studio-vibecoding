@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Studio — Current UI</title>
+  <link rel="stylesheet" href="base.css">
+  <style>
+    /* Page-specific styles */
+    .section-title {
+      font-size: var(--font-size-sm);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-text-primary);
+      margin-bottom: var(--spacing-4);
+    }
+    
+    .card {
+      background: var(--color-white);
+      border: 1px solid var(--color-border-light);
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-4);
+    }
+    
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--spacing-4);
+    }
+    
+    .copy-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--color-text-muted);
+      padding: var(--spacing-1);
+    }
+    
+    .copy-btn:hover {
+      color: var(--color-text-primary);
+    }
+    
+    .helper-text {
+      font-size: var(--font-size-xs);
+      color: var(--color-text-secondary);
+      margin-top: var(--spacing-1);
+    }
+    
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 8px;
+      font-size: var(--font-size-xxs);
+      font-weight: var(--font-weight-medium);
+      border-radius: var(--radius-sm);
+      background: var(--color-gray-0);
+      color: var(--color-text-secondary);
+    }
+    
+    .sidebar-meta {
+      font-size: var(--font-size-xs);
+      color: rgba(255, 255, 255, 0.5);
+      padding: var(--spacing-2) var(--spacing-3);
+    }
+    
+    .add-site-btn {
+      width: 100%;
+      padding: var(--spacing-3);
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: var(--radius-lg);
+      color: var(--color-white);
+      font-size: var(--font-size-sm);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+    
+    .add-site-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+    
+    /* Icon placeholders */
+    .icon {
+      width: 16px;
+      height: 16px;
+      display: inline-block;
+    }
+    
+    .icon-arrow {
+      position: relative;
+    }
+    
+    .icon-arrow::after {
+      content: '↗';
+      font-size: 12px;
+    }
+    
+    .icon-copy::after {
+      content: '⧉';
+      font-size: 14px;
+    }
+    
+    .icon-sparkle::before {
+      content: '✦';
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <!-- Titlebar -->
+    <div class="titlebar">
+      <div class="titlebar-controls">
+        <button class="titlebar-button close"></button>
+        <button class="titlebar-button minimize"></button>
+        <button class="titlebar-button maximize"></button>
+      </div>
+    </div>
+    
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-content">
+        <ul class="site-list">
+          <li class="site-item active">
+            <span class="site-status"></span>
+            <span>Downstreet Cafe</span>
+          </li>
+          <li class="site-item">
+            <span class="site-status"></span>
+            <span>Shaun's Blog</span>
+          </li>
+          <li class="site-item">
+            <span class="site-status"></span>
+            <span>Sporadic Thoughts</span>
+          </li>
+          <li class="site-item">
+            <span class="site-status"></span>
+            <span>UI Portfolio</span>
+          </li>
+        </ul>
+      </div>
+      <div class="sidebar-footer">
+        <div class="sidebar-meta">4 sites running &nbsp;·&nbsp; <a href="#" style="color: rgba(255,255,255,0.7);">Stop all</a></div>
+        <button class="add-site-btn">Add site</button>
+      </div>
+    </aside>
+    
+    <!-- Main Content -->
+    <main class="main">
+      <!-- Header -->
+      <header class="header">
+        <div class="header-left">
+          <h1 class="header-title">Downstreet Cafe</h1>
+          <div class="header-links">
+            <a href="#" class="header-link">WP admin <span class="icon icon-arrow"></span></a>
+            <a href="#" class="header-link">Open site <span class="icon icon-arrow"></span></a>
+          </div>
+        </div>
+        <div class="header-actions">
+          <button class="btn btn-primary">
+            <span>⬆</span> Publish site
+          </button>
+          <div class="status-badge">
+            <span class="status-dot"></span>
+            Running
+          </div>
+        </div>
+      </header>
+      
+      <!-- Tabs -->
+      <nav class="tabs">
+        <div class="tabs-scrollable">
+          <button class="tab">Overview</button>
+          <button class="tab">Sync</button>
+          <button class="tab">Previews</button>
+          <button class="tab">Import / Export</button>
+          <button class="tab active">Settings</button>
+        </div>
+        <button class="tab tab-assistant">
+          <span class="icon-sparkle"></span> Assistant
+        </button>
+      </nav>
+      
+      <!-- Content -->
+      <div class="content">
+        <div class="section-header">
+          <h2 class="section-title">Site details</h2>
+          <div class="flex gap-2">
+            <button class="btn btn-secondary">Edit site</button>
+            <button class="btn btn-secondary" style="padding: var(--spacing-2);">⋮</button>
+          </div>
+        </div>
+        
+        <div class="details-list">
+          <div class="details-row">
+            <div class="details-label">Site name</div>
+            <div class="details-value">Downstreet Cafe</div>
+          </div>
+          <div class="details-row">
+            <div class="details-label">Site URL</div>
+            <div class="details-value">
+              localhost:8884 
+              <button class="copy-btn"><span class="icon icon-copy"></span></button>
+            </div>
+          </div>
+          <div class="details-row">
+            <div class="details-label">HTTPS</div>
+            <div class="details-value">Disabled</div>
+          </div>
+          <div class="details-row">
+            <div class="details-label">Local path</div>
+            <div class="details-value">
+              /Users/shaun/Studio/cafe-theme-dev 
+              <button class="copy-btn"><span class="icon icon-copy"></span></button>
+            </div>
+          </div>
+          <div class="details-row">
+            <div class="details-label">WordPress version</div>
+            <div class="details-value">6.4.7</div>
+          </div>
+          <div class="details-row">
+            <div class="details-label">PHP version</div>
+            <div class="details-value">8.2</div>
+          </div>
+          <div class="details-row">
+            <div class="details-label">Hot Reload</div>
+            <div class="details-value">
+              <span>Disabled</span>
+              <span class="badge">Experimental</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="helper-text" style="margin-top: var(--spacing-2); margin-left: 160px;">
+          Automatically reload the site when files change. Instantly see updates to CSS/JS, and smart reload for PHP changes.
+        </div>
+        
+        <h2 class="section-title" style="margin-top: var(--spacing-8);">WP Admin</h2>
+        
+        <div class="details-list">
+          <div class="details-row">
+            <div class="details-label">Username</div>
+            <div class="details-value">
+              admin 
+              <button class="copy-btn"><span class="icon icon-copy"></span></button>
+            </div>
+          </div>
+          <div class="details-row">
+            <div class="details-label">Password</div>
+            <div class="details-value">
+              ************ 
+              <button class="copy-btn"><span class="icon icon-copy"></span></button>
+            </div>
+          </div>
+          <div class="details-row">
+            <div class="details-label">Admin URL</div>
+            <div class="details-value">
+              localhost:8884/wp-admin 
+              <button class="copy-btn"><span class="icon icon-copy"></span></button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</body>
+</html>
