@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Studio — Assistant View</title>
+  <link rel="stylesheet" href="base.css">
+  <style>
+    /* Assistant-specific styles */
+    
+    /* Messages container */
+    .chat-container {
+      flex: 1;
+      overflow-y: auto;
+      padding: var(--spacing-8);
+      padding-bottom: var(--spacing-2);
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .chat-messages {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-4);
+      margin-top: auto;
+    }
+    
+    /* Message wrapper */
+    .message-wrapper {
+      display: flex;
+    }
+    
+    .message-wrapper.user {
+      justify-content: flex-end;
+      margin-left: 6rem;
+    }
+    
+    .message-wrapper.assistant {
+      justify-content: flex-start;
+      margin-right: 6rem;
+    }
+    
+    /* Message bubble */
+    .message {
+      padding: var(--spacing-3);
+      border-radius: var(--radius-md);
+      font-size: var(--font-size-sm);
+      line-height: 1.4;
+      max-width: 70%;
+      overflow-x: auto;
+    }
+    
+    .message.user {
+      background: #e5e7eb; /* gray-200 */
+      color: var(--color-text-primary);
+      display: inline-block;
+    }
+    
+    .message.assistant {
+      background: var(--color-white);
+      border: 1px solid #e5e7eb;
+      display: block;
+    }
+    
+    /* Markdown content */
+    .assistant-markdown {
+      line-height: 1.4;
+      word-wrap: break-word;
+    }
+    
+    .assistant-markdown p {
+      margin: 0 0 1rem;
+    }
+    
+    .assistant-markdown p:last-child {
+      margin-bottom: 0;
+    }
+    
+    .assistant-markdown strong {
+      font-weight: 600;
+    }
+    
+    .assistant-markdown ul,
+    .assistant-markdown ol {
+      margin: 0 0 1rem;
+      padding-left: 1.5rem;
+    }
+    
+    .assistant-markdown li {
+      margin-bottom: 0.25rem;
+    }
+    
+    .assistant-markdown code {
+      background: var(--color-gray-0);
+      padding: 0.125rem 0.25rem;
+      border-radius: 2px;
+      font-family: var(--font-family-mono);
+      font-size: 13px;
+    }
+    
+    .assistant-markdown a {
+      color: var(--color-primary);
+    }
+    
+    .assistant-markdown a:hover {
+      color: var(--color-blue-60);
+      text-decoration: underline;
+    }
+    
+    /* Checkbox styling for ✅ items */
+    .check-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }
+    
+    .check-icon {
+      color: #22c55e;
+      flex-shrink: 0;
+    }
+    
+    /* Input area */
+    .input-area {
+      position: sticky;
+      bottom: 0;
+      background: rgba(249, 250, 251, 0.8);
+      backdrop-filter: blur(8px);
+      padding: var(--spacing-4) var(--spacing-8) var(--spacing-6);
+      display: flex;
+      justify-content: center;
+    }
+    
+    .input-container {
+      width: 100%;
+      max-width: 48rem;
+      border: 1px solid #8c8f94;
+      border-radius: 2px;
+      background: var(--color-white);
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    
+    .input-container:focus-within {
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 1px var(--color-primary);
+    }
+    
+    .input-textarea {
+      width: 100%;
+      padding: var(--spacing-2) var(--spacing-3);
+      padding-bottom: var(--spacing-1);
+      border: none;
+      background: transparent;
+      resize: none;
+      font-size: var(--font-size-sm);
+      line-height: 1.5;
+      color: var(--color-text-primary);
+    }
+    
+    .input-textarea:focus {
+      outline: none;
+    }
+    
+    .input-textarea::placeholder {
+      color: var(--color-text-muted);
+    }
+    
+    /* Input toolbar */
+    .input-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 var(--spacing-2) 6px;
+    }
+    
+    .toolbar-left,
+    .toolbar-right {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-1);
+    }
+    
+    .toolbar-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border: none;
+      border-radius: 2px;
+      background: transparent;
+      color: var(--color-gray-900);
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    
+    .toolbar-btn:hover {
+      background: var(--color-gray-100);
+    }
+    
+    .toolbar-btn svg {
+      width: 20px;
+      height: 20px;
+      fill: currentColor;
+    }
+    
+    .toolbar-divider {
+      width: 1px;
+      height: 20px;
+      background: #ddd;
+      margin: 0 var(--spacing-1);
+    }
+    
+    /* Agent selector dropdown */
+    .agent-selector {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 8px;
+      border: none;
+      border-radius: 2px;
+      background: transparent;
+      font-size: var(--font-size-sm);
+      color: var(--color-text-primary);
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    
+    .agent-selector:hover {
+      background: var(--color-gray-100);
+    }
+    
+    .agent-icon {
+      width: 20px;
+      height: 20px;
+      border-radius: 2px;
+    }
+    
+    .agent-chevron {
+      width: 12px;
+      height: 12px;
+      fill: var(--color-text-secondary);
+    }
+    
+    /* Send button */
+    .send-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border: none;
+      border-radius: 2px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    
+    .send-btn.active {
+      background: var(--color-primary);
+      color: var(--color-white);
+    }
+    
+    .send-btn.active:hover {
+      background: var(--color-blue-60);
+    }
+    
+    .send-btn.disabled {
+      background: var(--color-gray-100);
+      color: var(--color-gray-700);
+      cursor: not-allowed;
+    }
+    
+    .send-btn svg {
+      width: 20px;
+      height: 20px;
+      fill: currentColor;
+    }
+    
+    /* Rating */
+    .message-rating {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: var(--spacing-2);
+      font-size: var(--font-size-xs);
+      color: var(--color-text-secondary);
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <!-- Titlebar -->
+    <div class="titlebar">
+      <div class="titlebar-controls">
+        <button class="titlebar-button close"></button>
+        <button class="titlebar-button minimize"></button>
+        <button class="titlebar-button maximize"></button>
+      </div>
+    </div>
+    
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-content">
+        <ul class="site-list">
+          <li class="site-item">
+            <span class="site-name">Downstreet Cafe</span>
+            <span class="site-status running" data-tooltip="Stop site"></span>
+          </li>
+          <li class="site-item active">
+            <span class="site-name">Shaun's Blog</span>
+            <span class="site-status stopped" data-tooltip="Start site"></span>
+          </li>
+          <li class="site-item">
+            <span class="site-name">Sporadic Thoughts</span>
+            <span class="site-status running" data-tooltip="Stop site"></span>
+          </li>
+          <li class="site-item">
+            <span class="site-name">UI Portfolio</span>
+            <span class="site-status running" data-tooltip="Stop site"></span>
+          </li>
+        </ul>
+      </div>
+      <div class="sidebar-footer">
+        <div class="sidebar-meta" style="font-size: var(--font-size-xs); color: rgba(255,255,255,0.5); padding: var(--spacing-2) var(--spacing-3);">
+          3 sites running &nbsp;·&nbsp; <a href="#" style="color: rgba(255,255,255,0.7);">Stop all</a>
+        </div>
+        <button class="add-site-btn" style="width: 100%; padding: var(--spacing-3); background: transparent; border: 1px solid rgba(255,255,255,0.2); border-radius: var(--radius-lg); color: white; font-size: var(--font-size-sm); cursor: pointer;">Add site</button>
+      </div>
+    </aside>
+    
+    <!-- Main Content -->
+    <main class="main">
+      <!-- Header -->
+      <header class="header">
+        <div class="header-left">
+          <h1 class="header-title">Shaun's Blog</h1>
+          <div class="header-links">
+            <a href="#" class="header-link">WP admin <span style="font-size: 12px;">↗</span></a>
+            <a href="#" class="header-link">Open site <span style="font-size: 12px;">↗</span></a>
+          </div>
+        </div>
+        <div class="header-actions">
+          <button class="btn btn-primary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 19V5M5 12l7-7 7 7"/>
+            </svg>
+            Publish site
+          </button>
+          <button class="btn btn-secondary">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M8 5v14l11-7z"/>
+            </svg>
+            Start
+          </button>
+        </div>
+      </header>
+      
+      <!-- Tabs -->
+      <nav class="tabs">
+        <div class="tabs-scrollable">
+          <button class="tab">Overview</button>
+          <button class="tab">Sync</button>
+          <button class="tab">Previews</button>
+          <button class="tab">Import / Export</button>
+          <button class="tab">Settings</button>
+        </div>
+        <button class="tab tab-assistant active">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2L9.19 8.63L2 9.24L7.46 13.97L5.82 21L12 17.27L18.18 21L16.54 13.97L22 9.24L14.81 8.63L12 2Z"/>
+          </svg>
+          Assistant
+        </button>
+      </nav>
+      
+      <!-- Chat Content -->
+      <div class="chat-container">
+        <div class="chat-messages">
+          <!-- Assistant message -->
+          <div class="message-wrapper assistant">
+            <div class="message assistant">
+              <div class="assistant-markdown">
+                <p><strong>Technical Setup:</strong></p>
+                <ul>
+                  <li><span class="check-icon">✅</span> Custom block theme using WordPress FSE</li>
+                  <li><span class="check-icon">✅</span> Proper theme.json configuration</li>
+                  <li><span class="check-icon">✅</span> Home page set as front page</li>
+                  <li><span class="check-icon">✅</span> Professional styling with CSS customizations</li>
+                </ul>
+                <p>Your cafe website is ready to view! You can now:</p>
+                <ul>
+                  <li>Visit your site to see the full design</li>
+                  <li>Add your own photos through the WordPress admin</li>
+                  <li>Customize colors/content through the Site Editor</li>
+                  <li>Add more pages like Gallery or Events</li>
+                </ul>
+                <p>The theme captures that warm, welcoming cafe atmosphere while being modern and mobile-friendly. Ready to serve your customers online! ☕</p>
+              </div>
+            </div>
+          </div>
+          
+          <!-- User message -->
+          <div class="message-wrapper user">
+            <div class="message user">
+              Did you create a real block theme?
+            </div>
+          </div>
+          
+          <!-- Assistant message -->
+          <div class="message-wrapper assistant">
+            <div class="message assistant">
+              <div class="assistant-markdown">
+                <p>You caught me! No, I didn't create a proper block theme. What I built was more of a traditional theme with some block theme elements mixed in. Let me explain what I actually created vs. what a real block theme should be:</p>
+                <p><strong>What I Created (Hybrid/Traditional):</strong></p>
+                <ul>
+                  <li><span class="check-icon">✅</span> <code>style.css</code> and <code>theme.json</code></li>
+                </ul>
+              </div>
+              <div class="message-rating">
+                Was this helpful? &nbsp; 👍 Yes &nbsp; 👎 No
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Input Area -->
+      <div class="input-area">
+        <div class="input-container">
+          <textarea class="input-textarea" placeholder="Ask anything" rows="1"></textarea>
+          <div class="input-toolbar">
+            <div class="toolbar-left">
+              <!-- New conversation button -->
+              <button class="toolbar-btn" aria-label="New conversation">
+                <svg viewBox="0 0 24 24">
+                  <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                </svg>
+              </button>
+              
+              <div class="toolbar-divider"></div>
+              
+              <!-- Agent selector -->
+              <button class="agent-selector">
+                <!-- Anthropic icon -->
+                <svg class="agent-icon" viewBox="0 0 24 24">
+                  <rect width="24" height="24" rx="2" fill="#191919"/>
+                  <g transform="translate(3, 4.5) scale(0.75)">
+                    <path d="M17.3041 3.541h-3.6718l6.696 16.918H24Zm-10.6082 0L0 20.459h3.7442l1.3693-3.5527h7.0052l1.3693 3.5528h3.7442L10.5363 3.5409Zm-.3712 10.2232 2.2914-5.9456 2.2914 5.9456Z" fill="white"/>
+                  </g>
+                </svg>
+                <span>Built-in Assistant (Anthropic)</span>
+                <svg class="agent-chevron" viewBox="0 0 24 24">
+                  <path d="M7 10l5 5 5-5z"/>
+                </svg>
+              </button>
+            </div>
+            
+            <div class="toolbar-right">
+              <!-- More options -->
+              <button class="toolbar-btn" aria-label="More options">
+                <svg viewBox="0 0 24 24">
+                  <circle cx="12" cy="5" r="1.5"/>
+                  <circle cx="12" cy="12" r="1.5"/>
+                  <circle cx="12" cy="19" r="1.5"/>
+                </svg>
+              </button>
+              
+              <!-- Send button -->
+              <button class="send-btn disabled" aria-label="Send message">
+                <svg viewBox="0 0 24 24">
+                  <path d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  
+  <script>
+    // Simple interaction for send button state
+    const textarea = document.querySelector('.input-textarea');
+    const sendBtn = document.querySelector('.send-btn');
+    
+    textarea.addEventListener('input', () => {
+      if (textarea.value.trim()) {
+        sendBtn.classList.remove('disabled');
+        sendBtn.classList.add('active');
+      } else {
+        sendBtn.classList.remove('active');
+        sendBtn.classList.add('disabled');
+      }
+    });
+  </script>
+</body>
+</html>
