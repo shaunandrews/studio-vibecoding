@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
+import { BrowserRouter, Routes, Route, Link, useParams, useNavigate } from 'react-router-dom'
 import { Agentation } from 'agentation'
 import './App.css'
 
@@ -23,17 +24,27 @@ const mockups: Mockup[] = [
   { id: 'concept-b', title: 'B: Persistent Chat', description: 'Traditional UI + always-on chat sidebar', file: 'concept-b-persistent-chat.html', category: 'concept' },
   { id: 'concept-c', title: 'C: AI Dashboard', description: 'Goal-oriented suggestion cards, no chat', file: 'concept-c-ai-dashboard.html', category: 'concept' },
   { id: 'concept-d', title: 'D: Vibe Workbench', description: 'WP as app platform, build anything', file: 'concept-d-vibe-workbench.html', category: 'concept' },
+  { id: 'concept-e', title: 'E: Project Folders', description: 'Sidebar with folder organization', file: 'concept-e-project-folders.html', category: 'concept' },
 ]
 
-function MockupViewer({ mockup }: { mockup: Mockup }) {
+function MockupViewer() {
+  const { mockupId } = useParams<{ mockupId: string }>()
+  const navigate = useNavigate()
   const [html, setHtml] = useState<string>('')
   const [loading, setLoading] = useState(true)
 
+  const mockup = mockups.find(m => m.id === mockupId)
+
   useEffect(() => {
+    if (!mockup) {
+      navigate('/')
+      return
+    }
+
     async function loadMockup() {
       setLoading(true)
       try {
-        const response = await fetch(`/mockups/${mockup.file}`)
+        const response = await fetch(`/mockups/${mockup!.file}`)
         let content = await response.text()
         
         // Extract just the body content and styles
@@ -57,21 +68,28 @@ function MockupViewer({ mockup }: { mockup: Mockup }) {
       setLoading(false)
     }
     loadMockup()
-  }, [mockup.file])
+  }, [mockup, navigate])
+
+  if (!mockup) {
+    return null
+  }
 
   if (loading) {
     return <div className="loading">Loading...</div>
   }
 
   return (
-    <div 
-      className="mockup-fullscreen"
-      dangerouslySetInnerHTML={{ __html: html }}
-    />
+    <>
+      <div 
+        className="mockup-fullscreen"
+        dangerouslySetInnerHTML={{ __html: html }}
+      />
+      <Agentation endpoint="http://localhost:4747" />
+    </>
   )
 }
 
-function Gallery({ onSelect }: { onSelect: (mockup: Mockup) => void }) {
+function Gallery() {
   const currentMockups = mockups.filter(m => m.category === 'current')
   const conceptMockups = mockups.filter(m => m.category === 'concept')
 
@@ -86,10 +104,10 @@ function Gallery({ onSelect }: { onSelect: (mockup: Mockup) => void }) {
         <h2>New Concepts</h2>
         <div className="mockup-grid">
           {conceptMockups.map(mockup => (
-            <button
+            <Link
               key={mockup.id}
               className="mockup-card"
-              onClick={() => onSelect(mockup)}
+              to={`/${mockup.id}`}
             >
               <div className="mockup-preview">
                 <iframe src={`/mockups/${mockup.file}`} tabIndex={-1} />
@@ -98,7 +116,7 @@ function Gallery({ onSelect }: { onSelect: (mockup: Mockup) => void }) {
                 <h3>{mockup.title}</h3>
                 <p>{mockup.description}</p>
               </div>
-            </button>
+            </Link>
           ))}
         </div>
       </section>
@@ -107,10 +125,10 @@ function Gallery({ onSelect }: { onSelect: (mockup: Mockup) => void }) {
         <h2>Current UI — Recreation</h2>
         <div className="mockup-grid">
           {currentMockups.map(mockup => (
-            <button
+            <Link
               key={mockup.id}
               className="mockup-card"
-              onClick={() => onSelect(mockup)}
+              to={`/${mockup.id}`}
             >
               <div className="mockup-preview">
                 <iframe src={`/mockups/${mockup.file}`} tabIndex={-1} />
@@ -119,7 +137,7 @@ function Gallery({ onSelect }: { onSelect: (mockup: Mockup) => void }) {
                 <h3>{mockup.title}</h3>
                 <p>{mockup.description}</p>
               </div>
-            </button>
+            </Link>
           ))}
         </div>
       </section>
@@ -127,29 +145,7 @@ function Gallery({ onSelect }: { onSelect: (mockup: Mockup) => void }) {
   )
 }
 
-function App() {
-  const [selectedMockup, setSelectedMockup] = useState<Mockup | null>(null)
-
-  // Handle URL hash for navigation
-  useEffect(() => {
-    function handleHashChange() {
-      const hash = window.location.hash.slice(1) // Remove #
-      if (hash) {
-        const mockup = mockups.find(m => m.id === hash)
-        setSelectedMockup(mockup || null)
-      } else {
-        setSelectedMockup(null)
-      }
-    }
-
-    // Check initial hash
-    handleHashChange()
-
-    // Listen for changes
-    window.addEventListener('hashchange', handleHashChange)
-    return () => window.removeEventListener('hashchange', handleHashChange)
-  }, [])
-
+function AppContent() {
   // Load mockup CSS files
   useEffect(() => {
     const links = ['/mockups/tokens.css', '/mockups/base.css']
@@ -163,20 +159,20 @@ function App() {
     })
   }, [])
 
-  function handleSelect(mockup: Mockup) {
-    window.location.hash = mockup.id
-  }
+  return (
+    <Routes>
+      <Route path="/" element={<Gallery />} />
+      <Route path="/:mockupId" element={<MockupViewer />} />
+    </Routes>
+  )
+}
 
-  if (selectedMockup) {
-    return (
-      <>
-        <MockupViewer mockup={selectedMockup} />
-        <Agentation endpoint="http://localhost:4747" />
-      </>
-    )
-  }
-
-  return <Gallery onSelect={handleSelect} />
+function App() {
+  return (
+    <BrowserRouter>
+      <AppContent />
+    </BrowserRouter>
+  )
 }
 
 export default App

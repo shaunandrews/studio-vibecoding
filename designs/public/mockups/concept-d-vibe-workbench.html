@@ -66,8 +66,6 @@
       flex-direction: column;
       border-radius: var(--radius-lg) var(--radius-lg) 0 0;
       overflow: hidden;
-      margin-top: -10px;
-      padding-top: 10px;
     }
     
     /* Header */
@@ -131,6 +129,11 @@
       min-width: 200px;
       padding: var(--spacing-2);
       z-index: 100;
+      display: none; /* Hidden by default */
+    }
+    
+    .site-selector-wrapper:hover .site-dropdown {
+      display: block; /* Show on hover for demo */
     }
     
     .site-dropdown-item {

@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Studio — Project Folders</title>
+  <link rel="stylesheet" href="tokens.css">
+  <style>
+    /* ============================================
+       CONCEPT E: PROJECT FOLDERS
+       Sidebar with folder organization.
+       Projects grouped by context.
+       ============================================ */
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: var(--font-family);
+      background: var(--color-chrome);
+      margin: 0;
+      padding: 0;
+    }
+    
+    .app {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+    
+    /* Titlebar - override base.css fixed positioning */
+    .titlebar {
+      position: static;
+      height: 52px;
+      min-height: 52px;
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      background: var(--color-chrome);
+      -webkit-app-region: drag;
+      z-index: auto;
+    }
+    
+    .titlebar-controls {
+      display: flex;
+      gap: 8px;
+    }
+    
+    .titlebar-button {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      border: none;
+    }
+    .titlebar-button.close { background: #ff5f57; }
+    .titlebar-button.minimize { background: #ffbd2e; }
+    .titlebar-button.maximize { background: #28c840; }
+    
+    /* Layout */
+    .layout {
+      display: flex;
+      flex: 1;
+    }
+    
+    /* Sidebar */
+    .sidebar {
+      width: 260px;
+      min-width: 260px;
+      background: var(--color-chrome);
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .sidebar-header {
+      padding: var(--spacing-4);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .new-project-btn {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--spacing-2);
+      padding: var(--spacing-2) var(--spacing-4);
+      background: var(--color-primary);
+      color: white;
+      border: none;
+      border-radius: var(--radius-md);
+      font-size: var(--font-size-sm);
+      font-weight: var(--font-weight-medium);
+      cursor: pointer;
+      transition: background var(--transition-fast);
+    }
+    
+    .new-project-btn:hover {
+      background: var(--color-primary-hover);
+    }
+    
+    .sidebar-content {
+      flex: 1;
+      padding: var(--spacing-2);
+    }
+    
+    /* Folders */
+    .folder {
+      margin-bottom: var(--spacing-1);
+    }
+    
+    .folder-header {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-2);
+      padding: var(--spacing-2) var(--spacing-3);
+      font-size: var(--font-size-sm);
+      font-weight: var(--font-weight-semibold);
+      color: rgba(255, 255, 255, 0.6);
+      cursor: pointer;
+      border-radius: var(--radius-md);
+      transition: all var(--transition-fast);
+    }
+    
+    .folder-header:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: rgba(255, 255, 255, 0.9);
+    }
+    
+    .folder-icon {
+      font-size: 14px;
+      transition: transform var(--transition-fast);
+    }
+    
+    .folder.collapsed .folder-icon {
+      transform: rotate(-90deg);
+    }
+    
+    .folder.collapsed .folder-items {
+      display: none;
+    }
+    
+    .folder-name {
+      flex: 1;
+    }
+    
+    .folder-count {
+      font-size: var(--font-size-xs);
+      color: rgba(255, 255, 255, 0.4);
+      font-weight: var(--font-weight-normal);
+    }
+    
+    /* Project items */
+    .folder-items {
+      padding-left: var(--spacing-4);
+    }
+    
+    .project-item {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-2);
+      padding: var(--spacing-2) var(--spacing-3);
+      font-size: var(--font-size-sm);
+      color: rgba(255, 255, 255, 0.8);
+      cursor: pointer;
+      border-radius: var(--radius-md);
+      transition: all var(--transition-fast);
+    }
+    
+    .project-item:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+    
+    .project-item.active {
+      background: rgba(255, 255, 255, 0.15);
+      color: white;
+    }
+    
+    .project-emoji {
+      font-size: 16px;
+    }
+    
+    .project-name {
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    
+    .project-status {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--color-gray-30);
+    }
+    
+    .project-status.running {
+      background: var(--color-status-running);
+    }
+    
+    /* Sidebar footer */
+    .sidebar-footer {
+      padding: var(--spacing-3);
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .sidebar-footer-item {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-2);
+      padding: var(--spacing-2) var(--spacing-3);
+      font-size: var(--font-size-sm);
+      color: rgba(255, 255, 255, 0.6);
+      cursor: pointer;
+      border-radius: var(--radius-md);
+      transition: all var(--transition-fast);
+    }
+    
+    .sidebar-footer-item:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: rgba(255, 255, 255, 0.9);
+    }
+    
+    /* Main content */
+    .main {
+      flex: 1;
+      min-width: 0;
+      background: var(--color-white);
+      display: flex;
+      flex-direction: column;
+      border-radius: var(--radius-lg) 0 0 0;
+    }
+    
+    /* Project header */
+    .project-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--spacing-4) var(--spacing-6);
+      border-bottom: 1px solid var(--color-border);
+    }
+    
+    .project-header-left {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-3);
+    }
+    
+    .project-header-emoji {
+      font-size: 24px;
+    }
+    
+    .project-header-info h1 {
+      font-size: var(--font-size-lg);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-text-primary);
+      margin-bottom: 2px;
+    }
+    
+    .project-header-info p {
+      font-size: var(--font-size-sm);
+      color: var(--color-text-secondary);
+    }
+    
+    .project-header-actions {
+      display: flex;
+      gap: var(--spacing-2);
+    }
+    
+    .btn {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-2);
+      padding: var(--spacing-2) var(--spacing-3);
+      font-size: var(--font-size-sm);
+      font-weight: var(--font-weight-medium);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+    
+    .btn-secondary {
+      background: var(--color-white);
+      color: var(--color-text-primary);
+      border: 1px solid var(--color-border);
+    }
+    
+    .btn-secondary:hover {
+      background: var(--color-gray-0);
+    }
+    
+    .btn-primary {
+      background: var(--color-primary);
+      color: white;
+      border: none;
+    }
+    
+    .btn-primary:hover {
+      background: var(--color-primary-hover);
+    }
+    
+    /* Tabs */
+    .project-tabs {
+      display: flex;
+      gap: var(--spacing-1);
+      padding: 0 var(--spacing-6);
+      border-bottom: 1px solid var(--color-border);
+    }
+    
+    .tab {
+      padding: var(--spacing-3) var(--spacing-4);
+      font-size: var(--font-size-sm);
+      font-weight: var(--font-weight-medium);
+      color: var(--color-text-secondary);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      transition: all var(--transition-fast);
+    }
+    
+    .tab:hover {
+      color: var(--color-text-primary);
+    }
+    
+    .tab.active {
+      color: var(--color-primary);
+      border-bottom-color: var(--color-primary);
+    }
+    
+    /* Project content */
+    .project-content {
+      flex: 1;
+      padding: var(--spacing-6);
+    }
+    
+    /* Build section */
+    .build-section {
+      max-width: 700px;
+    }
+    
+    .build-label {
+      font-size: var(--font-size-base);
+      font-weight: var(--font-weight-medium);
+      color: var(--color-text-primary);
+      margin-bottom: var(--spacing-3);
+    }
+    
+    .build-input-wrapper {
+      position: relative;
+    }
+    
+    .build-input {
+      width: 100%;
+      padding: var(--spacing-3) var(--spacing-4);
+      padding-right: 100px;
+      font-size: var(--font-size-sm);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      background: var(--color-white);
+      transition: all var(--transition-fast);
+    }
+    
+    .build-input:focus {
+      outline: none;
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px rgba(56, 88, 233, 0.1);
+    }
+    
+    .build-input::placeholder {
+      color: var(--color-text-muted);
+    }
+    
+    .build-submit {
+      position: absolute;
+      right: var(--spacing-2);
+      top: 50%;
+      transform: translateY(-50%);
+      padding: var(--spacing-2) var(--spacing-3);
+      background: var(--color-primary);
+      color: white;
+      border: none;
+      border-radius: var(--radius-md);
+      font-size: var(--font-size-sm);
+      font-weight: var(--font-weight-medium);
+      cursor: pointer;
+      transition: background var(--transition-fast);
+    }
+    
+    .build-submit:hover {
+      background: var(--color-primary-hover);
+    }
+    
+    /* Conversation */
+    .conversation {
+      margin-top: var(--spacing-6);
+      max-width: 700px;
+    }
+    
+    .message {
+      display: flex;
+      gap: var(--spacing-3);
+      margin-bottom: var(--spacing-4);
+    }
+    
+    .message-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-md);
+      background: var(--color-gray-10);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+    
+    .message-avatar.ai {
+      background: linear-gradient(135deg, var(--color-blue-50), var(--color-blue-70));
+      color: white;
+    }
+    
+    .message-content {
+      flex: 1;
+      padding-top: var(--spacing-1);
+    }
+    
+    .message-author {
+      font-size: var(--font-size-sm);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-text-primary);
+      margin-bottom: var(--spacing-1);
+    }
+    
+    .message-text {
+      font-size: var(--font-size-sm);
+      line-height: 1.6;
+      color: var(--color-text-primary);
+    }
+    
+    .message-text p {
+      margin-bottom: var(--spacing-2);
+    }
+    
+    .message-text p:last-child {
+      margin-bottom: 0;
+    }
+    
+    .message-text ul {
+      margin: var(--spacing-2) 0;
+      padding-left: var(--spacing-5);
+    }
+    
+    .message-text li {
+      margin-bottom: var(--spacing-1);
+    }
+    
+    .message-actions {
+      margin-top: var(--spacing-3);
+      display: flex;
+      gap: var(--spacing-2);
+    }
+    
+    /* Artifacts */
+    .artifacts-section {
+      margin-top: var(--spacing-8);
+      padding-top: var(--spacing-6);
+      border-top: 1px solid var(--color-border);
+    }
+    
+    .artifacts-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--spacing-4);
+    }
+    
+    .artifacts-title {
+      font-size: var(--font-size-sm);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    
+    .artifacts-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: var(--spacing-3);
+    }
+    
+    .artifact-card {
+      background: var(--color-gray-0);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-3);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+    
+    .artifact-card:hover {
+      border-color: var(--color-primary);
+      box-shadow: var(--shadow-sm);
+    }
+    
+    .artifact-icon {
+      font-size: 20px;
+      margin-bottom: var(--spacing-2);
+    }
+    
+    .artifact-name {
+      font-size: var(--font-size-sm);
+      font-weight: var(--font-weight-medium);
+      color: var(--color-text-primary);
+      margin-bottom: 2px;
+    }
+    
+    .artifact-meta {
+      font-size: var(--font-size-xs);
+      color: var(--color-text-secondary);
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <!-- Titlebar -->
+    <div class="titlebar">
+      <div class="titlebar-controls">
+        <button class="titlebar-button close"></button>
+        <button class="titlebar-button minimize"></button>
+        <button class="titlebar-button maximize"></button>
+      </div>
+    </div>
+    
+    <div class="layout">
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <div class="sidebar-header">
+          <button class="new-project-btn">
+            <span>+</span>
+            New Project
+          </button>
+        </div>
+        
+        <div class="sidebar-content">
+          <!-- Personal folder -->
+          <div class="folder">
+            <div class="folder-header">
+              <span class="folder-icon">▼</span>
+              <span class="folder-name">Personal</span>
+              <span class="folder-count">3</span>
+            </div>
+            <div class="folder-items">
+              <div class="project-item">
+                <span class="project-emoji">📝</span>
+                <span class="project-name">My Blog</span>
+                <span class="project-status running"></span>
+              </div>
+              <div class="project-item">
+                <span class="project-emoji">💼</span>
+                <span class="project-name">Portfolio</span>
+                <span class="project-status"></span>
+              </div>
+              <div class="project-item">
+                <span class="project-emoji">🧪</span>
+                <span class="project-name">Sandbox</span>
+                <span class="project-status running"></span>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Clients folder -->
+          <div class="folder">
+            <div class="folder-header">
+              <span class="folder-icon">▼</span>
+              <span class="folder-name">Clients</span>
+              <span class="folder-count">4</span>
+            </div>
+            <div class="folder-items">
+              <div class="project-item active">
+                <span class="project-emoji">🏡</span>
+                <span class="project-name">Greenway Landscaping</span>
+                <span class="project-status running"></span>
+              </div>
+              <div class="project-item">
+                <span class="project-emoji">🍕</span>
+                <span class="project-name">Sal's Pizzeria</span>
+                <span class="project-status"></span>
+              </div>
+              <div class="project-item">
+                <span class="project-emoji">🏋️</span>
+                <span class="project-name">FitZone Gym</span>
+                <span class="project-status"></span>
+              </div>
+              <div class="project-item">
+                <span class="project-emoji">🏠</span>
+                <span class="project-name">Riverside Realty</span>
+                <span class="project-status running"></span>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Business folder -->
+          <div class="folder">
+            <div class="folder-header">
+              <span class="folder-icon">▼</span>
+              <span class="folder-name">Business</span>
+              <span class="folder-count">3</span>
+            </div>
+            <div class="folder-items">
+              <div class="project-item">
+                <span class="project-emoji">📊</span>
+                <span class="project-name">Project Tracker</span>
+                <span class="project-status running"></span>
+              </div>
+              <div class="project-item">
+                <span class="project-emoji">💰</span>
+                <span class="project-name">Invoice Generator</span>
+                <span class="project-status"></span>
+              </div>
+              <div class="project-item">
+                <span class="project-emoji">📋</span>
+                <span class="project-name">Client Intake</span>
+                <span class="project-status"></span>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Templates folder (collapsed) -->
+          <div class="folder collapsed">
+            <div class="folder-header">
+              <span class="folder-icon">▼</span>
+              <span class="folder-name">Templates</span>
+              <span class="folder-count">2</span>
+            </div>
+            <div class="folder-items">
+              <div class="project-item">
+                <span class="project-emoji">🚀</span>
+                <span class="project-name">Local Business Starter</span>
+                <span class="project-status"></span>
+              </div>
+              <div class="project-item">
+                <span class="project-emoji">📰</span>
+                <span class="project-name">Blog + Newsletter</span>
+                <span class="project-status"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="sidebar-footer">
+          <div class="sidebar-footer-item">
+            <span>⚙️</span>
+            <span>Settings</span>
+          </div>
+        </div>
+      </aside>
+      
+      <!-- Main content -->
+      <main class="main">
+        <div class="project-header">
+          <div class="project-header-left">
+            <span class="project-header-emoji">🏡</span>
+            <div class="project-header-info">
+              <h1>Greenway Landscaping</h1>
+              <p>localhost:8881 · Running</p>
+            </div>
+          </div>
+          <div class="project-header-actions">
+            <button class="btn btn-secondary">WP Admin ↗</button>
+            <button class="btn btn-secondary">View Site ↗</button>
+            <button class="btn btn-primary">Publish</button>
+          </div>
+        </div>
+        
+        <div class="project-tabs">
+          <div class="tab active">Build</div>
+          <div class="tab">Overview</div>
+          <div class="tab">Settings</div>
+          <div class="tab">Sync</div>
+        </div>
+        
+        <div class="project-content">
+          <div class="build-section">
+            <label class="build-label">What do you want to add?</label>
+            <div class="build-input-wrapper">
+              <input 
+                type="text" 
+                class="build-input" 
+                placeholder="A booking system, contact form, pricing calculator..."
+              >
+              <button class="build-submit">Build →</button>
+            </div>
+          </div>
+          
+          <div class="conversation">
+            <div class="message">
+              <div class="message-avatar">D</div>
+              <div class="message-content">
+                <div class="message-author">Derek</div>
+                <div class="message-text">
+                  <p>Build a quote calculator. Services: lawn mowing ($50 base + $0.02/sqft), hedge trimming ($30/hour), leaf cleanup ($75 flat). Customer enters details, sees instant quote, can submit for follow-up.</p>
+                </div>
+              </div>
+            </div>
+            
+            <div class="message">
+              <div class="message-avatar ai">✨</div>
+              <div class="message-content">
+                <div class="message-author">AI Assistant</div>
+                <div class="message-text">
+                  <p>I'll build a quote calculator with those services. Here's what I'm setting up:</p>
+                  <ul>
+                    <li><strong>Lawn mowing:</strong> Square footage input → calculates $50 + $0.02/sqft</li>
+                    <li><strong>Hedge trimming:</strong> Hours selector → calculates $30 × hours</li>
+                    <li><strong>Leaf cleanup:</strong> Checkbox → adds flat $75</li>
+                  </ul>
+                  <p>The form will show a running total, then capture name, email, phone, and property address for the quote request. Sound good?</p>
+                </div>
+                <div class="message-actions">
+                  <button class="btn btn-primary">Build it →</button>
+                  <button class="btn btn-secondary">Adjust</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="artifacts-section">
+            <div class="artifacts-header">
+              <span class="artifacts-title">Built Features</span>
+            </div>
+            <div class="artifacts-grid">
+              <div class="artifact-card">
+                <div class="artifact-icon">📞</div>
+                <div class="artifact-name">Contact Form</div>
+                <div class="artifact-meta">Page · Built 3 days ago</div>
+              </div>
+              <div class="artifact-card">
+                <div class="artifact-icon">🖼️</div>
+                <div class="artifact-name">Project Gallery</div>
+                <div class="artifact-meta">Page · Built 1 week ago</div>
+              </div>
+              <div class="artifact-card">
+                <div class="artifact-icon">⭐</div>
+                <div class="artifact-name">Reviews Widget</div>
+                <div class="artifact-meta">Block · Built 1 week ago</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+</body>
+</html>
