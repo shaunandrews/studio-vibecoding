@@ -4,159 +4,282 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Studio — Vibe Coding Workbench</title>
-  <link rel="stylesheet" href="base.css">
+  <link rel="stylesheet" href="tokens.css">
   <style>
     /* ============================================
-       CONCEPT D: VIBE CODING WORKBENCH
-       "WordPress isn't just for websites anymore.
-        It's a runtime for whatever you want to build."
+       CONCEPT D: VIBE CODING WORKBENCH (v2)
+       "WordPress isn't just for websites anymore."
+       
+       No sidebar — everything in main area.
+       Projects are content, not navigation.
        ============================================ */
     
-    /* Project Sidebar Styles */
-    .sidebar-section-title {
-      font-size: var(--font-size-xs);
-      font-weight: var(--font-weight-semibold);
-      color: rgba(255, 255, 255, 0.5);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      padding: var(--spacing-3) var(--spacing-3) var(--spacing-2);
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
     }
     
-    .project-list {
-      list-style: none;
-      padding: 0;
+    body {
+      font-family: var(--font-family);
+      background: var(--color-chrome);
+      min-height: 100vh;
+    }
+    
+    .app {
       display: flex;
       flex-direction: column;
-      gap: 2px;
+      min-height: 100vh;
     }
     
-    .project-item {
+    /* Titlebar */
+    .titlebar {
+      height: 52px;
       display: flex;
       align-items: center;
-      gap: var(--spacing-2);
-      padding: var(--spacing-2) var(--spacing-3);
-      border-radius: var(--radius-lg);
-      cursor: pointer;
-      color: rgba(255, 255, 255, 0.7);
-      font-size: var(--font-size-sm);
-      transition: all var(--transition-fast);
-    }
-    
-    .project-item:hover {
-      background: rgba(255, 255, 255, 0.08);
-      color: rgba(255, 255, 255, 0.9);
-    }
-    
-    .project-item.active {
-      background: rgba(255, 255, 255, 0.12);
-      color: var(--color-white);
-    }
-    
-    .project-icon {
-      width: 16px;
-      height: 16px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 12px;
+      padding: 0 16px;
+      background: var(--color-chrome);
+      -webkit-app-region: drag;
       flex-shrink: 0;
     }
     
-    .project-icon.site {
-      color: var(--color-status-running);
+    .titlebar-controls {
+      display: flex;
+      gap: 8px;
     }
     
-    .project-icon.project {
-      color: var(--color-blue-30);
+    .titlebar-button {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      border: none;
     }
+    .titlebar-button.close { background: #ff5f57; }
+    .titlebar-button.minimize { background: #ffbd2e; }
+    .titlebar-button.maximize { background: #28c840; }
     
-    .project-name {
+    /* Main area - full width, no sidebar, rounded top corners */
+    .main {
       flex: 1;
-      min-width: 0;
+      background: var(--color-white);
+      display: flex;
+      flex-direction: column;
+      border-radius: var(--radius-lg) var(--radius-lg) 0 0;
       overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
+      margin-top: -10px;
+      padding-top: 10px;
     }
     
-    .project-item.site .project-name {
-      font-weight: var(--font-weight-medium);
+    /* Header */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--spacing-4) var(--spacing-8);
+      border-bottom: 1px solid var(--color-border);
     }
     
-    .add-project-btn {
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-4);
+    }
+    
+    .site-selector {
       display: flex;
       align-items: center;
       gap: var(--spacing-2);
-      width: 100%;
       padding: var(--spacing-2) var(--spacing-3);
-      background: transparent;
-      border: 1px dashed rgba(255, 255, 255, 0.2);
+      background: var(--color-gray-0);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      font-size: var(--font-size-sm);
+      font-weight: var(--font-weight-semibold);
+      cursor: pointer;
+    }
+    
+    .site-selector:hover {
+      background: var(--color-gray-5);
+    }
+    
+    .site-status {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--color-status-running);
+    }
+    
+    .site-selector svg {
+      width: 12px;
+      height: 12px;
+      color: var(--color-text-secondary);
+    }
+    
+    .site-selector-wrapper {
+      position: relative;
+    }
+    
+    .site-dropdown {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      margin-top: var(--spacing-2);
+      background: var(--color-white);
+      border: 1px solid var(--color-border);
       border-radius: var(--radius-lg);
-      color: rgba(255, 255, 255, 0.5);
+      box-shadow: var(--shadow-lg);
+      min-width: 200px;
+      padding: var(--spacing-2);
+      z-index: 100;
+    }
+    
+    .site-dropdown-item {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-2);
+      padding: var(--spacing-2) var(--spacing-3);
+      border-radius: var(--radius-md);
       font-size: var(--font-size-sm);
       cursor: pointer;
-      transition: all var(--transition-fast);
-      margin-top: var(--spacing-2);
+      transition: background var(--transition-fast);
     }
     
-    .add-project-btn:hover {
-      background: rgba(255, 255, 255, 0.05);
-      border-color: rgba(255, 255, 255, 0.3);
-      color: rgba(255, 255, 255, 0.8);
+    .site-dropdown-item:hover {
+      background: var(--color-gray-0);
     }
     
-    /* Workbench Layout */
-    .workbench-content {
-      flex: 1;
-      overflow-y: auto;
-      padding: var(--spacing-6) var(--spacing-8);
+    .site-dropdown-item.active {
+      background: rgba(56, 88, 233, 0.08);
+      color: var(--color-primary);
+    }
+    
+    .site-dropdown-item.all-sites {
+      color: var(--color-text-secondary);
+    }
+    
+    .site-dropdown-item .site-status {
+      width: 8px;
+      height: 8px;
+    }
+    
+    .site-dropdown-item .site-status.stopped {
+      background: var(--color-gray-30);
+    }
+    
+    .dropdown-icon {
+      font-size: 14px;
+    }
+    
+    .site-dropdown-divider {
+      height: 1px;
+      background: var(--color-border);
+      margin: var(--spacing-2) 0;
+    }
+    
+    .header-links {
       display: flex;
-      flex-direction: column;
-      gap: var(--spacing-6);
+      gap: var(--spacing-4);
     }
     
-    /* Build Prompt Section */
-    .build-prompt-section {
+    .header-link {
+      font-size: var(--font-size-sm);
+      color: var(--color-text-secondary);
+      text-decoration: none;
+    }
+    
+    .header-link:hover {
+      color: var(--color-primary);
+    }
+    
+    .header-actions {
       display: flex;
-      flex-direction: column;
       gap: var(--spacing-3);
     }
     
-    .build-prompt-label {
-      font-size: var(--font-size-lg);
+    .btn {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-2);
+      padding: var(--spacing-2) var(--spacing-4);
+      font-size: var(--font-size-sm);
       font-weight: var(--font-weight-medium);
-      color: var(--color-text-primary);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all var(--transition-fast);
     }
     
-    .build-prompt-input {
+    .btn-primary {
+      background: var(--color-primary);
+      color: white;
+      border: none;
+    }
+    
+    .btn-primary:hover {
+      background: var(--color-primary-hover);
+    }
+    
+    .btn-secondary {
+      background: var(--color-white);
+      color: var(--color-text-primary);
+      border: 1px solid var(--color-border);
+    }
+    
+    .btn-secondary:hover {
+      background: var(--color-gray-0);
+    }
+    
+    /* Workbench Content */
+    .workbench {
+      flex: 1;
+      overflow-y: auto;
+      padding: var(--spacing-8);
+      max-width: 1000px;
+      margin: 0 auto;
       width: 100%;
-      padding: var(--spacing-4);
+    }
+    
+    /* Build Prompt - Hero */
+    .build-section {
+      margin-bottom: var(--spacing-8);
+    }
+    
+    .build-label {
+      font-size: var(--font-size-xl);
+      font-weight: var(--font-weight-medium);
+      color: var(--color-text-primary);
+      margin-bottom: var(--spacing-4);
+    }
+    
+    .build-input {
+      width: 100%;
+      padding: var(--spacing-4) var(--spacing-5);
       font-size: var(--font-size-base);
       border: 2px solid var(--color-border);
       border-radius: var(--radius-xl);
       background: var(--color-white);
-      color: var(--color-text-primary);
       transition: all var(--transition-fast);
     }
     
-    .build-prompt-input:focus {
+    .build-input:focus {
       outline: none;
       border-color: var(--color-primary);
-      box-shadow: 0 0 0 3px rgba(56, 88, 233, 0.1);
+      box-shadow: 0 0 0 4px rgba(56, 88, 233, 0.1);
     }
     
-    .build-prompt-input::placeholder {
+    .build-input::placeholder {
       color: var(--color-text-muted);
     }
     
-    /* AI Conversation Card */
-    .ai-conversation {
+    /* AI Conversation */
+    .ai-card {
       background: var(--color-white);
       border: 1px solid var(--color-border);
       border-radius: var(--radius-xl);
+      margin-bottom: var(--spacing-8);
       overflow: hidden;
     }
     
-    .ai-conversation-header {
+    .ai-header {
       display: flex;
       align-items: center;
       gap: var(--spacing-2);
@@ -177,13 +300,12 @@
       font-size: 12px;
     }
     
-    .ai-label {
+    .ai-name {
       font-size: var(--font-size-sm);
       font-weight: var(--font-weight-semibold);
-      color: var(--color-text-primary);
     }
     
-    .ai-conversation-body {
+    .ai-body {
       padding: var(--spacing-4);
     }
     
@@ -193,28 +315,13 @@
       color: var(--color-text-primary);
     }
     
-    .ai-message p {
-      margin: 0 0 var(--spacing-3);
-    }
+    .ai-message p { margin: 0 0 var(--spacing-3); }
+    .ai-message p:last-child { margin-bottom: 0; }
+    .ai-message ul { margin: 0 0 var(--spacing-3); padding-left: var(--spacing-5); }
+    .ai-message li { margin-bottom: var(--spacing-1); }
+    .ai-message strong { color: var(--color-text-primary); }
     
-    .ai-message p:last-child {
-      margin-bottom: 0;
-    }
-    
-    .ai-message ul {
-      margin: 0 0 var(--spacing-3);
-      padding-left: var(--spacing-5);
-    }
-    
-    .ai-message li {
-      margin-bottom: var(--spacing-1);
-    }
-    
-    .ai-message li strong {
-      color: var(--color-text-primary);
-    }
-    
-    .ai-conversation-footer {
+    .ai-footer {
       display: flex;
       justify-content: flex-end;
       padding: var(--spacing-3) var(--spacing-4);
@@ -234,131 +341,101 @@
       display: flex;
       align-items: center;
       gap: var(--spacing-2);
-      transition: background var(--transition-fast);
     }
     
     .btn-build:hover {
       background: var(--color-primary-hover);
     }
     
-    /* Recent Builds Section */
-    .recent-builds-section {
-      display: flex;
-      flex-direction: column;
-      gap: var(--spacing-4);
-    }
-    
-    .section-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
+    /* Projects Grid - now in main content */
+    .projects-section {
+      margin-bottom: var(--spacing-8);
     }
     
     .section-title {
-      font-size: var(--font-size-base);
+      font-size: var(--font-size-sm);
       font-weight: var(--font-weight-semibold);
-      color: var(--color-text-primary);
+      color: var(--color-text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: var(--spacing-4);
     }
     
-    .builds-grid {
+    .projects-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
       gap: var(--spacing-4);
     }
     
-    .build-card {
+    .project-card {
       background: var(--color-white);
       border: 1px solid var(--color-border);
-      border-radius: var(--radius-xl);
+      border-radius: var(--radius-lg);
       padding: var(--spacing-4);
-      display: flex;
-      flex-direction: column;
-      gap: var(--spacing-3);
+      cursor: pointer;
       transition: all var(--transition-fast);
     }
     
-    .build-card:hover {
+    .project-card:hover {
       border-color: var(--color-primary);
       box-shadow: var(--shadow-md);
     }
     
-    .build-card-header {
+    .project-card-header {
       display: flex;
-      align-items: flex-start;
+      align-items: center;
       gap: var(--spacing-3);
+      margin-bottom: var(--spacing-2);
     }
     
-    .build-emoji {
-      font-size: 28px;
-      line-height: 1;
+    .project-emoji {
+      font-size: 24px;
     }
     
-    .build-info {
-      flex: 1;
-      min-width: 0;
-    }
-    
-    .build-name {
+    .project-name {
       font-size: var(--font-size-sm);
       font-weight: var(--font-weight-semibold);
       color: var(--color-text-primary);
-      margin-bottom: 2px;
     }
     
-    .build-meta {
+    .project-meta {
       font-size: var(--font-size-xs);
       color: var(--color-text-secondary);
     }
     
-    .build-card-actions {
+    .project-card.add-new {
+      border-style: dashed;
       display: flex;
-      gap: var(--spacing-2);
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: var(--color-text-muted);
+      min-height: 100px;
     }
     
-    .btn-card {
-      flex: 1;
-      padding: var(--spacing-2);
-      font-size: var(--font-size-xs);
-      font-weight: var(--font-weight-medium);
-      border-radius: var(--radius-md);
-      cursor: pointer;
-      transition: all var(--transition-fast);
-      text-align: center;
+    .project-card.add-new:hover {
+      border-color: var(--color-primary);
+      color: var(--color-primary);
+      background: rgba(56, 88, 233, 0.02);
     }
     
-    .btn-card.primary {
-      background: var(--color-primary);
-      color: white;
-      border: none;
+    .add-icon {
+      font-size: 24px;
+      margin-bottom: var(--spacing-1);
     }
     
-    .btn-card.primary:hover {
-      background: var(--color-primary-hover);
-    }
-    
-    .btn-card.secondary {
-      background: var(--color-white);
-      color: var(--color-text-primary);
-      border: 1px solid var(--color-border);
-    }
-    
-    .btn-card.secondary:hover {
-      background: var(--color-gray-0);
-    }
-    
-    /* Templates Section */
+    /* Templates */
     .templates-section {
       display: flex;
       align-items: center;
       gap: var(--spacing-3);
-      padding-top: var(--spacing-2);
+      padding-top: var(--spacing-4);
       border-top: 1px solid var(--color-border);
     }
     
     .templates-label {
       font-size: var(--font-size-sm);
       color: var(--color-text-secondary);
-      flex-shrink: 0;
     }
     
     .template-pills {
@@ -384,23 +461,6 @@
       border-color: var(--color-primary);
       color: var(--color-primary);
     }
-    
-    /* Header customizations */
-    .header-title-workbench {
-      display: flex;
-      align-items: center;
-      gap: var(--spacing-2);
-    }
-    
-    .header-title-separator {
-      color: var(--color-text-muted);
-      font-weight: var(--font-weight-normal);
-    }
-    
-    .header-title-mode {
-      color: var(--color-text-secondary);
-      font-weight: var(--font-weight-normal);
-    }
   </style>
 </head>
 <body>
@@ -414,164 +474,145 @@
       </div>
     </div>
     
-    <!-- Project Sidebar -->
-    <aside class="sidebar">
-      <div class="sidebar-content">
-        <div class="sidebar-section-title">Projects</div>
-        <ul class="project-list">
-          <!-- Site (the WordPress site itself) -->
-          <li class="project-item site active">
-            <span class="project-icon site">○</span>
-            <span class="project-name">Downstreet Cafe</span>
-          </li>
-          
-          <!-- Projects built on this site -->
-          <li class="project-item">
-            <span class="project-icon project">◆</span>
-            <span class="project-name">Customer CRM</span>
-          </li>
-          <li class="project-item">
-            <span class="project-icon project">◆</span>
-            <span class="project-name">Staff Scheduler</span>
-          </li>
-          <li class="project-item">
-            <span class="project-icon project">◆</span>
-            <span class="project-name">Inventory Tracker</span>
-          </li>
-        </ul>
-        
-        <button class="add-project-btn">
-          <span>+</span>
-          <span>New project</span>
-        </button>
-      </div>
-    </aside>
-    
-    <!-- Main Content -->
+    <!-- Main (no sidebar) -->
     <main class="main">
-      <!-- Header -->
+      <!-- Header with site selector -->
       <header class="header">
         <div class="header-left">
-          <h1 class="header-title header-title-workbench">
-            Downstreet Cafe
-            <span class="header-title-separator">—</span>
-            <span class="header-title-mode">Workbench</span>
-          </h1>
+          <div class="site-selector-wrapper">
+            <button class="site-selector">
+              <span class="site-status"></span>
+              Downstreet Cafe
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M6 9l6 6 6-6"/>
+              </svg>
+            </button>
+            <!-- Dropdown (shown for demo) -->
+            <div class="site-dropdown">
+              <div class="site-dropdown-item all-sites">
+                <span class="dropdown-icon">🌐</span>
+                <span>All Sites</span>
+              </div>
+              <div class="site-dropdown-divider"></div>
+              <div class="site-dropdown-item active">
+                <span class="site-status"></span>
+                <span>Downstreet Cafe</span>
+              </div>
+              <div class="site-dropdown-item">
+                <span class="site-status stopped"></span>
+                <span>Shaun's Blog</span>
+              </div>
+              <div class="site-dropdown-item">
+                <span class="site-status"></span>
+                <span>Portfolio</span>
+              </div>
+            </div>
+          </div>
+          <div class="header-links">
+            <a href="#" class="header-link">WP admin ↗</a>
+            <a href="#" class="header-link">View site ↗</a>
+          </div>
         </div>
         <div class="header-actions">
-          <button class="btn btn-secondary">
+          <button class="btn btn-primary">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
-              <polyline points="15 3 21 3 21 9"/>
-              <line x1="10" y1="14" x2="21" y2="3"/>
+              <path d="M12 19V5M5 12l7-7 7 7"/>
             </svg>
-            View Site
+            Publish
           </button>
         </div>
       </header>
       
-      <!-- Workbench Content -->
-      <div class="workbench-content">
+      <!-- Workbench -->
+      <div class="workbench">
         <!-- Build Prompt -->
-        <div class="build-prompt-section">
-          <label class="build-prompt-label">What do you want to build?</label>
+        <div class="build-section">
+          <label class="build-label">What do you want to build?</label>
           <input 
             type="text" 
-            class="build-prompt-input" 
-            placeholder="Describe what you need — a form, dashboard, booking system, anything..."
+            class="build-input" 
+            placeholder="A booking system, feedback form, dashboard, inventory tracker..."
             value="I need to track customer feedback and complaints"
           >
         </div>
         
         <!-- AI Conversation -->
-        <div class="ai-conversation">
-          <div class="ai-conversation-header">
+        <div class="ai-card">
+          <div class="ai-header">
             <div class="ai-avatar">✨</div>
-            <span class="ai-label">AI Assistant</span>
+            <span class="ai-name">AI Assistant</span>
           </div>
-          <div class="ai-conversation-body">
+          <div class="ai-body">
             <div class="ai-message">
               <p>I can build a customer feedback system for you. Here's what I'm thinking:</p>
               <ul>
-                <li><strong>Data:</strong> customer name, email, rating (1-5 stars), message, timestamp</li>
-                <li><strong>Interface:</strong> public feedback form + admin dashboard to review & respond</li>
-                <li><strong>Automation:</strong> email alerts when complaints come in (ratings below 3)</li>
+                <li><strong>Data:</strong> customer name, email, rating (1-5), message</li>
+                <li><strong>Interface:</strong> public form + admin dashboard</li>
+                <li><strong>Automation:</strong> email alerts on low ratings</li>
               </ul>
-              <p>Does this match what you need? I can also add categories (food, service, atmosphere) or connect it to your CRM.</p>
+              <p>Want me to add categories or connect it to your CRM?</p>
             </div>
           </div>
-          <div class="ai-conversation-footer">
+          <div class="ai-footer">
             <button class="btn-build">
-              Build it
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M5 12h14M12 5l7 7-7 7"/>
-              </svg>
+              Build it →
             </button>
           </div>
         </div>
         
-        <!-- Recent Builds -->
-        <div class="recent-builds-section">
-          <div class="section-header">
-            <h2 class="section-title">Recent Builds</h2>
-          </div>
-          <div class="builds-grid">
-            <!-- Card 1: Customer Feedback Form -->
-            <div class="build-card">
-              <div class="build-card-header">
-                <span class="build-emoji">📋</span>
-                <div class="build-info">
-                  <div class="build-name">Customer Feedback Form</div>
-                  <div class="build-meta">Built 2 days ago • 47 responses</div>
-                </div>
+        <!-- Projects (formerly in sidebar) -->
+        <div class="projects-section">
+          <h2 class="section-title">Your Projects</h2>
+          <div class="projects-grid">
+            <div class="project-card">
+              <div class="project-card-header">
+                <span class="project-emoji">📋</span>
+                <span class="project-name">Feedback Form</span>
               </div>
-              <div class="build-card-actions">
-                <button class="btn-card primary">Open</button>
-                <button class="btn-card secondary">Edit</button>
-              </div>
+              <div class="project-meta">47 responses · Built 2 days ago</div>
             </div>
             
-            <!-- Card 2: Staff Schedule App -->
-            <div class="build-card">
-              <div class="build-card-header">
-                <span class="build-emoji">📅</span>
-                <div class="build-info">
-                  <div class="build-name">Staff Schedule App</div>
-                  <div class="build-meta">Built last week • 8 staff members</div>
-                </div>
+            <div class="project-card">
+              <div class="project-card-header">
+                <span class="project-emoji">📅</span>
+                <span class="project-name">Staff Scheduler</span>
               </div>
-              <div class="build-card-actions">
-                <button class="btn-card primary">Open</button>
-                <button class="btn-card secondary">Edit</button>
-              </div>
+              <div class="project-meta">8 staff · Built last week</div>
             </div>
             
-            <!-- Card 3: Inventory Tracker -->
-            <div class="build-card">
-              <div class="build-card-header">
-                <span class="build-emoji">📦</span>
-                <div class="build-info">
-                  <div class="build-name">Inventory Tracker</div>
-                  <div class="build-meta">Built 3 weeks ago • 156 items</div>
-                </div>
+            <div class="project-card">
+              <div class="project-card-header">
+                <span class="project-emoji">📦</span>
+                <span class="project-name">Inventory</span>
               </div>
-              <div class="build-card-actions">
-                <button class="btn-card primary">Open</button>
-                <button class="btn-card secondary">Edit</button>
+              <div class="project-meta">156 items · Built 3 weeks ago</div>
+            </div>
+            
+            <div class="project-card">
+              <div class="project-card-header">
+                <span class="project-emoji">👥</span>
+                <span class="project-name">Customer CRM</span>
               </div>
+              <div class="project-meta">234 contacts · Built last month</div>
+            </div>
+            
+            <div class="project-card add-new">
+              <span class="add-icon">+</span>
+              <span>New project</span>
             </div>
           </div>
         </div>
         
         <!-- Templates -->
         <div class="templates-section">
-          <span class="templates-label">Templates:</span>
+          <span class="templates-label">Start from template:</span>
           <div class="template-pills">
             <button class="template-pill">CRM</button>
             <button class="template-pill">Booking</button>
             <button class="template-pill">Dashboard</button>
             <button class="template-pill">Portal</button>
             <button class="template-pill">Form</button>
+            <button class="template-pill">Directory</button>
           </div>
         </div>
       </div>

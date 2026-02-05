@@ -100,50 +100,16 @@ body {
   margin: 0;
 }
 
-/* Viewer */
-.viewer {
+/* Fullscreen mockup viewer */
+.mockup-fullscreen {
+  min-height: 100vh;
+  background: white;
+}
+
+.loading {
   height: 100vh;
   display: flex;
-  flex-direction: column;
-}
-
-.viewer-header {
-  display: flex;
   align-items: center;
-  gap: 16px;
-  padding: 12px 24px;
-  background: #1e1e1e;
-  color: white;
-}
-
-.viewer-header h1 {
-  font-size: 1rem;
-  font-weight: 600;
-  margin: 0;
-}
-
-.back-button {
-  background: rgba(255,255,255,0.1);
-  border: none;
-  color: white;
-  padding: 8px 16px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.875rem;
-}
-
-.back-button:hover {
-  background: rgba(255,255,255,0.2);
-}
-
-.hint {
-  margin-left: auto;
-  font-size: 0.75rem;
-  color: rgba(255,255,255,0.6);
-}
-
-.mockup-frame {
-  flex: 1;
-  border: none;
-  background: white;
+  justify-content: center;
+  color: #646970;
 }

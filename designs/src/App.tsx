@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Agentation } from 'agentation'
 import './App.css'
 
@@ -25,31 +25,55 @@ const mockups: Mockup[] = [
   { id: 'concept-d', title: 'D: Vibe Workbench', description: 'WP as app platform, build anything', file: 'concept-d-vibe-workbench.html', category: 'concept' },
 ]
 
-function App() {
-  const [selectedMockup, setSelectedMockup] = useState<Mockup | null>(null)
+function MockupViewer({ mockup }: { mockup: Mockup }) {
+  const [html, setHtml] = useState<string>('')
+  const [loading, setLoading] = useState(true)
 
+  useEffect(() => {
+    async function loadMockup() {
+      setLoading(true)
+      try {
+        const response = await fetch(`/mockups/${mockup.file}`)
+        let content = await response.text()
+        
+        // Extract just the body content and styles
+        const bodyMatch = content.match(/<body[^>]*>([\s\S]*)<\/body>/i)
+        const styleMatch = content.match(/<style[^>]*>([\s\S]*?)<\/style>/gi)
+        
+        let styles = ''
+        if (styleMatch) {
+          styles = styleMatch.map(s => {
+            const match = s.match(/<style[^>]*>([\s\S]*?)<\/style>/i)
+            return match ? match[1] : ''
+          }).join('\n')
+        }
+        
+        const bodyContent = bodyMatch ? bodyMatch[1] : content
+        setHtml(`<style>${styles}</style>${bodyContent}`)
+      } catch (err) {
+        console.error('Failed to load mockup:', err)
+        setHtml('<p>Failed to load mockup</p>')
+      }
+      setLoading(false)
+    }
+    loadMockup()
+  }, [mockup.file])
+
+  if (loading) {
+    return <div className="loading">Loading...</div>
+  }
+
+  return (
+    <div 
+      className="mockup-fullscreen"
+      dangerouslySetInnerHTML={{ __html: html }}
+    />
+  )
+}
+
+function Gallery({ onSelect }: { onSelect: (mockup: Mockup) => void }) {
   const currentMockups = mockups.filter(m => m.category === 'current')
   const conceptMockups = mockups.filter(m => m.category === 'concept')
-
-  if (selectedMockup) {
-    return (
-      <div className="viewer">
-        <header className="viewer-header">
-          <button onClick={() => setSelectedMockup(null)} className="back-button">
-            ← Back to Gallery
-          </button>
-          <h1>{selectedMockup.title}</h1>
-          <span className="hint">Click ⓘ button to annotate elements</span>
-        </header>
-        <iframe 
-          src={`/mockups/${selectedMockup.file}`}
-          className="mockup-frame"
-          title={selectedMockup.title}
-        />
-        <Agentation endpoint="http://localhost:4747" />
-      </div>
-    )
-  }
 
   return (
     <div className="gallery">
@@ -65,7 +89,7 @@ function App() {
             <button
               key={mockup.id}
               className="mockup-card"
-              onClick={() => setSelectedMockup(mockup)}
+              onClick={() => onSelect(mockup)}
             >
               <div className="mockup-preview">
                 <iframe src={`/mockups/${mockup.file}`} tabIndex={-1} />
@@ -86,7 +110,7 @@ function App() {
             <button
               key={mockup.id}
               className="mockup-card"
-              onClick={() => setSelectedMockup(mockup)}
+              onClick={() => onSelect(mockup)}
             >
               <div className="mockup-preview">
                 <iframe src={`/mockups/${mockup.file}`} tabIndex={-1} />
@@ -101,6 +125,58 @@ function App() {
       </section>
     </div>
   )
+}
+
+function App() {
+  const [selectedMockup, setSelectedMockup] = useState<Mockup | null>(null)
+
+  // Handle URL hash for navigation
+  useEffect(() => {
+    function handleHashChange() {
+      const hash = window.location.hash.slice(1) // Remove #
+      if (hash) {
+        const mockup = mockups.find(m => m.id === hash)
+        setSelectedMockup(mockup || null)
+      } else {
+        setSelectedMockup(null)
+      }
+    }
+
+    // Check initial hash
+    handleHashChange()
+
+    // Listen for changes
+    window.addEventListener('hashchange', handleHashChange)
+    return () => window.removeEventListener('hashchange', handleHashChange)
+  }, [])
+
+  // Load mockup CSS files
+  useEffect(() => {
+    const links = ['/mockups/tokens.css', '/mockups/base.css']
+    links.forEach(href => {
+      if (!document.querySelector(`link[href="${href}"]`)) {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = href
+        document.head.appendChild(link)
+      }
+    })
+  }, [])
+
+  function handleSelect(mockup: Mockup) {
+    window.location.hash = mockup.id
+  }
+
+  if (selectedMockup) {
+    return (
+      <>
+        <MockupViewer mockup={selectedMockup} />
+        <Agentation endpoint="http://localhost:4747" />
+      </>
+    )
+  }
+
+  return <Gallery onSelect={handleSelect} />
 }
 
 export default App
