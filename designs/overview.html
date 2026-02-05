@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Studio — Overview</title>
+  <link rel="stylesheet" href="base.css">
+  <style>
+    /* Overview-specific styles */
+    .overview-layout {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: var(--spacing-10);
+      align-items: start;
+      padding: var(--spacing-8);
+    }
+    
+    /* Theme section (left) */
+    .theme-section {
+      width: 260px;
+    }
+    
+    .section-title {
+      font-size: var(--font-size-base);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-text-primary);
+      margin-bottom: var(--spacing-4);
+    }
+    
+    .theme-preview {
+      width: 260px;
+      aspect-ratio: 3 / 4;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      border: 1px solid var(--color-border);
+      background: var(--color-gray-50);
+      margin-bottom: var(--spacing-3);
+    }
+    
+    .theme-preview-placeholder {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: var(--spacing-4);
+      background: linear-gradient(180deg, #f8f8f8 0%, #e8e8e8 100%);
+    }
+    
+    .theme-preview-placeholder .mock-header {
+      width: 100%;
+      height: 32px;
+      background: white;
+      border-radius: 4px;
+      margin-bottom: 12px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    }
+    
+    .theme-preview-placeholder .mock-hero {
+      width: 100%;
+      height: 100px;
+      background: linear-gradient(135deg, #e0e7e0 0%, #d0d8d0 100%);
+      border-radius: 4px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .theme-preview-placeholder .mock-hero svg {
+      width: 40px;
+      height: 40px;
+      color: #999;
+    }
+    
+    .theme-preview-placeholder .mock-content {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    
+    .theme-preview-placeholder .mock-line {
+      height: 8px;
+      background: rgba(0,0,0,0.08);
+      border-radius: 2px;
+    }
+    
+    .theme-preview-placeholder .mock-line:nth-child(2) { width: 80%; }
+    .theme-preview-placeholder .mock-line:nth-child(3) { width: 60%; }
+    
+    .theme-name {
+      font-size: var(--font-size-sm);
+      color: var(--color-text-primary);
+    }
+    
+    /* Right column */
+    .overview-actions {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-8);
+    }
+    
+    /* Button grid */
+    .actions-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--spacing-3);
+    }
+    
+    .action-btn {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-3);
+      padding: var(--spacing-3) var(--spacing-4);
+      background: var(--color-white);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      color: var(--color-text-primary);
+      font-size: var(--font-size-sm);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      text-decoration: none;
+      text-align: left;
+    }
+    
+    .action-btn:hover {
+      background: rgba(56, 88, 233, 0.04);
+      border-color: var(--color-primary);
+    }
+    
+    .action-btn svg {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+      color: var(--color-text-primary);
+    }
+    
+    .action-btn span {
+      flex: 1;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <!-- Titlebar -->
+    <div class="titlebar">
+      <div class="titlebar-controls">
+        <button class="titlebar-button close"></button>
+        <button class="titlebar-button minimize"></button>
+        <button class="titlebar-button maximize"></button>
+      </div>
+    </div>
+    
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-content">
+        <ul class="site-list">
+          <li class="site-item active">
+            <span class="site-name">Downstreet Cafe</span>
+            <span class="site-status running" data-tooltip="Stop site"></span>
+          </li>
+          <li class="site-item">
+            <span class="site-name">Shaun's Blog</span>
+            <span class="site-status stopped" data-tooltip="Start site"></span>
+          </li>
+          <li class="site-item">
+            <span class="site-name">Sporadic Thoughts</span>
+            <span class="site-status running" data-tooltip="Stop site"></span>
+          </li>
+          <li class="site-item">
+            <span class="site-name">UI Portfolio</span>
+            <span class="site-status running" data-tooltip="Stop site"></span>
+          </li>
+        </ul>
+      </div>
+      <div class="sidebar-footer">
+        <div class="sidebar-meta">3 sites running · <a href="#">Stop all</a></div>
+        <button class="add-site-btn">Add site</button>
+      </div>
+    </aside>
+    
+    <!-- Main Content -->
+    <main class="main">
+      <!-- Header -->
+      <header class="header">
+        <div class="header-left">
+          <h1 class="header-title">Downstreet Cafe</h1>
+          <div class="header-links">
+            <a href="#" class="header-link">WP admin ↗</a>
+            <a href="#" class="header-link">Open site ↗</a>
+          </div>
+        </div>
+        <div class="header-actions">
+          <button class="btn btn-primary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 19V5M5 12l7-7 7 7"/>
+            </svg>
+            Publish site
+          </button>
+          <div class="status-badge">
+            <span class="status-dot"></span>
+            Running
+          </div>
+        </div>
+      </header>
+      
+      <!-- Tabs -->
+      <nav class="tabs">
+        <div class="tabs-scrollable">
+          <a href="overview.html" class="tab active">Overview</a>
+          <a href="sync.html" class="tab">Sync</a>
+          <a href="previews.html" class="tab">Previews</a>
+          <a href="import-export.html" class="tab">Import / Export</a>
+          <a href="settings.html" class="tab">Settings</a>
+        </div>
+        <a href="assistant.html" class="tab tab-assistant">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 3l1.5 4.5H18l-3.75 2.75L15.75 15 12 12.25 8.25 15l1.5-4.75L6 7.5h4.5L12 3z"/>
+          </svg>
+          Assistant
+        </a>
+      </nav>
+      
+      <!-- Content -->
+      <div class="overview-layout">
+        <!-- Theme Section (Left) -->
+        <div class="theme-section">
+          <h2 class="section-title">Theme</h2>
+          <div class="theme-preview">
+            <div class="theme-preview-placeholder">
+              <div class="mock-header"></div>
+              <div class="mock-hero">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+                  <rect x="3" y="3" width="18" height="18" rx="2"/>
+                  <circle cx="8.5" cy="8.5" r="1.5"/>
+                  <path d="M21 15l-5-5L5 21"/>
+                </svg>
+              </div>
+              <div class="mock-content">
+                <div class="mock-line" style="width: 100%;"></div>
+                <div class="mock-line"></div>
+                <div class="mock-line"></div>
+              </div>
+            </div>
+          </div>
+          <div class="theme-name">Twenty Twenty-Five</div>
+        </div>
+        
+        <!-- Actions (Right) -->
+        <div class="overview-actions">
+          <!-- Customize Section -->
+          <div>
+            <h2 class="section-title">Customize</h2>
+            <div class="actions-grid">
+              <a href="#" class="action-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="3" width="18" height="18" rx="2"/>
+                  <path d="M3 9h18"/>
+                  <path d="M9 21V9"/>
+                </svg>
+                <span>Site Editor</span>
+              </a>
+              <a href="#" class="action-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="4"/>
+                  <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>
+                </svg>
+                <span>Styles</span>
+              </a>
+              <a href="#" class="action-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="3" width="7" height="7"/>
+                  <rect x="14" y="3" width="7" height="7"/>
+                  <rect x="3" y="14" width="7" height="7"/>
+                  <rect x="14" y="14" width="7" height="7"/>
+                </svg>
+                <span>Patterns</span>
+              </a>
+              <a href="#" class="action-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"/>
+                  <path d="M12 8v8M8 12h8"/>
+                </svg>
+                <span>Navigation</span>
+              </a>
+              <a href="#" class="action-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="3" width="18" height="18" rx="2"/>
+                  <path d="M3 9h18"/>
+                </svg>
+                <span>Templates</span>
+              </a>
+              <a href="#" class="action-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                  <path d="M14 2v6h6"/>
+                  <path d="M16 13H8M16 17H8M10 9H8"/>
+                </svg>
+                <span>Pages</span>
+              </a>
+            </div>
+          </div>
+          
+          <!-- Open in Section -->
+          <div>
+            <h2 class="section-title">Open in...</h2>
+            <div class="actions-grid">
+              <a href="#" class="action-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+                </svg>
+                <span>Finder</span>
+              </a>
+              <a href="#" class="action-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
+                </svg>
+                <span>Cursor</span>
+              </a>
+              <a href="#" class="action-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="4" width="18" height="16" rx="2"/>
+                  <path d="M7 15l3-3-3-3M12 17h5"/>
+                </svg>
+                <span>Terminal</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

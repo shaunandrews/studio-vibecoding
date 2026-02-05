@@ -277,7 +277,7 @@ input, button, textarea, select {
   display: flex;
   align-items: stretch;
   border-bottom: 1px solid var(--color-border);
-  padding: 0 var(--spacing-4);
+  padding: 0 var(--spacing-6);
 }
 
 .tabs-scrollable {
@@ -293,8 +293,10 @@ input, button, textarea, select {
 }
 
 .tab {
+  display: flex;
+  align-items: center;
   height: var(--height-tab);
-  padding: 0 var(--spacing-4);
+  padding: 0 var(--spacing-3);
   background: transparent;
   border: none;
   cursor: pointer;
@@ -304,6 +306,7 @@ input, button, textarea, select {
   white-space: nowrap;
   position: relative;
   flex-shrink: 0;
+  text-decoration: none;
 }
 
 .tab:hover {
@@ -318,8 +321,8 @@ input, button, textarea, select {
   content: '';
   position: absolute;
   bottom: 0;
-  left: var(--spacing-4);
-  right: var(--spacing-4);
+  left: var(--spacing-3);
+  right: var(--spacing-3);
   height: 2px;
   background: var(--color-text-primary);
 }
@@ -330,8 +333,8 @@ input, button, textarea, select {
   gap: 6px;
   flex-shrink: 0;
   margin-left: auto;
-  padding-left: var(--spacing-6);
-  background: linear-gradient(to right, transparent, white 16px);
+  padding: 0 var(--spacing-3);
+  text-decoration: none;
 }
 
 .tab-assistant.active {
@@ -339,6 +342,8 @@ input, button, textarea, select {
 }
 
 .tab-assistant.active::after {
+  left: var(--spacing-3);
+  right: var(--spacing-3);
   background: var(--color-primary);
 }
 

@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Studio — Concept A: Chat-First Interface</title>
+  <link rel="stylesheet" href="tokens.css">
+  <link rel="stylesheet" href="base.css">
+  <style>
+    /* ============================================
+       CHAT-FIRST LAYOUT OVERRIDES
+       ============================================ */
+    
+    /* Main content - flex column for chat layout */
+    .main {
+      display: flex;
+      flex-direction: column;
+    }
+    
+    /* Minimal header - no tabs, just essentials */
+    .header-minimal {
+      padding: var(--spacing-3) var(--spacing-6);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--color-border);
+      flex-shrink: 0;
+    }
+    
+    .header-minimal-left {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-3);
+    }
+    
+    .site-selector {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-2);
+      padding: var(--spacing-2) var(--spacing-3);
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+    
+    .site-selector:hover {
+      background: var(--color-gray-0);
+      border-color: var(--color-border);
+    }
+    
+    .site-selector-name {
+      font-size: var(--font-size-base);
+      font-weight: var(--font-weight-medium);
+      color: var(--color-text-primary);
+    }
+    
+    .site-selector-chevron {
+      width: 16px;
+      height: 16px;
+      color: var(--color-text-secondary);
+    }
+    
+    .header-minimal-right {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-3);
+    }
+    
+    /* ============================================
+       CHAT CONTAINER - THE HERO
+       ============================================ */
+    
+    .chat-container {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      padding: var(--spacing-6) var(--spacing-4);
+    }
+    
+    .chat-content {
+      max-width: 680px;
+      width: 100%;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-6);
+      margin-top: auto; /* Push messages to bottom */
+    }
+    
+    /* ============================================
+       MESSAGES
+       ============================================ */
+    
+    .message-group {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-4);
+    }
+    
+    .message {
+      display: flex;
+      gap: var(--spacing-3);
+    }
+    
+    .message.user {
+      justify-content: flex-end;
+    }
+    
+    .message-avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: var(--radius-full);
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: var(--font-size-xs);
+      font-weight: var(--font-weight-semibold);
+    }
+    
+    .message-avatar.assistant {
+      background: linear-gradient(135deg, var(--color-blue-50), var(--color-blue-60));
+      color: white;
+    }
+    
+    .message-avatar.user {
+      background: var(--color-gray-80);
+      color: white;
+    }
+    
+    .message-content {
+      flex: 1;
+      max-width: 85%;
+    }
+    
+    .message.user .message-content {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+    }
+    
+    .message-bubble {
+      padding: var(--spacing-3) var(--spacing-4);
+      border-radius: var(--radius-xl);
+      font-size: var(--font-size-sm);
+      line-height: 1.5;
+    }
+    
+    .message.user .message-bubble {
+      background: var(--color-gray-90);
+      color: white;
+      border-bottom-right-radius: var(--radius-sm);
+    }
+    
+    .message.assistant .message-bubble {
+      background: var(--color-gray-0);
+      color: var(--color-text-primary);
+      border-bottom-left-radius: var(--radius-sm);
+    }
+    
+    .message-bubble p {
+      margin: 0 0 var(--spacing-3);
+    }
+    
+    .message-bubble p:last-child {
+      margin-bottom: 0;
+    }
+    
+    .message-bubble strong {
+      font-weight: var(--font-weight-semibold);
+    }
+    
+    .message-bubble ul {
+      margin: var(--spacing-2) 0;
+      padding-left: var(--spacing-4);
+    }
+    
+    .message-bubble li {
+      margin-bottom: var(--spacing-1);
+    }
+    
+    /* ============================================
+       INLINE CONTEXTUAL PANEL
+       ============================================ */
+    
+    .inline-panel {
+      background: var(--color-white);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      margin-top: var(--spacing-3);
+      box-shadow: var(--shadow-sm);
+    }
+    
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--spacing-3) var(--spacing-4);
+      background: var(--color-gray-0);
+      border-bottom: 1px solid var(--color-border);
+    }
+    
+    .panel-title {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-2);
+      font-size: var(--font-size-sm);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-text-primary);
+    }
+    
+    .panel-title svg {
+      width: 16px;
+      height: 16px;
+      color: var(--color-blue-50);
+    }
+    
+    .panel-status {
+      font-size: var(--font-size-xs);
+      color: var(--color-text-secondary);
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-1);
+    }
+    
+    .panel-status .spinner {
+      width: 12px;
+      height: 12px;
+      border: 2px solid var(--color-gray-10);
+      border-top-color: var(--color-blue-50);
+      border-radius: var(--radius-full);
+      animation: spin 0.8s linear infinite;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    .panel-body {
+      padding: var(--spacing-4);
+    }
+    
+    /* Sync changes list */
+    .changes-list {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-2);
+      margin-bottom: var(--spacing-4);
+    }
+    
+    .change-item {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-3);
+      padding: var(--spacing-2) var(--spacing-3);
+      background: var(--color-gray-0);
+      border-radius: var(--radius-md);
+      font-size: var(--font-size-sm);
+    }
+    
+    .change-icon {
+      width: 18px;
+      height: 18px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    
+    .change-icon.added {
+      background: var(--color-green-0);
+      color: var(--color-green-50);
+    }
+    
+    .change-icon.modified {
+      background: var(--color-orange-0);
+      color: var(--color-orange-50);
+    }
+    
+    .change-icon.deleted {
+      background: var(--color-red-0);
+      color: var(--color-red-50);
+    }
+    
+    .change-icon svg {
+      width: 12px;
+      height: 12px;
+    }
+    
+    .change-name {
+      flex: 1;
+      color: var(--color-text-primary);
+    }
+    
+    .change-type {
+      font-size: var(--font-size-xs);
+      color: var(--color-text-secondary);
+      text-transform: uppercase;
+    }
+    
+    /* Progress bar */
+    .progress-section {
+      margin-bottom: var(--spacing-4);
+    }
+    
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: var(--spacing-2);
+      font-size: var(--font-size-xs);
+      color: var(--color-text-secondary);
+    }
+    
+    .progress-bar {
+      height: 4px;
+      background: var(--color-gray-5);
+      border-radius: var(--radius-full);
+      overflow: hidden;
+    }
+    
+    .progress-fill {
+      height: 100%;
+      background: var(--color-blue-50);
+      border-radius: var(--radius-full);
+      transition: width 0.3s ease;
+    }
+    
+    /* Panel actions */
+    .panel-actions {
+      display: flex;
+      gap: var(--spacing-2);
+      justify-content: flex-end;
+    }
+    
+    /* ============================================
+       INPUT AREA
+       ============================================ */
+    
+    .input-area {
+      padding: var(--spacing-4) var(--spacing-4) var(--spacing-6);
+      background: linear-gradient(to top, var(--color-white) 80%, transparent);
+    }
+    
+    .input-wrapper {
+      max-width: 680px;
+      margin: 0 auto;
+    }
+    
+    /* Suggestion chips */
+    .suggestions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--spacing-2);
+      margin-bottom: var(--spacing-3);
+      justify-content: center;
+    }
+    
+    .suggestion-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--spacing-2);
+      padding: var(--spacing-2) var(--spacing-3);
+      background: var(--color-white);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-full);
+      font-size: var(--font-size-sm);
+      color: var(--color-text-primary);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+    
+    .suggestion-chip:hover {
+      background: var(--color-blue-5);
+      border-color: var(--color-blue-50);
+      color: var(--color-blue-60);
+    }
+    
+    .suggestion-chip svg {
+      width: 14px;
+      height: 14px;
+    }
+    
+    /* Input container */
+    .input-container {
+      background: var(--color-white);
+      border: 1px solid var(--color-gray-20);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-md);
+      overflow: hidden;
+      transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+    }
+    
+    .input-container:focus-within {
+      border-color: var(--color-blue-50);
+      box-shadow: var(--shadow-md), 0 0 0 3px var(--color-blue-5);
+    }
+    
+    .input-main {
+      display: flex;
+      align-items: flex-end;
+      padding: var(--spacing-3);
+      gap: var(--spacing-2);
+    }
+    
+    .input-textarea {
+      flex: 1;
+      border: none;
+      background: transparent;
+      resize: none;
+      font-size: var(--font-size-sm);
+      line-height: 1.5;
+      color: var(--color-text-primary);
+      padding: var(--spacing-1) var(--spacing-2);
+      min-height: 24px;
+      max-height: 200px;
+    }
+    
+    .input-textarea:focus {
+      outline: none;
+    }
+    
+    .input-textarea::placeholder {
+      color: var(--color-text-muted);
+    }
+    
+    .send-button {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-lg);
+      border: none;
+      background: var(--color-gray-90);
+      color: white;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background var(--transition-fast);
+      flex-shrink: 0;
+    }
+    
+    .send-button:hover {
+      background: var(--color-black);
+    }
+    
+    .send-button:disabled {
+      background: var(--color-gray-10);
+      color: var(--color-gray-30);
+      cursor: not-allowed;
+    }
+    
+    .send-button svg {
+      width: 18px;
+      height: 18px;
+    }
+    
+    /* Input toolbar */
+    .input-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--spacing-2) var(--spacing-3);
+      border-top: 1px solid var(--color-gray-5);
+      background: var(--color-gray-0);
+    }
+    
+    .toolbar-left {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-2);
+    }
+    
+    .toolbar-right {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-2);
+    }
+    
+    .toolbar-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border: none;
+      border-radius: var(--radius-md);
+      background: transparent;
+      color: var(--color-gray-50);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+    
+    .toolbar-btn:hover {
+      background: var(--color-white);
+      color: var(--color-text-primary);
+    }
+    
+    .toolbar-btn svg {
+      width: 18px;
+      height: 18px;
+    }
+    
+    /* Agent selector */
+    .agent-selector {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-2);
+      padding: var(--spacing-1) var(--spacing-2);
+      border: none;
+      border-radius: var(--radius-md);
+      background: transparent;
+      font-size: var(--font-size-xs);
+      color: var(--color-text-secondary);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+    
+    .agent-selector:hover {
+      background: var(--color-white);
+      color: var(--color-text-primary);
+    }
+    
+    .agent-icon {
+      width: 16px;
+      height: 16px;
+      border-radius: var(--radius-sm);
+    }
+    
+    .agent-chevron {
+      width: 12px;
+      height: 12px;
+    }
+    
+    /* ============================================
+       NARROW SIDEBAR (CHAT-FIRST)
+       ============================================ */
+    
+    .sidebar {
+      width: 60px;
+      transition: width var(--transition-normal);
+    }
+    
+    .sidebar:hover {
+      width: var(--width-sidebar);
+    }
+    
+    .sidebar .site-list {
+      padding: var(--spacing-2);
+    }
+    
+    .sidebar .site-item {
+      padding: var(--spacing-2);
+      justify-content: center;
+    }
+    
+    .sidebar:hover .site-item {
+      justify-content: space-between;
+      padding: var(--spacing-2) var(--spacing-3);
+    }
+    
+    .sidebar .site-name {
+      opacity: 0;
+      width: 0;
+      overflow: hidden;
+      transition: opacity var(--transition-fast), width var(--transition-fast);
+    }
+    
+    .sidebar:hover .site-name {
+      opacity: 1;
+      width: auto;
+    }
+    
+    .sidebar .site-status {
+      margin: 0;
+    }
+    
+    .sidebar-footer {
+      opacity: 0;
+      transition: opacity var(--transition-fast);
+    }
+    
+    .sidebar:hover .sidebar-footer {
+      opacity: 1;
+    }
+    
+    /* ============================================
+       CONCEPT BADGE (for mockup identification)
+       ============================================ */
+    
+    .concept-badge {
+      position: fixed;
+      bottom: var(--spacing-4);
+      right: var(--spacing-4);
+      padding: var(--spacing-2) var(--spacing-3);
+      background: var(--color-gray-90);
+      color: var(--color-white);
+      font-size: var(--font-size-xs);
+      font-weight: var(--font-weight-medium);
+      border-radius: var(--radius-md);
+      opacity: 0.7;
+      z-index: 1000;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <!-- Titlebar -->
+    <div class="titlebar">
+      <div class="titlebar-controls">
+        <button class="titlebar-button close"></button>
+        <button class="titlebar-button minimize"></button>
+        <button class="titlebar-button maximize"></button>
+      </div>
+    </div>
+    
+    <!-- Narrow Sidebar (collapses to icons, expands on hover) -->
+    <aside class="sidebar">
+      <div class="sidebar-content">
+        <ul class="site-list">
+          <li class="site-item active">
+            <span class="site-name">Downstreet Cafe</span>
+            <span class="site-status running" data-tooltip="Stop site"></span>
+          </li>
+          <li class="site-item">
+            <span class="site-name">Shaun's Blog</span>
+            <span class="site-status stopped" data-tooltip="Start site"></span>
+          </li>
+          <li class="site-item">
+            <span class="site-name">Sporadic Thoughts</span>
+            <span class="site-status running" data-tooltip="Stop site"></span>
+          </li>
+        </ul>
+      </div>
+      <div class="sidebar-footer">
+        <button class="add-site-btn">Add site</button>
+      </div>
+    </aside>
+    
+    <!-- Main Content -->
+    <main class="main">
+      <!-- Minimal Header (no tabs!) -->
+      <header class="header-minimal">
+        <div class="header-minimal-left">
+          <button class="site-selector">
+            <span class="site-selector-name">Downstreet Cafe</span>
+            <svg class="site-selector-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M6 9l6 6 6-6"/>
+            </svg>
+          </button>
+        </div>
+        <div class="header-minimal-right">
+          <div class="status-badge">
+            <span class="status-dot"></span>
+            Running
+          </div>
+          <button class="btn btn-primary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 19V5M5 12l7-7 7 7"/>
+            </svg>
+            Publish
+          </button>
+        </div>
+      </header>
+      
+      <!-- Chat Container (THE HERO) -->
+      <div class="chat-container">
+        <div class="chat-content">
+          <!-- User message -->
+          <div class="message user">
+            <div class="message-content">
+              <div class="message-bubble">
+                Push this to staging so I can show the client
+              </div>
+            </div>
+            <div class="message-avatar user">S</div>
+          </div>
+          
+          <!-- Assistant message with inline panel -->
+          <div class="message assistant">
+            <div class="message-avatar assistant">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
+              </svg>
+            </div>
+            <div class="message-content">
+              <div class="message-bubble">
+                <p>I'll sync your local changes to staging. Here's what will be deployed:</p>
+              </div>
+              
+              <!-- Inline Sync Panel -->
+              <div class="inline-panel">
+                <div class="panel-header">
+                  <div class="panel-title">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M12 19V5M5 12l7-7 7 7"/>
+                    </svg>
+                    Sync to Staging
+                  </div>
+                  <div class="panel-status">
+                    <span class="spinner"></span>
+                    Uploading...
+                  </div>
+                </div>
+                <div class="panel-body">
+                  <div class="changes-list">
+                    <div class="change-item">
+                      <div class="change-icon modified">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                        </svg>
+                      </div>
+                      <span class="change-name">style.css</span>
+                      <span class="change-type">Modified</span>
+                    </div>
+                    <div class="change-item">
+                      <div class="change-icon added">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M12 5v14M5 12h14"/>
+                        </svg>
+                      </div>
+                      <span class="change-name">hero-banner.jpg</span>
+                      <span class="change-type">Added</span>
+                    </div>
+                    <div class="change-item">
+                      <div class="change-icon modified">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                        </svg>
+                      </div>
+                      <span class="change-name">front-page.html</span>
+                      <span class="change-type">Modified</span>
+                    </div>
+                  </div>
+                  
+                  <div class="progress-section">
+                    <div class="progress-label">
+                      <span>Uploading 3 files</span>
+                      <span>67%</span>
+                    </div>
+                    <div class="progress-bar">
+                      <div class="progress-fill" style="width: 67%;"></div>
+                    </div>
+                  </div>
+                  
+                  <div class="panel-actions">
+                    <button class="btn btn-secondary">Cancel</button>
+                    <button class="btn btn-outline" disabled>View Preview</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Earlier context message -->
+          <div class="message assistant">
+            <div class="message-avatar assistant">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
+              </svg>
+            </div>
+            <div class="message-content">
+              <div class="message-bubble">
+                <p>Once the sync completes, I'll send you the staging URL you can share with your client. The preview link will be:</p>
+                <p><strong>staging-downstreet-cafe.wp.cloud</strong></p>
+                <p>Would you like me to also check for any SEO or accessibility issues before showing the client?</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Input Area -->
+      <div class="input-area">
+        <div class="input-wrapper">
+          <!-- Suggestion chips -->
+          <div class="suggestions">
+            <button class="suggestion-chip">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.66 0 3-4.03 3-9s-1.34-9-3-9m0 18c-1.66 0-3-4.03-3-9s1.34-9 3-9"/>
+              </svg>
+              Check site health
+            </button>
+            <button class="suggestion-chip">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="18" height="18" rx="2"/>
+                <path d="M3 9h18M9 21V9"/>
+              </svg>
+              Open Site Editor
+            </button>
+            <button class="suggestion-chip">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+              </svg>
+              Write a blog post
+            </button>
+          </div>
+          
+          <!-- Input container -->
+          <div class="input-container">
+            <div class="input-main">
+              <textarea class="input-textarea" placeholder="What would you like to work on?" rows="1"></textarea>
+              <button class="send-button">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
+                </svg>
+              </button>
+            </div>
+            <div class="input-toolbar">
+              <div class="toolbar-left">
+                <button class="toolbar-btn" aria-label="Attach file">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/>
+                  </svg>
+                </button>
+                <button class="toolbar-btn" aria-label="Add context">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <path d="M12 8v8M8 12h8"/>
+                  </svg>
+                </button>
+              </div>
+              <div class="toolbar-right">
+                <button class="agent-selector">
+                  <svg class="agent-icon" viewBox="0 0 24 24">
+                    <rect width="24" height="24" rx="4" fill="#191919"/>
+                    <g transform="translate(3, 4.5) scale(0.75)">
+                      <path d="M17.3041 3.541h-3.6718l6.696 16.918H24Zm-10.6082 0L0 20.459h3.7442l1.3693-3.5527h7.0052l1.3693 3.5528h3.7442L10.5363 3.5409Zm-.3712 10.2232 2.2914-5.9456 2.2914 5.9456Z" fill="white"/>
+                    </g>
+                  </svg>
+                  <span>Claude</span>
+                  <svg class="agent-chevron" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M7 10l5 5 5-5z"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  
+  <!-- Concept badge -->
+  <div class="concept-badge">Concept A: Chat-First Interface</div>
+</body>
+</html>

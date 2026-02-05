@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Studio — Concept B: Persistent Chat Sidebar</title>
+  <link rel="stylesheet" href="tokens.css">
+  <link rel="stylesheet" href="base.css">
+  <style>
+    /* ============================================
+       CONCEPT B: Three-Column Layout
+       Sites sidebar | Main content | Chat panel
+       ============================================ */
+    
+    /* Main area contains content + chat panel side by side */
+    .main {
+      display: flex;
+      flex-direction: row;
+      flex: 1;
+      overflow: hidden;
+    }
+    
+    /* Wrapper for header, tabs, and content */
+    .main-wrapper {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    
+    /* Main content area scrolls */
+    .main-content {
+      flex: 1;
+      overflow-y: auto;
+    }
+    
+    /* Chat panel fixed width on right */
+    .chat-panel {
+      width: 300px;
+      flex-shrink: 0;
+    }
+    
+    /* ============================================
+       OVERVIEW CONTENT (from overview.html)
+       ============================================ */
+    
+    .overview-layout {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: var(--spacing-10);
+      align-items: start;
+      padding: var(--spacing-8);
+    }
+    
+    .theme-section {
+      width: 220px;
+    }
+    
+    .section-title {
+      font-size: var(--font-size-base);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-text-primary);
+      margin-bottom: var(--spacing-4);
+    }
+    
+    .theme-preview {
+      width: 220px;
+      aspect-ratio: 3 / 4;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      border: 1px solid var(--color-border);
+      background: var(--color-gray-50);
+      margin-bottom: var(--spacing-3);
+    }
+    
+    .theme-preview-placeholder {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: var(--spacing-4);
+      background: linear-gradient(180deg, #f8f8f8 0%, #e8e8e8 100%);
+    }
+    
+    .theme-preview-placeholder .mock-header {
+      width: 100%;
+      height: 28px;
+      background: white;
+      border-radius: 4px;
+      margin-bottom: 10px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    }
+    
+    .theme-preview-placeholder .mock-hero {
+      width: 100%;
+      height: 80px;
+      background: linear-gradient(135deg, #e0e7e0 0%, #d0d8d0 100%);
+      border-radius: 4px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .theme-preview-placeholder .mock-hero svg {
+      width: 32px;
+      height: 32px;
+      color: #999;
+    }
+    
+    .theme-preview-placeholder .mock-content {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    
+    .theme-preview-placeholder .mock-line {
+      height: 6px;
+      background: rgba(0,0,0,0.08);
+      border-radius: 2px;
+    }
+    
+    .theme-preview-placeholder .mock-line:nth-child(2) { width: 80%; }
+    .theme-preview-placeholder .mock-line:nth-child(3) { width: 60%; }
+    
+    .theme-name {
+      font-size: var(--font-size-sm);
+      color: var(--color-text-primary);
+    }
+    
+    .overview-actions {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-8);
+    }
+    
+    .actions-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--spacing-3);
+    }
+    
+    .action-btn {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-3);
+      padding: var(--spacing-3) var(--spacing-4);
+      background: var(--color-white);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      color: var(--color-text-primary);
+      font-size: var(--font-size-sm);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      text-decoration: none;
+      text-align: left;
+    }
+    
+    .action-btn:hover {
+      background: rgba(56, 88, 233, 0.04);
+      border-color: var(--color-primary);
+    }
+    
+    .action-btn svg {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+      color: var(--color-text-primary);
+    }
+    
+    .action-btn span {
+      flex: 1;
+    }
+    
+    /* ============================================
+       CHAT PANEL (Persistent Sidebar - Dark Theme)
+       ============================================ */
+    
+    .chat-panel {
+      display: flex;
+      flex-direction: column;
+      background: var(--color-chrome);
+      min-height: 0;
+    }
+    
+    .chat-panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--spacing-3) var(--spacing-4);
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      flex-shrink: 0;
+    }
+    
+    .chat-panel-title {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-2);
+      font-size: var(--font-size-sm);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-white);
+    }
+    
+    .chat-panel-title svg {
+      width: 16px;
+      height: 16px;
+      color: var(--color-blue-30);
+    }
+    
+    .chat-panel-collapse {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+      background: transparent;
+      border: none;
+      border-radius: var(--radius-md);
+      color: rgba(255,255,255,0.6);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+    
+    .chat-panel-collapse:hover {
+      background: rgba(255,255,255,0.1);
+      color: var(--color-white);
+    }
+    
+    .chat-panel-collapse svg {
+      width: 16px;
+      height: 16px;
+    }
+    
+    /* Context hint */
+    .chat-context {
+      padding: var(--spacing-3) var(--spacing-4);
+      background: rgba(56, 88, 233, 0.15);
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      flex-shrink: 0;
+    }
+    
+    .chat-context-text {
+      font-size: var(--font-size-xs);
+      color: var(--color-blue-20);
+      display: flex;
+      align-items: flex-start;
+      gap: var(--spacing-2);
+      line-height: 1.4;
+    }
+    
+    .chat-context-text svg {
+      width: 14px;
+      height: 14px;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    
+    .chat-context-text strong {
+      color: var(--color-white);
+    }
+    
+    /* Messages area */
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: var(--spacing-4);
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-4);
+    }
+    
+    .chat-message {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-1);
+    }
+    
+    .chat-message-label {
+      font-size: var(--font-size-xs);
+      font-weight: var(--font-weight-medium);
+      color: rgba(255,255,255,0.5);
+      padding-left: var(--spacing-1);
+    }
+    
+    .chat-message-bubble {
+      padding: var(--spacing-2) var(--spacing-3);
+      border-radius: var(--radius-lg);
+      font-size: var(--font-size-sm);
+      line-height: 1.5;
+    }
+    
+    .chat-message.user .chat-message-bubble {
+      background: rgba(255,255,255,0.1);
+      color: var(--color-white);
+    }
+    
+    .chat-message.assistant .chat-message-bubble {
+      background: rgba(255,255,255,0.05);
+      color: rgba(255,255,255,0.9);
+    }
+    
+    .chat-message.assistant .chat-message-bubble p {
+      margin: 0 0 var(--spacing-2);
+    }
+    
+    .chat-message.assistant .chat-message-bubble p:last-child {
+      margin-bottom: 0;
+    }
+    
+    .chat-message.assistant .chat-message-bubble strong {
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-white);
+    }
+    
+    /* Quick actions */
+    .chat-quick-actions {
+      padding: var(--spacing-2) var(--spacing-4);
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--spacing-2);
+      flex-shrink: 0;
+    }
+    
+    .quick-action-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--spacing-1);
+      padding: var(--spacing-1) var(--spacing-3);
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: var(--radius-full);
+      font-size: var(--font-size-xs);
+      color: rgba(255,255,255,0.8);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      text-decoration: none;
+    }
+    
+    .quick-action-chip:hover {
+      background: rgba(56, 88, 233, 0.3);
+      border-color: var(--color-blue-40);
+      color: var(--color-white);
+    }
+    
+    .quick-action-chip svg {
+      width: 12px;
+      height: 12px;
+    }
+    
+    /* Input area */
+    .chat-input-area {
+      padding: var(--spacing-3) var(--spacing-4);
+      border-top: 1px solid rgba(255,255,255,0.1);
+      flex-shrink: 0;
+    }
+    
+    .chat-input-container {
+      display: flex;
+      align-items: flex-end;
+      gap: var(--spacing-2);
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-2);
+      transition: all var(--transition-fast);
+    }
+    
+    .chat-input-container:focus-within {
+      border-color: var(--color-blue-40);
+      background: rgba(255,255,255,0.12);
+    }
+    
+    .chat-input {
+      flex: 1;
+      border: none;
+      background: transparent;
+      font-size: var(--font-size-sm);
+      color: var(--color-white);
+      resize: none;
+      min-height: 20px;
+      max-height: 80px;
+      padding: var(--spacing-1) var(--spacing-2);
+    }
+    
+    .chat-input:focus {
+      outline: none;
+    }
+    
+    .chat-input::placeholder {
+      color: rgba(255,255,255,0.4);
+    }
+    
+    .chat-send-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      background: rgba(255,255,255,0.1);
+      border: none;
+      border-radius: var(--radius-md);
+      color: rgba(255,255,255,0.6);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      flex-shrink: 0;
+    }
+    
+    .chat-send-btn:hover {
+      background: var(--color-primary);
+      color: var(--color-white);
+    }
+    
+    .chat-send-btn svg {
+      width: 16px;
+      height: 16px;
+    }
+    
+    /* Adjust tabs - remove assistant tab since we have sidebar */
+    .tab-assistant {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <!-- Titlebar -->
+    <div class="titlebar">
+      <div class="titlebar-controls">
+        <button class="titlebar-button close"></button>
+        <button class="titlebar-button minimize"></button>
+        <button class="titlebar-button maximize"></button>
+      </div>
+    </div>
+    
+    <!-- Sidebar (Sites) -->
+    <aside class="sidebar">
+      <div class="sidebar-content">
+        <ul class="site-list">
+          <li class="site-item active">
+            <span class="site-name">Downstreet Cafe</span>
+            <span class="site-status running" data-tooltip="Stop site"></span>
+          </li>
+          <li class="site-item">
+            <span class="site-name">Shaun's Blog</span>
+            <span class="site-status stopped" data-tooltip="Start site"></span>
+          </li>
+          <li class="site-item">
+            <span class="site-name">Sporadic Thoughts</span>
+            <span class="site-status running" data-tooltip="Stop site"></span>
+          </li>
+          <li class="site-item">
+            <span class="site-name">UI Portfolio</span>
+            <span class="site-status running" data-tooltip="Stop site"></span>
+          </li>
+        </ul>
+      </div>
+      <div class="sidebar-footer">
+        <div class="sidebar-meta">3 sites running · <a href="#">Stop all</a></div>
+        <button class="add-site-btn">Add site</button>
+      </div>
+    </aside>
+    
+    <!-- Main Content + Chat Panel -->
+    <main class="main">
+      <!-- Main Wrapper (header, tabs, content) -->
+      <div class="main-wrapper">
+        <!-- Header -->
+        <header class="header">
+        <div class="header-left">
+          <h1 class="header-title">Downstreet Cafe</h1>
+          <div class="header-links">
+            <a href="#" class="header-link">WP admin ↗</a>
+            <a href="#" class="header-link">Open site ↗</a>
+          </div>
+        </div>
+        <div class="header-actions">
+          <button class="btn btn-primary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 19V5M5 12l7-7 7 7"/>
+            </svg>
+            Publish site
+          </button>
+          <div class="status-badge">
+            <span class="status-dot"></span>
+            Running
+          </div>
+        </div>
+      </header>
+      
+      <!-- Tabs -->
+      <nav class="tabs">
+        <div class="tabs-scrollable">
+          <a href="#" class="tab active">Overview</a>
+          <a href="#" class="tab">Sync</a>
+          <a href="#" class="tab">Previews</a>
+          <a href="#" class="tab">Import / Export</a>
+          <a href="#" class="tab">Settings</a>
+        </div>
+      </nav>
+      
+      <!-- Main Content Area (Overview) -->
+      <div class="main-content">
+        <div class="overview-layout">
+          <!-- Theme Section (Left) -->
+          <div class="theme-section">
+            <h2 class="section-title">Theme</h2>
+            <div class="theme-preview">
+              <div class="theme-preview-placeholder">
+                <div class="mock-header"></div>
+                <div class="mock-hero">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+                    <rect x="3" y="3" width="18" height="18" rx="2"/>
+                    <circle cx="8.5" cy="8.5" r="1.5"/>
+                    <path d="M21 15l-5-5L5 21"/>
+                  </svg>
+                </div>
+                <div class="mock-content">
+                  <div class="mock-line" style="width: 100%;"></div>
+                  <div class="mock-line"></div>
+                  <div class="mock-line"></div>
+                </div>
+              </div>
+            </div>
+            <div class="theme-name">Twenty Twenty-Five</div>
+          </div>
+          
+          <!-- Actions (Right) -->
+          <div class="overview-actions">
+            <!-- Customize Section -->
+            <div>
+              <h2 class="section-title">Customize</h2>
+              <div class="actions-grid">
+                <a href="#" class="action-btn">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="18" height="18" rx="2"/>
+                    <path d="M3 9h18"/>
+                    <path d="M9 21V9"/>
+                  </svg>
+                  <span>Site Editor</span>
+                </a>
+                <a href="#" class="action-btn">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="4"/>
+                    <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>
+                  </svg>
+                  <span>Styles</span>
+                </a>
+                <a href="#" class="action-btn">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="7" height="7"/>
+                    <rect x="14" y="3" width="7" height="7"/>
+                    <rect x="3" y="14" width="7" height="7"/>
+                    <rect x="14" y="14" width="7" height="7"/>
+                  </svg>
+                  <span>Patterns</span>
+                </a>
+                <a href="#" class="action-btn">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <path d="M12 8v8M8 12h8"/>
+                  </svg>
+                  <span>Navigation</span>
+                </a>
+              </div>
+            </div>
+            
+            <!-- Open in Section -->
+            <div>
+              <h2 class="section-title">Open in...</h2>
+              <div class="actions-grid">
+                <a href="#" class="action-btn">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+                  </svg>
+                  <span>Finder</span>
+                </a>
+                <a href="#" class="action-btn">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
+                  </svg>
+                  <span>Cursor</span>
+                </a>
+                <a href="#" class="action-btn">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="4" width="18" height="16" rx="2"/>
+                    <path d="M7 15l3-3-3-3M12 17h5"/>
+                  </svg>
+                  <span>Terminal</span>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div><!-- end main-content -->
+      </div><!-- end main-wrapper -->
+      
+      <!-- Chat Panel (Persistent Sidebar) -->
+      <div class="chat-panel">
+        <!-- Panel Header -->
+        <div class="chat-panel-header">
+          <div class="chat-panel-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 3l1.5 4.5H18l-3.75 2.75L15.75 15 12 12.25 8.25 15l1.5-4.75L6 7.5h4.5L12 3z"/>
+            </svg>
+            Assistant
+          </div>
+          <button class="chat-panel-collapse" title="Collapse panel">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 6L6 18M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+        
+        <!-- Context Hint -->
+        <div class="chat-context">
+          <div class="chat-context-text">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M12 16v-4M12 8h.01"/>
+            </svg>
+            I see you're on <strong>Overview</strong>. Need help with your site?
+          </div>
+        </div>
+        
+        <!-- Messages -->
+        <div class="chat-messages">
+          <div class="chat-message user">
+            <span class="chat-message-label">You</span>
+            <div class="chat-message-bubble">
+              How do I change the site colors?
+            </div>
+          </div>
+          
+          <div class="chat-message assistant">
+            <span class="chat-message-label">Assistant</span>
+            <div class="chat-message-bubble">
+              <p>To change your site colors, go to <strong>Styles</strong> in the Site Editor. You can:</p>
+              <p>1. Click the <strong>Styles</strong> button above<br>
+              2. Select "Colors" in the sidebar<br>
+              3. Choose from presets or set custom colors</p>
+              <p>Want me to open Styles for you?</p>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Quick Actions -->
+        <div class="chat-quick-actions">
+          <a href="#" class="quick-action-chip">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="4"/>
+              <path d="M12 2v2M12 20v2"/>
+            </svg>
+            Customize theme
+          </a>
+          <a href="#" class="quick-action-chip">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <path d="M14 2v6h6"/>
+            </svg>
+            Write a post
+          </a>
+          <a href="#" class="quick-action-chip">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="3" width="18" height="18" rx="2"/>
+              <path d="M3 9h18"/>
+            </svg>
+            Add a page
+          </a>
+        </div>
+        
+        <!-- Input Area -->
+        <div class="chat-input-area">
+          <div class="chat-input-container">
+            <textarea class="chat-input" placeholder="Ask anything..." rows="1"></textarea>
+            <button class="chat-send-btn" title="Send message">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

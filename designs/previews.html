@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Studio — Previews</title>
+  <link rel="stylesheet" href="base.css">
+  <style>
+    .placeholder-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 80px 32px;
+      color: var(--color-text-secondary);
+      text-align: center;
+    }
+    
+    .placeholder-content svg {
+      width: 64px;
+      height: 64px;
+      margin-bottom: 16px;
+      opacity: 0.3;
+    }
+    
+    .placeholder-content h3 {
+      font-size: var(--font-size-lg);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-text-primary);
+      margin-bottom: 8px;
+    }
+    
+    .placeholder-content p {
+      max-width: 400px;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <!-- Titlebar -->
+    <div class="titlebar">
+      <div class="titlebar-controls">
+        <button class="titlebar-button close"></button>
+        <button class="titlebar-button minimize"></button>
+        <button class="titlebar-button maximize"></button>
+      </div>
+    </div>
+    
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-content">
+        <ul class="site-list">
+          <li class="site-item active">
+            <span class="site-name">Downstreet Cafe</span>
+            <span class="site-status running" data-tooltip="Stop site"></span>
+          </li>
+          <li class="site-item">
+            <span class="site-name">Shaun's Blog</span>
+            <span class="site-status stopped" data-tooltip="Start site"></span>
+          </li>
+          <li class="site-item">
+            <span class="site-name">Sporadic Thoughts</span>
+            <span class="site-status running" data-tooltip="Stop site"></span>
+          </li>
+          <li class="site-item">
+            <span class="site-name">UI Portfolio</span>
+            <span class="site-status running" data-tooltip="Stop site"></span>
+          </li>
+        </ul>
+      </div>
+      <div class="sidebar-footer">
+        <div class="sidebar-meta">3 sites running · <a href="#">Stop all</a></div>
+        <button class="add-site-btn">Add site</button>
+      </div>
+    </aside>
+    
+    <!-- Main Content -->
+    <main class="main">
+      <!-- Header -->
+      <header class="header">
+        <div class="header-left">
+          <h1 class="header-title">Downstreet Cafe</h1>
+          <div class="header-links">
+            <a href="#" class="header-link">WP admin ↗</a>
+            <a href="#" class="header-link">Open site ↗</a>
+          </div>
+        </div>
+        <div class="header-actions">
+          <button class="btn btn-primary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 19V5M5 12l7-7 7 7"/>
+            </svg>
+            Publish site
+          </button>
+          <div class="status-badge">
+            <span class="status-dot"></span>
+            Running
+          </div>
+        </div>
+      </header>
+      
+      <!-- Tabs -->
+      <nav class="tabs">
+        <div class="tabs-scrollable">
+          <a href="overview.html" class="tab">Overview</a>
+          <a href="sync.html" class="tab">Sync</a>
+          <a href="previews.html" class="tab active">Previews</a>
+          <a href="import-export.html" class="tab">Import / Export</a>
+          <a href="settings.html" class="tab">Settings</a>
+        </div>
+        <a href="assistant.html" class="tab tab-assistant">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 3l1.5 4.5H18l-3.75 2.75L15.75 15 12 12.25 8.25 15l1.5-4.75L6 7.5h4.5L12 3z"/>
+          </svg>
+          Assistant
+        </a>
+      </nav>
+      
+      <!-- Content -->
+      <div class="placeholder-content">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+          <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+        </svg>
+        <h3>Share previews</h3>
+        <p>Create shareable links so others can preview your local site without deploying.</p>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

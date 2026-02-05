@@ -27,7 +27,7 @@
     
     .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
       gap: 24px;
     }
     
@@ -45,23 +45,22 @@
     }
     
     .card-preview {
-      height: 200px;
+      height: 180px;
       background: var(--color-gray-5);
       display: flex;
       align-items: center;
       justify-content: center;
       color: var(--color-text-muted);
       font-size: 0.875rem;
+      overflow: hidden;
     }
     
     .card-preview iframe {
-      width: 100%;
-      height: 100%;
+      width: 200%;
+      height: 200%;
       border: none;
       transform: scale(0.5);
       transform-origin: top left;
-      width: 200%;
-      height: 200%;
       pointer-events: none;
     }
     
@@ -152,55 +151,120 @@
   <p class="subtitle">Design mockups and explorations</p>
   
   <div class="section">
-    <h2 class="section-title">Mockups</h2>
+    <h2 class="section-title">Current UI — Recreation</h2>
     <div class="grid">
       <div class="card">
         <div class="card-preview">
-          <iframe src="current-ui.html"></iframe>
+          <iframe src="overview.html"></iframe>
         </div>
         <div class="card-body">
-          <div class="card-title">Current UI — Settings</div>
-          <div class="card-desc">Recreation of the current Studio Settings view.</div>
-          <a href="current-ui.html" class="card-link">View mockup →</a>
+          <div class="card-title">Overview</div>
+          <div class="card-desc">Theme preview, Customize actions, Open in actions.</div>
+          <a href="overview.html" class="card-link">View →</a>
         </div>
       </div>
       
       <div class="card">
         <div class="card-preview">
-          <iframe src="assistant-view.html"></iframe>
+          <iframe src="settings.html"></iframe>
         </div>
         <div class="card-body">
-          <div class="card-title">Current UI — Assistant</div>
-          <div class="card-desc">Recreation of the current Studio Assistant chat view.</div>
-          <a href="assistant-view.html" class="card-link">View mockup →</a>
-        </div>
-      </div>
-      
-      <!-- Placeholder for future mockups -->
-      <div class="card">
-        <div class="card-preview">Two-pane chat view</div>
-        <div class="card-body">
-          <div class="card-title">Vibe Coding View</div>
-          <div class="card-desc">Chat on left, live preview on right. Minimal chrome.</div>
-          <span class="card-link" style="color: var(--color-text-muted);">Coming soon</span>
+          <div class="card-title">Settings</div>
+          <div class="card-desc">Site details, paths, versions, WP admin credentials.</div>
+          <a href="settings.html" class="card-link">View →</a>
         </div>
       </div>
       
       <div class="card">
-        <div class="card-preview">Sync progress</div>
+        <div class="card-preview">
+          <iframe src="assistant.html"></iframe>
+        </div>
         <div class="card-body">
-          <div class="card-title">Sync Takeover</div>
-          <div class="card-desc">Full-screen deploy progress with clear status.</div>
-          <span class="card-link" style="color: var(--color-text-muted);">Coming soon</span>
+          <div class="card-title">Assistant</div>
+          <div class="card-desc">Chat interface with message bubbles and input toolbar.</div>
+          <a href="assistant.html" class="card-link">View →</a>
         </div>
       </div>
       
       <div class="card">
-        <div class="card-preview">Chat interface</div>
+        <div class="card-preview">
+          <iframe src="sync.html"></iframe>
+        </div>
         <div class="card-body">
-          <div class="card-title">Clean Chat UI</div>
-          <div class="card-desc">Focused chat interface with history sidebar.</div>
-          <span class="card-link" style="color: var(--color-text-muted);">Coming soon</span>
+          <div class="card-title">Sync</div>
+          <div class="card-desc">GitHub sync placeholder state.</div>
+          <a href="sync.html" class="card-link">View →</a>
+        </div>
+      </div>
+      
+      <div class="card">
+        <div class="card-preview">
+          <iframe src="previews.html"></iframe>
+        </div>
+        <div class="card-body">
+          <div class="card-title">Previews</div>
+          <div class="card-desc">Share preview links placeholder state.</div>
+          <a href="previews.html" class="card-link">View →</a>
+        </div>
+      </div>
+      
+      <div class="card">
+        <div class="card-preview">
+          <iframe src="import-export.html"></iframe>
+        </div>
+        <div class="card-body">
+          <div class="card-title">Import / Export</div>
+          <div class="card-desc">Import/export placeholder state.</div>
+          <a href="import-export.html" class="card-link">View →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="section">
+    <h2 class="section-title">New Concepts</h2>
+    <div class="grid">
+      <div class="card">
+        <div class="card-preview">
+          <iframe src="concept-a-chat-first.html"></iframe>
+        </div>
+        <div class="card-body">
+          <div class="card-title">A: Chat-First Interface</div>
+          <div class="card-desc">Conversation IS the interface. No tabs — contextual panels appear as needed.</div>
+          <a href="concept-a-chat-first.html" class="card-link">View →</a>
+        </div>
+      </div>
+      
+      <div class="card">
+        <div class="card-preview">
+          <iframe src="concept-b-persistent-chat.html"></iframe>
+        </div>
+        <div class="card-body">
+          <div class="card-title">B: Persistent Chat Sidebar</div>
+          <div class="card-desc">Traditional UI + always-visible chat panel on the right. Best of both worlds.</div>
+          <a href="concept-b-persistent-chat.html" class="card-link">View →</a>
+        </div>
+      </div>
+      
+      <div class="card">
+        <div class="card-preview">
+          <iframe src="concept-c-ai-dashboard.html"></iframe>
+        </div>
+        <div class="card-body">
+          <div class="card-title">C: AI-First Dashboard</div>
+          <div class="card-desc">No chat. Goal-oriented suggestion cards that understand your site.</div>
+          <a href="concept-c-ai-dashboard.html" class="card-link">View →</a>
+        </div>
+      </div>
+      
+      <div class="card">
+        <div class="card-preview">
+          <iframe src="concept-d-vibe-workbench.html"></iframe>
+        </div>
+        <div class="card-body">
+          <div class="card-title">D: Vibe Coding Workbench</div>
+          <div class="card-desc">WordPress as app platform. Build tools, dashboards, CRMs — not just websites.</div>
+          <a href="concept-d-vibe-workbench.html" class="card-link">View →</a>
         </div>
       </div>
     </div>
@@ -245,19 +309,6 @@
         <div class="color-swatch" style="background: var(--color-red-50);">Error<br>#d63638</div>
       </div>
     </div>
-    
-    <div class="token-section">
-      <h3>Typography</h3>
-      <div style="background: white; padding: 24px; border-radius: 8px;">
-        <p class="text-title-large" style="margin-bottom: 8px;">Title Large (32px)</p>
-        <p class="text-title-medium" style="margin-bottom: 8px;">Title Medium (24px)</p>
-        <p class="text-title-small" style="margin-bottom: 8px;">Title Small (20px)</p>
-        <p class="text-subtitle" style="margin-bottom: 8px;">Subtitle (16px semibold)</p>
-        <p class="text-body" style="margin-bottom: 8px;">Body text (13px) — The quick brown fox jumps over the lazy dog.</p>
-        <p class="text-body-small" style="margin-bottom: 8px;">Body small (12px) — Secondary information and helper text.</p>
-        <p class="text-label">LABEL TEXT (11px uppercase)</p>
-      </div>
-    </div>
   </div>
   
   <hr>
@@ -265,9 +316,18 @@
   <div class="section">
     <h2 class="section-title">Files</h2>
     <ul style="list-style: none; padding: 0;">
-      <li style="margin-bottom: 8px;"><a href="tokens.css">tokens.css</a> — Design system tokens (colors, typography, spacing)</li>
+      <li style="margin-bottom: 8px;"><a href="tokens.css">tokens.css</a> — Design system tokens</li>
       <li style="margin-bottom: 8px;"><a href="base.css">base.css</a> — Base component styles</li>
-      <li style="margin-bottom: 8px;"><a href="current-ui.html">current-ui.html</a> — Current Studio UI recreation</li>
+      <li style="margin-bottom: 8px;"><a href="overview.html">overview.html</a> — Overview screen</li>
+      <li style="margin-bottom: 8px;"><a href="settings.html">settings.html</a> — Settings screen</li>
+      <li style="margin-bottom: 8px;"><a href="assistant.html">assistant.html</a> — Assistant screen</li>
+      <li style="margin-bottom: 8px;"><a href="sync.html">sync.html</a> — Sync screen</li>
+      <li style="margin-bottom: 8px;"><a href="previews.html">previews.html</a> — Previews screen</li>
+      <li style="margin-bottom: 8px;"><a href="import-export.html">import-export.html</a> — Import/Export screen</li>
+      <li style="margin-bottom: 8px;"><a href="concept-a-chat-first.html">concept-a-chat-first.html</a> — Concept A: Chat-First Interface</li>
+      <li style="margin-bottom: 8px;"><a href="concept-b-persistent-chat.html">concept-b-persistent-chat.html</a> — Concept B: Persistent Chat Sidebar</li>
+      <li style="margin-bottom: 8px;"><a href="concept-c-ai-dashboard.html">concept-c-ai-dashboard.html</a> — Concept C: AI-First Dashboard</li>
+      <li style="margin-bottom: 8px;"><a href="concept-d-vibe-workbench.html">concept-d-vibe-workbench.html</a> — Concept D: Vibe Coding Workbench</li>
     </ul>
   </div>
 </body>
