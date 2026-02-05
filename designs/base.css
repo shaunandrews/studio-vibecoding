@@ -161,13 +161,13 @@ input, button, textarea, select {
   background: var(--color-gray-50);
 }
 
-/* Hover states - transform to action icons */
-.site-item:hover .site-status.running {
+/* Hover states - only on the dot itself */
+.site-status.running:hover {
   background: var(--color-red-40);
   border-radius: var(--radius-sm);
 }
 
-.site-item:hover .site-status.stopped {
+.site-status.stopped:hover {
   background: transparent;
   width: 0;
   height: 0;
@@ -177,13 +177,13 @@ input, button, textarea, select {
   border-radius: 0;
 }
 
-/* Tooltip on hover */
+/* Tooltip on hover - appears above */
 .site-status::before {
   content: attr(data-tooltip);
   position: absolute;
-  right: calc(100% + 8px);
-  top: 50%;
-  transform: translateY(-50%);
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
   background: var(--color-gray-80);
   color: var(--color-white);
   padding: 4px 8px;
@@ -195,7 +195,7 @@ input, button, textarea, select {
   transition: opacity var(--transition-fast);
 }
 
-.site-item:hover .site-status::before {
+.site-status:hover::before {
   opacity: 1;
 }
 
