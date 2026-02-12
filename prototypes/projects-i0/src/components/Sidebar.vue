@@ -30,7 +30,7 @@ import Button from './Button.vue'
 
 <style scoped>
 .sidebar {
-  width: 208px;
+  width: 210px; /* 42 units */
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
@@ -38,10 +38,10 @@ import Button from './Button.vue'
 
 .sidebar-sites {
   flex: 1;
-  padding: 5px 10px;
+  padding: 0 var(--space-xs);
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--space-xxxs);
   overflow-y: auto;
 }
 
@@ -49,8 +49,8 @@ import Button from './Button.vue'
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 5px 10px;
-  border-radius: 5px;
+  padding: var(--space-xs) var(--space-s);
+  border-radius: var(--radius-s);
   cursor: pointer;
   color: var(--color-chrome-text-secondary);
   transition: background 150ms ease;
@@ -72,8 +72,8 @@ import Button from './Button.vue'
 }
 
 .site-status {
-  width: 10px;
-  height: 10px;
+  width: var(--space-xs);
+  height: var(--space-xs);
   border-radius: 50%;
   flex-shrink: 0;
 }
@@ -81,8 +81,7 @@ import Button from './Button.vue'
 .site-status.stopped { background: var(--color-status-stopped); }
 
 .sidebar-footer {
-  padding: 10px;
-  border-top: 1px solid var(--color-chrome-border);
+  padding: var(--space-xs);
 }
 
 .sidebar-meta {
@@ -90,7 +89,7 @@ import Button from './Button.vue'
   justify-content: space-between;
   font-size: 11px;
   color: var(--color-chrome-text-muted);
-  margin-bottom: 10px;
+  margin-bottom: var(--space-xs);
 }
 .sidebar-meta a {
   color: var(--color-chrome-text-muted);

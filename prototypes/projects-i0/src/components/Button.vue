@@ -33,9 +33,9 @@ defineProps<{
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: var(--space-xxs);
   border: none;
-  border-radius: 4px;
+  border-radius: var(--radius-s);
   font-family: inherit;
   font-weight: 500;
   cursor: pointer;
@@ -51,21 +51,21 @@ defineProps<{
 
 /* Sizes */
 .btn--default {
-  height: 36px;
-  padding: 0 16px;
+  height: 35px; /* 7 units — intentional, matches Studio's control height */
+  padding: 0 var(--space-s);
   font-size: 13px;
 }
 .btn--small {
-  height: 28px;
-  padding: 0 10px;
+  height: 25px; /* 5 units — matches --space-m */
+  padding: 0 var(--space-xs);
   font-size: 12px;
 }
 .btn--icon-only.btn--default {
-  width: 36px;
+  width: 35px; /* matches height */
   padding: 0;
 }
 .btn--icon-only.btn--small {
-  width: 28px;
+  width: 25px; /* matches height */
   padding: 0;
 }
 

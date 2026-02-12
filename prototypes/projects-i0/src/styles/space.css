@@ -1,0 +1,11 @@
+:root {
+  --space-xxxs: 2.5px;   /* 0.5 units */
+  --space-xxs: 5px;      /* 1 unit */
+  --space-xs: 10px;      /* 2 units */
+  --space-s: 15px;       /* 3 units */
+  --space-m: 20px;       /* 4 units */
+  --space-l: 25px;       /* 5 units */
+  --space-xl: 30px;      /* 6 units */
+  --space-xxl: 40px;     /* 8 units */
+  --space-xxxl: 50px;    /* 10 units */
+}

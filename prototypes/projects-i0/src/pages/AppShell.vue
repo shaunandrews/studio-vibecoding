@@ -38,8 +38,8 @@ import Sidebar from '../components/Sidebar.vue'
 .frame {
   flex: 1;
   background: var(--color-surface);
-  border-radius: 5px;
-  margin: 0 10px 10px 0;
+  border-radius: var(--radius-s);
+  margin: 0 var(--space-xxs) var(--space-xxs) 0;
   overflow: hidden;
   display: flex;
 }

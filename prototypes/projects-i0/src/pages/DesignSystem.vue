@@ -3,6 +3,48 @@
     <h1>Design System</h1>
 
     <section>
+      <h2>Space</h2>
+      <p class="section-desc">5px grid. All spacing must use these tokens. No magic numbers.</p>
+      <div class="space-list">
+        <div class="space-item" v-for="t in [
+          { name: 'xxxs', val: '2.5px', units: 0.5 },
+          { name: 'xxs', val: '5px', units: 1 },
+          { name: 'xs', val: '10px', units: 2 },
+          { name: 's', val: '15px', units: 3 },
+          { name: 'm', val: '20px', units: 4 },
+          { name: 'l', val: '25px', units: 5 },
+          { name: 'xl', val: '30px', units: 6 },
+          { name: 'xxl', val: '40px', units: 8 },
+          { name: 'xxxl', val: '50px', units: 10 },
+        ]" :key="t.name">
+          <code class="space-token">--space-{{ t.name }}</code>
+          <div class="space-bar" :style="{ width: `var(--space-${t.name})` }"></div>
+          <span class="space-value">{{ t.val }}</span>
+          <span class="space-units">{{ t.units }} {{ t.units === 1 ? 'unit' : 'units' }}</span>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Border Radius</h2>
+      <p class="section-desc">On the 5px grid. Use for consistent rounding across components.</p>
+      <div class="radius-list">
+        <div class="radius-item" v-for="r in [
+          { name: 's', val: '5px', desc: 'Buttons, inputs, tags' },
+          { name: 'm', val: '10px', desc: 'Cards, panels, dropdowns' },
+          { name: 'l', val: '15px', desc: 'Modals, large containers' },
+        ]" :key="r.name">
+          <div class="radius-preview" :style="{ borderRadius: `var(--radius-${r.name})` }"></div>
+          <div class="radius-info">
+            <code>--radius-{{ r.name }}</code>
+            <span class="radius-val">{{ r.val }}</span>
+            <span class="radius-desc">{{ r.desc }}</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
       <h2>Chrome</h2>
       <p class="section-desc">App frame, sidebar, and titlebar colors.</p>
       <div class="swatches">
@@ -218,6 +260,90 @@ h2 {
   font-size: 13px;
   font-weight: 500;
   color: var(--color-text);
+}
+
+/* Space */
+.space-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.space-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.space-token {
+  font-size: 12px;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  color: var(--color-text);
+  width: 120px;
+  flex-shrink: 0;
+}
+
+.space-bar {
+  height: 20px;
+  background: var(--color-primary);
+  border-radius: 3px;
+  opacity: 0.2;
+}
+
+.space-value {
+  font-size: 12px;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  color: var(--color-text-secondary);
+  width: 40px;
+  flex-shrink: 0;
+}
+
+.space-units {
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+/* Radius */
+.radius-list {
+  display: flex;
+  gap: 24px;
+}
+
+.radius-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.radius-preview {
+  width: 80px;
+  height: 80px;
+  background: var(--color-surface-secondary);
+  border: 1px solid var(--color-surface-border);
+}
+
+.radius-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.radius-info code {
+  font-size: 12px;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+}
+
+.radius-val {
+  font-size: 12px;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  color: var(--color-text-secondary);
+}
+
+.radius-desc {
+  font-size: 11px;
+  color: var(--color-text-muted);
 }
 
 .swatch-value {
