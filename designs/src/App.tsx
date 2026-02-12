@@ -8,7 +8,7 @@ interface Mockup {
   title: string
   description: string
   file: string
-  category: 'current' | 'concept'
+  category: 'current' | 'concept' | 'iteration2'
 }
 
 const mockups: Mockup[] = [
@@ -19,6 +19,10 @@ const mockups: Mockup[] = [
   { id: 'sync', title: 'Sync', description: 'GitHub sync placeholder', file: 'sync.html', category: 'current' },
   { id: 'previews', title: 'Previews', description: 'Share preview links', file: 'previews.html', category: 'current' },
   { id: 'import-export', title: 'Import / Export', description: 'Import/export placeholder', file: 'import-export.html', category: 'current' },
+  // Iteration 2
+  { id: 'concept-a-v2', title: 'A: Chat-First v2', description: 'Rich chat: image uploads, draft posts, editor panel, color/font picker', file: 'concept-a-v2.html', category: 'iteration2' },
+  { id: 'concept-b-v2', title: 'B: Persistent Chat v2', description: 'Polished chat sidebar with tabs, multiple conversations', file: 'concept-b-v2.html', category: 'iteration2' },
+  { id: 'concept-c-v2', title: 'C: AI Dashboard v2', description: 'Smart dashboard with stats, traffic, AI suggestions', file: 'concept-c-v2.html', category: 'iteration2' },
   // Concepts
   { id: 'concept-a', title: 'A: Chat-First', description: 'Conversation IS the interface, no tabs', file: 'concept-a-chat-first.html', category: 'concept' },
   { id: 'concept-b', title: 'B: Persistent Chat', description: 'Traditional UI + always-on chat sidebar', file: 'concept-b-persistent-chat.html', category: 'concept' },
@@ -60,7 +64,25 @@ function MockupViewer() {
         }
         
         const bodyContent = bodyMatch ? bodyMatch[1] : content
+        
+        // Extract scripts
+        const scriptMatch = content.match(/<script[^>]*>([\s\S]*?)<\/script>/gi)
+        let scripts = ''
+        if (scriptMatch) {
+          scripts = scriptMatch.map(s => {
+            const match = s.match(/<script[^>]*>([\s\S]*?)<\/script>/i)
+            return match ? match[1] : ''
+          }).join('\n')
+        }
+        
         setHtml(`<style>${styles}</style>${bodyContent}`)
+        
+        // Execute extracted scripts after render
+        if (scripts) {
+          setTimeout(() => {
+            try { new Function(scripts)() } catch (e) { console.error('Mockup script error:', e) }
+          }, 0)
+        }
       } catch (err) {
         console.error('Failed to load mockup:', err)
         setHtml('<p>Failed to load mockup</p>')
@@ -92,6 +114,7 @@ function MockupViewer() {
 function Gallery() {
   const currentMockups = mockups.filter(m => m.category === 'current')
   const conceptMockups = mockups.filter(m => m.category === 'concept')
+  const iteration2Mockups = mockups.filter(m => m.category === 'iteration2')
 
   return (
     <div className="gallery">
@@ -99,6 +122,27 @@ function Gallery() {
         <h1>Studio Vibe Coding</h1>
         <p>Design mockups and explorations</p>
       </header>
+
+      <section className="mockup-section">
+        <h2>Iteration 2 — Refined Concepts</h2>
+        <div className="mockup-grid">
+          {iteration2Mockups.map(mockup => (
+            <Link
+              key={mockup.id}
+              className="mockup-card"
+              to={`/${mockup.id}`}
+            >
+              <div className="mockup-preview">
+                <iframe src={`/mockups/${mockup.file}`} tabIndex={-1} />
+              </div>
+              <div className="mockup-info">
+                <h3>{mockup.title}</h3>
+                <p>{mockup.description}</p>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </section>
 
       <section className="mockup-section">
         <h2>New Concepts</h2>

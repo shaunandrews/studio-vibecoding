@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Studio — Concept B v2: Refined Chat Sidebar</title>
+  <link rel="stylesheet" href="tokens.css">
+  <link rel="stylesheet" href="base.css">
+  <style>
+    /* ============================================
+       CONCEPT B v2: Three-Column Layout
+       Sites sidebar | Main content | Chat panel
+       ============================================ */
+
+    .main {
+      display: flex;
+      flex-direction: row;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .main-wrapper {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .main-content {
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    /* ============================================
+       OVERVIEW CONTENT
+       ============================================ */
+
+    .overview-layout {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: var(--spacing-10);
+      align-items: start;
+      padding: var(--spacing-8);
+    }
+
+    .theme-section { width: 220px; }
+
+    .section-title {
+      font-size: var(--font-size-base);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-text-primary);
+      margin-bottom: var(--spacing-4);
+    }
+
+    .theme-preview {
+      width: 220px;
+      aspect-ratio: 3 / 4;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      border: 1px solid var(--color-border);
+      background: var(--color-gray-50);
+      margin-bottom: var(--spacing-3);
+    }
+
+    .theme-preview-placeholder {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: var(--spacing-4);
+      background: linear-gradient(180deg, #f8f8f8 0%, #e8e8e8 100%);
+    }
+
+    .theme-preview-placeholder .mock-header {
+      width: 100%;
+      height: 28px;
+      background: white;
+      border-radius: 4px;
+      margin-bottom: 10px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    }
+
+    .theme-preview-placeholder .mock-hero {
+      width: 100%;
+      height: 80px;
+      background: linear-gradient(135deg, #e0e7e0 0%, #d0d8d0 100%);
+      border-radius: 4px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .theme-preview-placeholder .mock-hero svg {
+      width: 32px;
+      height: 32px;
+      color: #999;
+    }
+
+    .theme-preview-placeholder .mock-content {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .theme-preview-placeholder .mock-line {
+      height: 6px;
+      background: rgba(0,0,0,0.08);
+      border-radius: 2px;
+    }
+
+    .theme-preview-placeholder .mock-line:nth-child(2) { width: 80%; }
+    .theme-preview-placeholder .mock-line:nth-child(3) { width: 60%; }
+
+    .theme-name {
+      font-size: var(--font-size-sm);
+      color: var(--color-text-primary);
+    }
+
+    .overview-actions {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-8);
+    }
+
+    .actions-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--spacing-3);
+    }
+
+    .action-btn {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-3);
+      padding: var(--spacing-3) var(--spacing-4);
+      background: var(--color-white);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      color: var(--color-text-primary);
+      font-size: var(--font-size-sm);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      text-decoration: none;
+      text-align: left;
+    }
+
+    .action-btn:hover {
+      background: rgba(56, 88, 233, 0.04);
+      border-color: var(--color-primary);
+    }
+
+    .action-btn svg {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+      color: var(--color-text-primary);
+    }
+
+    .action-btn span { flex: 1; }
+
+    /* ============================================
+       CHAT PANEL — Refined Dark Theme
+       ============================================ */
+
+    .chat-panel {
+      width: 320px;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      background: var(--color-chrome);
+      min-height: 0;
+      border-left: 1px solid rgba(255,255,255,0.06);
+    }
+
+    /* Panel header */
+    .chat-panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 16px;
+      flex-shrink: 0;
+    }
+
+    .chat-panel-title {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: var(--font-size-sm);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-white);
+    }
+
+    .chat-panel-title svg {
+      width: 15px;
+      height: 15px;
+      color: var(--color-blue-30);
+    }
+
+    .chat-panel-actions {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .chat-panel-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 26px;
+      height: 26px;
+      background: transparent;
+      border: none;
+      border-radius: var(--radius-md);
+      color: rgba(255,255,255,0.45);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+
+    .chat-panel-btn:hover {
+      background: rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.85);
+    }
+
+    .chat-panel-btn svg {
+      width: 15px;
+      height: 15px;
+    }
+
+    /* Chat tabs */
+    .chat-tabs {
+      display: flex;
+      align-items: stretch;
+      padding: 0 12px;
+      gap: 2px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      flex-shrink: 0;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    .chat-tabs::-webkit-scrollbar { display: none; }
+
+    .chat-tab {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 7px 10px;
+      font-size: 11px;
+      font-weight: var(--font-weight-medium);
+      color: rgba(255,255,255,0.45);
+      background: transparent;
+      border: none;
+      border-bottom: 2px solid transparent;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all var(--transition-fast);
+      position: relative;
+      margin-bottom: -1px;
+    }
+
+    .chat-tab:hover {
+      color: rgba(255,255,255,0.75);
+    }
+
+    .chat-tab.active {
+      color: var(--color-white);
+      border-bottom-color: var(--color-blue-40);
+    }
+
+    .chat-tab .tab-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--color-blue-40);
+      opacity: 0;
+    }
+
+    .chat-tab.has-activity .tab-dot {
+      opacity: 1;
+    }
+
+    /* Context hint */
+    .chat-context {
+      padding: 10px 16px;
+      background: rgba(56, 88, 233, 0.1);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      flex-shrink: 0;
+    }
+
+    .chat-context-text {
+      font-size: 12px;
+      color: rgba(255,255,255,0.6);
+      line-height: 1.4;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .chat-context-text svg {
+      width: 14px;
+      height: 14px;
+      flex-shrink: 0;
+      color: var(--color-blue-30);
+      opacity: 0.7;
+    }
+
+    .chat-context-text strong {
+      color: rgba(255,255,255,0.9);
+      font-weight: var(--font-weight-semibold);
+    }
+
+    /* Messages area */
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255,255,255,0.15) transparent;
+    }
+
+    .chat-messages::-webkit-scrollbar { width: 4px; }
+    .chat-messages::-webkit-scrollbar-track { background: transparent; }
+    .chat-messages::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 2px; }
+
+    /* Messages */
+    .chat-message {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .chat-message-label {
+      font-size: 11px;
+      font-weight: var(--font-weight-medium);
+      color: rgba(255,255,255,0.4);
+      padding-left: 2px;
+      letter-spacing: 0.01em;
+    }
+
+    .chat-message-bubble {
+      padding: 10px 14px;
+      font-size: 13px;
+      line-height: 1.55;
+      border-radius: 10px;
+    }
+
+    .chat-message.user .chat-message-bubble {
+      background: rgba(255,255,255,0.1);
+      color: var(--color-white);
+      border-bottom-right-radius: 4px;
+    }
+
+    .chat-message.assistant .chat-message-bubble {
+      background: rgba(255,255,255,0.04);
+      color: rgba(255,255,255,0.88);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-bottom-left-radius: 4px;
+    }
+
+    .chat-message.assistant .chat-message-bubble p {
+      margin: 0 0 8px;
+    }
+
+    .chat-message.assistant .chat-message-bubble p:last-child {
+      margin-bottom: 0;
+    }
+
+    .chat-message.assistant .chat-message-bubble strong {
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-white);
+    }
+
+    .chat-message.assistant .chat-message-bubble code {
+      font-family: var(--font-family-mono);
+      font-size: 12px;
+      background: rgba(255,255,255,0.08);
+      padding: 1px 5px;
+      border-radius: 3px;
+      color: var(--color-blue-20);
+    }
+
+    .chat-message.assistant .chat-message-bubble ul,
+    .chat-message.assistant .chat-message-bubble ol {
+      margin: 6px 0;
+      padding-left: 18px;
+    }
+
+    .chat-message.assistant .chat-message-bubble li {
+      margin-bottom: 3px;
+    }
+
+    /* Action confirmation bubble */
+    .chat-action-confirm {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      background: rgba(74, 184, 102, 0.12);
+      border: 1px solid rgba(74, 184, 102, 0.2);
+      border-radius: 8px;
+      font-size: 12px;
+      color: var(--color-green-20);
+      margin-top: 4px;
+    }
+
+    .chat-action-confirm svg {
+      width: 14px;
+      height: 14px;
+      flex-shrink: 0;
+    }
+
+    /* Quick actions */
+    .chat-quick-actions {
+      padding: 8px 16px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .quick-action-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 11px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: var(--radius-full);
+      font-size: 11px;
+      color: rgba(255,255,255,0.7);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      text-decoration: none;
+    }
+
+    .quick-action-chip:hover {
+      background: rgba(56, 88, 233, 0.2);
+      border-color: rgba(56, 88, 233, 0.4);
+      color: var(--color-white);
+    }
+
+    .quick-action-chip svg {
+      width: 11px;
+      height: 11px;
+      opacity: 0.7;
+    }
+
+    /* Input area */
+    .chat-input-area {
+      padding: 12px 16px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      flex-shrink: 0;
+    }
+
+    .chat-input-container {
+      display: flex;
+      align-items: flex-end;
+      gap: 8px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      padding: 6px 8px;
+      transition: all var(--transition-fast);
+    }
+
+    .chat-input-container:focus-within {
+      border-color: rgba(56, 88, 233, 0.5);
+      background: rgba(255,255,255,0.08);
+      box-shadow: 0 0 0 2px rgba(56, 88, 233, 0.15);
+    }
+
+    .chat-input {
+      flex: 1;
+      border: none;
+      background: transparent;
+      font-size: 13px;
+      color: var(--color-white);
+      resize: none;
+      min-height: 20px;
+      max-height: 80px;
+      padding: 4px 6px;
+    }
+
+    .chat-input:focus { outline: none; }
+    .chat-input::placeholder { color: rgba(255,255,255,0.3); }
+
+    .chat-send-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      background: rgba(255,255,255,0.08);
+      border: none;
+      border-radius: 8px;
+      color: rgba(255,255,255,0.4);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      flex-shrink: 0;
+    }
+
+    .chat-send-btn:hover {
+      background: var(--color-primary);
+      color: var(--color-white);
+    }
+
+    .chat-send-btn svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    /* Conversation container - show/hide */
+    .chat-conversation { display: none; flex-direction: column; flex: 1; min-height: 0; }
+    .chat-conversation.active { display: flex; }
+
+    /* Hide assistant tab from main tabs */
+    .tab-assistant { display: none; }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <!-- Titlebar -->
+    <div class="titlebar">
+      <div class="titlebar-controls">
+        <button class="titlebar-button close"></button>
+        <button class="titlebar-button minimize"></button>
+        <button class="titlebar-button maximize"></button>
+      </div>
+    </div>
+
+    <!-- Sidebar (Sites) -->
+    <aside class="sidebar">
+      <div class="sidebar-content">
+        <ul class="site-list">
+          <li class="site-item active">
+            <span class="site-name">Downstreet Cafe</span>
+            <span class="site-status running" data-tooltip="Stop site"></span>
+          </li>
+          <li class="site-item">
+            <span class="site-name">Shaun's Blog</span>
+            <span class="site-status stopped" data-tooltip="Start site"></span>
+          </li>
+          <li class="site-item">
+            <span class="site-name">Sporadic Thoughts</span>
+            <span class="site-status running" data-tooltip="Stop site"></span>
+          </li>
+          <li class="site-item">
+            <span class="site-name">UI Portfolio</span>
+            <span class="site-status running" data-tooltip="Stop site"></span>
+          </li>
+        </ul>
+      </div>
+      <div class="sidebar-footer">
+        <div class="sidebar-meta">3 sites running · <a href="#">Stop all</a></div>
+        <button class="add-site-btn">Add site</button>
+      </div>
+    </aside>
+
+    <!-- Main Content + Chat Panel -->
+    <main class="main">
+      <div class="main-wrapper">
+        <header class="header">
+          <div class="header-left">
+            <h1 class="header-title">Downstreet Cafe</h1>
+            <div class="header-links">
+              <a href="#" class="header-link">WP admin ↗</a>
+              <a href="#" class="header-link">Open site ↗</a>
+            </div>
+          </div>
+          <div class="header-actions">
+            <button class="btn btn-primary">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+              Publish site
+            </button>
+            <div class="status-badge">
+              <span class="status-dot"></span>
+              Running
+            </div>
+          </div>
+        </header>
+
+        <nav class="tabs">
+          <div class="tabs-scrollable">
+            <a href="#" class="tab active">Overview</a>
+            <a href="#" class="tab">Sync</a>
+            <a href="#" class="tab">Previews</a>
+            <a href="#" class="tab">Import / Export</a>
+            <a href="#" class="tab">Settings</a>
+          </div>
+        </nav>
+
+        <div class="main-content">
+          <div class="overview-layout">
+            <div class="theme-section">
+              <h2 class="section-title">Theme</h2>
+              <div class="theme-preview">
+                <div class="theme-preview-placeholder">
+                  <div class="mock-header"></div>
+                  <div class="mock-hero">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+                  </div>
+                  <div class="mock-content">
+                    <div class="mock-line" style="width: 100%;"></div>
+                    <div class="mock-line"></div>
+                    <div class="mock-line"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="theme-name">Twenty Twenty-Five</div>
+            </div>
+
+            <div class="overview-actions">
+              <div>
+                <h2 class="section-title">Customize</h2>
+                <div class="actions-grid">
+                  <a href="#" class="action-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg><span>Site Editor</span></a>
+                  <a href="#" class="action-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg><span>Styles</span></a>
+                  <a href="#" class="action-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg><span>Patterns</span></a>
+                  <a href="#" class="action-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg><span>Navigation</span></a>
+                </div>
+              </div>
+              <div>
+                <h2 class="section-title">Open in...</h2>
+                <div class="actions-grid">
+                  <a href="#" class="action-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg><span>Finder</span></a>
+                  <a href="#" class="action-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg><span>Cursor</span></a>
+                  <a href="#" class="action-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 15l3-3-3-3M12 17h5"/></svg><span>Terminal</span></a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============================================
+           CHAT PANEL — Refined
+           ============================================ -->
+      <div class="chat-panel">
+        <!-- Panel Header -->
+        <div class="chat-panel-header">
+          <div class="chat-panel-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l1.5 4.5H18l-3.75 2.75L15.75 15 12 12.25 8.25 15l1.5-4.75L6 7.5h4.5L12 3z"/></svg>
+            Assistant
+          </div>
+          <div class="chat-panel-actions">
+            <button class="chat-panel-btn" title="New conversation">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+            </button>
+            <button class="chat-panel-btn" title="Collapse panel">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Chat Tabs -->
+        <div class="chat-tabs">
+          <button class="chat-tab active" data-tab="site-colors">Site Colors</button>
+          <button class="chat-tab" data-tab="blog-post">Blog Post</button>
+          <button class="chat-tab has-activity" data-tab="new-page">New Page</button>
+          <button class="chat-tab" data-tab="debug">Debug</button>
+        </div>
+
+        <!-- Conversation: Site Colors -->
+        <div class="chat-conversation active" data-conversation="site-colors">
+          <div class="chat-context">
+            <div class="chat-context-text">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+              Viewing <strong>Overview</strong> for Downstreet Cafe
+            </div>
+          </div>
+          <div class="chat-messages">
+            <div class="chat-message user">
+              <span class="chat-message-label">You</span>
+              <div class="chat-message-bubble">How do I change the site colors?</div>
+            </div>
+            <div class="chat-message assistant">
+              <span class="chat-message-label">Assistant</span>
+              <div class="chat-message-bubble">
+                <p>You can customize colors through the <strong>Styles</strong> panel in the Site Editor:</p>
+                <ol>
+                  <li>Click <strong>Styles</strong> in the grid above</li>
+                  <li>Select <strong>Colors</strong> in the sidebar</li>
+                  <li>Choose a preset palette or set custom values</li>
+                </ol>
+                <p>Want me to open Styles for you?</p>
+              </div>
+            </div>
+            <div class="chat-message user">
+              <span class="chat-message-label">You</span>
+              <div class="chat-message-bubble">Yes, open it. Also, can you suggest a warm palette for a coffee shop?</div>
+            </div>
+            <div class="chat-message assistant">
+              <span class="chat-message-label">Assistant</span>
+              <div class="chat-message-bubble">
+                <div class="chat-action-confirm">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+                  Opened Styles panel
+                </div>
+                <p style="margin-top: 10px;">Here's a warm coffee shop palette I'd recommend:</p>
+                <ul>
+                  <li><strong>Primary:</strong> #8B4513 — rich espresso brown</li>
+                  <li><strong>Secondary:</strong> #D2691E — warm caramel</li>
+                  <li><strong>Background:</strong> #FFF8F0 — soft cream</li>
+                  <li><strong>Accent:</strong> #C8553D — burnt sienna</li>
+                </ul>
+                <p>I can apply these to your theme if you'd like.</p>
+              </div>
+            </div>
+          </div>
+          <div class="chat-quick-actions">
+            <a href="#" class="quick-action-chip">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+              Apply palette
+            </a>
+            <a href="#" class="quick-action-chip">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2"/></svg>
+              Try dark mode
+            </a>
+            <a href="#" class="quick-action-chip">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              Preview changes
+            </a>
+          </div>
+        </div>
+
+        <!-- Conversation: Blog Post -->
+        <div class="chat-conversation" data-conversation="blog-post">
+          <div class="chat-context">
+            <div class="chat-context-text">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+              Viewing <strong>Overview</strong> for Downstreet Cafe
+            </div>
+          </div>
+          <div class="chat-messages">
+            <div class="chat-message user">
+              <span class="chat-message-label">You</span>
+              <div class="chat-message-bubble">Help me write a blog post about our new seasonal menu</div>
+            </div>
+            <div class="chat-message assistant">
+              <span class="chat-message-label">Assistant</span>
+              <div class="chat-message-bubble">
+                <p>I'd love to help! Here's a draft to get started:</p>
+                <p><strong>🍂 Fall Flavors Have Arrived at Downstreet</strong></p>
+                <p>As the leaves turn and the air gets crisp, we're rolling out our coziest menu yet. From our new <strong>Maple Oat Latte</strong> to the <strong>Spiced Pumpkin Scone</strong>, every sip and bite is designed to warm you up.</p>
+                <p>Want me to expand on this, add more menu items, or adjust the tone?</p>
+              </div>
+            </div>
+            <div class="chat-message user">
+              <span class="chat-message-label">You</span>
+              <div class="chat-message-bubble">Make it a bit more casual and add our Chai Brown Sugar Cookie</div>
+            </div>
+            <div class="chat-message assistant">
+              <span class="chat-message-label">Assistant</span>
+              <div class="chat-message-bubble">
+                <p><strong>🍂 New Stuff You Need to Try This Fall</strong></p>
+                <p>Hey friends! Fall is officially here and we couldn't be more excited about this year's seasonal lineup. Here's what's new:</p>
+                <ul>
+                  <li><strong>Maple Oat Latte</strong> — creamy, cozy, and honestly a little addictive</li>
+                  <li><strong>Spiced Pumpkin Scone</strong> — buttery, warm, perfect with your morning coffee</li>
+                  <li><strong>Chai Brown Sugar Cookie</strong> — the chai spice + brown sugar combo is *chef's kiss*</li>
+                </ul>
+                <p>Swing by and let us know which one's your favorite. We're betting on the cookie. 😄</p>
+                <p>Ready to publish this, or want to tweak it more?</p>
+              </div>
+            </div>
+          </div>
+          <div class="chat-quick-actions">
+            <a href="#" class="quick-action-chip">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+              Create draft
+            </a>
+            <a href="#" class="quick-action-chip">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+              Suggest images
+            </a>
+            <a href="#" class="quick-action-chip">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+              Publish now
+            </a>
+          </div>
+        </div>
+
+        <!-- Conversation: New Page -->
+        <div class="chat-conversation" data-conversation="new-page">
+          <div class="chat-context">
+            <div class="chat-context-text">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+              Viewing <strong>Overview</strong> for Downstreet Cafe
+            </div>
+          </div>
+          <div class="chat-messages">
+            <div class="chat-message user">
+              <span class="chat-message-label">You</span>
+              <div class="chat-message-bubble">I need a catering page for the site</div>
+            </div>
+            <div class="chat-message assistant">
+              <span class="chat-message-label">Assistant</span>
+              <div class="chat-message-bubble">
+                <p>Great idea! I can create a catering page with these sections:</p>
+                <ol>
+                  <li><strong>Hero</strong> — headline + photo of a catering spread</li>
+                  <li><strong>Menu packages</strong> — 3 tiers (basic, premium, custom)</li>
+                  <li><strong>How it works</strong> — simple 3-step process</li>
+                  <li><strong>Contact form</strong> — for inquiries and quotes</li>
+                </ol>
+                <p>Should I build this page now?</p>
+              </div>
+            </div>
+            <div class="chat-message user">
+              <span class="chat-message-label">You</span>
+              <div class="chat-message-bubble">Yes! But skip the pricing tiers, we do custom quotes only</div>
+            </div>
+            <div class="chat-message assistant">
+              <span class="chat-message-label">Assistant</span>
+              <div class="chat-message-bubble">
+                <div class="chat-action-confirm">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+                  Created page: Catering
+                </div>
+                <p style="margin-top: 10px;">Done! The catering page is set up with:</p>
+                <ul>
+                  <li>Hero section with a placeholder image</li>
+                  <li>"What We Offer" — brief overview of catering services</li>
+                  <li>"How It Works" — request → plan → enjoy</li>
+                  <li>Contact form for custom quotes</li>
+                </ul>
+                <p>The page is saved as a draft. Want to preview it or make changes?</p>
+              </div>
+            </div>
+          </div>
+          <div class="chat-quick-actions">
+            <a href="#" class="quick-action-chip">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              Preview page
+            </a>
+            <a href="#" class="quick-action-chip">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              Edit in editor
+            </a>
+            <a href="#" class="quick-action-chip">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+              Add section
+            </a>
+          </div>
+        </div>
+
+        <!-- Conversation: Debug -->
+        <div class="chat-conversation" data-conversation="debug">
+          <div class="chat-context">
+            <div class="chat-context-text">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+              Viewing <strong>Overview</strong> for Downstreet Cafe
+            </div>
+          </div>
+          <div class="chat-messages">
+            <div class="chat-message user">
+              <span class="chat-message-label">You</span>
+              <div class="chat-message-bubble">My contact form isn't sending emails. What's wrong?</div>
+            </div>
+            <div class="chat-message assistant">
+              <span class="chat-message-label">Assistant</span>
+              <div class="chat-message-bubble">
+                <p>Let me check a few things...</p>
+                <p>I found the issue. Your site is using the default <code>wp_mail()</code> function without an SMTP plugin. Local development environments often can't send emails directly.</p>
+                <p><strong>Quick fix options:</strong></p>
+                <ol>
+                  <li>Install <strong>WP Mail SMTP</strong> plugin and connect to Gmail or SendGrid</li>
+                  <li>Use <strong>MailHog</strong> (built into Studio) to catch emails locally</li>
+                </ol>
+                <p>Which approach works better for you?</p>
+              </div>
+            </div>
+            <div class="chat-message user">
+              <span class="chat-message-label">You</span>
+              <div class="chat-message-bubble">How do I use MailHog? I just want to test locally for now</div>
+            </div>
+            <div class="chat-message assistant">
+              <span class="chat-message-label">Assistant</span>
+              <div class="chat-message-bubble">
+                <p>Good call for local dev! MailHog is already running with your site. Here's how to use it:</p>
+                <ol>
+                  <li>Open <strong>http://localhost:8025</strong> in your browser</li>
+                  <li>Submit your contact form on the site</li>
+                  <li>Check the MailHog inbox — the email should appear there</li>
+                </ol>
+                <p>All outgoing emails from WordPress get intercepted by MailHog automatically. No configuration needed.</p>
+                <p>When you're ready to go live, I'll help you set up a proper SMTP service.</p>
+              </div>
+            </div>
+          </div>
+          <div class="chat-quick-actions">
+            <a href="#" class="quick-action-chip">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 15l3-3-3-3M12 17h5"/></svg>
+              Open MailHog
+            </a>
+            <a href="#" class="quick-action-chip">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+              Install WP Mail SMTP
+            </a>
+            <a href="#" class="quick-action-chip">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+              View error logs
+            </a>
+          </div>
+        </div>
+
+        <!-- Input Area (shared) -->
+        <div class="chat-input-area">
+          <div class="chat-input-container">
+            <textarea class="chat-input" placeholder="Ask anything about your site..." rows="1"></textarea>
+            <button class="chat-send-btn" title="Send message">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    // Tab switching
+    document.querySelectorAll('.chat-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        // Update active tab
+        document.querySelectorAll('.chat-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        // Remove activity indicator on click
+        tab.classList.remove('has-activity');
+        // Show matching conversation
+        const target = tab.dataset.tab;
+        document.querySelectorAll('.chat-conversation').forEach(c => c.classList.remove('active'));
+        document.querySelector(`[data-conversation="${target}"]`).classList.add('active');
+      });
+    });
+
+    // Auto-resize textarea
+    const textarea = document.querySelector('.chat-input');
+    textarea.addEventListener('input', () => {
+      textarea.style.height = 'auto';
+      textarea.style.height = Math.min(textarea.scrollHeight, 80) + 'px';
+    });
+
+    // Scroll messages to bottom on load
+    document.querySelectorAll('.chat-messages').forEach(el => {
+      el.scrollTop = el.scrollHeight;
+    });
+  </script>
+</body>
+</html>

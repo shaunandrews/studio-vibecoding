@@ -1,0 +1,1688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Studio — Concept A v2: Chat-First Interface (Refined)</title>
+  <link rel="stylesheet" href="tokens.css">
+  <link rel="stylesheet" href="base.css">
+  <style>
+    /* ============================================
+       CHAT-FIRST LAYOUT
+       ============================================ */
+    .main {
+      display: flex;
+      flex-direction: row;
+      position: relative;
+    }
+
+    .main-chat {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      transition: flex var(--transition-slow);
+    }
+
+    /* Split view: editor panel on right */
+    .editor-panel {
+      width: 0;
+      overflow: hidden;
+      border-left: 1px solid var(--color-border);
+      background: var(--color-white);
+      display: flex;
+      flex-direction: column;
+      transition: width var(--transition-slow);
+    }
+
+    .editor-panel.open {
+      width: 420px;
+    }
+
+    .editor-panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--spacing-3) var(--spacing-4);
+      border-bottom: 1px solid var(--color-border);
+      background: var(--color-gray-0);
+      flex-shrink: 0;
+    }
+
+    .editor-panel-header-title {
+      font-size: var(--font-size-sm);
+      font-weight: var(--font-weight-semibold);
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-2);
+    }
+
+    .editor-panel-close {
+      width: 28px;
+      height: 28px;
+      border: none;
+      background: transparent;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--color-text-secondary);
+    }
+
+    .editor-panel-close:hover {
+      background: var(--color-gray-5);
+      color: var(--color-text-primary);
+    }
+
+    .editor-panel-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: var(--spacing-4);
+    }
+
+    /* Editor content styles */
+    .wp-editor-title {
+      font-size: var(--font-size-xl);
+      font-weight: var(--font-weight-normal);
+      border: none;
+      outline: none;
+      width: 100%;
+      padding: var(--spacing-2) 0;
+      color: var(--color-text-primary);
+      border-bottom: 2px solid var(--color-blue-50);
+      margin-bottom: var(--spacing-4);
+    }
+
+    .wp-editor-toolbar {
+      display: flex;
+      gap: var(--spacing-1);
+      padding: var(--spacing-2);
+      background: var(--color-gray-0);
+      border-radius: var(--radius-md);
+      margin-bottom: var(--spacing-4);
+      flex-wrap: wrap;
+    }
+
+    .wp-toolbar-btn {
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: transparent;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--color-text-secondary);
+      font-size: var(--font-size-sm);
+      font-weight: var(--font-weight-bold);
+    }
+
+    .wp-toolbar-btn:hover {
+      background: var(--color-white);
+      color: var(--color-text-primary);
+    }
+
+    .wp-toolbar-btn.active {
+      background: var(--color-white);
+      color: var(--color-blue-50);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .wp-toolbar-sep {
+      width: 1px;
+      background: var(--color-gray-5);
+      margin: var(--spacing-1) var(--spacing-1);
+    }
+
+    .wp-editor-body {
+      font-size: var(--font-size-base);
+      line-height: 1.7;
+      color: var(--color-text-primary);
+    }
+
+    .wp-editor-body p {
+      margin-bottom: var(--spacing-4);
+    }
+
+    .wp-editor-body .wp-block-image {
+      background: var(--color-gray-0);
+      border-radius: var(--radius-xl);
+      height: 180px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--color-text-muted);
+      margin-bottom: var(--spacing-4);
+      border: 2px dashed var(--color-gray-10);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .wp-editor-body .wp-block-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: var(--radius-xl);
+    }
+
+    .wp-editor-sidebar {
+      border-top: 1px solid var(--color-border);
+      padding: var(--spacing-4);
+      background: var(--color-gray-0);
+      margin-top: var(--spacing-4);
+      border-radius: var(--radius-xl);
+    }
+
+    .wp-editor-sidebar-section {
+      margin-bottom: var(--spacing-4);
+    }
+
+    .wp-editor-sidebar-section:last-child {
+      margin-bottom: 0;
+    }
+
+    .wp-editor-sidebar-label {
+      font-size: var(--font-size-xs);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: var(--spacing-2);
+    }
+
+    .wp-editor-tags {
+      display: flex;
+      gap: var(--spacing-1);
+      flex-wrap: wrap;
+    }
+
+    .wp-editor-tag {
+      padding: var(--spacing-1) var(--spacing-2);
+      background: var(--color-white);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-full);
+      font-size: var(--font-size-xs);
+      color: var(--color-text-secondary);
+    }
+
+    .wp-editor-actions {
+      display: flex;
+      gap: var(--spacing-2);
+      padding: var(--spacing-3) var(--spacing-4);
+      border-top: 1px solid var(--color-border);
+      background: var(--color-white);
+      flex-shrink: 0;
+    }
+
+    /* ============================================
+       HEADER MINIMAL
+       ============================================ */
+    .header-minimal {
+      padding: var(--spacing-3) var(--spacing-6);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--color-border);
+      flex-shrink: 0;
+    }
+
+    .header-minimal-left {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-3);
+    }
+
+    .site-selector {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-2);
+      padding: var(--spacing-2) var(--spacing-3);
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+
+    .site-selector:hover {
+      background: var(--color-gray-0);
+      border-color: var(--color-border);
+    }
+
+    .site-selector-name {
+      font-size: var(--font-size-base);
+      font-weight: var(--font-weight-medium);
+      color: var(--color-text-primary);
+    }
+
+    .header-minimal-right {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-3);
+    }
+
+    /* ============================================
+       CHAT CONTAINER
+       ============================================ */
+    .chat-container {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      padding: var(--spacing-6) var(--spacing-4);
+    }
+
+    .chat-content {
+      max-width: 680px;
+      width: 100%;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-6);
+      margin-top: auto;
+    }
+
+    /* ============================================
+       MESSAGES
+       ============================================ */
+    .message {
+      display: flex;
+      gap: var(--spacing-3);
+    }
+
+    .message.user {
+      justify-content: flex-end;
+    }
+
+    .message-avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: var(--radius-full);
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: var(--font-size-xs);
+      font-weight: var(--font-weight-semibold);
+    }
+
+    .message-avatar.assistant {
+      background: linear-gradient(135deg, var(--color-blue-50), var(--color-blue-60));
+      color: white;
+    }
+
+    .message-avatar.user {
+      background: var(--color-gray-80);
+      color: white;
+    }
+
+    .message-content {
+      flex: 1;
+      max-width: 85%;
+    }
+
+    .message.user .message-content {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+    }
+
+    .message-bubble {
+      padding: var(--spacing-3) var(--spacing-4);
+      border-radius: var(--radius-xl);
+      font-size: var(--font-size-sm);
+      line-height: 1.5;
+    }
+
+    .message.user .message-bubble {
+      background: var(--color-gray-90);
+      color: white;
+      border-bottom-right-radius: var(--radius-sm);
+    }
+
+    .message.assistant .message-bubble {
+      background: var(--color-gray-0);
+      color: var(--color-text-primary);
+      border-bottom-left-radius: var(--radius-sm);
+    }
+
+    .message-bubble p {
+      margin: 0 0 var(--spacing-3);
+    }
+
+    .message-bubble p:last-child {
+      margin-bottom: 0;
+    }
+
+    .message-bubble strong {
+      font-weight: var(--font-weight-semibold);
+    }
+
+    .message-bubble ul, .message-bubble ol {
+      margin: var(--spacing-2) 0;
+      padding-left: var(--spacing-4);
+    }
+
+    .message-bubble li {
+      margin-bottom: var(--spacing-1);
+    }
+
+    /* ============================================
+       IMAGE UPLOADS - Realistic
+       ============================================ */
+    .message-images {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--spacing-2);
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      max-width: 320px;
+    }
+
+    .message.user .message-images {
+      margin-left: auto;
+    }
+
+    .message-image-thumb {
+      aspect-ratio: 1;
+      background-size: cover;
+      background-position: center;
+      border-radius: var(--radius-md);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .upload-info {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-2);
+      padding: var(--spacing-2) var(--spacing-3);
+      background: rgba(0,0,0,0.03);
+      border-radius: var(--radius-md);
+      font-size: var(--font-size-xs);
+      color: var(--color-text-secondary);
+      margin-top: var(--spacing-2);
+      max-width: 320px;
+    }
+
+    .message.user .upload-info {
+      margin-left: auto;
+    }
+
+    .upload-info svg {
+      width: 14px;
+      height: 14px;
+      flex-shrink: 0;
+    }
+
+    /* ============================================
+       INLINE PANELS & RICH CARDS
+       ============================================ */
+    .inline-panel {
+      background: var(--color-white);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      margin-top: var(--spacing-3);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--spacing-3) var(--spacing-4);
+      background: var(--color-gray-0);
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .panel-title {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-2);
+      font-size: var(--font-size-sm);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-text-primary);
+    }
+
+    .panel-title svg {
+      width: 16px;
+      height: 16px;
+      color: var(--color-blue-50);
+    }
+
+    .panel-status {
+      font-size: var(--font-size-xs);
+      color: var(--color-text-secondary);
+    }
+
+    .panel-body {
+      padding: var(--spacing-4);
+    }
+
+    .panel-actions {
+      display: flex;
+      gap: var(--spacing-2);
+      justify-content: flex-end;
+      padding: var(--spacing-3) var(--spacing-4);
+      border-top: 1px solid var(--color-border);
+      background: var(--color-gray-0);
+    }
+
+    /* ============================================
+       POST PREVIEW CARD
+       ============================================ */
+    .post-preview {
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      margin-top: var(--spacing-3);
+      background: var(--color-white);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .post-preview-image {
+      height: 160px;
+      background-size: cover;
+      background-position: center;
+      position: relative;
+    }
+
+    .post-preview-image-overlay {
+      position: absolute;
+      top: var(--spacing-2);
+      right: var(--spacing-2);
+      padding: var(--spacing-1) var(--spacing-2);
+      background: rgba(0,0,0,0.6);
+      color: white;
+      font-size: var(--font-size-xxs);
+      border-radius: var(--radius-md);
+      backdrop-filter: blur(4px);
+    }
+
+    .post-preview-body {
+      padding: var(--spacing-4);
+    }
+
+    .post-preview-category {
+      font-size: var(--font-size-xxs);
+      font-weight: var(--font-weight-semibold);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--color-blue-50);
+      margin-bottom: var(--spacing-2);
+    }
+
+    .post-preview-title {
+      font-size: var(--font-size-lg);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-text-primary);
+      margin-bottom: var(--spacing-2);
+      line-height: 1.3;
+    }
+
+    .post-preview-excerpt {
+      font-size: var(--font-size-sm);
+      color: var(--color-text-secondary);
+      line-height: 1.5;
+      margin-bottom: var(--spacing-3);
+    }
+
+    .post-preview-meta {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-3);
+      font-size: var(--font-size-xs);
+      color: var(--color-text-muted);
+      padding-top: var(--spacing-3);
+      border-top: 1px solid var(--color-border-light);
+    }
+
+    .post-preview-actions {
+      display: flex;
+      gap: var(--spacing-2);
+      padding: var(--spacing-3) var(--spacing-4);
+      border-top: 1px solid var(--color-border);
+      background: var(--color-gray-0);
+    }
+
+    /* ============================================
+       COLOR SWATCHES
+       ============================================ */
+    .color-options {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-3);
+      margin-top: var(--spacing-3);
+    }
+
+    .color-option-card {
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      background: var(--color-white);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .color-option-card:hover {
+      border-color: var(--color-blue-50);
+      box-shadow: var(--shadow-md);
+    }
+
+    .color-option-card.selected {
+      border-color: var(--color-blue-50);
+      box-shadow: 0 0 0 2px var(--color-blue-5), var(--shadow-md);
+    }
+
+    .color-option-preview {
+      height: 48px;
+      display: flex;
+    }
+
+    .color-option-preview > div {
+      flex: 1;
+    }
+
+    .color-option-info {
+      padding: var(--spacing-3) var(--spacing-4);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .color-option-name {
+      font-size: var(--font-size-sm);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-text-primary);
+    }
+
+    .color-option-desc {
+      font-size: var(--font-size-xs);
+      color: var(--color-text-secondary);
+    }
+
+    .color-option-check {
+      width: 20px;
+      height: 20px;
+      border-radius: var(--radius-full);
+      border: 2px solid var(--color-gray-10);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .color-option-card.selected .color-option-check {
+      background: var(--color-blue-50);
+      border-color: var(--color-blue-50);
+      color: white;
+    }
+
+    /* ============================================
+       FONT PICKER
+       ============================================ */
+    .font-options {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-2);
+      margin-top: var(--spacing-3);
+    }
+
+    .font-option-card {
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-xl);
+      padding: var(--spacing-4);
+      background: var(--color-white);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .font-option-card:hover {
+      border-color: var(--color-blue-50);
+    }
+
+    .font-option-card.selected {
+      border-color: var(--color-blue-50);
+      background: var(--color-blue-0);
+    }
+
+    .font-option-sample {
+      font-size: var(--font-size-lg);
+      color: var(--color-text-primary);
+      margin-bottom: var(--spacing-1);
+    }
+
+    .font-option-meta {
+      font-size: var(--font-size-xs);
+      color: var(--color-text-secondary);
+    }
+
+    /* ============================================
+       SIDEBAR
+       ============================================ */
+    .sidebar-site-picker {
+      padding: var(--spacing-3) var(--spacing-sidebar-mac);
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .sidebar-site-picker select {
+      width: 100%;
+      padding: var(--spacing-2) var(--spacing-3);
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: var(--radius-md);
+      color: var(--color-white);
+      font-size: var(--font-size-sm);
+      font-family: inherit;
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='rgba(255,255,255,0.6)' stroke-width='2' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+    }
+
+    .sidebar-site-picker select option {
+      background: var(--color-gray-80);
+      color: var(--color-white);
+    }
+
+    .sidebar-section-label {
+      padding: var(--spacing-3) var(--spacing-sidebar-mac) var(--spacing-1);
+      font-size: var(--font-size-xs);
+      font-weight: var(--font-weight-medium);
+      color: rgba(255,255,255,0.4);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .chat-list {
+      list-style: none;
+      padding: var(--spacing-1) 0;
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-1);
+    }
+
+    .chat-item {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      padding: var(--spacing-2) var(--spacing-3);
+      border-radius: var(--radius-lg);
+      cursor: pointer;
+      color: rgba(255,255,255,0.8);
+      transition: background var(--transition-fast);
+    }
+
+    .chat-item:hover {
+      background: rgba(255,255,255,0.1);
+    }
+
+    .chat-item.active {
+      background: rgba(255,255,255,0.15);
+      color: var(--color-white);
+    }
+
+    .chat-item-title {
+      font-size: var(--font-size-sm);
+      font-weight: var(--font-weight-medium);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .chat-item-preview {
+      font-size: var(--font-size-xs);
+      color: rgba(255,255,255,0.4);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .sidebar-footer {
+      padding: var(--spacing-3) var(--spacing-sidebar-mac);
+    }
+
+    .new-chat-btn {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--spacing-2);
+      padding: var(--spacing-2) var(--spacing-3);
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: var(--radius-md);
+      color: rgba(255,255,255,0.8);
+      font-size: var(--font-size-sm);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+
+    .new-chat-btn:hover {
+      background: rgba(255,255,255,0.15);
+      color: var(--color-white);
+    }
+
+    .new-chat-btn svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    /* ============================================
+       INPUT AREA
+       ============================================ */
+    .input-area {
+      padding: var(--spacing-4) var(--spacing-4) var(--spacing-6);
+      background: linear-gradient(to top, var(--color-white) 80%, transparent);
+    }
+
+    .input-wrapper {
+      max-width: 680px;
+      margin: 0 auto;
+    }
+
+    .suggestions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--spacing-2);
+      margin-bottom: var(--spacing-3);
+      justify-content: center;
+    }
+
+    .suggestion-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--spacing-2);
+      padding: var(--spacing-2) var(--spacing-3);
+      background: var(--color-white);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-full);
+      font-size: var(--font-size-sm);
+      color: var(--color-text-primary);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+
+    .suggestion-chip:hover {
+      background: var(--color-blue-5);
+      border-color: var(--color-blue-50);
+      color: var(--color-blue-60);
+    }
+
+    .suggestion-chip svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    .input-container {
+      background: var(--color-white);
+      border: 1px solid var(--color-gray-20);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-md);
+      overflow: hidden;
+      transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+    }
+
+    .input-container:focus-within {
+      border-color: var(--color-blue-50);
+      box-shadow: var(--shadow-md), 0 0 0 3px var(--color-blue-5);
+    }
+
+    .input-main {
+      display: flex;
+      align-items: flex-end;
+      padding: var(--spacing-3);
+      gap: var(--spacing-2);
+    }
+
+    .input-textarea {
+      flex: 1;
+      border: none;
+      background: transparent;
+      resize: none;
+      font-size: var(--font-size-sm);
+      line-height: 1.5;
+      color: var(--color-text-primary);
+      padding: var(--spacing-1) var(--spacing-2);
+      min-height: 24px;
+      max-height: 200px;
+    }
+
+    .input-textarea:focus {
+      outline: none;
+    }
+
+    .input-textarea::placeholder {
+      color: var(--color-text-muted);
+    }
+
+    .send-button {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-lg);
+      border: none;
+      background: var(--color-gray-90);
+      color: white;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background var(--transition-fast);
+      flex-shrink: 0;
+    }
+
+    .send-button:hover {
+      background: var(--color-black);
+    }
+
+    .send-button svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .input-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--spacing-2) var(--spacing-3);
+      border-top: 1px solid var(--color-gray-5);
+      background: var(--color-gray-0);
+    }
+
+    .toolbar-left, .toolbar-right {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-2);
+    }
+
+    .toolbar-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border: none;
+      border-radius: var(--radius-md);
+      background: transparent;
+      color: var(--color-gray-50);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+
+    .toolbar-btn:hover {
+      background: var(--color-white);
+      color: var(--color-text-primary);
+    }
+
+    .toolbar-btn svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .agent-selector {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-2);
+      padding: var(--spacing-1) var(--spacing-2);
+      border: none;
+      border-radius: var(--radius-md);
+      background: transparent;
+      font-size: var(--font-size-xs);
+      color: var(--color-text-secondary);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+
+    .agent-selector:hover {
+      background: var(--color-white);
+      color: var(--color-text-primary);
+    }
+
+    .agent-icon {
+      width: 16px;
+      height: 16px;
+      border-radius: var(--radius-sm);
+    }
+
+    .agent-chevron {
+      width: 12px;
+      height: 12px;
+    }
+
+    /* ============================================
+       PROGRESS / STATUS
+       ============================================ */
+    .upload-progress {
+      margin-top: var(--spacing-2);
+      max-width: 320px;
+    }
+
+    .message.user .upload-progress {
+      margin-left: auto;
+    }
+
+    .progress-bar {
+      height: 4px;
+      background: var(--color-gray-5);
+      border-radius: var(--radius-full);
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      border-radius: var(--radius-full);
+      transition: width 0.3s ease;
+    }
+
+    .progress-fill.complete {
+      background: var(--color-green-50);
+    }
+
+    .progress-fill.uploading {
+      background: var(--color-blue-50);
+    }
+
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: var(--font-size-xs);
+      color: var(--color-text-secondary);
+      margin-bottom: var(--spacing-1);
+    }
+
+    /* Typing indicator */
+    .typing-indicator {
+      display: flex;
+      gap: 4px;
+      padding: var(--spacing-3) var(--spacing-4);
+      align-items: center;
+    }
+
+    .typing-indicator span {
+      width: 6px;
+      height: 6px;
+      background: var(--color-gray-20);
+      border-radius: var(--radius-full);
+      animation: typing 1.4s infinite;
+    }
+
+    .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+    .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes typing {
+      0%, 60%, 100% { opacity: 0.3; transform: translateY(0); }
+      30% { opacity: 1; transform: translateY(-4px); }
+    }
+
+    /* ============================================
+       INLINE ACTION BUTTONS
+       ============================================ */
+    .inline-actions {
+      display: flex;
+      gap: var(--spacing-2);
+      margin-top: var(--spacing-3);
+    }
+
+    /* ============================================
+       CHANGES LIST
+       ============================================ */
+    .changes-list {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-2);
+      margin-bottom: var(--spacing-4);
+    }
+
+    .change-item {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-3);
+      padding: var(--spacing-2) var(--spacing-3);
+      background: var(--color-gray-0);
+      border-radius: var(--radius-md);
+      font-size: var(--font-size-sm);
+    }
+
+    .change-icon {
+      width: 18px;
+      height: 18px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .change-icon.added {
+      background: var(--color-green-0);
+      color: var(--color-green-50);
+    }
+
+    .change-icon.modified {
+      background: var(--color-orange-0);
+      color: var(--color-orange-50);
+    }
+
+    .change-icon svg {
+      width: 12px;
+      height: 12px;
+    }
+
+    .change-name {
+      flex: 1;
+      color: var(--color-text-primary);
+    }
+
+    .change-type {
+      font-size: var(--font-size-xs);
+      color: var(--color-text-secondary);
+      text-transform: uppercase;
+    }
+
+    /* ============================================
+       CONCEPT BADGE
+       ============================================ */
+    .concept-badge {
+      position: fixed;
+      bottom: var(--spacing-4);
+      right: var(--spacing-4);
+      padding: var(--spacing-2) var(--spacing-3);
+      background: var(--color-gray-90);
+      color: var(--color-white);
+      font-size: var(--font-size-xs);
+      font-weight: var(--font-weight-medium);
+      border-radius: var(--radius-md);
+      opacity: 0.7;
+      z-index: 1000;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <!-- Titlebar -->
+    <div class="titlebar">
+      <div class="titlebar-controls">
+        <button class="titlebar-button close"></button>
+        <button class="titlebar-button minimize"></button>
+        <button class="titlebar-button maximize"></button>
+      </div>
+    </div>
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-site-picker">
+        <select>
+          <option selected>Downstreet Cafe</option>
+          <option>Shaun's Blog</option>
+          <option>Sporadic Thoughts</option>
+        </select>
+      </div>
+      <div class="sidebar-content">
+        <div class="sidebar-section-label">Today</div>
+        <ul class="chat-list">
+          <li class="chat-item active" data-chat="photos" onclick="switchChat('photos', this)">
+            <span class="chat-item-title">Add new menu photos</span>
+            <span class="chat-item-preview">Uploaded 4 photos, optimized for web</span>
+          </li>
+          <li class="chat-item" data-chat="blog-post" onclick="switchChat('blog-post', this)">
+            <span class="chat-item-title">Write spring menu post</span>
+            <span class="chat-item-preview">Drafted blog post with featured image</span>
+          </li>
+        </ul>
+        <div class="sidebar-section-label">Yesterday</div>
+        <ul class="chat-list">
+          <li class="chat-item" data-chat="edit-post" onclick="switchChat('edit-post', this)">
+            <span class="chat-item-title">Edit the About page</span>
+            <span class="chat-item-preview">Rewrote story section, added team photos</span>
+          </li>
+          <li class="chat-item" data-chat="colors" onclick="switchChat('colors', this)">
+            <span class="chat-item-title">Update site colors & fonts</span>
+            <span class="chat-item-preview">Switched to warm palette, new headings</span>
+          </li>
+        </ul>
+        <div class="sidebar-section-label">Last week</div>
+        <ul class="chat-list">
+          <li class="chat-item" data-chat="hours" onclick="switchChat('hours', this)">
+            <span class="chat-item-title">Update store hours</span>
+            <span class="chat-item-preview">Changed weekend hours to 8am–3pm</span>
+          </li>
+        </ul>
+      </div>
+      <div class="sidebar-footer">
+        <button class="new-chat-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+          New chat
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main">
+      <div class="main-chat">
+        <div class="chat-container">
+
+          <!-- ==========================================
+               CONVERSATION 1: Photo Uploads (Rich)
+               ========================================== -->
+          <div class="chat-content" data-chat="photos">
+            <div class="message user">
+              <div class="message-content">
+                <div class="message-bubble">I just took some photos of the new pastries, adding them now</div>
+              </div>
+              <div class="message-avatar user">S</div>
+            </div>
+
+            <div class="message user">
+              <div class="message-content">
+                <div class="message-images">
+                  <div class="message-image-thumb" style="background-image: url('cafe-croissant.jpg');"></div>
+                  <div class="message-image-thumb" style="background-image: url('cafe-scone.jpg');"></div>
+                  <div class="message-image-thumb" style="background-image: url('cafe-lemon-loaf.jpg');"></div>
+                  <div class="message-image-thumb" style="background-image: url('cafe-cappuccino.jpg');"></div>
+                </div>
+                <div class="upload-info">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+                  <span>4 photos • IMG_2847.jpg, IMG_2848.jpg, +2 more • 12.4 MB total</span>
+                </div>
+                <div class="upload-progress">
+                  <div class="progress-label">
+                    <span>Uploaded</span>
+                    <span>100%</span>
+                  </div>
+                  <div class="progress-bar">
+                    <div class="progress-fill complete" style="width: 100%"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="message-avatar user">S</div>
+            </div>
+
+            <div class="message user">
+              <div class="message-content">
+                <div class="message-bubble">Add these to the menu page gallery, no captions needed</div>
+              </div>
+              <div class="message-avatar user">S</div>
+            </div>
+
+            <div class="message assistant">
+              <div class="message-avatar assistant">✦</div>
+              <div class="message-content">
+                <div class="message-bubble">
+                  <p>Done! All 4 photos are now on your <strong>Menu</strong> page. Here's what I did:</p>
+                </div>
+                <div class="inline-panel">
+                  <div class="panel-header">
+                    <div class="panel-title">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                      Changes Applied
+                    </div>
+                    <div class="panel-status">✓ Live</div>
+                  </div>
+                  <div class="panel-body">
+                    <div class="changes-list">
+                      <div class="change-item">
+                        <div class="change-icon added"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M12 5v14M5 12h14"/></svg></div>
+                        <span class="change-name">4 images → Menu gallery</span>
+                        <span class="change-type">added</span>
+                      </div>
+                      <div class="change-item">
+                        <div class="change-icon modified"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M12 20h9M16.5 3.5a2.12 2.12 0 013 3L7 19l-4 1 1-4z"/></svg></div>
+                        <span class="change-name">Images compressed (12.4 MB → 780 KB)</span>
+                        <span class="change-type">optimized</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="message-bubble" style="margin-top: var(--spacing-3)">
+                  <p>Page loads in 1.8s now. Want me to rearrange the gallery order or add any hover effects?</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ==========================================
+               CONVERSATION 2: Blog Post Draft (Rich Card)
+               ========================================== -->
+          <div class="chat-content" data-chat="blog-post" style="display:none">
+            <div class="message user">
+              <div class="message-content">
+                <div class="message-bubble">Can you write a blog post about our new spring menu? We added lavender lattes, strawberry scones, and iced matcha. Make it warm and inviting.</div>
+              </div>
+              <div class="message-avatar user">S</div>
+            </div>
+
+            <div class="message assistant">
+              <div class="message-avatar assistant">✦</div>
+              <div class="message-content">
+                <div class="message-bubble">
+                  <p>Here's a draft for you — I kept it casual and on-brand for the cafe:</p>
+                </div>
+
+                <!-- Post preview card -->
+                <div class="post-preview">
+                  <div class="post-preview-image" style="background: linear-gradient(135deg, #e8d5c4 0%, #c7a882 40%, #a8d5ba 70%, #d4a8c7 100%); display: flex; align-items: center; justify-content: center;">
+                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+                    <div class="post-preview-image-overlay">Featured Image</div>
+                  </div>
+                  <div class="post-preview-body">
+                    <div class="post-preview-category">Menu Update</div>
+                    <div class="post-preview-title">Spring Has Sprung at Downstreet Cafe ☀️</div>
+                    <div class="post-preview-excerpt">
+                      We're so excited to share three new additions to our menu — just in time for longer days and warmer weather. Whether you're a floral-flavor fan or a matcha loyalist, there's something new for you to love.
+                    </div>
+                    <div class="post-preview-meta">
+                      <span>📅 Feb 12, 2026</span>
+                      <span>·</span>
+                      <span>2 min read</span>
+                      <span>·</span>
+                      <span>🏷️ Menu, Spring</span>
+                    </div>
+                  </div>
+                  <div class="post-preview-actions">
+                    <button class="btn btn-secondary" style="flex:1" onclick="openEditor()">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.12 2.12 0 013 3L7 19l-4 1 1-4z"/></svg>
+                      Edit in Editor
+                    </button>
+                    <button class="btn btn-primary" style="flex:1">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4z"/></svg>
+                      Publish
+                    </button>
+                  </div>
+                </div>
+
+                <div class="message-bubble" style="margin-top: var(--spacing-3)">
+                  <p>The post covers all three items with a warm, inviting tone. I'd suggest adding a photo of the lavender latte as the featured image — want me to use one from your media library, or do you have a new one?</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="message user">
+              <div class="message-content">
+                <div class="message-bubble">This looks great! Let me edit it a bit first — open the editor</div>
+              </div>
+              <div class="message-avatar user">S</div>
+            </div>
+
+            <div class="message assistant">
+              <div class="message-avatar assistant">✦</div>
+              <div class="message-content">
+                <div class="message-bubble">
+                  <p>Opening the editor now — I've loaded the draft on the right. Make your changes and I'll be here if you need help! 👉</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ==========================================
+               CONVERSATION 3: Edit About Page (Editor Panel)
+               ========================================== -->
+          <div class="chat-content" data-chat="edit-post" style="display:none">
+            <div class="message user">
+              <div class="message-content">
+                <div class="message-bubble">I want to rewrite the About page. The story section feels too generic — make it more personal. We started in 2019 in a tiny space on Elm Street.</div>
+              </div>
+              <div class="message-avatar user">S</div>
+            </div>
+
+            <div class="message assistant">
+              <div class="message-avatar assistant">✦</div>
+              <div class="message-content">
+                <div class="message-bubble">
+                  <p>I've rewritten your About page story section. Here's what changed:</p>
+                  <ul>
+                    <li>Replaced generic copy with your founding story (2019, Elm Street)</li>
+                    <li>Added personal voice — reads more like <em>you</em> telling the story</li>
+                    <li>Kept the team section but made intros warmer</li>
+                  </ul>
+                  <p>I've opened the editor on the right so you can review it. The highlighted section is the new content.</p>
+                </div>
+                <div class="inline-actions">
+                  <button class="btn btn-secondary" onclick="openEditor()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2zM22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
+                    Open in Editor
+                  </button>
+                  <button class="btn btn-primary">
+                    ✓ Looks good, publish
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ==========================================
+               CONVERSATION 4: Colors & Fonts (Picker UI)
+               ========================================== -->
+          <div class="chat-content" data-chat="colors" style="display:none">
+            <div class="message user">
+              <div class="message-content">
+                <div class="message-bubble">The site feels too cold and corporate. Can we make it warmer and more inviting? Like a real cafe, cozy vibes.</div>
+              </div>
+              <div class="message-avatar user">S</div>
+            </div>
+
+            <div class="message assistant">
+              <div class="message-avatar assistant">✦</div>
+              <div class="message-content">
+                <div class="message-bubble">
+                  <p>I put together three warm palettes that would suit a cafe. Pick one and I'll apply it across the site:</p>
+                </div>
+
+                <!-- Color palette options -->
+                <div class="color-options">
+                  <div class="color-option-card selected" onclick="selectColor(this)">
+                    <div class="color-option-preview">
+                      <div style="background: #FAF7F2"></div>
+                      <div style="background: #C4704B"></div>
+                      <div style="background: #8B6F4E"></div>
+                      <div style="background: #3D2B1F"></div>
+                    </div>
+                    <div class="color-option-info">
+                      <div>
+                        <div class="color-option-name">Warm Terracotta</div>
+                        <div class="color-option-desc">Cream background, earthy accents — classic cafe</div>
+                      </div>
+                      <div class="color-option-check">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="color-option-card" onclick="selectColor(this)">
+                    <div class="color-option-preview">
+                      <div style="background: #F5F0EB"></div>
+                      <div style="background: #6B8F71"></div>
+                      <div style="background: #D4A574"></div>
+                      <div style="background: #2C3E2D"></div>
+                    </div>
+                    <div class="color-option-info">
+                      <div>
+                        <div class="color-option-name">Garden Sage</div>
+                        <div class="color-option-desc">Soft greens with warm wood tones — fresh & natural</div>
+                      </div>
+                      <div class="color-option-check"></div>
+                    </div>
+                  </div>
+                  <div class="color-option-card" onclick="selectColor(this)">
+                    <div class="color-option-preview">
+                      <div style="background: #FFF8F0"></div>
+                      <div style="background: #D4956A"></div>
+                      <div style="background: #B87333"></div>
+                      <div style="background: #4A3728"></div>
+                    </div>
+                    <div class="color-option-info">
+                      <div>
+                        <div class="color-option-name">Copper & Cream</div>
+                        <div class="color-option-desc">Warm metallics, rich browns — sophisticated warmth</div>
+                      </div>
+                      <div class="color-option-check"></div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="message-bubble" style="margin-top: var(--spacing-3)">
+                  <p>And here are some heading font options to pair with it:</p>
+                </div>
+
+                <!-- Font options -->
+                <div class="font-options">
+                  <div class="font-option-card selected" onclick="selectFont(this)">
+                    <div>
+                      <div class="font-option-sample" style="font-family: Georgia, serif;">Downstreet Cafe</div>
+                      <div class="font-option-meta">Georgia — classic, warm, highly readable</div>
+                    </div>
+                    <div class="color-option-check" style="background: var(--color-blue-50); border-color: var(--color-blue-50); color: white;">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                    </div>
+                  </div>
+                  <div class="font-option-card" onclick="selectFont(this)">
+                    <div>
+                      <div class="font-option-sample" style="font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, serif;">Downstreet Cafe</div>
+                      <div class="font-option-meta">Palatino — elegant, slightly more refined</div>
+                    </div>
+                    <div class="color-option-check"></div>
+                  </div>
+                  <div class="font-option-card" onclick="selectFont(this)">
+                    <div>
+                      <div class="font-option-sample" style="font-family: 'Trebuchet MS', sans-serif; font-weight: 600;">Downstreet Cafe</div>
+                      <div class="font-option-meta">Trebuchet MS — friendly, modern, approachable</div>
+                    </div>
+                    <div class="color-option-check"></div>
+                  </div>
+                </div>
+
+                <div class="inline-actions">
+                  <button class="btn btn-primary">Apply Warm Terracotta + Georgia</button>
+                  <button class="btn btn-secondary">Preview first</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ==========================================
+               CONVERSATION 5: Store Hours (Simple)
+               ========================================== -->
+          <div class="chat-content" data-chat="hours" style="display:none">
+            <div class="message user">
+              <div class="message-content">
+                <div class="message-bubble">We're changing our weekend hours — open at 8am, close at 3pm starting this Saturday</div>
+              </div>
+              <div class="message-avatar user">S</div>
+            </div>
+            <div class="message assistant">
+              <div class="message-avatar assistant">✦</div>
+              <div class="message-content">
+                <div class="message-bubble">
+                  <p>Done! I updated your hours on the <strong>Contact</strong> and <strong>About</strong> pages:</p>
+                  <p>🕗 <strong>Saturday & Sunday:</strong> 8:00 AM – 3:00 PM</p>
+                  <p>Weekday hours are unchanged (7 AM – 5 PM). I also updated the structured data so Google shows the correct hours in search results.</p>
+                </div>
+                <div class="inline-panel">
+                  <div class="panel-header">
+                    <div class="panel-title">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                      Hours Updated
+                    </div>
+                    <div class="panel-status">✓ Live on 2 pages</div>
+                  </div>
+                  <div class="panel-body">
+                    <div class="changes-list">
+                      <div class="change-item">
+                        <div class="change-icon modified"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M12 20h9M16.5 3.5a2.12 2.12 0 013 3L7 19l-4 1 1-4z"/></svg></div>
+                        <span class="change-name">Contact page → Weekend hours</span>
+                        <span class="change-type">updated</span>
+                      </div>
+                      <div class="change-item">
+                        <div class="change-icon modified"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M12 20h9M16.5 3.5a2.12 2.12 0 013 3L7 19l-4 1 1-4z"/></svg></div>
+                        <span class="change-name">About page → Footer hours</span>
+                        <span class="change-type">updated</span>
+                      </div>
+                      <div class="change-item">
+                        <div class="change-icon added"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M12 5v14M5 12h14"/></svg></div>
+                        <span class="change-name">Google structured data</span>
+                        <span class="change-type">synced</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="message-bubble" style="margin-top: var(--spacing-3)">
+                  <p>Want me to add a temporary banner on the homepage announcing the new weekend hours?</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      <!-- Input Area -->
+      <div class="input-area">
+        <div class="input-wrapper">
+          <div class="suggestions">
+            <button class="suggestion-chip">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.66 0 3-4.03 3-9s-1.34-9-3-9m0 18c-1.66 0-3-4.03-3-9s1.34-9 3-9"/></svg>
+              Check site health
+            </button>
+            <button class="suggestion-chip">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+              Open Site Editor
+            </button>
+            <button class="suggestion-chip">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.12 2.12 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+              Write a blog post
+            </button>
+          </div>
+          <div class="input-container">
+            <div class="input-main">
+              <textarea class="input-textarea" placeholder="What would you like to work on?" rows="1"></textarea>
+              <button class="send-button">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+              </button>
+            </div>
+            <div class="input-toolbar">
+              <div class="toolbar-left">
+                <button class="toolbar-btn" aria-label="Attach file">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg>
+                </button>
+                <button class="toolbar-btn" aria-label="Add context">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>
+                </button>
+              </div>
+              <div class="toolbar-right">
+                <button class="agent-selector">
+                  <svg class="agent-icon" viewBox="0 0 24 24"><rect width="24" height="24" rx="4" fill="#191919"/><g transform="translate(3, 4.5) scale(0.75)"><path d="M17.3041 3.541h-3.6718l6.696 16.918H24Zm-10.6082 0L0 20.459h3.7442l1.3693-3.5527h7.0052l1.3693 3.5528h3.7442L10.5363 3.5409Zm-.3712 10.2232 2.2914-5.9456 2.2914 5.9456Z" fill="white"/></g></svg>
+                  <span>Claude</span>
+                  <svg class="agent-chevron" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5z"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      </div>
+
+      <!-- Editor Panel (slides open) -->
+      <div class="editor-panel" id="editorPanel">
+        <div class="editor-panel-header">
+          <div class="editor-panel-header-title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.12 2.12 0 013 3L7 19l-4 1 1-4z"/></svg>
+            Editing: Spring Has Sprung at Downstreet Cafe
+          </div>
+          <button class="editor-panel-close" onclick="closeEditor()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+          </button>
+        </div>
+        <div class="editor-panel-body">
+          <input class="wp-editor-title" value="Spring Has Sprung at Downstreet Cafe ☀️" readonly>
+          <div class="wp-editor-toolbar">
+            <button class="wp-toolbar-btn active">¶</button>
+            <button class="wp-toolbar-btn">H2</button>
+            <button class="wp-toolbar-btn">H3</button>
+            <div class="wp-toolbar-sep"></div>
+            <button class="wp-toolbar-btn"><strong>B</strong></button>
+            <button class="wp-toolbar-btn"><em>I</em></button>
+            <button class="wp-toolbar-btn" style="text-decoration: underline">U</button>
+            <div class="wp-toolbar-sep"></div>
+            <button class="wp-toolbar-btn">🔗</button>
+            <button class="wp-toolbar-btn">📷</button>
+            <button class="wp-toolbar-btn">—</button>
+          </div>
+          <div class="wp-editor-body">
+            <div class="wp-block-image">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+            </div>
+            <p>We're so excited to share three new additions to our menu — just in time for longer days and warmer weather.</p>
+            <p>Whether you're a floral-flavor fan or a matcha loyalist, there's something new for you to love.</p>
+            <p><strong>🌸 Lavender Latte</strong> — Our house-made lavender syrup meets velvety steamed milk and a double shot of espresso. Floral without being overpowering, it's become a team favorite already.</p>
+            <p><strong>🍓 Strawberry Scone</strong> — Baked fresh every morning with real strawberries folded into the dough. Best enjoyed warm with a cup of our house blend.</p>
+            <p><strong>🍵 Iced Matcha</strong> — Ceremonial-grade matcha shaken with oat milk over ice. Clean, bright, and perfect for on-the-go mornings.</p>
+            <p>Come try them all — we're here 7 days a week. See you soon! ☀️</p>
+          </div>
+          <div class="wp-editor-sidebar">
+            <div class="wp-editor-sidebar-section">
+              <div class="wp-editor-sidebar-label">Category</div>
+              <div class="wp-editor-tags">
+                <span class="wp-editor-tag">Menu Update</span>
+              </div>
+            </div>
+            <div class="wp-editor-sidebar-section">
+              <div class="wp-editor-sidebar-label">Tags</div>
+              <div class="wp-editor-tags">
+                <span class="wp-editor-tag">spring</span>
+                <span class="wp-editor-tag">new menu</span>
+                <span class="wp-editor-tag">lavender latte</span>
+                <span class="wp-editor-tag">matcha</span>
+              </div>
+            </div>
+            <div class="wp-editor-sidebar-section">
+              <div class="wp-editor-sidebar-label">URL Slug</div>
+              <div style="font-size: var(--font-size-sm); color: var(--color-text-secondary);">/blog/spring-has-sprung-at-downstreet-cafe</div>
+            </div>
+          </div>
+        </div>
+        <div class="wp-editor-actions">
+          <button class="btn btn-secondary" style="flex:1" onclick="closeEditor()">Close</button>
+          <button class="btn btn-secondary" style="flex:1">Save Draft</button>
+          <button class="btn btn-primary" style="flex:1">Publish</button>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <div class="concept-badge">Concept A v2: Chat-First (Refined)</div>
+
+  <script>
+    window.switchChat = function(chatId, el) {
+      document.querySelectorAll('.chat-item').forEach(i => i.classList.remove('active'));
+      el.classList.add('active');
+      document.querySelectorAll('.chat-content').forEach(c => c.style.display = 'none');
+      const target = document.querySelector('.chat-content[data-chat="' + chatId + '"]');
+      if (target) target.style.display = '';
+      // Close editor when switching chats (unless it's the edit-post or blog-post chat)
+      if (chatId !== 'edit-post' && chatId !== 'blog-post') {
+        closeEditor();
+      }
+    }
+
+    window.openEditor = function() {
+      document.getElementById('editorPanel').classList.add('open');
+    }
+
+    window.closeEditor = function() {
+      document.getElementById('editorPanel').classList.remove('open');
+    }
+
+    window.selectColor = function(card) {
+      card.closest('.color-options').querySelectorAll('.color-option-card').forEach(c => {
+        c.classList.remove('selected');
+        c.querySelector('.color-option-check').innerHTML = '';
+      });
+      card.classList.add('selected');
+      card.querySelector('.color-option-check').innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>';
+    }
+
+    window.selectFont = function(card) {
+      card.closest('.font-options').querySelectorAll('.font-option-card').forEach(c => {
+        c.classList.remove('selected');
+        const check = c.querySelector('.color-option-check');
+        check.innerHTML = '';
+        check.style.background = '';
+        check.style.borderColor = '';
+        check.style.color = '';
+      });
+      card.classList.add('selected');
+      const check = card.querySelector('.color-option-check');
+      check.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>';
+      check.style.background = 'var(--color-blue-50)';
+      check.style.borderColor = 'var(--color-blue-50)';
+      check.style.color = 'white';
+    }
+  </script>
+</body>
+</html>

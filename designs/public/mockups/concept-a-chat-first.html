@@ -536,57 +536,150 @@
     }
     
     /* ============================================
-       NARROW SIDEBAR (CHAT-FIRST)
+       SIDEBAR (CHAT-FIRST) — Chat history + site picker
        ============================================ */
-    
-    .sidebar {
-      width: 60px;
-      transition: width var(--transition-normal);
+
+    .sidebar-site-picker {
+      padding: var(--spacing-3) var(--spacing-sidebar-mac);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     }
-    
-    .sidebar:hover {
-      width: var(--width-sidebar);
-    }
-    
-    .sidebar .site-list {
-      padding: var(--spacing-2);
-    }
-    
-    .sidebar .site-item {
-      padding: var(--spacing-2);
-      justify-content: center;
-    }
-    
-    .sidebar:hover .site-item {
-      justify-content: space-between;
+
+    .sidebar-site-picker select {
+      width: 100%;
       padding: var(--spacing-2) var(--spacing-3);
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: var(--radius-md);
+      color: var(--color-white);
+      font-size: var(--font-size-sm);
+      font-family: inherit;
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='rgba(255,255,255,0.6)' stroke-width='2' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
     }
-    
-    .sidebar .site-name {
-      opacity: 0;
-      width: 0;
+
+    .sidebar-site-picker select:hover {
+      background: rgba(255, 255, 255, 0.15);
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+
+    .sidebar-site-picker select option {
+      background: var(--color-gray-80);
+      color: var(--color-white);
+    }
+
+    .sidebar-section-label {
+      padding: var(--spacing-3) var(--spacing-sidebar-mac) var(--spacing-1);
+      font-size: var(--font-size-xs);
+      font-weight: var(--font-weight-medium);
+      color: rgba(255, 255, 255, 0.4);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .chat-list {
+      list-style: none;
+      padding: var(--spacing-1) 0;
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-1);
+    }
+
+    .chat-item {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      padding: var(--spacing-2) var(--spacing-3);
+      border-radius: var(--radius-lg);
+      cursor: pointer;
+      color: rgba(255, 255, 255, 0.8);
+      transition: background var(--transition-fast);
+    }
+
+    .chat-item:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .chat-item.active {
+      background: rgba(255, 255, 255, 0.15);
+      color: var(--color-white);
+    }
+
+    .chat-item-title {
+      font-size: var(--font-size-sm);
+      font-weight: var(--font-weight-medium);
+      white-space: nowrap;
       overflow: hidden;
-      transition: opacity var(--transition-fast), width var(--transition-fast);
+      text-overflow: ellipsis;
     }
-    
-    .sidebar:hover .site-name {
-      opacity: 1;
-      width: auto;
+
+    .chat-item-preview {
+      font-size: var(--font-size-xs);
+      color: rgba(255, 255, 255, 0.4);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
-    
-    .sidebar .site-status {
-      margin: 0;
-    }
-    
+
     .sidebar-footer {
-      opacity: 0;
-      transition: opacity var(--transition-fast);
+      padding: var(--spacing-3) var(--spacing-sidebar-mac);
+    }
+
+    .new-chat-btn {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--spacing-2);
+      padding: var(--spacing-2) var(--spacing-3);
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: var(--radius-md);
+      color: rgba(255, 255, 255, 0.8);
+      font-size: var(--font-size-sm);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+
+    .new-chat-btn:hover {
+      background: rgba(255, 255, 255, 0.15);
+      color: var(--color-white);
+    }
+
+    .new-chat-btn svg {
+      width: 14px;
+      height: 14px;
     }
     
-    .sidebar:hover .sidebar-footer {
-      opacity: 1;
+    /* Image grid in chat */
+    .message-images {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--spacing-2);
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      max-width: 320px;
     }
-    
+
+    .message-image-thumb {
+      aspect-ratio: 1;
+      background-size: cover;
+      background-position: center;
+      border-radius: var(--radius-md);
+    }
+
+    .message.user .message-images {
+      margin-left: auto;
+    }
+
+    /* Hide non-active conversations */
+    .chat-content[style*="display:none"],
+    .chat-content[style*="display: none"] {
+      display: none !important;
+    }
+
     /* ============================================
        CONCEPT BADGE (for mockup identification)
        ============================================ */
@@ -617,156 +710,221 @@
       </div>
     </div>
     
-    <!-- Narrow Sidebar (collapses to icons, expands on hover) -->
+    <!-- Sidebar — Site picker + chat history -->
     <aside class="sidebar">
+      <div class="sidebar-site-picker">
+        <select>
+          <option selected>Downstreet Cafe</option>
+          <option>Shaun's Blog</option>
+          <option>Sporadic Thoughts</option>
+          <option>UI Portfolio</option>
+        </select>
+      </div>
       <div class="sidebar-content">
-        <ul class="site-list">
-          <li class="site-item active">
-            <span class="site-name">Downstreet Cafe</span>
-            <span class="site-status running" data-tooltip="Stop site"></span>
+        <div class="sidebar-section-label">Today</div>
+        <ul class="chat-list">
+          <li class="chat-item active" data-chat="hours" onclick="switchChat('hours', this)">
+            <span class="chat-item-title">Update store hours</span>
+            <span class="chat-item-preview">Changed weekend hours to 8am–3pm</span>
           </li>
-          <li class="site-item">
-            <span class="site-name">Shaun's Blog</span>
-            <span class="site-status stopped" data-tooltip="Start site"></span>
+          <li class="chat-item" data-chat="photo" onclick="switchChat('photo', this)">
+            <span class="chat-item-title">Add new menu photos</span>
+            <span class="chat-item-preview">Uploaded 4 photos to the gallery…</span>
           </li>
-          <li class="site-item">
-            <span class="site-name">Sporadic Thoughts</span>
-            <span class="site-status running" data-tooltip="Stop site"></span>
+        </ul>
+        <div class="sidebar-section-label">Yesterday</div>
+        <ul class="chat-list">
+          <li class="chat-item" data-chat="post" onclick="switchChat('post', this)">
+            <span class="chat-item-title">Write a blog post</span>
+            <span class="chat-item-preview">Published "Our new spring menu"…</span>
+          </li>
+          <li class="chat-item" data-chat="contact" onclick="switchChat('contact', this)">
+            <span class="chat-item-title">Fix contact page</span>
+            <span class="chat-item-preview">Updated phone number and added…</span>
+          </li>
+        </ul>
+        <div class="sidebar-section-label">Last week</div>
+        <ul class="chat-list">
+          <li class="chat-item" data-chat="colors" onclick="switchChat('colors', this)">
+            <span class="chat-item-title">Change site colors</span>
+            <span class="chat-item-preview">Switched to warmer tones to match…</span>
+          </li>
+          <li class="chat-item" data-chat="setup" onclick="switchChat('setup', this)">
+            <span class="chat-item-title">Initial site setup</span>
+            <span class="chat-item-preview">Created the site and picked a theme</span>
           </li>
         </ul>
       </div>
       <div class="sidebar-footer">
-        <button class="add-site-btn">Add site</button>
+        <button class="new-chat-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 5v14M5 12h14"/>
+          </svg>
+          New chat
+        </button>
       </div>
     </aside>
     
     <!-- Main Content -->
     <main class="main">
-      <!-- Minimal Header (no tabs!) -->
-      <header class="header-minimal">
-        <div class="header-minimal-left">
-          <button class="site-selector">
-            <span class="site-selector-name">Downstreet Cafe</span>
-            <svg class="site-selector-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M6 9l6 6 6-6"/>
-            </svg>
-          </button>
-        </div>
-        <div class="header-minimal-right">
-          <div class="status-badge">
-            <span class="status-dot"></span>
-            Running
-          </div>
-          <button class="btn btn-primary">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M12 19V5M5 12l7-7 7 7"/>
-            </svg>
-            Publish
-          </button>
-        </div>
-      </header>
-      
       <!-- Chat Container (THE HERO) -->
       <div class="chat-container">
-        <div class="chat-content">
-          <!-- User message -->
+        <!-- Conversation: Update store hours (active) -->
+        <div class="chat-content" data-chat="hours">
           <div class="message user">
             <div class="message-content">
+              <div class="message-bubble">We're changing our weekend hours — open at 8am, close at 3pm starting this Saturday</div>
+            </div>
+            <div class="message-avatar user">S</div>
+          </div>
+          <div class="message assistant">
+            <div class="message-avatar assistant">✦</div>
+            <div class="message-content">
               <div class="message-bubble">
-                Push this to staging so I can show the client
+                <p>Done! I updated your hours on the <strong>Contact</strong> and <strong>About</strong> pages:</p>
+                <p>🕗 <strong>Saturday & Sunday:</strong> 8:00 AM – 3:00 PM</p>
+                <p>Weekday hours are unchanged (7 AM – 5 PM). Want me to also add a banner on the homepage announcing the new weekend hours?</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Conversation: Add menu photos -->
+        <div class="chat-content" data-chat="photo" style="display:none">
+          <div class="message user">
+            <div class="message-content">
+              <div class="message-bubble">I just took some photos of the new pastries, can you add them to the menu page?</div>
+            </div>
+            <div class="message-avatar user">S</div>
+          </div>
+          <div class="message assistant">
+            <div class="message-avatar assistant">✦</div>
+            <div class="message-content">
+              <div class="message-bubble">
+                <p>Of course! Drop the photos here and I'll add them to your <strong>Menu</strong> page gallery. I'll optimize them for web so they load fast.</p>
+                <p>Do you want captions under each one, or just the images?</p>
+              </div>
+            </div>
+          </div>
+          <div class="message user">
+            <div class="message-content">
+              <div class="message-images">
+                <div class="message-image-thumb" style="background: linear-gradient(135deg, #d4a574, #c4956a);"></div>
+                <div class="message-image-thumb" style="background: linear-gradient(135deg, #e8c9a0, #d4a574);"></div>
+                <div class="message-image-thumb" style="background: linear-gradient(135deg, #c4956a, #a67c52);"></div>
+                <div class="message-image-thumb" style="background: linear-gradient(135deg, #d4b896, #c4a070);"></div>
               </div>
             </div>
             <div class="message-avatar user">S</div>
           </div>
-          
-          <!-- Assistant message with inline panel -->
-          <div class="message assistant">
-            <div class="message-avatar assistant">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
-              </svg>
+          <div class="message user">
+            <div class="message-content">
+              <div class="message-bubble">Just the images is fine, no captions</div>
             </div>
+            <div class="message-avatar user">S</div>
+          </div>
+          <div class="message assistant">
+            <div class="message-avatar assistant">✦</div>
             <div class="message-content">
               <div class="message-bubble">
-                <p>I'll sync your local changes to staging. Here's what will be deployed:</p>
-              </div>
-              
-              <!-- Inline Sync Panel -->
-              <div class="inline-panel">
-                <div class="panel-header">
-                  <div class="panel-title">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M12 19V5M5 12l7-7 7 7"/>
-                    </svg>
-                    Sync to Staging
-                  </div>
-                  <div class="panel-status">
-                    <span class="spinner"></span>
-                    Uploading...
-                  </div>
-                </div>
-                <div class="panel-body">
-                  <div class="changes-list">
-                    <div class="change-item">
-                      <div class="change-icon modified">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                          <path d="M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
-                        </svg>
-                      </div>
-                      <span class="change-name">style.css</span>
-                      <span class="change-type">Modified</span>
-                    </div>
-                    <div class="change-item">
-                      <div class="change-icon added">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                          <path d="M12 5v14M5 12h14"/>
-                        </svg>
-                      </div>
-                      <span class="change-name">hero-banner.jpg</span>
-                      <span class="change-type">Added</span>
-                    </div>
-                    <div class="change-item">
-                      <div class="change-icon modified">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                          <path d="M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
-                        </svg>
-                      </div>
-                      <span class="change-name">front-page.html</span>
-                      <span class="change-type">Modified</span>
-                    </div>
-                  </div>
-                  
-                  <div class="progress-section">
-                    <div class="progress-label">
-                      <span>Uploading 3 files</span>
-                      <span>67%</span>
-                    </div>
-                    <div class="progress-bar">
-                      <div class="progress-fill" style="width: 67%;"></div>
-                    </div>
-                  </div>
-                  
-                  <div class="panel-actions">
-                    <button class="btn btn-secondary">Cancel</button>
-                    <button class="btn btn-outline" disabled>View Preview</button>
-                  </div>
-                </div>
+                <p>Added all 4 photos to the menu page gallery. I compressed them from ~4MB each down to about 200KB — no visible quality loss. The page loads in under 2 seconds now. 👍</p>
               </div>
             </div>
           </div>
-          
-          <!-- Earlier context message -->
-          <div class="message assistant">
-            <div class="message-avatar assistant">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
-              </svg>
+        </div>
+
+        <!-- Conversation: Write a blog post -->
+        <div class="chat-content" data-chat="post" style="display:none">
+          <div class="message user">
+            <div class="message-content">
+              <div class="message-bubble">Can you help me write a post about our new spring menu? We added lavender lattes, a strawberry scone, and iced matcha</div>
             </div>
+            <div class="message-avatar user">S</div>
+          </div>
+          <div class="message assistant">
+            <div class="message-avatar assistant">✦</div>
             <div class="message-content">
               <div class="message-bubble">
-                <p>Once the sync completes, I'll send you the staging URL you can share with your client. The preview link will be:</p>
-                <p><strong>staging-downstreet-cafe.wp.cloud</strong></p>
-                <p>Would you like me to also check for any SEO or accessibility issues before showing the client?</p>
+                <p>Here's a draft:</p>
+                <p><strong>Spring Has Sprung at Downstreet Cafe ☀️</strong></p>
+                <p>We're excited to introduce three new items to our menu just in time for warmer days. Come try our <strong>Lavender Latte</strong> — floral and smooth, the <strong>Strawberry Scone</strong> — baked fresh every morning, and our <strong>Iced Matcha</strong> — perfect for on-the-go.</p>
+                <p>Available now. See you soon!</p>
+                <p>Want me to publish this, or would you like to tweak anything first?</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Conversation: Fix contact page -->
+        <div class="chat-content" data-chat="contact" style="display:none">
+          <div class="message user">
+            <div class="message-content">
+              <div class="message-bubble">Our phone number on the contact page is wrong — it should be (555) 234-5678</div>
+            </div>
+            <div class="message-avatar user">S</div>
+          </div>
+          <div class="message assistant">
+            <div class="message-avatar assistant">✦</div>
+            <div class="message-content">
+              <div class="message-bubble">
+                <p>Fixed! Updated the phone number to <strong>(555) 234-5678</strong> on your Contact page. I also found the old number in the site footer — updated that too so it's consistent everywhere.</p>
+              </div>
+            </div>
+          </div>
+          <div class="message user">
+            <div class="message-content">
+              <div class="message-bubble">Oh nice catch on the footer, thanks</div>
+            </div>
+            <div class="message-avatar user">S</div>
+          </div>
+        </div>
+
+        <!-- Conversation: Change site colors -->
+        <div class="chat-content" data-chat="colors" style="display:none">
+          <div class="message user">
+            <div class="message-content">
+              <div class="message-bubble">The site feels too cold and corporate. Can we make it warmer? Like cozy cafe vibes</div>
+            </div>
+            <div class="message-avatar user">S</div>
+          </div>
+          <div class="message assistant">
+            <div class="message-avatar assistant">✦</div>
+            <div class="message-content">
+              <div class="message-bubble">
+                <p>I've got you. I swapped out the palette — here's what changed:</p>
+                <ul>
+                  <li><strong>Background:</strong> Cool gray → Warm cream (#FAF7F2)</li>
+                  <li><strong>Accent color:</strong> Blue → Terracotta (#C4704B)</li>
+                  <li><strong>Headings:</strong> Dark brown instead of black</li>
+                </ul>
+                <p>The overall feel is much warmer now. Take a look and let me know if you want to adjust anything.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Conversation: Initial setup -->
+        <div class="chat-content" data-chat="setup" style="display:none">
+          <div class="message assistant">
+            <div class="message-avatar assistant">✦</div>
+            <div class="message-content">
+              <div class="message-bubble">
+                <p>Welcome! I've set up <strong>Downstreet Cafe</strong> with a starter theme. You've got a homepage, about page, menu page, and contact page ready to go.</p>
+                <p>What would you like to work on first?</p>
+              </div>
+            </div>
+          </div>
+          <div class="message user">
+            <div class="message-content">
+              <div class="message-bubble">Let's start with the homepage — I want a big photo of the cafe at the top and our hours underneath</div>
+            </div>
+            <div class="message-avatar user">S</div>
+          </div>
+          <div class="message assistant">
+            <div class="message-avatar assistant">✦</div>
+            <div class="message-content">
+              <div class="message-bubble">
+                <p>Done! I added a full-width hero image area at the top of your homepage with your hours displayed right below it. Drop in a photo of the cafe whenever you're ready and I'll place it there.</p>
               </div>
             </div>
           </div>
@@ -846,5 +1004,15 @@
   
   <!-- Concept badge -->
   <div class="concept-badge">Concept A: Chat-First Interface</div>
+
+  <script>
+    window.switchChat = function(chatId, el) {
+      document.querySelectorAll('.chat-item').forEach(function(i) { i.classList.remove('active'); });
+      el.classList.add('active');
+      document.querySelectorAll('.chat-content').forEach(function(c) { c.style.display = 'none'; });
+      var target = document.querySelector('.chat-content[data-chat="' + chatId + '"]');
+      if (target) target.style.display = '';
+    };
+  </script>
 </body>
 </html>

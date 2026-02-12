@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Studio — Concept C v2: AI-Powered Site Dashboard</title>
+  <link rel="stylesheet" href="tokens.css">
+  <link rel="stylesheet" href="base.css">
+  <style>
+    /* ============================================
+       CONCEPT C v2: AI-POWERED SITE DASHBOARD
+       Smart command center with AI intelligence layer
+       ============================================ */
+
+    .dashboard {
+      flex: 1;
+      overflow-y: auto;
+      padding: var(--spacing-6) var(--spacing-8);
+      padding-bottom: var(--spacing-12);
+    }
+
+    /* ============================================
+       GREETING + QUICK ACTIONS BAR
+       ============================================ */
+
+    .dashboard-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: var(--spacing-6);
+    }
+
+    .greeting-text {
+      font-size: var(--font-size-2xl);
+      font-weight: var(--font-weight-normal);
+      color: var(--color-text-primary);
+    }
+
+    .greeting-sub {
+      font-size: var(--font-size-sm);
+      color: var(--color-text-secondary);
+      margin-top: var(--spacing-1);
+    }
+
+    .quick-actions {
+      display: flex;
+      gap: var(--spacing-2);
+      flex-shrink: 0;
+    }
+
+    .quick-action-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: var(--spacing-2) var(--spacing-3);
+      font-size: var(--font-size-xs);
+      font-weight: var(--font-weight-medium);
+      color: var(--color-text-primary);
+      background: var(--color-white);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      white-space: nowrap;
+    }
+
+    .quick-action-btn:hover {
+      background: var(--color-gray-0);
+      border-color: var(--color-gray-10);
+    }
+
+    .quick-action-btn svg {
+      width: 14px;
+      height: 14px;
+      flex-shrink: 0;
+    }
+
+    /* ============================================
+       STAT CARDS ROW
+       ============================================ */
+
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--spacing-4);
+      margin-bottom: var(--spacing-6);
+    }
+
+    .stat-card {
+      padding: var(--spacing-5);
+      background: var(--color-white);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-xl);
+    }
+
+    .stat-label {
+      font-size: var(--font-size-xs);
+      font-weight: var(--font-weight-medium);
+      color: var(--color-text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      margin-bottom: var(--spacing-2);
+    }
+
+    .stat-value {
+      font-size: 1.75rem;
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-text-primary);
+      line-height: 1;
+    }
+
+    .stat-detail {
+      font-size: var(--font-size-xs);
+      color: var(--color-text-muted);
+      margin-top: var(--spacing-2);
+    }
+
+    .stat-detail .up { color: var(--color-green-50); }
+    .stat-detail .down { color: var(--color-red-50); }
+
+    /* ============================================
+       TWO-COLUMN LAYOUT
+       ============================================ */
+
+    .dashboard-columns {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--spacing-6);
+      margin-bottom: var(--spacing-6);
+    }
+
+    .dashboard-full {
+      margin-bottom: var(--spacing-6);
+    }
+
+    /* ============================================
+       CARD COMPONENT
+       ============================================ */
+
+    .card {
+      background: var(--color-white);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--spacing-4) var(--spacing-5);
+      border-bottom: 1px solid var(--color-border-light);
+    }
+
+    .card-header-title {
+      font-size: var(--font-size-sm);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-text-primary);
+    }
+
+    .card-header-action {
+      font-size: var(--font-size-xs);
+      color: var(--color-primary);
+      text-decoration: none;
+      cursor: pointer;
+      font-weight: var(--font-weight-medium);
+    }
+
+    .card-header-action:hover {
+      color: var(--color-primary-hover);
+    }
+
+    .card-body {
+      padding: var(--spacing-5);
+    }
+
+    /* ============================================
+       TRAFFIC / ANALYTICS CHART
+       ============================================ */
+
+    .chart-area {
+      position: relative;
+      height: 160px;
+      margin-bottom: var(--spacing-4);
+    }
+
+    .chart-area svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .chart-stats {
+      display: flex;
+      gap: var(--spacing-6);
+    }
+
+    .chart-stat {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .chart-stat-label {
+      font-size: var(--font-size-xs);
+      color: var(--color-text-secondary);
+    }
+
+    .chart-stat-value {
+      font-size: var(--font-size-base);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-text-primary);
+    }
+
+    .top-pages {
+      margin-top: var(--spacing-4);
+      padding-top: var(--spacing-4);
+      border-top: 1px solid var(--color-border-light);
+    }
+
+    .top-pages-title {
+      font-size: var(--font-size-xs);
+      font-weight: var(--font-weight-medium);
+      color: var(--color-text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      margin-bottom: var(--spacing-3);
+    }
+
+    .top-page-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--spacing-1) 0;
+      font-size: var(--font-size-sm);
+    }
+
+    .top-page-name {
+      color: var(--color-text-primary);
+    }
+
+    .top-page-views {
+      color: var(--color-text-secondary);
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* ============================================
+       RECENT ACTIVITY
+       ============================================ */
+
+    .activity-list {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .activity-item {
+      display: flex;
+      gap: var(--spacing-3);
+      padding: var(--spacing-3) 0;
+      border-bottom: 1px solid var(--color-border-light);
+    }
+
+    .activity-item:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .activity-item:first-child {
+      padding-top: 0;
+    }
+
+    .activity-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: var(--radius-full);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 14px;
+      background: var(--color-gray-0);
+    }
+
+    .activity-icon.comment { background: var(--color-blue-5); }
+    .activity-icon.edit { background: var(--color-green-0); }
+    .activity-icon.form { background: var(--color-orange-0); }
+
+    .activity-body {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .activity-title {
+      font-size: var(--font-size-sm);
+      color: var(--color-text-primary);
+      line-height: var(--line-height-snug);
+    }
+
+    .activity-title strong {
+      font-weight: var(--font-weight-semibold);
+    }
+
+    .activity-preview {
+      font-size: var(--font-size-xs);
+      color: var(--color-text-secondary);
+      margin-top: 2px;
+      line-height: var(--line-height-normal);
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .activity-meta {
+      font-size: var(--font-size-xxs);
+      color: var(--color-text-muted);
+      margin-top: 2px;
+    }
+
+    .activity-actions {
+      display: flex;
+      gap: var(--spacing-2);
+      margin-top: var(--spacing-1);
+    }
+
+    .activity-action-btn {
+      font-size: var(--font-size-xxs);
+      font-weight: var(--font-weight-medium);
+      color: var(--color-primary);
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+    }
+
+    .activity-action-btn:hover {
+      color: var(--color-primary-hover);
+    }
+
+    .activity-action-btn.danger {
+      color: var(--color-red-50);
+    }
+
+    /* ============================================
+       AI SUGGESTIONS
+       ============================================ */
+
+    .ai-suggestions-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--spacing-4);
+    }
+
+    .ai-card {
+      display: flex;
+      flex-direction: column;
+      padding: var(--spacing-5);
+      background: var(--color-white);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-xl);
+      transition: all var(--transition-fast);
+      cursor: pointer;
+      position: relative;
+    }
+
+    .ai-card:hover {
+      border-color: var(--color-blue-20);
+      box-shadow: var(--shadow-md);
+      transform: translateY(-1px);
+    }
+
+    .ai-card-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: var(--font-size-xxs);
+      font-weight: var(--font-weight-medium);
+      color: var(--color-blue-60);
+      background: var(--color-blue-5);
+      padding: 2px 8px;
+      border-radius: var(--radius-full);
+      margin-bottom: var(--spacing-3);
+      width: fit-content;
+    }
+
+    .ai-card-badge svg {
+      width: 10px;
+      height: 10px;
+    }
+
+    .ai-card-text {
+      font-size: var(--font-size-sm);
+      color: var(--color-text-primary);
+      line-height: var(--line-height-normal);
+      flex: 1;
+      margin-bottom: var(--spacing-3);
+    }
+
+    .ai-card-action {
+      font-size: var(--font-size-xs);
+      font-weight: var(--font-weight-medium);
+      color: var(--color-primary);
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-1);
+      transition: color var(--transition-fast);
+    }
+
+    .ai-card:hover .ai-card-action {
+      color: var(--color-primary-hover);
+    }
+
+    .ai-card-action svg {
+      width: 12px;
+      height: 12px;
+    }
+
+    .ai-card-dismiss {
+      position: absolute;
+      top: var(--spacing-3);
+      right: var(--spacing-3);
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: none;
+      border: none;
+      color: var(--color-text-muted);
+      cursor: pointer;
+      border-radius: var(--radius-full);
+      opacity: 0;
+      transition: all var(--transition-fast);
+    }
+
+    .ai-card:hover .ai-card-dismiss {
+      opacity: 1;
+    }
+
+    .ai-card-dismiss:hover {
+      background: var(--color-gray-0);
+      color: var(--color-text-secondary);
+    }
+
+    /* ============================================
+       CONTENT CALENDAR
+       ============================================ */
+
+    .calendar-list {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-3);
+    }
+
+    .calendar-item {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--spacing-3);
+    }
+
+    .calendar-date {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-lg);
+      background: var(--color-gray-0);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .calendar-date-month {
+      font-size: 9px;
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      line-height: 1;
+    }
+
+    .calendar-date-day {
+      font-size: var(--font-size-base);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-text-primary);
+      line-height: 1.1;
+    }
+
+    .calendar-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .calendar-title {
+      font-size: var(--font-size-sm);
+      font-weight: var(--font-weight-medium);
+      color: var(--color-text-primary);
+    }
+
+    .calendar-detail {
+      font-size: var(--font-size-xs);
+      color: var(--color-text-secondary);
+      margin-top: 1px;
+    }
+
+    .calendar-tag {
+      display: inline-block;
+      font-size: var(--font-size-xxs);
+      font-weight: var(--font-weight-medium);
+      padding: 1px 6px;
+      border-radius: var(--radius-full);
+      margin-top: 4px;
+    }
+
+    .calendar-tag.scheduled {
+      color: var(--color-blue-60);
+      background: var(--color-blue-5);
+    }
+
+    .calendar-tag.draft {
+      color: var(--color-orange-50);
+      background: var(--color-orange-0);
+    }
+
+    .calendar-tag.event {
+      color: var(--color-green-50);
+      background: var(--color-green-0);
+    }
+
+    .calendar-tag.suggestion {
+      color: var(--color-gray-50);
+      background: var(--color-gray-0);
+    }
+
+    /* ============================================
+       SECTION HEADER (for AI suggestions)
+       ============================================ */
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--spacing-4);
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-2);
+      font-size: var(--font-size-sm);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-text-primary);
+    }
+
+    .section-title svg {
+      width: 16px;
+      height: 16px;
+      color: var(--color-primary);
+    }
+
+    .section-action {
+      font-size: var(--font-size-xs);
+      color: var(--color-text-muted);
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .section-action:hover {
+      color: var(--color-text-secondary);
+    }
+
+    /* ============================================
+       RESPONSIVE
+       ============================================ */
+
+    @media (max-width: 1100px) {
+      .ai-suggestions-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .stats-row {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 900px) {
+      .dashboard-columns {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <!-- Titlebar -->
+    <div class="titlebar">
+      <div class="titlebar-controls">
+        <button class="titlebar-button close"></button>
+        <button class="titlebar-button minimize"></button>
+        <button class="titlebar-button maximize"></button>
+      </div>
+    </div>
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-content">
+        <ul class="site-list">
+          <li class="site-item active">
+            <span class="site-name">Downstreet Cafe</span>
+            <span class="site-status running" data-tooltip="Stop site"></span>
+          </li>
+          <li class="site-item">
+            <span class="site-name">Shaun's Blog</span>
+            <span class="site-status stopped" data-tooltip="Start site"></span>
+          </li>
+          <li class="site-item">
+            <span class="site-name">Portfolio Site</span>
+            <span class="site-status running" data-tooltip="Stop site"></span>
+          </li>
+        </ul>
+      </div>
+      <div class="sidebar-footer">
+        <div style="font-size: var(--font-size-xs); color: rgba(255,255,255,0.5); margin-bottom: var(--spacing-3);">2 sites running · <a href="#" style="color: rgba(255,255,255,0.7); text-decoration: none;">Stop all</a></div>
+        <button style="width:100%; display:flex; align-items:center; justify-content:center; gap:var(--spacing-2); padding:var(--spacing-2) var(--spacing-3); background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.15); border-radius:var(--radius-md); color:rgba(255,255,255,0.8); font-size:var(--font-size-sm); cursor:pointer;">Add site</button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main">
+      <!-- Header -->
+      <header class="header">
+        <div class="header-left">
+          <h1 class="header-title">Downstreet Cafe</h1>
+          <div class="header-links">
+            <a href="#" class="header-link">WP admin ↗</a>
+            <a href="#" class="header-link">Open site ↗</a>
+          </div>
+        </div>
+        <div class="header-actions">
+          <button class="btn btn-primary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+            Publish site
+          </button>
+          <div class="status-badge">
+            <span class="status-dot"></span>
+            Running
+          </div>
+        </div>
+      </header>
+
+      <!-- Dashboard -->
+      <div class="dashboard">
+
+        <!-- Greeting + Quick Actions -->
+        <div class="dashboard-top">
+          <div>
+            <h2 class="greeting-text">Good morning, Shaun</h2>
+            <p class="greeting-sub">Here's what's happening with Downstreet Cafe</p>
+          </div>
+          <div class="quick-actions">
+            <button class="quick-action-btn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+              Write a post
+            </button>
+            <button class="quick-action-btn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M12 8v8M8 12h8"/></svg>
+              Add a page
+            </button>
+            <button class="quick-action-btn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+              Update hours
+            </button>
+            <button class="quick-action-btn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+              Check SEO
+            </button>
+          </div>
+        </div>
+
+        <!-- Site Overview Stats -->
+        <div class="stats-row">
+          <div class="stat-card">
+            <div class="stat-label">Pages</div>
+            <div class="stat-value">12</div>
+            <div class="stat-detail">3 published this month</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Posts</div>
+            <div class="stat-value">28</div>
+            <div class="stat-detail">3 drafts pending</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Comments</div>
+            <div class="stat-value">47</div>
+            <div class="stat-detail"><span class="up">↑ 12</span> this week</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Storage</div>
+            <div class="stat-value">1.2<span style="font-size: var(--font-size-sm); font-weight: var(--font-weight-normal); color: var(--color-text-secondary);"> GB</span></div>
+            <div class="stat-detail">of 5 GB used</div>
+          </div>
+        </div>
+
+        <!-- Two-column: Traffic + Recent Activity -->
+        <div class="dashboard-columns">
+
+          <!-- Traffic / Analytics -->
+          <div class="card">
+            <div class="card-header">
+              <span class="card-header-title">Visitor Trends</span>
+              <a class="card-header-action">Last 7 days ▾</a>
+            </div>
+            <div class="card-body">
+              <div class="chart-area">
+                <svg viewBox="0 0 500 160" preserveAspectRatio="none">
+                  <!-- Grid lines -->
+                  <line x1="0" y1="40" x2="500" y2="40" stroke="var(--color-gray-0)" stroke-width="1"/>
+                  <line x1="0" y1="80" x2="500" y2="80" stroke="var(--color-gray-0)" stroke-width="1"/>
+                  <line x1="0" y1="120" x2="500" y2="120" stroke="var(--color-gray-0)" stroke-width="1"/>
+                  <!-- Area fill -->
+                  <path d="M0,120 C30,110 60,95 83,85 C106,75 130,80 166,65 C200,50 230,70 250,60 C280,48 310,30 333,25 C356,20 380,35 416,40 C450,45 470,38 500,30 L500,160 L0,160 Z" fill="var(--color-blue-5)" stroke="none"/>
+                  <!-- Line -->
+                  <path d="M0,120 C30,110 60,95 83,85 C106,75 130,80 166,65 C200,50 230,70 250,60 C280,48 310,30 333,25 C356,20 380,35 416,40 C450,45 470,38 500,30" fill="none" stroke="var(--color-primary)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  <!-- Today dot -->
+                  <circle cx="500" cy="30" r="4" fill="var(--color-primary)"/>
+                  <!-- Labels -->
+                  <text x="0" y="155" fill="var(--color-gray-30)" font-size="10" font-family="var(--font-family)">Mon</text>
+                  <text x="83" y="155" fill="var(--color-gray-30)" font-size="10" font-family="var(--font-family)">Tue</text>
+                  <text x="166" y="155" fill="var(--color-gray-30)" font-size="10" font-family="var(--font-family)">Wed</text>
+                  <text x="250" y="155" fill="var(--color-gray-30)" font-size="10" font-family="var(--font-family)">Thu</text>
+                  <text x="333" y="155" fill="var(--color-gray-30)" font-size="10" font-family="var(--font-family)">Fri</text>
+                  <text x="416" y="155" fill="var(--color-gray-30)" font-size="10" font-family="var(--font-family)">Sat</text>
+                  <text x="480" y="155" fill="var(--color-gray-30)" font-size="10" font-family="var(--font-family)">Sun</text>
+                </svg>
+              </div>
+              <div class="chart-stats">
+                <div class="chart-stat">
+                  <span class="chart-stat-label">Today</span>
+                  <span class="chart-stat-value">284</span>
+                </div>
+                <div class="chart-stat">
+                  <span class="chart-stat-label">This week</span>
+                  <span class="chart-stat-value">1,847</span>
+                </div>
+                <div class="chart-stat">
+                  <span class="chart-stat-label">vs last week</span>
+                  <span class="chart-stat-value" style="color: var(--color-green-50);">+18%</span>
+                </div>
+              </div>
+              <div class="top-pages">
+                <div class="top-pages-title">Top pages</div>
+                <div class="top-page-row">
+                  <span class="top-page-name">/menu</span>
+                  <span class="top-page-views">412 views</span>
+                </div>
+                <div class="top-page-row">
+                  <span class="top-page-name">/</span>
+                  <span class="top-page-views">389 views</span>
+                </div>
+                <div class="top-page-row">
+                  <span class="top-page-name">/about</span>
+                  <span class="top-page-views">201 views</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Recent Activity -->
+          <div class="card">
+            <div class="card-header">
+              <span class="card-header-title">Recent Activity</span>
+              <a class="card-header-action">View all</a>
+            </div>
+            <div class="card-body">
+              <div class="activity-list">
+
+                <div class="activity-item">
+                  <div class="activity-icon comment">💬</div>
+                  <div class="activity-body">
+                    <div class="activity-title"><strong>Maria G.</strong> commented on <em>Spring Menu Updates</em></div>
+                    <div class="activity-preview">"Love the new lavender latte! Can you share the recipe or is it a secret? 😄"</div>
+                    <div class="activity-meta">2 hours ago · Awaiting moderation</div>
+                    <div class="activity-actions">
+                      <button class="activity-action-btn">Approve</button>
+                      <button class="activity-action-btn danger">Spam</button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="activity-item">
+                  <div class="activity-icon form">📋</div>
+                  <div class="activity-body">
+                    <div class="activity-title">New contact form submission</div>
+                    <div class="activity-preview">"Hi, I'd like to book the upstairs space for a private event on March 15th for about 30 people…"</div>
+                    <div class="activity-meta">5 hours ago · from Jake Moreno</div>
+                    <div class="activity-actions">
+                      <button class="activity-action-btn">Reply</button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="activity-item">
+                  <div class="activity-icon comment">💬</div>
+                  <div class="activity-body">
+                    <div class="activity-title"><strong>Alex R.</strong> commented on <em>Our Sourcing Story</em></div>
+                    <div class="activity-preview">"This is why I keep coming back. Great to know where the beans come from."</div>
+                    <div class="activity-meta">Yesterday · Awaiting moderation</div>
+                    <div class="activity-actions">
+                      <button class="activity-action-btn">Approve</button>
+                      <button class="activity-action-btn danger">Spam</button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="activity-item">
+                  <div class="activity-icon edit">✏️</div>
+                  <div class="activity-body">
+                    <div class="activity-title">You edited <em>Menu</em> page</div>
+                    <div class="activity-preview">Added spring drinks section with 4 new items</div>
+                    <div class="activity-meta">2 days ago</div>
+                  </div>
+                </div>
+
+                <div class="activity-item">
+                  <div class="activity-icon form">📋</div>
+                  <div class="activity-body">
+                    <div class="activity-title">New catering inquiry</div>
+                    <div class="activity-preview">"We're organizing a corporate retreat and wondering about your lunch catering options…"</div>
+                    <div class="activity-meta">3 days ago · from Sarah Kim</div>
+                    <div class="activity-actions">
+                      <button class="activity-action-btn">Reply</button>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- AI Suggestions -->
+        <div class="dashboard-full">
+          <div class="section-header">
+            <div class="section-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+              AI Suggestions
+            </div>
+            <a class="section-action">Dismiss all</a>
+          </div>
+          <div class="ai-suggestions-grid">
+
+            <div class="ai-card">
+              <button class="ai-card-dismiss" title="Dismiss">✕</button>
+              <div class="ai-card-badge">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                Stale content
+              </div>
+              <div class="ai-card-text">Your <strong>About</strong> page hasn't been updated in 6 months — want me to refresh it with your latest hours and story?</div>
+              <div class="ai-card-action">
+                Refresh page
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+              </div>
+            </div>
+
+            <div class="ai-card">
+              <button class="ai-card-dismiss" title="Dismiss">✕</button>
+              <div class="ai-card-badge">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+                Traffic insight
+              </div>
+              <div class="ai-card-text">Based on your traffic, consider writing about <strong>cold brew methods</strong> — similar cafe sites see 40% more engagement with how-to content.</div>
+              <div class="ai-card-action">
+                Start a draft
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+              </div>
+            </div>
+
+            <div class="ai-card">
+              <button class="ai-card-dismiss" title="Dismiss">✕</button>
+              <div class="ai-card-badge">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4z"/></svg>
+                Drafts
+              </div>
+              <div class="ai-card-text">You have <strong>3 draft posts</strong>. Want me to finish <strong>"Spring Menu Updates"</strong>? I can fill in the details from your menu page.</div>
+              <div class="ai-card-action">
+                Finish draft
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+              </div>
+            </div>
+
+            <div class="ai-card">
+              <button class="ai-card-dismiss" title="Dismiss">✕</button>
+              <div class="ai-card-badge">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                Accessibility
+              </div>
+              <div class="ai-card-text">Your product photos could use <strong>alt text</strong> for accessibility — I can generate descriptions for all 18 images.</div>
+              <div class="ai-card-action">
+                Generate alt text
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+              </div>
+            </div>
+
+            <div class="ai-card">
+              <button class="ai-card-dismiss" title="Dismiss">✕</button>
+              <div class="ai-card-badge">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg>
+                Social traffic
+              </div>
+              <div class="ai-card-text">Traffic from <strong>Instagram is up 25%</strong> this week — consider adding a social feed widget to your homepage.</div>
+              <div class="ai-card-action">
+                Add widget
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Content Calendar -->
+        <div class="dashboard-full">
+          <div class="card">
+            <div class="card-header">
+              <span class="card-header-title">Upcoming & Scheduled</span>
+              <a class="card-header-action">Manage calendar</a>
+            </div>
+            <div class="card-body">
+              <div class="calendar-list">
+
+                <div class="calendar-item">
+                  <div class="calendar-date">
+                    <span class="calendar-date-month">Feb</span>
+                    <span class="calendar-date-day">14</span>
+                  </div>
+                  <div class="calendar-info">
+                    <div class="calendar-title">Valentine's Day Specials</div>
+                    <div class="calendar-detail">Blog post · Scheduled for 8:00 AM</div>
+                    <span class="calendar-tag scheduled">Scheduled</span>
+                  </div>
+                </div>
+
+                <div class="calendar-item">
+                  <div class="calendar-date">
+                    <span class="calendar-date-month">Feb</span>
+                    <span class="calendar-date-day">18</span>
+                  </div>
+                  <div class="calendar-info">
+                    <div class="calendar-title">Spring Menu Updates</div>
+                    <div class="calendar-detail">Blog post · 60% complete</div>
+                    <span class="calendar-tag draft">Draft</span>
+                  </div>
+                </div>
+
+                <div class="calendar-item">
+                  <div class="calendar-date">
+                    <span class="calendar-date-month">Feb</span>
+                    <span class="calendar-date-day">22</span>
+                  </div>
+                  <div class="calendar-info">
+                    <div class="calendar-title">Live Music Night — The Blue Notes</div>
+                    <div class="calendar-detail">Event page · 7:00 PM – 10:00 PM</div>
+                    <span class="calendar-tag event">Event</span>
+                  </div>
+                </div>
+
+                <div class="calendar-item">
+                  <div class="calendar-date">
+                    <span class="calendar-date-month">Mar</span>
+                    <span class="calendar-date-day">1</span>
+                  </div>
+                  <div class="calendar-info">
+                    <div class="calendar-title">Spring season — update homepage hero?</div>
+                    <div class="calendar-detail">AI suggestion · Swap winter imagery for spring photos</div>
+                    <span class="calendar-tag suggestion">Suggestion</span>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+</body>
+</html>

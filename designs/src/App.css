@@ -61,6 +61,8 @@ body {
   cursor: pointer;
   text-align: left;
   width: 100%;
+  text-decoration: none;
+  color: inherit;
 }
 
 .mockup-card:hover {
