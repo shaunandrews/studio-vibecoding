@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import { chevronLeft, chevronRight, rotateRight, desktop, tablet, mobile } from '@wordpress/icons'
 import Button from './Button.vue'
 import Dropdown from './Dropdown.vue'
+import PanelToolbar from './PanelToolbar.vue'
 import Text from './Text.vue'
 
 const url = ref('https://downstreet-cafe.local')
@@ -28,22 +29,26 @@ const viewportWidths: Record<string, string> = {
 
 <template>
   <div class="site-preview vstack flex-1">
-    <div class="preview-toolbar hstack gap-xs px-s py-xxs">
-      <div class="preview-nav hstack gap-xxxs">
+    <PanelToolbar>
+      <template #start>
         <Button variant="tertiary" :icon="chevronLeft" size="small" />
         <Button variant="tertiary" :icon="chevronRight" size="small" />
         <Button variant="tertiary" :icon="rotateRight" size="small" />
-      </div>
-      <div class="preview-url-bar hstack flex-1 px-xs py-xxxs">
-        <Text variant="caption" color="muted" class="flex-1">{{ url }}</Text>
-      </div>
-      <Dropdown
-        v-model="viewport"
-        :groups="viewportGroups"
-        :trigger-icon="desktop"
-        placement="below"
-      />
-    </div>
+      </template>
+      <template #center>
+        <div class="preview-url-bar hstack flex-1 px-xs py-xxxs">
+          <Text variant="caption" color="muted" class="flex-1">{{ url }}</Text>
+        </div>
+      </template>
+      <template #end>
+        <Dropdown
+          v-model="viewport"
+          :groups="viewportGroups"
+          :trigger-icon="desktop"
+          placement="below"
+        />
+      </template>
+    </PanelToolbar>
     <div class="preview-frame flex-1 overflow-auto">
       <div
         class="preview-viewport-container"
@@ -59,11 +64,6 @@ const viewportWidths: Record<string, string> = {
 </template>
 
 <style scoped>
-.preview-toolbar {
-  border-block-end: 1px solid var(--color-surface-border);
-  flex-shrink: 0;
-}
-
 .preview-url-bar {
   background: var(--color-surface-secondary);
   border-radius: var(--radius-s);
