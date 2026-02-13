@@ -2,7 +2,6 @@
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import MainLayout from '@/layouts/MainLayout.vue'
-import BareLayout from '@/layouts/BareLayout.vue'
 
 const route = useRoute()
 const layoutName = computed(() => (route.meta.layout as string) || 'bare')

@@ -14,7 +14,7 @@ const msgs = getMessages(conversationId)
 
 function handleSend(text: string) {
   const conv = ensureConversation(null, agentId.value)
-  sendMessage(conv.id, 'user', text)
+  sendMessage(conv.id, 'user', text, undefined, { source: 'typed' })
 }
 </script>
 

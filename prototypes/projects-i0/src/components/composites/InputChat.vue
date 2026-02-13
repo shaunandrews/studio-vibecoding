@@ -76,7 +76,6 @@ function focusInput(e: MouseEvent) {
 
 <style scoped>
 .input-chat {
-  max-width: 640px;
   width: 100%;
   background: var(--color-surface-secondary);
   border: 1px solid var(--color-surface-border);
