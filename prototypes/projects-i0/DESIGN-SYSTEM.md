@@ -139,10 +139,38 @@ Combine utility classes on the element, keep visual styles in scoped CSS:
 
 ---
 
+## Typography
+
+Use the `<Text>` component for all text. No raw `font-size` or `font-weight` in component styles unless inside a self-contained component (e.g., Button internals).
+
+### Variants
+
+| Variant | Size | Weight | Extras | Use for |
+|---------|------|--------|--------|---------|
+| `body` | 13px | 400 | — | Default UI text, descriptions |
+| `body-large` | 14px | 400 | line-height 1.4 | Input text, longer content |
+| `caption` | 12px | 400 | — | Secondary info, small labels |
+| `label` | 11px | 600 | uppercase, letter-spacing 0.05em | Section headings, group labels |
+
+### Colors
+
+`default` · `secondary` · `muted` · `inherit`
+
+### Weight overrides
+
+`regular` (400) · `medium` (500) · `semibold` (600)
+
+### Polymorphic tag
+
+Use `tag` prop to control the rendered element: `<Text variant="label" tag="h2">` renders an `<h2>` with label styles.
+
+---
+
 ## Components
 
 ### Button
-- **Props:** `variant` (primary/secondary/tertiary), `surface` (light/dark), `size` (default/small), `width` (hug/full), `icon`, `label`
+- **Props:** `variant` (primary/secondary/tertiary), `surface` (light/dark), `size` (default/small), `width` (hug/full), `icon`, `label`, `shortcut`
+- `shortcut` — e.g. `"mod+enter"` — registers global keydown listener and displays formatted badge (⌘↵ on Mac, Ctrl↵ on Windows). Supports `mod`, `shift`, `alt` modifiers.
 - Icon-only buttons auto-square to match height
 - Surface controls color scheme, not a separate variant
 - Keeps its own inline-flex + padding styles (variant-coupled, not utility-friendly)
@@ -183,6 +211,12 @@ Combine utility classes on the element, keep visual styles in scoped CSS:
 - Running → green circle, hover → red stop square
 - Loading → spinning blue ring (not interactive)
 - Fixed container size (`--space-m`)
+
+### Text
+- **Props:** `variant` (body/body-large/caption/label), `tag` (string, default 'span'), `color` (default/secondary/muted/inherit), `weight` (regular/medium/semibold)
+- Polymorphic — renders as any HTML element via `tag`
+- Use for all UI text; replaces raw font-size/weight in component styles
+- `label` variant includes uppercase + letter-spacing (section headings, group labels)
 
 ### Titlebar
 - **Regions:** `titlebar-start` (traffic lights), `titlebar-center` (app title), `titlebar-end` (settings/help)

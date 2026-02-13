@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { sidebar, cog, help } from '@wordpress/icons'
+import { cog, help } from '@wordpress/icons'
 import Button from './Button.vue'
+import Text from './Text.vue'
 </script>
 
 <template>
@@ -13,7 +14,7 @@ import Button from './Button.vue'
       </div>
     </div>
     <div class="titlebar-center hstack">
-      <h1 class="titlebar-apptitle">WordPress Studio</h1>
+      <Text variant="body" color="secondary" weight="medium" tag="h1">WordPress Studio</Text>
     </div>
     <div class="titlebar-end hstack gap-xxs">
       <Button variant="tertiary" surface="dark" :icon="cog" size="small" />
@@ -42,18 +43,7 @@ import Button from './Button.vue'
   pointer-events: none;
 }
 
-.titlebar-apptitle {
-  font-size: 13px;
-  color: var(--color-chrome-text-secondary);
-  margin: 0;
-  white-space: nowrap;
-  font-weight: 500;
-}
-
-.titlebar-separator {
-  margin: 0 var(--space-xxs);
-  opacity: 0.4;
-}
+/* app title styled via Text component */
 
 .titlebar-start,
 .titlebar-end {

@@ -2,6 +2,7 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 import { chevronDown } from '@wordpress/icons'
 import WPIcon from './WPIcon.vue'
+import Text from './Text.vue'
 
 export interface DropdownGroup {
   label: string
@@ -53,7 +54,7 @@ onUnmounted(() => document.removeEventListener('click', onClickOutside))
         :class="placement === 'below' ? 'dropdown-menu--below' : 'dropdown-menu--above'"
       >
         <div v-for="group in groups" :key="group.label" class="dropdown-group">
-          <span class="dropdown-group-label px-xs py-xxxs">{{ group.label }}</span>
+          <Text variant="label" color="muted" class="dropdown-group-label px-xs py-xxxs">{{ group.label }}</Text>
           <button
             v-for="option in group.options"
             :key="option"
@@ -117,11 +118,6 @@ onUnmounted(() => document.removeEventListener('click', onClickOutside))
 
 .dropdown-group-label {
   display: block;
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--color-text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
 }
 
 .dropdown-option {

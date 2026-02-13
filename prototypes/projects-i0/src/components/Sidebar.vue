@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import Button from './Button.vue'
 import ProjectListItem from './ProjectListItem.vue'
+import Text from './Text.vue'
 </script>
 
 <template>
   <aside class="sidebar vstack shrink-0">
-    <h2 class="sidebar-heading p-xs">Projects</h2>
+    <Text variant="label" color="muted" tag="h2" class="p-xs">Projects</Text>
     <div class="sidebar-projects vstack gap-xxxs flex-1 overflow-auto">
       <ProjectListItem name="Downstreet Cafe" favicon="https://api.dicebear.com/9.x/shapes/svg?seed=cafe" status="running" />
       <ProjectListItem name="Shaun's Blog" favicon="https://api.dicebear.com/9.x/shapes/svg?seed=blog" status="running" :active="true" />
@@ -22,14 +23,7 @@ import ProjectListItem from './ProjectListItem.vue'
   width: 210px; /* 42 units */
 }
 
-.sidebar-heading {
-  font-size: 11px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--color-chrome-text-muted);
-  margin: 0;
-}
+/* heading styled via Text component + .p-xs utility */
 
 .sidebar-projects {
   /* layout via utility classes */

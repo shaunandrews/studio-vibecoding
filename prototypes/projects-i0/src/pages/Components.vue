@@ -3,6 +3,7 @@ import * as wpIcons from '@wordpress/icons'
 import WPIcon from '../components/WPIcon.vue'
 import Button from '../components/Button.vue'
 import StatusIndicator from '../components/StatusIndicator.vue'
+import Text from '../components/Text.vue'
 import Titlebar from '../components/Titlebar.vue'
 import ProjectListItem from '../components/ProjectListItem.vue'
 import InputChat from '../components/InputChat.vue'
@@ -15,6 +16,7 @@ const componentNav = [
   { id: 'input-chat', label: 'InputChat' },
   { id: 'project-list-item', label: 'ProjectListItem' },
   { id: 'status-indicator', label: 'StatusIndicator' },
+  { id: 'text', label: 'Text' },
   { id: 'titlebar', label: 'Titlebar' },
   { id: 'wpicon', label: 'WPIcon' },
 ]
@@ -278,6 +280,66 @@ const icons = Object.entries(wpIcons)
           </div>
         </div>
         <p class="status-demo-hint">Hover stopped or running to see the transition.</p>
+      </div>
+    </section>
+
+    <!-- Text -->
+    <section id="text">
+      <h2>Text</h2>
+      <p class="section-desc">Typographic primitive with variant, color, weight, and polymorphic tag.</p>
+
+      <div class="props-table">
+        <h3>Props</h3>
+        <table>
+          <thead>
+            <tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>variant</code></td><td><code>'body' | 'body-large' | 'caption' | 'label'</code></td><td><code>'body'</code></td><td>Text style preset</td></tr>
+            <tr><td><code>tag</code></td><td><code>string</code></td><td><code>'span'</code></td><td>HTML element to render</td></tr>
+            <tr><td><code>color</code></td><td><code>'default' | 'secondary' | 'muted' | 'inherit'</code></td><td>—</td><td>Text color</td></tr>
+            <tr><td><code>weight</code></td><td><code>'regular' | 'medium' | 'semibold'</code></td><td>—</td><td>Override font weight</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Variants</h3>
+      <div class="example-section">
+        <div class="vstack gap-s">
+          <div class="vstack gap-xxxs">
+            <Text variant="label" color="muted">Label — 11px / 600 / uppercase</Text>
+            <Text variant="caption" color="secondary">Caption — 12px</Text>
+            <Text variant="body">Body — 13px (default)</Text>
+            <Text variant="body-large">Body Large — 14px</Text>
+          </div>
+        </div>
+      </div>
+
+      <h3>Colors</h3>
+      <div class="example-section">
+        <div class="vstack gap-xxxs">
+          <Text color="default">Default</Text>
+          <Text color="secondary">Secondary</Text>
+          <Text color="muted">Muted</Text>
+        </div>
+      </div>
+
+      <h3>Weights</h3>
+      <div class="example-section">
+        <div class="hstack gap-m">
+          <Text weight="regular">Regular (400)</Text>
+          <Text weight="medium">Medium (500)</Text>
+          <Text weight="semibold">Semibold (600)</Text>
+        </div>
+      </div>
+
+      <h3>Polymorphic tag</h3>
+      <div class="example-section">
+        <div class="vstack gap-xxxs">
+          <Text variant="label" color="muted" tag="h2">Rendered as h2</Text>
+          <Text variant="body" tag="p">Rendered as p</Text>
+          <Text variant="caption" tag="small">Rendered as small</Text>
+        </div>
       </div>
     </section>
 
