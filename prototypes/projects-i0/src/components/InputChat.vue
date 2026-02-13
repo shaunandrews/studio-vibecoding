@@ -35,7 +35,7 @@ function focusInput(e: MouseEvent) {
 </script>
 
 <template>
-  <div class="input-chat p-xxs" :class="{ 'has-content': message.trim().length > 0 }" @click="focusInput">
+  <div class="input-chat p-xs" :class="{ 'has-content': message.trim().length > 0 }" @click="focusInput">
     <textarea
       ref="textareaRef"
       v-model="message"
