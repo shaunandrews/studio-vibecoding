@@ -1,15 +1,24 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { copy, thumbsUp, thumbsDown } from '@wordpress/icons'
 import Button from '@/components/primitives/Button.vue'
 import Text from '@/components/primitives/Text.vue'
+import { useAgents } from '@/data/useAgents'
+import type { AgentId } from '@/data/types'
+
+const { getAgent } = useAgents()
 
 const props = defineProps<{
   role: 'user' | 'agent'
   content: string
-  agentName?: string
+  agentId?: AgentId
   selected?: boolean
 }>()
+
+const agentName = computed(() => {
+  if (!props.agentId) return undefined
+  return getAgent(props.agentId)?.label
+})
 
 const emit = defineEmits<{
   select: []
