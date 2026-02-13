@@ -82,8 +82,8 @@ const projects = ref<Project[]>([
 }
 
 .home-content {
-  background: var(--color-surface);
-  color: var(--color-text);
+  background: var(--color-chrome);
+  color: var(--color-chrome-text);
   min-height: 0;
 }
 
