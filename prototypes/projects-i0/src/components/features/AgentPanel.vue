@@ -132,10 +132,20 @@ function handleSend(text: string) {
       </template>
     </PanelToolbar>
 
-    <ChatMessageList :messages="msgs" />
+    <div class="agent-panel__content vstack flex-1 overflow-hidden" :class="{ centered: !previewVisible }">
+      <ChatMessageList :messages="msgs" />
 
-    <div class="px-l pb-l shrink-0">
-      <InputChat ref="inputChatRef" v-model="currentDraft" @send="handleSend" />
+      <div class="px-l pb-l shrink-0">
+        <InputChat ref="inputChatRef" v-model="currentDraft" @send="handleSend" />
+      </div>
     </div>
   </div>
 </template>
+
+<style scoped>
+.agent-panel__content.centered {
+  max-width: 768px;
+  margin: 0 auto;
+  width: 100%;
+}
+</style>
