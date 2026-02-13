@@ -36,34 +36,38 @@
 - **Use `@wordpress/icons`** via the `WPIcon` component.
 - **No inline SVGs** unless the icon doesn't exist in the WP set.
 
-## Layout Utilities
+---
 
-Global utility classes in `styles/layout.css`. Use these instead of writing `display: flex` in component styles.
+## Utility Classes
 
-### Stacks
+All utilities are global (unscoped) and imported via `style.css`. Use them on elements directly. Keep component-specific styles (colors, borders, transitions, etc.) in scoped `<style>`.
+
+### Layout (`styles/layout.css`)
+
+#### Stacks
 
 | Class    | Effect                                           |
 |----------|--------------------------------------------------|
 | `.hstack` | `display: flex; align-items: center`             |
 | `.vstack` | `display: flex; flex-direction: column`          |
 
-### Gap
+#### Gap
 
 Maps directly to space tokens:
 
 `.gap-xxxs` · `.gap-xxs` · `.gap-xs` · `.gap-s` · `.gap-m` · `.gap-l` · `.gap-xl` · `.gap-xxl` · `.gap-xxxl`
 
-### Justify
+#### Justify
 
 `.justify-start` · `.justify-center` · `.justify-end` · `.justify-between`
 
-### Align
+#### Align
 
 `.align-start` · `.align-center` · `.align-end` · `.align-stretch`
 
 **Note:** `.hstack` defaults to `align-items: center`. Use `.align-stretch` when children should fill the cross axis (e.g., `app-body` needing full-height sidebar and frame).
 
-### Flex Sizing
+#### Flex Sizing
 
 | Class      | Effect             |
 |------------|--------------------|
@@ -72,27 +76,68 @@ Maps directly to space tokens:
 | `.shrink-0`  | `flex-shrink: 0`   |
 | `.min-w-0`   | `min-width: 0`     |
 
-### Wrap
+#### Wrap
 
 `.flex-wrap` · `.flex-nowrap`
 
-### Overflow
+#### Overflow
 
 `.overflow-hidden` · `.overflow-auto`
 
-### Dimensions
+#### Dimensions
 
 `.w-full` · `.h-full`
 
+### Spacing (`styles/spacing.css`)
+
+Padding and margin utilities mapped to space tokens. Naming convention:
+
+- **Direction prefix:** `p` (padding), `m` (margin)
+- **Axis modifier:** `x` (inline), `y` (block), `t` (block-start), `b` (block-end), `s` (inline-start), `e` (inline-end)
+- **Size suffix:** token name (`xxxs` through `xxxl`)
+
+#### Padding
+
+| Pattern | Example | Effect |
+|---------|---------|--------|
+| `.p-{size}` | `.p-xs` | `padding: var(--space-xs)` |
+| `.px-{size}` | `.px-xxs` | `padding-inline: var(--space-xxs)` |
+| `.py-{size}` | `.py-xxxs` | `padding-block: var(--space-xxxs)` |
+| `.pt-{size}` | `.pt-xxs` | `padding-block-start: var(--space-xxs)` |
+| `.pb-{size}` | `.pb-xs` | `padding-block-end: var(--space-xs)` |
+| `.ps-{size}` | `.ps-s` | `padding-inline-start: var(--space-s)` |
+| `.pe-{size}` | `.pe-xxs` | `padding-inline-end: var(--space-xxs)` |
+
+All sizes from `0` through `xxxl` (uniform), `xxxs` through `xl` (axis), `xxxs` through `s` (individual sides).
+
+#### Margin
+
+Same pattern as padding: `.m-{size}`, `.mx-{size}`, `.my-{size}`, `.mt-{size}`, `.mb-{size}`, `.me-{size}`
+
+Plus `.mx-auto` for centering.
+
+Margin utilities cover `0` through `s` (uniform), `xxxs` through `xs` (axis/sides).
+
 ### Usage Pattern
 
-Combine utility classes on the element, keep component-specific styles (colors, borders, transitions) in scoped CSS:
+Combine utility classes on the element, keep visual styles in scoped CSS:
 
 ```html
 <div class="sidebar vstack shrink-0">
-<div class="app-body hstack align-stretch gap-xs flex-1 min-w-0">
-<div class="project-list-item hstack gap-xs">
+<div class="app-body hstack align-stretch gap-xs flex-1 min-w-0 p-xs">
+<div class="project-list-item hstack gap-xs p-xs">
+<div class="input-chat p-xxs">
+<button class="dropdown-trigger hstack gap-xxxs px-xxs py-xxxs">
 ```
+
+### What stays in scoped CSS
+
+- **Button padding** — variant-dependent (`0 var(--space-s)` vs `0`) doesn't map to utilities
+- **Asymmetric padding** like Titlebar's `0 xs 0 s` — no clean utility match
+- **Contextual spacing** like `.dropdown-group + .dropdown-group` separator margin/padding
+- **Anything with transitions, colors, borders, shadows, cursor, etc.**
+
+---
 
 ## Components
 
@@ -100,36 +145,49 @@ Combine utility classes on the element, keep component-specific styles (colors, 
 - **Props:** `variant` (primary/secondary/tertiary), `surface` (light/dark), `size` (default/small), `width` (hug/full), `icon`, `label`
 - Icon-only buttons auto-square to match height
 - Surface controls color scheme, not a separate variant
-- Button keeps its own inline-flex styles (not converted to utilities) because `inline-flex` + `justify-content: center` doesn't map to hstack/vstack
+- Keeps its own inline-flex + padding styles (variant-coupled, not utility-friendly)
 
-### Panel (planned)
-- Reserved for future panel/resizable layout system
+### Dropdown
+- **Props:** `modelValue` (string, v-model), `groups` ({ label, options[] }[]), `placement` ('above' | 'below')
+- Grouped option picker with labeled sections and dividers
+- Click-outside to dismiss, animated open/close (slide + fade)
+- Above/below placement (default: above, natural for bottom-anchored inputs)
+- Active option highlighted in primary color
+
+### InputChat
+- **Events:** `send` (message: string, model: string)
+- Entire component looks like a single large textarea
+- Click anywhere to focus the textarea (unless clicking a button)
+- Auto-growing textarea via `field-sizing: content`, capped at ~7 lines
+- Bottom toolbar with Dropdown (model selector) and send Button
+- Hover darkens border, focus-within shows primary ring
+- Enter to send, Shift+Enter for newline
 
 ### ProjectListItem
 - **Props:** `name` (string), `favicon` (string URL), `status` (stopped/loading/running), `active` (boolean)
 - **Events:** `select`, `toggle`
 - Single sidebar row: favicon + name + status indicator
-- Uses `hstack gap-xs` for layout, `flex-1 min-w-0` on name for truncation
+- Uses `hstack gap-xs p-xs`, `flex-1 min-w-0` on name for truncation
 
 ### Sidebar
 - **Structure:** heading + project list + footer with add button
 - Uses `vstack shrink-0` for vertical layout
 - Fixed width: 210px (42 grid units)
-- Project list uses `vstack gap-xxxs flex-1 overflow-auto` for scrollable list
+- Project list uses `vstack gap-xxxs flex-1 overflow-auto`
 
 ### StatusIndicator
 - **Props:** `status` (stopped/loading/running)
 - **Events:** `toggle`
-- Uses single-element `clip-path` morphing for smooth shape transitions
-- Stopped: grey circle → green play triangle on hover
-- Running: green circle → red stop square on hover
-- Loading: spinning blue ring (not interactive)
-- Fixed container size (`--space-m`) regardless of inner shape
+- Single-element `clip-path` morphing for smooth shape transitions
+- Stopped → grey circle, hover → green play triangle
+- Running → green circle, hover → red stop square
+- Loading → spinning blue ring (not interactive)
+- Fixed container size (`--space-m`)
 
 ### Titlebar
 - **Regions:** `titlebar-start` (traffic lights), `titlebar-center` (app title), `titlebar-end` (settings/help)
-- Center is absolutely positioned for true centering regardless of start/end widths
-- All regions use `hstack` utility for alignment
+- Center is absolutely positioned for true centering
+- All regions use `hstack` utility; traffic lights use `me-xxs` for margin
 - `-webkit-app-region: drag` on titlebar, `no-drag` on interactive regions
 - Traffic lights: 12px circles (OS-native size — intentional exception)
 
