@@ -132,19 +132,19 @@ function handleSend(text: string) {
       </template>
     </PanelToolbar>
 
-    <ChatMessageList :messages="msgs" class="agent-panel__messages" />
+    <ChatMessageList :messages="msgs" />
 
-    <div class="agent-panel__input px-l pb-l shrink-0">
+    <div class="agent-panel__input shrink-0">
       <InputChat ref="inputChatRef" v-model="currentDraft" @send="handleSend" />
     </div>
   </div>
 </template>
 
 <style scoped>
-.agent-panel__messages,
 .agent-panel__input {
   max-width: 768px;
   width: 100%;
-  align-self: center;
+  margin: 0 auto;
+  padding: 0 var(--space-l) var(--space-l);
 }
 </style>
