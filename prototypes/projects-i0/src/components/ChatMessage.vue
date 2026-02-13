@@ -56,14 +56,11 @@ function copyMessage(content: string) {
   max-width: 640px;
 }
 
-.chat-message--user {
-  /* no bubble, plain text */
-}
-
-.chat-message--agent .chat-message-content {
+.chat-message--user .chat-message-content {
   background: var(--color-surface-secondary);
   border-radius: var(--radius-m);
   padding: var(--space-xs) var(--space-s);
+  margin-inline: calc(-1 * var(--space-s)); /* Pull bubble left/right so text stays aligned */
 }
 
 .chat-message-actions {

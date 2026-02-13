@@ -10,6 +10,7 @@ const props = defineProps<{
   size?: 'small' | 'default'
   width?: 'hug' | 'full'
   shortcut?: string
+  active?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -63,7 +64,7 @@ onUnmounted(() => {
       `btn--${size || 'default'}`,
       `btn--on-${surface || 'light'}`,
       `btn--${width || 'hug'}`,
-      { 'btn--icon-only': icon && !label }
+      { 'btn--icon-only': icon && !label, 'btn--active': active }
     ]"
   >
     <WPIcon v-if="icon" :icon="icon" :size="size === 'small' ? 18 : 18" />
@@ -186,7 +187,8 @@ onUnmounted(() => {
   color: var(--color-text-secondary);
 }
 
-.btn--tertiary.btn--on-light:hover {
+.btn--tertiary.btn--on-light:hover,
+.btn--tertiary.btn--on-light.btn--active {
   background: var(--color-surface-secondary);
   color: var(--color-text);
 }
@@ -196,7 +198,8 @@ onUnmounted(() => {
   color: var(--color-chrome-text-muted);
 }
 
-.btn--tertiary.btn--on-dark:hover {
+.btn--tertiary.btn--on-dark:hover,
+.btn--tertiary.btn--on-dark.btn--active {
   background: var(--color-chrome-hover);
   color: var(--color-chrome-text);
 }

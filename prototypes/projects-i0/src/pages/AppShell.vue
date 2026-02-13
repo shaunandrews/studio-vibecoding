@@ -17,7 +17,7 @@ const showPreview = ref(true)
       <main class="frame vstack flex-1 overflow-hidden min-h-0">
         <div class="panels hstack align-stretch flex-1 min-w-0 min-h-0">
           <Panel>
-            <AgentPanel @toggle-preview="showPreview = !showPreview" />
+            <AgentPanel :preview-visible="showPreview" @toggle-preview="showPreview = !showPreview" />
           </Panel>
           <Panel v-if="showPreview">
             <SitePreview />

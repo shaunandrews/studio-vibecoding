@@ -20,6 +20,10 @@ const tabs = ref<AgentTab[]>([
 
 const activeTab = ref('assistant')
 
+const props = defineProps<{
+  previewVisible?: boolean
+}>()
+
 const emit = defineEmits<{
   'toggle-preview': []
 }>()
@@ -43,7 +47,7 @@ const emit = defineEmits<{
       </template>
       <template #end>
         <Button variant="tertiary" :icon="plus" size="small" />
-        <Button variant="tertiary" :icon="sidebar" size="small" @click="$emit('toggle-preview')" />
+        <Button variant="tertiary" :icon="sidebar" size="small" :active="previewVisible" @click="$emit('toggle-preview')" />
       </template>
     </PanelToolbar>
     <div class="messages flex-1 overflow-auto p-l">
@@ -62,7 +66,7 @@ const emit = defineEmits<{
         />
       </div>
     </div>
-    <div class="px-l pb-xxxl shrink-0">
+    <div class="px-l pb-l shrink-0">
       <InputChat />
     </div>
   </div>
@@ -99,6 +103,5 @@ const emit = defineEmits<{
 .messages-inner {
   max-width: 720px;
   width: 100%;
-  margin: 0 auto;
 }
 </style>
