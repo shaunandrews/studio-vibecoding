@@ -1,13 +1,15 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
-import MainLayout from '@/layouts/MainLayout.vue'
+import AppLayout from '@/layouts/AppLayout.vue'
+import ProjectLayout from '@/layouts/ProjectLayout.vue'
 import BareLayout from '@/layouts/BareLayout.vue'
 
 const route = useRoute()
 
 const layouts: Record<string, any> = {
-  main: MainLayout,
+  app: AppLayout,
+  project: ProjectLayout,
   bare: BareLayout,
 }
 
