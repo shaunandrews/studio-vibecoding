@@ -33,7 +33,7 @@ const projects = ref<Project[]>([
         <section class="projects-section vstack gap-s">
           <div class="hstack justify-between">
             <Text variant="label" color="muted" tag="h2">Projects</Text>
-            <Button variant="secondary" :icon="plus" label="New project" size="small" />
+            <Button variant="secondary" :icon="plus" label="New project" size="small" surface="dark" />
           </div>
           <div class="project-grid">
             <router-link
