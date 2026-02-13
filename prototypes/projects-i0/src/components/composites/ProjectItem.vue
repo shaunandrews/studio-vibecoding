@@ -114,7 +114,7 @@ defineEmits<{
 
 /* Collapsible: preview */
 .item-preview {
-  transition: opacity var(--transition-layout), max-height var(--transition-layout), margin-top var(--transition-layout);
+  transition: opacity var(--duration-instant), max-height var(--duration-instant), margin-top var(--duration-instant);
   overflow: hidden;
 }
 
