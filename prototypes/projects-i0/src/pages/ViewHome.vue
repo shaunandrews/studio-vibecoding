@@ -29,7 +29,7 @@ const projects = ref<Project[]>([
     <Titlebar />
     <div class="home-panels hstack align-stretch flex-1 min-h-0">
       <!-- Projects Panel -->
-      <Panel>
+      <Panel surface="dark">
         <div class="panel-content vstack gap-s p-m overflow-auto flex-1">
           <div class="hstack justify-between">
             <Text variant="label" color="muted" tag="h2">Projects</Text>
@@ -59,7 +59,7 @@ const projects = ref<Project[]>([
       </Panel>
 
       <!-- Chat Panel -->
-      <Panel>
+      <Panel surface="dark">
         <div class="panel-content vstack gap-s p-m flex-1">
           <Text variant="label" color="muted" tag="h2">Chat</Text>
           <Text variant="body" color="secondary">Ask anything across all your projects.</Text>
@@ -82,10 +82,6 @@ const projects = ref<Project[]>([
 
 .home-panels {
   min-height: 0;
-}
-
-.home-panels :deep(.panel) {
-  border-color: var(--color-chrome-border);
 }
 
 /* Project Grid */
