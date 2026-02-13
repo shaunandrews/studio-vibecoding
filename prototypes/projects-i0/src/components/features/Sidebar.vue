@@ -1,5 +1,7 @@
 <script setup lang="ts">
+import { chevronLeft } from '@wordpress/icons'
 import Button from '@/components/primitives/Button.vue'
+import WPIcon from '@/components/primitives/WPIcon.vue'
 import ProjectListItem from '@/components/composites/ProjectListItem.vue'
 import Text from '@/components/primitives/Text.vue'
 import { useProjects } from '@/data/useProjects'
@@ -8,6 +10,10 @@ import { useRouter } from 'vue-router'
 const { projects, activeProjectId, setStatus } = useProjects()
 const router = useRouter()
 
+function goHome() {
+  router.push({ name: 'home' })
+}
+
 function selectProject(id: string) {
   router.push({ name: 'project', params: { id } })
 }
@@ -15,8 +21,11 @@ function selectProject(id: string) {
 
 <template>
   <aside class="sidebar vstack shrink-0 gap-xxs">
-    <Text variant="label" color="muted" tag="h2" class="p-xxs">Projects</Text>
     <div class="sidebar-projects vstack gap-xxs flex-1 overflow-auto">
+      <div class="all-projects hstack gap-xs p-xxs" @click="goHome">
+        <WPIcon :icon="chevronLeft" :size="20" class="back-icon shrink-0" />
+        <span class="project-name flex-1 min-w-0">All projects</span>
+      </div>
       <ProjectListItem
         v-for="project in projects"
         :key="project.id"
@@ -37,5 +46,25 @@ function selectProject(id: string) {
 <style scoped>
 .sidebar {
   width: 210px; /* 42 units */
+}
+
+.all-projects {
+  border-radius: var(--radius-s);
+  cursor: pointer;
+  color: var(--color-chrome-text-secondary);
+  transition: background 150ms ease;
+}
+
+.all-projects:hover {
+  background: var(--color-chrome-hover);
+  color: var(--color-chrome-text);
+}
+
+.back-icon {
+  opacity: 0.6;
+}
+
+.all-projects:hover .back-icon {
+  opacity: 1;
 }
 </style>
