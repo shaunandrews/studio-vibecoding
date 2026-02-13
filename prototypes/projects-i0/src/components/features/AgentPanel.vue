@@ -144,7 +144,7 @@ function handleSend(text: string) {
 .agent-panel__input {
   max-width: 768px;
   width: 100%;
-  margin: 0 auto;
+  align-self: center;
   padding: 0 var(--space-l) var(--space-l);
 }
 </style>
