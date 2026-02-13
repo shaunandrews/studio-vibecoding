@@ -66,7 +66,7 @@ function copyMessage(content: string) {
 
 .chat-message-actions {
   position: absolute;
-  bottom: calc(-1 * var(--space-xs));
+  bottom: calc(-1 * var(--space-xxs));
   left: 0;
   opacity: 0;
   transition: opacity 150ms ease;
