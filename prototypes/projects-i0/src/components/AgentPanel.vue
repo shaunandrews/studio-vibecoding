@@ -62,7 +62,7 @@ const emit = defineEmits<{
         />
       </div>
     </div>
-    <div class="px-l pb-l">
+    <div class="px-l pb-xl">
       <InputChat />
     </div>
   </div>
