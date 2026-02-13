@@ -27,6 +27,12 @@ const props = defineProps<{
 const emit = defineEmits<{
   'toggle-preview': []
 }>()
+
+const selectedMessage = ref<number | null>(null)
+
+function selectMessage(index: number) {
+  selectedMessage.value = selectedMessage.value === index ? null : index
+}
 </script>
 
 <template>
@@ -55,14 +61,20 @@ const emit = defineEmits<{
         <ChatMessage
           role="agent"
           content="Hello! I'm your site assistant. I can help you build, customize, and manage your WordPress site. What would you like to work on?"
+          :selected="selectedMessage === 0"
+          @select="selectMessage(0)"
         />
         <ChatMessage
           role="user"
           content="I want to change the hero section on my homepage to have a gradient background and bigger text."
+          :selected="selectedMessage === 1"
+          @select="selectMessage(1)"
         />
         <ChatMessage
           role="agent"
           content="I'll update your hero section with a gradient background and increase the heading size. Let me make those changes to your theme now."
+          :selected="selectedMessage === 2"
+          @select="selectMessage(2)"
         />
       </div>
     </div>

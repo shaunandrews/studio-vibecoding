@@ -4,10 +4,15 @@ import { copy, thumbsUp, thumbsDown } from '@wordpress/icons'
 import Button from './Button.vue'
 import Text from './Text.vue'
 
-defineProps<{
+const props = defineProps<{
   role: 'user' | 'agent'
   content: string
   agentName?: string
+  selected?: boolean
+}>()
+
+const emit = defineEmits<{
+  select: []
 }>()
 
 const feedback = ref<'up' | 'down' | null>(null)
@@ -21,7 +26,11 @@ function copyMessage(content: string) {
 </script>
 
 <template>
-  <div class="chat-message vstack gap-xxs" :class="`chat-message--${role}`">
+  <div
+    class="chat-message vstack gap-xxs"
+    :class="[`chat-message--${role}`, { 'chat-message--selected': selected }]"
+    @click="emit('select')"
+  >
     <Text v-if="role === 'agent' && agentName" variant="label" color="muted">{{ agentName }}</Text>
     <Text variant="body-large" tag="div" class="chat-message-content">{{ content }}</Text>
     <div class="chat-message-actions hstack gap-xxxs">
@@ -55,6 +64,7 @@ function copyMessage(content: string) {
 .chat-message {
   max-width: 640px;
   position: relative;
+  cursor: pointer;
 }
 
 .chat-message-content {
@@ -76,7 +86,7 @@ function copyMessage(content: string) {
   background: var(--color-surface);
   border-radius: var(--radius-s);
 
-  .chat-message:hover & {
+  .chat-message--selected & {
     opacity: 1;
   }
 }
