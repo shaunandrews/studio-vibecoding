@@ -40,7 +40,6 @@ function copyMessage(content: string) {
     :class="[`chat-message--${role}`, { 'chat-message--selected': selected }]"
     @click="emit('select')"
   >
-    <Text v-if="role === 'agent' && agentName" variant="label" color="muted">{{ agentName }}</Text>
     <Text variant="body-large" tag="div" class="chat-message-content">{{ content }}</Text>
     <div v-if="selected" class="chat-message-actions hstack gap-xxxs">
       <Button
