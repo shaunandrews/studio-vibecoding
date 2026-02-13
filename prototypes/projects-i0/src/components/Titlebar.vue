@@ -6,7 +6,7 @@ import Button from './Button.vue'
 <template>
   <div class="titlebar">
     <div class="titlebar-start hstack gap-xxs">
-      <div class="traffic-lights hstack gap-xs">
+      <div class="traffic-lights hstack gap-xs me-xxs">
         <span class="light close"></span>
         <span class="light minimize"></span>
         <span class="light maximize"></span>
@@ -61,7 +61,7 @@ import Button from './Button.vue'
 }
 
 .traffic-lights {
-  margin-inline-end: var(--space-xxs);
+  /* margin via .me-xxs utility */
 }
 
 .light {

@@ -7,7 +7,7 @@ import InputChat from '../components/InputChat.vue'
 <template>
   <div class="app-shell vstack">
     <Titlebar />
-    <div class="app-body hstack align-stretch gap-xs flex-1 min-w-0">
+    <div class="app-body hstack align-stretch gap-xs flex-1 min-w-0 p-xs">
       <Sidebar />
       <main class="frame flex-1 overflow-hidden">
         <div class="site-assistant vstack flex-1">
@@ -33,7 +33,6 @@ import InputChat from '../components/InputChat.vue'
 
 .app-body {
   min-height: 0;
-  padding: var(--space-xs);
 }
 
 .frame {

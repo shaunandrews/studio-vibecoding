@@ -5,7 +5,7 @@ import ProjectListItem from './ProjectListItem.vue'
 
 <template>
   <aside class="sidebar vstack shrink-0">
-    <h2 class="sidebar-heading">Projects</h2>
+    <h2 class="sidebar-heading p-xs">Projects</h2>
     <div class="sidebar-projects vstack gap-xxxs flex-1 overflow-auto">
       <ProjectListItem name="Downstreet Cafe" favicon="https://api.dicebear.com/9.x/shapes/svg?seed=cafe" status="running" />
       <ProjectListItem name="Shaun's Blog" favicon="https://api.dicebear.com/9.x/shapes/svg?seed=blog" status="running" :active="true" />
@@ -29,7 +29,6 @@ import ProjectListItem from './ProjectListItem.vue'
   letter-spacing: 0.05em;
   color: var(--color-chrome-text-muted);
   margin: 0;
-  padding: var(--space-xs) var(--space-xs) var(--space-xs) var(--space-xs);
 }
 
 .sidebar-projects {

@@ -40,16 +40,16 @@ function focusInput(e: MouseEvent) {
 </script>
 
 <template>
-  <div class="input-chat" :class="{ 'has-content': message.trim().length > 0 }" @click="focusInput">
+  <div class="input-chat p-xxs" :class="{ 'has-content': message.trim().length > 0 }" @click="focusInput">
     <textarea
       ref="textareaRef"
       v-model="message"
-      class="input-textarea flex-1"
+      class="input-textarea flex-1 px-xxs py-xxxs"
       placeholder="Ask anything..."
       rows="1"
       @keydown="onKeydown"
     />
-    <div class="input-toolbar hstack justify-between">
+    <div class="input-toolbar hstack justify-between pt-xxs">
       <Dropdown v-model="selectedModel" :groups="models" placement="above" />
       <Button
         variant="primary"
@@ -66,7 +66,6 @@ function focusInput(e: MouseEvent) {
   background: var(--color-surface-secondary);
   border: 1px solid var(--color-surface-border);
   border-radius: var(--radius-m);
-  padding: var(--space-xxs);
   cursor: text;
   transition: border-color 150ms ease, box-shadow 150ms ease;
 }
@@ -90,7 +89,6 @@ function focusInput(e: MouseEvent) {
   font-size: 14px;
   color: var(--color-text);
   resize: none;
-  padding: var(--space-xxxs) var(--space-xxs);
   line-height: 1.4;
   field-sizing: content;
   min-height: 0;
@@ -102,7 +100,7 @@ function focusInput(e: MouseEvent) {
 }
 
 .input-toolbar {
-  padding-block-start: var(--space-xxs);
+  /* padding via .pt-xxs utility */
 }
 
 </style>

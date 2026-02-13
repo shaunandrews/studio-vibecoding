@@ -2,6 +2,7 @@
 @import './styles/space.css';
 @import './styles/radius.css';
 @import './styles/layout.css';
+@import './styles/spacing.css';
 
 /* Reset */
 *, *::before, *::after { box-sizing: border-box; margin: 0; }

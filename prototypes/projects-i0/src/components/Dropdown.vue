@@ -42,22 +42,22 @@ onUnmounted(() => document.removeEventListener('click', onClickOutside))
 
 <template>
   <div class="dropdown" ref="triggerRef">
-    <button class="dropdown-trigger hstack gap-xxxs" @click="toggle">
+    <button class="dropdown-trigger hstack gap-xxxs px-xxs py-xxxs" @click="toggle">
       <span class="dropdown-label">{{ modelValue }}</span>
       <WPIcon :icon="chevronDown" :size="16" />
     </button>
     <Transition name="dropdown">
       <div
         v-if="open"
-        class="dropdown-menu vstack"
+        class="dropdown-menu vstack p-xxxs"
         :class="placement === 'below' ? 'dropdown-menu--below' : 'dropdown-menu--above'"
       >
         <div v-for="group in groups" :key="group.label" class="dropdown-group">
-          <span class="dropdown-group-label">{{ group.label }}</span>
+          <span class="dropdown-group-label px-xs py-xxxs">{{ group.label }}</span>
           <button
             v-for="option in group.options"
             :key="option"
-            class="dropdown-option"
+            class="dropdown-option px-xs py-xxxs"
             :class="{ active: option === modelValue }"
             @click="select(option)"
           >
@@ -80,7 +80,6 @@ onUnmounted(() => document.removeEventListener('click', onClickOutside))
   font-family: inherit;
   font-size: 12px;
   color: var(--color-text-muted);
-  padding: var(--space-xxxs) var(--space-xxs);
   border-radius: var(--radius-s);
   cursor: pointer;
   transition: background 120ms ease, color 120ms ease;
@@ -97,7 +96,6 @@ onUnmounted(() => document.removeEventListener('click', onClickOutside))
   background: var(--color-surface);
   border: 1px solid var(--color-surface-border);
   border-radius: var(--radius-m);
-  padding: var(--space-xxxs);
   min-width: 180px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Elevation shadow — intentional */
   z-index: 10;
@@ -113,7 +111,7 @@ onUnmounted(() => document.removeEventListener('click', onClickOutside))
 
 .dropdown-group + .dropdown-group {
   border-top: 1px solid var(--color-surface-border);
-  margin-top: var(--space-xxxs);
+  margin-top: var(--space-xxxs); /* separator spacing between groups */
   padding-top: var(--space-xxxs);
 }
 
@@ -124,7 +122,6 @@ onUnmounted(() => document.removeEventListener('click', onClickOutside))
   color: var(--color-text-muted);
   text-transform: uppercase;
   letter-spacing: 0.03em;
-  padding: var(--space-xxxs) var(--space-xs);
 }
 
 .dropdown-option {
@@ -136,7 +133,6 @@ onUnmounted(() => document.removeEventListener('click', onClickOutside))
   font-family: inherit;
   font-size: 13px;
   color: var(--color-text-secondary);
-  padding: var(--space-xxxs) var(--space-xs);
   border-radius: var(--radius-s);
   cursor: pointer;
   transition: background 100ms ease, color 100ms ease;
