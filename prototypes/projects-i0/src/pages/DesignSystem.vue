@@ -8,40 +8,97 @@ import Text from '../components/Text.vue'
 
     <section>
       <h2>Typography</h2>
-      <p class="section-desc">Four text variants via the <code>Text</code> component. No raw font-size in component styles.</p>
+      <p class="section-desc">Typography tokens in <code>styles/typography.css</code>. All font values flow through tokens — no raw px in component styles.</p>
 
-      <div class="type-samples vstack gap-m">
+      <h3>Font Stacks</h3>
+      <div class="utility-grid mt-xs">
+        <div class="utility-item">
+          <code>--font-family</code>
+          <Text variant="caption" color="secondary">-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif</Text>
+        </div>
+        <div class="utility-item">
+          <code>--font-family-mono</code>
+          <Text variant="caption" color="secondary" style="font-family: var(--font-family-mono)">'SF Mono', 'Fira Code', monospace</Text>
+        </div>
+      </div>
+
+      <h3>Font Sizes</h3>
+      <div class="type-scale vstack gap-xxs mt-xs">
+        <div class="type-scale-item hstack gap-m" v-for="t in [
+          { token: '--font-size-xs', val: '11px', use: 'Labels, shortcut hints' },
+          { token: '--font-size-s', val: '12px', use: 'Captions, small controls' },
+          { token: '--font-size-m', val: '13px', use: 'Default UI text, buttons' },
+          { token: '--font-size-l', val: '14px', use: 'Body text, inputs' },
+          { token: '--font-size-xl', val: '16px', use: 'Body-large, chat messages' },
+        ]" :key="t.token">
+          <code class="type-scale-token">{{ t.token }}</code>
+          <span class="type-scale-sample" :style="{ fontSize: `var(${t.token})` }">The quick brown fox</span>
+          <span class="type-scale-val">{{ t.val }}</span>
+          <Text variant="caption" color="muted">{{ t.use }}</Text>
+        </div>
+      </div>
+
+      <h3>Font Weights</h3>
+      <div class="hstack gap-l mt-xs">
+        <div class="vstack gap-xxxs">
+          <Text weight="regular">Regular</Text>
+          <Text variant="caption" color="muted">--font-weight-regular (400)</Text>
+        </div>
+        <div class="vstack gap-xxxs">
+          <Text weight="medium">Medium</Text>
+          <Text variant="caption" color="muted">--font-weight-medium (500)</Text>
+        </div>
+        <div class="vstack gap-xxxs">
+          <Text weight="semibold">Semibold</Text>
+          <Text variant="caption" color="muted">--font-weight-semibold (600)</Text>
+        </div>
+      </div>
+
+      <h3>Line Heights</h3>
+      <div class="utility-grid mt-xs">
+        <div class="utility-item">
+          <code>--line-height-tight</code>
+          <Text variant="caption" color="secondary">1.2 — labels, single-line</Text>
+        </div>
+        <div class="utility-item">
+          <code>--line-height-normal</code>
+          <Text variant="caption" color="secondary">1.4 — body text, multi-line</Text>
+        </div>
+      </div>
+
+      <h3>Text Component Variants</h3>
+      <div class="type-samples vstack gap-m mt-xs">
         <div class="type-sample hstack gap-m">
           <div class="type-meta">
             <code>body</code>
-            <span class="type-spec">14px / 400</span>
+            <span class="type-spec">--font-size-l / regular</span>
           </div>
           <Text variant="body">The quick brown fox jumps over the lazy dog</Text>
         </div>
         <div class="type-sample hstack gap-m">
           <div class="type-meta">
             <code>body-large</code>
-            <span class="type-spec">16px / 400</span>
+            <span class="type-spec">--font-size-xl / regular</span>
           </div>
           <Text variant="body-large">The quick brown fox jumps over the lazy dog</Text>
         </div>
         <div class="type-sample hstack gap-m">
           <div class="type-meta">
             <code>caption</code>
-            <span class="type-spec">12px / 400</span>
+            <span class="type-spec">--font-size-s / regular</span>
           </div>
           <Text variant="caption" color="secondary">The quick brown fox jumps over the lazy dog</Text>
         </div>
         <div class="type-sample hstack gap-m">
           <div class="type-meta">
             <code>label</code>
-            <span class="type-spec">11px / 600 / uppercase</span>
+            <span class="type-spec">--font-size-xs / semibold / uppercase</span>
           </div>
           <Text variant="label" color="muted">The quick brown fox jumps over the lazy dog</Text>
         </div>
       </div>
 
-      <h3>Colors</h3>
+      <h3>Text Colors</h3>
       <div class="hstack gap-l mt-xs">
         <div class="vstack align-center gap-xxxs">
           <Text color="default">Default</Text>
@@ -55,13 +112,6 @@ import Text from '../components/Text.vue'
           <Text color="muted">Muted</Text>
           <Text variant="caption" color="muted">--color-text-muted</Text>
         </div>
-      </div>
-
-      <h3>Weights</h3>
-      <div class="hstack gap-l mt-xs">
-        <Text weight="regular">Regular (400)</Text>
-        <Text weight="medium">Medium (500)</Text>
-        <Text weight="semibold">Semibold (600)</Text>
       </div>
     </section>
 
@@ -361,13 +411,13 @@ import Text from '../components/Text.vue'
   max-width: 960px;
   margin: 0 auto;
   padding: var(--space-xxxl) var(--space-xl);
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: var(--font-family);
   color: var(--color-text);
 }
 
 h1 {
-  font-size: 32px;
-  font-weight: 400;
+  font-size: 32px; /* Page title — intentional, outside type scale */
+  font-weight: var(--font-weight-regular);
   margin-block-end: var(--space-xxl);
 }
 
@@ -376,13 +426,13 @@ section {
 }
 
 h2 {
-  font-size: 18px;
-  font-weight: 600;
+  font-size: 18px; /* Section heading — intentional, outside type scale */
+  font-weight: var(--font-weight-semibold);
   margin-block-end: var(--space-xxxs);
 }
 
 .section-desc {
-  font-size: 13px;
+  font-size: var(--font-size-m);
   color: var(--color-text-secondary);
   margin-block-end: var(--space-m);
 }
@@ -410,8 +460,8 @@ h2 {
 }
 
 .swatch-name {
-  font-size: 13px;
-  font-weight: 500;
+  font-size: var(--font-size-m);
+  font-weight: var(--font-weight-medium);
   color: var(--color-text);
 }
 
@@ -429,8 +479,8 @@ h2 {
 }
 
 .space-token {
-  font-size: 12px;
-  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: var(--font-size-s);
+  font-family: var(--font-family-mono);
   color: var(--color-text);
   width: 120px;
   flex-shrink: 0;
@@ -444,15 +494,15 @@ h2 {
 }
 
 .space-value {
-  font-size: 12px;
-  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: var(--font-size-s);
+  font-family: var(--font-family-mono);
   color: var(--color-text-secondary);
   width: 40px;
   flex-shrink: 0;
 }
 
 .space-units {
-  font-size: 12px;
+  font-size: var(--font-size-s);
   color: var(--color-text-muted);
 }
 
@@ -484,18 +534,18 @@ h2 {
 }
 
 .radius-info code {
-  font-size: 12px;
-  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: var(--font-size-s);
+  font-family: var(--font-family-mono);
 }
 
 .radius-val {
-  font-size: 12px;
-  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: var(--font-size-s);
+  font-family: var(--font-family-mono);
   color: var(--color-text-secondary);
 }
 
 .radius-desc {
-  font-size: 11px;
+  font-size: var(--font-size-xs);
   color: var(--color-text-muted);
 }
 
@@ -514,14 +564,37 @@ h2 {
 }
 
 .type-meta code {
-  font-size: 12px;
-  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: var(--font-size-s);
+  font-family: var(--font-family-mono);
   color: var(--color-text);
 }
 
 .type-spec {
-  font-size: 11px;
+  font-size: var(--font-size-xs);
   color: var(--color-text-muted);
+}
+
+/* Type scale demo */
+.type-scale-token {
+  font-size: var(--font-size-s);
+  font-family: var(--font-family-mono);
+  color: var(--color-text);
+  width: 140px;
+  flex-shrink: 0;
+}
+
+.type-scale-sample {
+  flex: 1;
+  min-width: 0;
+  color: var(--color-text);
+}
+
+.type-scale-val {
+  font-size: var(--font-size-s);
+  font-family: var(--font-family-mono);
+  color: var(--color-text-secondary);
+  width: 40px;
+  flex-shrink: 0;
 }
 
 /* Layout utilities */
@@ -541,14 +614,14 @@ h2 {
 }
 
 .utility-item code {
-  font-size: 12px;
-  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: var(--font-size-s);
+  font-family: var(--font-family-mono);
   color: var(--color-text);
 }
 
 .gap-label {
-  font-size: 12px;
-  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: var(--font-size-s);
+  font-family: var(--font-family-mono);
   color: var(--color-text-secondary);
   width: 80px;
   flex-shrink: 0;
@@ -563,9 +636,9 @@ h2 {
 }
 
 .swatch-value {
-  font-size: 11px;
+  font-size: var(--font-size-xs);
   color: var(--color-text-secondary);
-  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-family: var(--font-family-mono);
   background: var(--color-surface-secondary);
   padding: var(--space-xxxs) var(--space-xxs);
   border-radius: var(--radius-s);

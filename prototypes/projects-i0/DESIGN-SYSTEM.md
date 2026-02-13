@@ -141,26 +141,62 @@ Combine utility classes on the element, keep visual styles in scoped CSS:
 
 ## Typography
 
-Use the `<Text>` component for all text. No raw `font-size` or `font-weight` in component styles unless inside a self-contained component (e.g., Button internals).
+All typography values flow through tokens in `styles/typography.css`. No raw `font-size`, `font-weight`, `font-family`, or `line-height` values in component styles.
 
-### Variants
+### Font Stacks
 
-| Variant | Size | Weight | Extras | Use for |
-|---------|------|--------|--------|---------|
-| `body` | 14px | 400 | — | Default UI text, descriptions |
-| `body-large` | 16px | 400 | line-height 1.4 | Input text, longer content |
-| `caption` | 12px | 400 | — | Secondary info, small labels |
-| `label` | 11px | 600 | uppercase, letter-spacing 0.05em | Section headings, group labels |
+| Token | Value |
+|-------|-------|
+| `--font-family` | -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif |
+| `--font-family-mono` | 'SF Mono', 'Fira Code', monospace |
 
-### Colors
+### Font Sizes
+
+| Token | Value | Use for |
+|-------|-------|---------|
+| `--font-size-xs` | 11px | Labels, shortcut hints |
+| `--font-size-s` | 12px | Captions, small controls |
+| `--font-size-m` | 13px | Default UI text, buttons |
+| `--font-size-l` | 14px | Body text, inputs |
+| `--font-size-xl` | 16px | Body-large, chat messages |
+
+### Font Weights
+
+| Token | Value |
+|-------|-------|
+| `--font-weight-regular` | 400 |
+| `--font-weight-medium` | 500 |
+| `--font-weight-semibold` | 600 |
+
+### Line Heights
+
+| Token | Value | Use for |
+|-------|-------|---------|
+| `--line-height-tight` | 1.2 | Labels, single-line elements |
+| `--line-height-normal` | 1.4 | Body text, multi-line content |
+
+### Text Component
+
+Use the `<Text>` component for all text rendering. It maps to the tokens above.
+
+#### Variants
+
+| Variant | Size token | Weight | Extras | Use for |
+|---------|------------|--------|--------|---------|
+| `body` | `--font-size-l` | regular | — | Default UI text, descriptions |
+| `body-large` | `--font-size-xl` | regular | line-height normal | Input text, longer content |
+| `caption` | `--font-size-s` | regular | — | Secondary info, small labels |
+| `label` | `--font-size-xs` | semibold | uppercase, letter-spacing 0.05em | Section headings, group labels |
+
+#### Colors
 
 `default` · `secondary` · `muted` · `inherit`
 
-### Weight overrides
+#### Weight overrides
 
-`regular` (400) · `medium` (500) · `semibold` (600)
+`regular` · `medium` · `semibold`
 
-### Polymorphic tag
+#### Polymorphic tag
 
 Use `tag` prop to control the rendered element: `<Text variant="label" tag="h2">` renders an `<h2>` with label styles.
 
