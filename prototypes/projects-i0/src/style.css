@@ -3,6 +3,7 @@
 @import './styles/radius.css';
 @import './styles/typography.css';
 @import './styles/layout.css';
+@import './styles/motion.css';
 
 /* Reset */
 *, *::before, *::after { box-sizing: border-box; margin: 0; }

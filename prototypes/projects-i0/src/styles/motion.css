@@ -1,0 +1,19 @@
+:root {
+  /* Durations */
+  --duration-instant: 100ms;    /* near-instant feedback */
+  --duration-fast: 150ms;       /* micro-interactions: hover, focus, button states */
+  --duration-moderate: 200ms;   /* UI element transitions: resize, status changes */
+  --duration-slow: 300ms;       /* layout transitions: panel morph, frame slide */
+
+  /* Easing */
+  --ease-default: ease;         /* general purpose */
+  --ease-in-out: ease-in-out;   /* symmetrical transitions */
+  --ease-out: ease-out;         /* elements entering/appearing */
+  --ease-in: ease-in;           /* elements leaving/disappearing */
+
+  /* Composed shortcuts (common patterns) */
+  --transition-hover: var(--duration-fast) var(--ease-default);
+  --transition-focus: var(--duration-fast) var(--ease-default);
+  --transition-layout: var(--duration-slow) var(--ease-default);
+  --transition-fade: var(--duration-moderate) var(--ease-default);
+}
