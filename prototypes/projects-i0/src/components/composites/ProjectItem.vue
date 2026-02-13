@@ -29,9 +29,6 @@ defineEmits<{
       </div>
       <StatusIndicator :status="project.status" @toggle="$emit('toggle-status', project.id)" />
     </div>
-    <div class="item-description">
-      <Text v-if="project.description" variant="caption" color="muted">{{ project.description }}</Text>
-    </div>
     <div class="item-preview">
       <Text variant="caption" color="muted" class="preview-placeholder">Site preview</Text>
     </div>
@@ -42,26 +39,23 @@ defineEmits<{
 .project-item {
   cursor: pointer;
   color: var(--color-chrome-text);
-  transition: padding 300ms ease, border-radius 300ms ease, border-color 300ms ease, background 300ms ease;
+  transition: padding 300ms ease, border-radius 300ms ease;
 }
 
 /* Card mode */
 .project-item.mode-card {
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid var(--color-chrome-border);
+  background: rgba(255, 255, 255, 0.02);
   border-radius: var(--radius-m);
   padding: var(--space-s);
 }
 
 .project-item.mode-card:hover {
-  border-color: var(--color-chrome-text-muted);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  background: rgba(255, 255, 255, 0.06);
 }
 
 /* Row mode */
 .project-item.mode-row {
   background: transparent;
-  border: 1px solid transparent;
   border-radius: var(--radius-s);
   padding: var(--space-xxs);
   color: var(--color-chrome-text-secondary);
