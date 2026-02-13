@@ -9,12 +9,30 @@ import InputChat from '../components/InputChat.vue'
     <Titlebar />
     <div class="app-body hstack align-stretch gap-xs flex-1 min-w-0 p-xs">
       <Sidebar />
-      <main class="frame flex-1 overflow-hidden">
-        <div class="site-assistant vstack flex-1 p-s">
-          <div class="messages flex-1 overflow-auto">
-            <div class="message">Hello! I'm your site assistant. How can I help you today?</div>
+      <main class="frame vstack flex-1 overflow-hidden">
+        <header>
+          <h2>Shaun's Blog</h2>
+        </header>
+        <div class="panels hstack align-stretch flex-1 min-w-0">
+          <div class="site-assistant vstack flex-1 p-s">
+            <div class="messages flex-1 overflow-auto">
+              <div class="message">Hello! I'm your site assistant. How can I help you today?</div>
+            </div>
+            <InputChat />
           </div>
-          <InputChat />
+          <div class="site-preview">
+            <header>
+              <button>back</button>
+              <button>forward</button>
+              <button>refresh</button>
+              <input type="text" value="https://downstreet-cafe.local" />
+              <select>
+                <option>Desktop</option>
+                <option>Tablet</option>
+                <option>Mobile</option>
+              </select>
+            </header>
+          </div>
         </div>
       </main>
     </div>
@@ -38,7 +56,6 @@ import InputChat from '../components/InputChat.vue'
 .frame {
   background: var(--color-surface);
   border-radius: var(--radius-m);
-  display: flex;
 }
 
 .frame-placeholder {
