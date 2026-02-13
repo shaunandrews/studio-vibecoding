@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount, nextTick, watch } from 'vue'
-import { plus } from '@wordpress/icons'
+import { plus, closeSmall } from '@wordpress/icons'
 import Text from '@/components/primitives/Text.vue'
 import Button from '@/components/primitives/Button.vue'
 export interface Tab {
@@ -58,27 +58,25 @@ watch(() => props.tabs.length, () => {
         <button
           v-for="tab in tabs"
           :key="tab.id"
-          class="tab-bar__tab hstack gap-xxxs px-xs py-xxxs"
+          class="tab-bar__tab hstack gap-xxxs px-xs"
           :class="{ active: tab.id === activeId }"
           @click="$emit('update:activeId', tab.id)"
         >
           <Text :color="tab.id === activeId ? 'default' : 'secondary'">{{ tab.label }}</Text>
-          <button
+          <Button
             v-if="tab.id === activeId"
-            class="tab-bar__close"
-            @click.stop="$emit('close', tab.id)"
+            variant="tertiary"
+            size="small"
+            :icon="closeSmall"
             aria-label="Close tab"
-          >
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-              <path d="M3 3l6 6M9 3l-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
-            </svg>
-          </button>
+            @click.stop="$emit('close', tab.id)"
+          />
         </button>
       </div>
       <div class="tab-bar__fade-left" :class="{ visible: canScrollLeft }" />
       <div class="tab-bar__fade-right" :class="{ visible: canScrollRight }" />
     </div>
-    <Button variant="tertiary" size="small" :icon="plus" @click="$emit('add')" />
+    <Button variant="tertiary" :icon="plus" @click="$emit('add')" />
   </div>
 </template>
 
@@ -128,6 +126,7 @@ watch(() => props.tabs.length, () => {
 }
 
 .tab-bar__tab {
+  height: 35px;
   background: none;
   border: none;
   border-radius: var(--radius-s);
@@ -145,27 +144,5 @@ watch(() => props.tabs.length, () => {
 .tab-bar__tab.active {
   background: var(--color-surface-secondary);
   padding-right: var(--space-xxxs);
-}
-
-.tab-bar__close {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 16px;
-  height: 16px;
-  padding: 0;
-  margin-left: var(--space-xxxs);
-  background: none;
-  border: none;
-  border-radius: var(--radius-s);
-  color: var(--color-text-muted);
-  cursor: pointer;
-  transition: color var(--duration-fast) var(--ease-default),
-              background var(--duration-fast) var(--ease-default);
-}
-
-.tab-bar__close:hover {
-  color: var(--color-text);
-  background: rgba(0, 0, 0, 0.08);
 }
 </style>
