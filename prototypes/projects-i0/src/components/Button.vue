@@ -107,6 +107,7 @@ onUnmounted(() => {
   height: 25px; /* 5 units — matches --space-m */
   padding: 0 var(--space-xs);
   font-size: 12px;
+  border-radius: var(--radius-s);
 }
 
 .btn--icon-only.btn--default {
