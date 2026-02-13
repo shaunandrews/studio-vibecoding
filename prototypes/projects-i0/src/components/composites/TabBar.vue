@@ -72,11 +72,11 @@ watch(() => props.tabs.length, () => {
             @click.stop="$emit('close', tab.id)"
           />
         </button>
-        <Button variant="tertiary" :icon="plus" @click="$emit('add')" />
       </div>
       <div class="tab-bar__fade-left" :class="{ visible: canScrollLeft }" />
       <div class="tab-bar__fade-right" :class="{ visible: canScrollRight }" />
     </div>
+    <Button class="tab-bar__add" variant="tertiary" :icon="plus" @click="$emit('add')" />
   </div>
 </template>
 
@@ -86,7 +86,11 @@ watch(() => props.tabs.length, () => {
   overflow: clip;
   overflow-clip-margin: 3px; /* room for focus ring */
   min-width: 0;
-  flex: 1;
+  flex: 0 1 auto;
+}
+
+.tab-bar__add {
+  flex-shrink: 0;
 }
 
 .tab-bar__scroll {
