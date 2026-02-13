@@ -141,6 +141,7 @@ watch(() => props.tabs.length, () => {
 
 .tab-bar__tab.active {
   background: var(--color-surface-secondary);
+  padding-right: var(--space-xxxs);
 }
 
 .tab-bar__close {
