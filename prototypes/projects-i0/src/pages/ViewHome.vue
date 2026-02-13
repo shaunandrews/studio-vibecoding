@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { plus, cog, help } from '@wordpress/icons'
 import Titlebar from '../components/Titlebar.vue'
+import Panel from '../components/Panel.vue'
 import Button from '../components/Button.vue'
 import Text from '../components/Text.vue'
 import StatusIndicator from '../components/StatusIndicator.vue'
@@ -26,11 +27,10 @@ const projects = ref<Project[]>([
 <template>
   <div class="view-home vstack">
     <Titlebar />
-    <div class="home-content flex-1 overflow-auto">
-      <div class="home-inner vstack gap-xxl">
-
-        <!-- Projects Section -->
-        <section class="projects-section vstack gap-s">
+    <div class="home-panels hstack align-stretch flex-1 min-h-0">
+      <!-- Projects Panel -->
+      <Panel>
+        <div class="panel-content vstack gap-s p-m overflow-auto flex-1">
           <div class="hstack justify-between">
             <Text variant="label" color="muted" tag="h2">Projects</Text>
             <Button variant="secondary" :icon="plus" label="New project" size="small" surface="dark" />
@@ -55,18 +55,17 @@ const projects = ref<Project[]>([
               </div>
             </router-link>
           </div>
-        </section>
+        </div>
+      </Panel>
 
-        <!-- Global Chat Section -->
-        <section class="chat-section vstack gap-s">
+      <!-- Chat Panel -->
+      <Panel>
+        <div class="panel-content vstack gap-s p-m flex-1">
           <Text variant="label" color="muted" tag="h2">Chat</Text>
           <Text variant="body" color="secondary">Ask anything across all your projects.</Text>
-          <div class="home-chat-input">
-            <InputChat surface="dark" />
-          </div>
-        </section>
-
-      </div>
+          <InputChat surface="dark" />
+        </div>
+      </Panel>
     </div>
   </div>
 </template>
@@ -81,17 +80,12 @@ const projects = ref<Project[]>([
   -webkit-font-smoothing: antialiased;
 }
 
-.home-content {
-  background: var(--color-chrome);
-  color: var(--color-chrome-text);
+.home-panels {
   min-height: 0;
 }
 
-.home-inner {
-  max-width: 960px;
-  width: 100%;
-  margin: 0 auto;
-  padding: var(--space-xxl) var(--space-xl);
+.home-panels :deep(.panel) {
+  border-color: var(--color-chrome-border);
 }
 
 /* Project Grid */
@@ -139,8 +133,4 @@ const projects = ref<Project[]>([
   justify-content: center;
 }
 
-/* Chat Section */
-.home-chat-input {
-  max-width: 640px;
-}
 </style>
