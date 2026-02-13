@@ -1,12 +1,24 @@
 <script setup lang="ts">
 import { cog, help } from '@wordpress/icons'
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, computed } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import Button from '@/components/primitives/Button.vue'
 import Dropdown from '@/components/primitives/Dropdown.vue'
 import Text from '@/components/primitives/Text.vue'
+import { useProjects } from '@/data/useProjects'
 
 const router = useRouter()
+const route = useRoute()
+const { projects } = useProjects()
+
+const title = computed(() => {
+  const projectId = route.params.projectId as string | undefined
+  if (projectId) {
+    const project = projects.value.find(p => p.id === projectId)
+    if (project) return `WordPress Studio • ${project.name}`
+  }
+  return 'WordPress Studio'
+})
 const settingsValue = ref('')
 
 const settingsOptions = [
@@ -33,7 +45,7 @@ function onSettingsSelect(value: string) {
       </div>
     </div>
     <div class="titlebar-center hstack">
-      <Text variant="body" color="secondary" weight="medium" tag="h1">WordPress Studio</Text>
+      <Text variant="body" color="secondary" weight="medium" tag="h1">{{ title }}</Text>
     </div>
     <div class="titlebar-end hstack gap-xxs">
       <Dropdown
