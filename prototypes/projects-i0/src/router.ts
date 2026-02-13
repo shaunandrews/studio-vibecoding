@@ -8,13 +8,13 @@ const router = createRouter({
       name: 'home',
       path: '/',
       component: () => import('@/pages/HomePage.vue'),
-      meta: { layout: 'app' },
+      meta: { layout: 'main', mode: 'home' },
     },
     {
       name: 'project',
       path: '/projects/:id',
       component: () => import('@/pages/ProjectPage.vue'),
-      meta: { layout: 'project' },
+      meta: { layout: 'main', mode: 'project' },
       beforeEnter: (to) => {
         const { projects } = useProjects()
         const exists = projects.value.some(p => p.id === to.params.id)
@@ -25,7 +25,7 @@ const router = createRouter({
       name: 'settings',
       path: '/settings',
       component: () => import('@/pages/SettingsPage.vue'),
-      meta: { layout: 'app' },
+      meta: { layout: 'main', mode: 'home' },
     },
     // Dev pages — bare layout (no app chrome)
     {

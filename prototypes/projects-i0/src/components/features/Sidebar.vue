@@ -5,10 +5,11 @@ import WPIcon from '@/components/primitives/WPIcon.vue'
 import ProjectListItem from '@/components/composites/ProjectListItem.vue'
 import Text from '@/components/primitives/Text.vue'
 import { useProjects } from '@/data/useProjects'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 
 const { projects, activeProjectId, setStatus } = useProjects()
 const router = useRouter()
+const route = useRoute()
 
 function goHome() {
   router.push({ name: 'home' })
@@ -22,7 +23,7 @@ function selectProject(id: string) {
 <template>
   <aside class="sidebar vstack shrink-0 gap-xxs">
     <div class="sidebar-projects vstack gap-xxs flex-1 overflow-auto">
-      <div class="all-projects hstack gap-xs p-xxs" @click="goHome">
+      <div class="all-projects hstack gap-xs p-xxs" :class="{ active: route.name === 'home' || route.name === 'settings' }" @click="goHome">
         <WPIcon :icon="chevronLeft" :size="20" class="back-icon shrink-0" />
         <span class="project-name flex-1 min-w-0">All projects</span>
       </div>
@@ -55,7 +56,8 @@ function selectProject(id: string) {
   transition: background 150ms ease;
 }
 
-.all-projects:hover {
+.all-projects:hover,
+.all-projects.active {
   background: var(--color-chrome-hover);
   color: var(--color-chrome-text);
 }
