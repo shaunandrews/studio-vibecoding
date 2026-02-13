@@ -5,15 +5,22 @@ import Button from '@/components/primitives/Button.vue'
 import StatusIndicator from '@/components/primitives/StatusIndicator.vue'
 import Text from '@/components/primitives/Text.vue'
 import Titlebar from '@/components/primitives/Titlebar.vue'
-import ProjectListItem from '@/components/composites/ProjectListItem.vue'
+import ProjectItem from '@/components/composites/ProjectItem.vue'
+import ProjectList from '@/components/features/ProjectList.vue'
 import InputChat from '@/components/composites/InputChat.vue'
 import ChatMessage from '@/components/composites/ChatMessage.vue'
 import Dropdown from '@/components/primitives/Dropdown.vue'
 import Panel from '@/components/composites/Panel.vue'
 import PanelToolbar from '@/components/composites/PanelToolbar.vue'
-import Sidebar from '@/components/features/Sidebar.vue'
 import AgentPanel from '@/components/features/AgentPanel.vue'
 import { cog, plus, upload, external, trash, pencil, chevronDown } from '@wordpress/icons'
+import type { Project } from '@/data/types'
+
+const sampleProjects: Project[] = [
+  { id: '1', name: 'Downstreet Cafe', favicon: 'https://api.dicebear.com/9.x/shapes/svg?seed=cafe', status: 'running', url: 'downstreetcafe.local', createdAt: '2025-01-01', description: 'A cozy cafe site' },
+  { id: '2', name: "Shaun's Blog", favicon: 'https://api.dicebear.com/9.x/shapes/svg?seed=blog', status: 'running', url: 'shaunsblog.local', createdAt: '2025-01-02' },
+  { id: '3', name: 'UI Portfolio', favicon: 'https://api.dicebear.com/9.x/shapes/svg?seed=portfolio', status: 'stopped', url: 'portfolio.local', createdAt: '2025-01-03' },
+]
 
 const componentNav = [
   { id: 'agent-panel', label: 'AgentPanel' },
@@ -23,8 +30,8 @@ const componentNav = [
   { id: 'input-chat', label: 'InputChat' },
   { id: 'panel', label: 'Panel' },
   { id: 'panel-toolbar', label: 'PanelToolbar' },
-  { id: 'project-list-item', label: 'ProjectListItem' },
-  { id: 'sidebar', label: 'Sidebar' },
+  { id: 'project-item', label: 'ProjectItem' },
+  { id: 'project-list', label: 'ProjectList' },
   { id: 'status-indicator', label: 'StatusIndicator' },
   { id: 'text', label: 'Text' },
   { id: 'titlebar', label: 'Titlebar' },
@@ -341,10 +348,10 @@ const icons = Object.entries(wpIcons)
       </div>
     </section>
 
-    <!-- ProjectListItem -->
-    <section id="project-list-item">
-      <h2>ProjectListItem</h2>
-      <p class="section-desc">A single project row for the sidebar. Favicon, name, and status indicator with select/toggle events.</p>
+    <!-- ProjectItem -->
+    <section id="project-item">
+      <h2>ProjectItem</h2>
+      <p class="section-desc">A single project entry that renders in card or row mode. Used by ProjectList for grid/list layouts.</p>
 
       <div class="props-table">
         <h3>Props</h3>
@@ -353,10 +360,9 @@ const icons = Object.entries(wpIcons)
             <tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr>
           </thead>
           <tbody>
-            <tr><td><code>name</code></td><td><code>string</code></td><td>—</td><td>Project name</td></tr>
-            <tr><td><code>favicon</code></td><td><code>string</code></td><td>—</td><td>URL for the project icon</td></tr>
-            <tr><td><code>status</code></td><td><code>'stopped' | 'loading' | 'running'</code></td><td>—</td><td>Current project state</td></tr>
-            <tr><td><code>active</code></td><td><code>boolean</code></td><td><code>false</code></td><td>Whether this project is currently selected</td></tr>
+            <tr><td><code>project</code></td><td><code>Project</code></td><td>—</td><td>Project data object</td></tr>
+            <tr><td><code>mode</code></td><td><code>'card' | 'row'</code></td><td>—</td><td>Display mode</td></tr>
+            <tr><td><code>active</code></td><td><code>boolean</code></td><td><code>false</code></td><td>Whether this project is currently selected (row mode highlight)</td></tr>
           </tbody>
         </table>
         <h3>Events</h3>
@@ -365,28 +371,61 @@ const icons = Object.entries(wpIcons)
             <tr><th>Event</th><th>Description</th></tr>
           </thead>
           <tbody>
-            <tr><td><code>select</code></td><td>Emitted when the row is clicked</td></tr>
-            <tr><td><code>toggle</code></td><td>Emitted when the status indicator is toggled</td></tr>
+            <tr><td><code>select</code></td><td>Emitted when the item is clicked</td></tr>
+            <tr><td><code>toggle-status</code></td><td>Emitted when the status indicator is toggled</td></tr>
           </tbody>
         </table>
       </div>
 
-      <h3>Preview (dark surface)</h3>
+      <h3>Card mode</h3>
+      <div class="example-section example-section--dark">
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: var(--space-m);">
+          <ProjectItem v-for="p in sampleProjects" :key="p.id" :project="p" mode="card" />
+        </div>
+      </div>
+
+      <h3>Row mode</h3>
       <div class="example-section example-section--dark" style="max-width: 240px;">
-        <ProjectListItem name="Downstreet Cafe" favicon="https://api.dicebear.com/9.x/shapes/svg?seed=cafe" status="running" />
-        <ProjectListItem name="Shaun's Blog" favicon="https://api.dicebear.com/9.x/shapes/svg?seed=blog" status="running" :active="true" />
-        <ProjectListItem name="UI Portfolio" favicon="https://api.dicebear.com/9.x/shapes/svg?seed=portfolio" status="stopped" />
+        <ProjectItem :project="sampleProjects[0]" mode="row" />
+        <ProjectItem :project="sampleProjects[1]" mode="row" :active="true" />
+        <ProjectItem :project="sampleProjects[2]" mode="row" />
       </div>
     </section>
 
-    <!-- Sidebar -->
-    <section id="sidebar">
-      <h2>Sidebar</h2>
-      <p class="section-desc">App sidebar with project list, section label, and add project button. Fixed 210px width, dark surface context.</p>
+    <!-- ProjectList -->
+    <section id="project-list">
+      <h2>ProjectList</h2>
+      <p class="section-desc">Full project list with grid (cards) or list (sidebar rows) mode. Includes header, items, and footer.</p>
 
-      <h3>Preview</h3>
-      <div class="example-section example-section--dark" style="width: 240px; padding: var(--space-xs); overflow: hidden; border-radius: var(--radius-m);">
-        <Sidebar />
+      <div class="props-table">
+        <h3>Props</h3>
+        <table>
+          <thead>
+            <tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>mode</code></td><td><code>'grid' | 'list'</code></td><td>—</td><td>Layout mode</td></tr>
+          </tbody>
+        </table>
+        <h3>Events</h3>
+        <table>
+          <thead>
+            <tr><th>Event</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>select-project</code></td><td>Emitted when a project is selected (via router navigation)</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Grid mode</h3>
+      <div class="example-section example-section--dark" style="min-height: 300px; border-radius: var(--radius-m); overflow: hidden;">
+        <ProjectList mode="grid" />
+      </div>
+
+      <h3>List mode</h3>
+      <div class="example-section example-section--dark" style="max-width: 240px; min-height: 200px; border-radius: var(--radius-m); overflow: hidden;">
+        <ProjectList mode="list" />
       </div>
     </section>
 
