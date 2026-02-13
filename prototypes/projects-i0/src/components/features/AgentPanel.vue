@@ -134,17 +134,17 @@ function handleSend(text: string) {
 
     <ChatMessageList :messages="msgs" />
 
-    <div class="agent-panel__input shrink-0">
-      <InputChat ref="inputChatRef" v-model="currentDraft" @send="handleSend" />
+    <div class="agent-panel__input shrink-0 px-l pb-l">
+      <div class="agent-panel__input-inner">
+        <InputChat ref="inputChatRef" v-model="currentDraft" @send="handleSend" />
+      </div>
     </div>
   </div>
 </template>
 
 <style scoped>
-.agent-panel__input {
-  max-width: 768px;
-  width: 100%;
-  align-self: center;
-  padding: 0 var(--space-l) var(--space-l);
+.agent-panel__input-inner {
+  max-width: 720px;
+  margin: 0 auto;
 }
 </style>
