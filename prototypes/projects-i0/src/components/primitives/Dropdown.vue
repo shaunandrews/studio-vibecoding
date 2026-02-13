@@ -15,12 +15,15 @@ export interface DropdownGroup {
   options: (string | DropdownOption)[]
 }
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   modelValue: string
   groups: DropdownGroup[]
   placement?: 'above' | 'below'
   triggerIcon?: any
-}>()
+  surface?: 'light' | 'dark'
+}>(), {
+  surface: 'light',
+})
 
 const emit = defineEmits<{
   'update:modelValue': [value: string]
@@ -167,7 +170,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="dropdown" ref="triggerRef">
+  <div class="dropdown" :class="{ 'surface-dark': surface === 'dark' }" ref="triggerRef">
     <button class="dropdown-trigger hstack gap-xxxs px-xxs py-xxxs" @click="toggle">
       <WPIcon v-if="triggerIcon" :icon="currentOption()?.icon || triggerIcon" :size="18" />
       <span v-else class="dropdown-label">{{ currentOption()?.label || modelValue }}</span>
@@ -287,5 +290,41 @@ onUnmounted(() => {
 .dropdown-menu--above.dropdown-enter-from,
 .dropdown-menu--above.dropdown-leave-to {
   transform: translateY(-4px);
+}
+
+/* Dark surface variant */
+.dropdown.surface-dark .dropdown-trigger {
+  color: var(--color-chrome-text-muted);
+}
+
+.dropdown.surface-dark .dropdown-trigger:hover {
+  background: var(--color-chrome-hover);
+  color: var(--color-chrome-text);
+}
+
+.dropdown.surface-dark .dropdown-menu {
+  background: var(--color-chrome-secondary);
+  border-color: var(--color-chrome-border);
+}
+
+.dropdown.surface-dark .dropdown-group + .dropdown-group {
+  border-color: var(--color-chrome-border);
+}
+
+.dropdown.surface-dark .dropdown-group-label {
+  color: var(--color-chrome-text-muted);
+}
+
+.dropdown.surface-dark .dropdown-option {
+  color: var(--color-chrome-text);
+}
+
+.dropdown.surface-dark .dropdown-option:hover {
+  background: var(--color-chrome-hover);
+  color: var(--color-chrome-text);
+}
+
+.dropdown.surface-dark .dropdown-option.active {
+  color: var(--color-primary);
 }
 </style>
