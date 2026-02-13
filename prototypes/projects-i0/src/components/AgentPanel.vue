@@ -50,7 +50,6 @@ const emit = defineEmits<{
       <div class="messages-inner vstack gap-s">
         <ChatMessage
           role="agent"
-          agent-name="Site Assistant"
           content="Hello! I'm your site assistant. I can help you build, customize, and manage your WordPress site. What would you like to work on?"
         />
         <ChatMessage
@@ -59,7 +58,6 @@ const emit = defineEmits<{
         />
         <ChatMessage
           role="agent"
-          agent-name="Site Assistant"
           content="I'll update your hero section with a gradient background and increase the heading size. Let me make those changes to your theme now."
         />
       </div>
