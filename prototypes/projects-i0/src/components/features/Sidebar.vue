@@ -45,7 +45,7 @@ function selectProject(id: string) {
 
 <style scoped>
 .sidebar {
-  width: 210px; /* 42 units */
+  width: 100%;
 }
 
 .all-projects {
