@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { cog, help } from '@wordpress/icons'
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import Button from '@/components/primitives/Button.vue'
 import Dropdown from '@/components/primitives/Dropdown.vue'
@@ -19,6 +19,8 @@ const title = computed(() => {
   }
   return 'WordPress Studio'
 })
+watch(title, (t) => { document.title = t }, { immediate: true })
+
 const settingsValue = ref('')
 
 const settingsOptions = [
