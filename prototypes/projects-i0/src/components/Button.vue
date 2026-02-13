@@ -83,7 +83,7 @@ onUnmounted(() => {
   border: none;
   border-radius: var(--radius-m);
   font-family: inherit;
-  font-weight: 500;
+  font-weight: var(--font-weight-medium);
   cursor: pointer;
   transition: background 150ms ease, color 150ms ease, border-color 150ms ease;
   white-space: nowrap;
@@ -100,13 +100,13 @@ onUnmounted(() => {
 .btn--default {
   height: 35px; /* 7 units — intentional, matches Studio's control height */
   padding: 0 var(--space-s);
-  font-size: 13px;
+  font-size: var(--font-size-m);
 }
 
 .btn--small {
   height: 25px; /* 5 units — matches --space-m */
   padding: 0 var(--space-xs);
-  font-size: 12px;
+  font-size: var(--font-size-s);
   border-radius: var(--radius-s);
 }
 
@@ -121,7 +121,7 @@ onUnmounted(() => {
 }
 
 .btn__shortcut {
-  font-size: 11px;
+  font-size: var(--font-size-xs);
   opacity: 0.5;
   margin-inline-start: var(--space-xxs);
 }

@@ -12,7 +12,7 @@
 <style scoped>
 .index {
   padding: var(--space-xxl);
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: var(--font-family);
 }
 
 h1 {

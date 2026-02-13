@@ -101,7 +101,7 @@ onUnmounted(() => document.removeEventListener('click', onClickOutside))
   background: none;
   border: none;
   font-family: inherit;
-  font-size: 12px;
+  font-size: var(--font-size-s);
   color: var(--color-text-muted);
   border-radius: var(--radius-s);
   cursor: pointer;
@@ -149,7 +149,7 @@ onUnmounted(() => document.removeEventListener('click', onClickOutside))
   background: none;
   border: none;
   font-family: inherit;
-  font-size: 13px;
+  font-size: var(--font-size-m);
   color: var(--color-text-secondary);
   border-radius: var(--radius-s);
   cursor: pointer;
@@ -163,7 +163,7 @@ onUnmounted(() => document.removeEventListener('click', onClickOutside))
 
 .dropdown-option.active {
   color: var(--color-primary);
-  font-weight: 500;
+  font-weight: var(--font-weight-medium);
 }
 
 /* Transition */

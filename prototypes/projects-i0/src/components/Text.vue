@@ -26,26 +26,26 @@ defineProps<{
 
 /* Variants */
 .text--body {
-  font-size: 14px;
-  line-height: 1.4;
+  font-size: var(--font-size-l);
+  line-height: var(--line-height-normal);
 }
 
 .text--body-large {
-  font-size: 16px;
-  line-height: 1.4;
+  font-size: var(--font-size-xl);
+  line-height: var(--line-height-normal);
 }
 
 .text--caption {
-  font-size: 12px;
-  line-height: 1.4;
+  font-size: var(--font-size-s);
+  line-height: var(--line-height-normal);
 }
 
 .text--label {
-  font-size: 11px;
-  font-weight: 600;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  line-height: 1.2;
+  line-height: var(--line-height-tight);
 }
 
 /* Colors */
@@ -55,7 +55,7 @@ defineProps<{
 .text--inherit { color: inherit; }
 
 /* Weights */
-.text--regular { font-weight: 400; }
-.text--medium { font-weight: 500; }
-.text--semibold { font-weight: 600; }
+.text--regular { font-weight: var(--font-weight-regular); }
+.text--medium { font-weight: var(--font-weight-medium); }
+.text--semibold { font-weight: var(--font-weight-semibold); }
 </style>

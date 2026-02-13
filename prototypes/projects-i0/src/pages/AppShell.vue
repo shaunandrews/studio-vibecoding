@@ -33,8 +33,8 @@ const showPreview = ref(true)
   height: 100vh;
   background: var(--color-chrome);
   color: var(--color-chrome-text);
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  font-size: 13px;
+  font-family: var(--font-family);
+  font-size: var(--font-size-m);
   -webkit-font-smoothing: antialiased;
 }
 

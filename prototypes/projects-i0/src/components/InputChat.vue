@@ -83,10 +83,10 @@ function focusInput(e: MouseEvent) {
   border: none;
   outline: none;
   font-family: inherit;
-  font-size: 14px;
+  font-size: var(--font-size-l);
   color: var(--color-text);
   resize: none;
-  line-height: 1.4;
+  line-height: var(--line-height-normal);
   field-sizing: content;
   min-height: 0;
   max-height: 150px; /* ~7 lines — intentional cap */
