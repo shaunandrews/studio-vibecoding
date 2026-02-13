@@ -54,8 +54,8 @@ const emit = defineEmits<{
 
 /* The morphing dot */
 .status__dot {
-  width: 10px;
-  height: 10px;
+  width: 8px;
+  height: 8px;
   transition: background-color 200ms ease, border-radius 200ms ease, clip-path 250ms ease;
 }
 

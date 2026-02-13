@@ -5,9 +5,9 @@ import Text from './Text.vue'
 </script>
 
 <template>
-  <aside class="sidebar vstack shrink-0">
-    <Text variant="label" color="muted" tag="h2" class="p-xs">Projects</Text>
-    <div class="sidebar-projects vstack gap-xxxs flex-1 overflow-auto">
+  <aside class="sidebar vstack shrink-0 gap-xxs">
+    <Text variant="label" color="muted" tag="h2" class="p-xxs">Projects</Text>
+    <div class="sidebar-projects vstack gap-xxs flex-1 overflow-auto">
       <ProjectListItem name="Downstreet Cafe" favicon="https://api.dicebear.com/9.x/shapes/svg?seed=cafe" status="running" />
       <ProjectListItem name="Shaun's Blog" favicon="https://api.dicebear.com/9.x/shapes/svg?seed=blog" status="running" :active="true" />
       <ProjectListItem name="UI Portfolio" favicon="https://api.dicebear.com/9.x/shapes/svg?seed=portfolio" status="stopped" />
@@ -22,11 +22,4 @@ import Text from './Text.vue'
 .sidebar {
   width: 210px; /* 42 units */
 }
-
-/* heading styled via Text component + .p-xs utility */
-
-.sidebar-projects {
-  /* layout via utility classes */
-}
-
 </style>

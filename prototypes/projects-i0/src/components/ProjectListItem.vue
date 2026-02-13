@@ -15,7 +15,7 @@ defineEmits<{
 </script>
 
 <template>
-  <div class="project-list-item hstack gap-xs p-xs" :class="{ active }" @click="$emit('select')">
+  <div class="project-list-item hstack gap-xs p-xxs" :class="{ active }" @click="$emit('select')">
     <img v-if="favicon" class="project-favicon shrink-0" :src="favicon" alt="" />
     <span class="project-name flex-1 min-w-0">{{ name }}</span>
     <StatusIndicator :status="status" @toggle="$emit('toggle')" />
