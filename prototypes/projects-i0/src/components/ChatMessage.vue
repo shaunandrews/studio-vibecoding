@@ -57,24 +57,28 @@ function copyMessage(content: string) {
   position: relative;
 }
 
-.chat-message--user .chat-message-content {
-  background: var(--color-surface-secondary);
-  border-radius: var(--radius-m);
+.chat-message-content {
   padding: var(--space-xs) var(--space-s);
-  margin-inline: calc(-1 * var(--space-s)); /* Pull bubble left/right so text stays aligned */
+
+  .chat-message--user & {
+    background: var(--color-surface-secondary);
+    border-radius: var(--radius-m);
+  }
 }
 
 .chat-message-actions {
   position: absolute;
-  bottom: calc(-1 * var(--space-xxs));
-  left: 0;
+  bottom: -18px;
+  left: var(--space-xs);
   opacity: 0;
   transition: opacity 150ms ease;
   z-index: 1;
-}
+  background: var(--color-surface);
+  border-radius: var(--radius-s);
 
-.chat-message:hover .chat-message-actions {
-  opacity: 1;
+  .chat-message:hover & {
+    opacity: 1;
+  }
 }
 
 :deep(.action-active) {
