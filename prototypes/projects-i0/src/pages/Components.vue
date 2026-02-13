@@ -206,7 +206,7 @@ const icons = Object.entries(wpIcons)
 .components {
   max-width: 960px;
   margin: 0 auto;
-  padding: 48px 32px;
+  padding: var(--space-xxxl) var(--space-xl);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   color: var(--color-text);
 }
@@ -214,33 +214,33 @@ const icons = Object.entries(wpIcons)
 h1 {
   font-size: 32px;
   font-weight: 400;
-  margin-bottom: 40px;
+  margin-block-end: var(--space-xxl);
 }
 
 section {
-  margin-bottom: 56px;
+  margin-block-end: var(--space-xxxl);
 }
 
 h2 {
   font-size: 20px;
   font-weight: 600;
-  margin-bottom: 4px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid var(--color-surface-border);
+  margin-block-end: var(--space-xxxs);
+  padding-block-end: var(--space-xs);
+  border-block-end: 1px solid var(--color-surface-border);
 }
 
 h3 {
   font-size: 14px;
   font-weight: 600;
   color: var(--color-text);
-  margin: 20px 0 8px;
+  margin: var(--space-m) 0 var(--space-xxs);
 }
 
 h4 {
   font-size: 12px;
   font-weight: 600;
   color: var(--color-text-secondary);
-  margin: 12px 0 6px;
+  margin: var(--space-xs) 0 var(--space-xxs);
   text-transform: uppercase;
   letter-spacing: 0.03em;
 }
@@ -248,21 +248,21 @@ h4 {
 .section-desc {
   font-size: 13px;
   color: var(--color-text-secondary);
-  margin-bottom: 16px;
+  margin-block-end: var(--space-s);
 }
 
 .section-desc code,
 .props-table code {
   font-size: 12px;
   background: var(--color-surface-secondary);
-  padding: 2px 6px;
-  border-radius: 3px;
+  padding: var(--space-xxxs) var(--space-xxs);
+  border-radius: var(--radius-s);
   font-family: 'SF Mono', 'Fira Code', monospace;
 }
 
 /* Props table */
 .props-table {
-  margin-bottom: 20px;
+  margin-block-end: var(--space-m);
 }
 
 .props-table table {
@@ -272,33 +272,33 @@ h4 {
 }
 
 .props-table th {
-  text-align: left;
+  text-align: start;
   font-weight: 600;
   color: var(--color-text-secondary);
-  padding: 8px 12px;
-  border-bottom: 1px solid var(--color-surface-border);
+  padding: var(--space-xxs) var(--space-xs);
+  border-block-end: 1px solid var(--color-surface-border);
   font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 0.03em;
 }
 
 .props-table td {
-  padding: 8px 12px;
-  border-bottom: 1px solid var(--color-surface-secondary);
+  padding: var(--space-xxs) var(--space-xs);
+  border-block-end: 1px solid var(--color-surface-secondary);
   color: var(--color-text);
   vertical-align: top;
 }
 
 /* Example sections */
 .example-section {
-  margin-bottom: 24px;
+  margin-block-end: var(--space-l);
 }
 
 .example-section--dark {
   background: var(--color-chrome);
-  border-radius: 8px;
-  padding: 16px 20px 20px;
-  margin-top: 16px;
+  border-radius: var(--radius-m);
+  padding: var(--space-s) var(--space-m) var(--space-m);
+  margin-block-start: var(--space-s);
 }
 
 .example-section--dark h3,
@@ -310,35 +310,35 @@ h4 {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 4px;
+  gap: var(--space-xxs);
+  margin-block-end: var(--space-xxxs);
 }
 
 /* Code block */
 .code-block {
   background: var(--color-surface-secondary);
-  border-radius: 6px;
-  padding: 12px 16px;
+  border-radius: var(--radius-m);
+  padding: var(--space-xs) var(--space-s);
   font-size: 12px;
   font-family: 'SF Mono', 'Fira Code', monospace;
   color: var(--color-text);
   overflow-x: auto;
-  margin-bottom: 20px;
+  margin-block-end: var(--space-m);
   line-height: 1.6;
 }
 
 /* StatusIndicator demo */
 .status-demo-row {
   display: flex;
-  gap: 40px;
-  margin-bottom: 12px;
+  gap: var(--space-xxl);
+  margin-block-end: var(--space-xs);
 }
 
 .status-demo-item {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-xxs);
 }
 
 .status-demo-label {
@@ -356,16 +356,16 @@ h4 {
 .icon-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-  gap: 4px;
+  gap: var(--space-xxxs);
 }
 
 .icon-cell {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
-  padding: 16px 8px;
-  border-radius: 8px;
+  gap: var(--space-xxs);
+  padding: var(--space-s) var(--space-xxs);
+  border-radius: var(--radius-m);
   cursor: default;
   transition: background 150ms ease;
   color: var(--color-text);

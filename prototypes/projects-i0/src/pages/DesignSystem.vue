@@ -207,7 +207,7 @@
 .ds {
   max-width: 960px;
   margin: 0 auto;
-  padding: 48px 32px;
+  padding: var(--space-xxxl) var(--space-xl);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   color: var(--color-text);
 }
@@ -215,41 +215,41 @@
 h1 {
   font-size: 32px;
   font-weight: 400;
-  margin-bottom: 40px;
+  margin-block-end: var(--space-xxl);
 }
 
 section {
-  margin-bottom: 48px;
+  margin-block-end: var(--space-xxxl);
 }
 
 h2 {
   font-size: 18px;
   font-weight: 600;
-  margin-bottom: 4px;
+  margin-block-end: var(--space-xxxs);
 }
 
 .section-desc {
   font-size: 13px;
   color: var(--color-text-secondary);
-  margin-bottom: 20px;
+  margin-block-end: var(--space-m);
 }
 
 .swatches {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: 16px;
+  gap: var(--space-s);
 }
 
 .swatch {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: var(--space-xxs);
 }
 
 .swatch-color {
   width: 100%;
   height: 64px;
-  border-radius: 8px;
+  border-radius: var(--radius-m);
 }
 
 .swatch-color.border {
@@ -266,13 +266,13 @@ h2 {
 .space-list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--space-xxs);
 }
 
 .space-item {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--space-xs);
 }
 
 .space-token {
@@ -286,7 +286,7 @@ h2 {
 .space-bar {
   height: 20px;
   background: var(--color-primary);
-  border-radius: 3px;
+  border-radius: var(--radius-s);
   opacity: 0.2;
 }
 
@@ -306,14 +306,14 @@ h2 {
 /* Radius */
 .radius-list {
   display: flex;
-  gap: 24px;
+  gap: var(--space-l);
 }
 
 .radius-item {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
+  gap: var(--space-xs);
 }
 
 .radius-preview {
@@ -351,8 +351,8 @@ h2 {
   color: var(--color-text-secondary);
   font-family: 'SF Mono', 'Fira Code', monospace;
   background: var(--color-surface-secondary);
-  padding: 2px 6px;
-  border-radius: 3px;
+  padding: var(--space-xxxs) var(--space-xxs);
+  border-radius: var(--radius-s);
   width: fit-content;
 }
 </style>

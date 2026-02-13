@@ -8,3 +8,35 @@
     </ul>
   </div>
 </template>
+
+<style scoped>
+.index {
+  padding: var(--space-xxl);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+h1 {
+  font-size: 32px;
+  font-weight: 400;
+  color: var(--color-text);
+  margin-bottom: var(--space-m);
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xxs);
+}
+
+a {
+  color: var(--color-primary);
+  text-decoration: none;
+  font-size: 15px;
+}
+a:hover {
+  color: var(--color-primary-hover);
+  text-decoration: underline;
+}
+</style>

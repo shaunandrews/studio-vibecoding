@@ -50,15 +50,17 @@ import StatusIndicator from './StatusIndicator.vue'
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: var(--space-xs) var(--space-s);
-  border-radius: var(--radius-s);
+  padding: var(--space-xs) var(--space-xs) var(--space-xs) var(--space-s);
+  border-radius: var(--radius-m);
   cursor: pointer;
   color: var(--color-chrome-text-secondary);
   transition: background 150ms ease;
 }
+
 .site-item:hover {
   background: var(--color-chrome-hover);
 }
+
 .site-item.active {
   background: var(--color-chrome-active);
   color: var(--color-chrome-text);
@@ -81,7 +83,7 @@ import StatusIndicator from './StatusIndicator.vue'
   justify-content: space-between;
   font-size: 11px;
   color: var(--color-chrome-text-muted);
-  margin-bottom: var(--space-xs);
+  margin-block-end: var(--space-xs);
 }
 .sidebar-meta a {
   color: var(--color-chrome-text-muted);

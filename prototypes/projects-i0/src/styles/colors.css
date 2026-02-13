@@ -38,3 +38,22 @@
   /* Avatar placeholder */
   --color-avatar: #4a9e4a;
 }
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* Surface (main content area) — dark but lighter than chrome */
+    --color-surface: #2c2c2c;
+    --color-surface-secondary: #333;
+    --color-surface-border: #444;
+
+    /* Text */
+    --color-text: #e4e6e8;
+    --color-text-secondary: #9ea3a8;
+    --color-text-muted: #6c7177;
+
+    /* Interactive */
+    --color-primary: #5b7bf3;
+    --color-primary-hover: #7b90ff;
+    --color-primary-text: #fff;
+  }
+}
