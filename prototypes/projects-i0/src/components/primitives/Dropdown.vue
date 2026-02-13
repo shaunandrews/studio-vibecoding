@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
 import { chevronDown } from '@wordpress/icons'
-import WPIcon from './WPIcon.vue'
-import Text from './Text.vue'
+import WPIcon from '@/components/primitives/WPIcon.vue'
+import Text from '@/components/primitives/Text.vue'
 
 export interface DropdownOption {
   value: string

@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { plus } from '@wordpress/icons'
-import Panel from '@/components/Panel.vue'
-import Button from '@/components/Button.vue'
-import Text from '@/components/Text.vue'
-import StatusIndicator from '@/components/StatusIndicator.vue'
-import InputChat from '@/components/InputChat.vue'
+import Panel from '@/components/composites/Panel.vue'
+import Button from '@/components/primitives/Button.vue'
+import Text from '@/components/primitives/Text.vue'
+import StatusIndicator from '@/components/primitives/StatusIndicator.vue'
+import InputChat from '@/components/composites/InputChat.vue'
 import { useProjects } from '@/data/useProjects'
 
 const { projects } = useProjects()

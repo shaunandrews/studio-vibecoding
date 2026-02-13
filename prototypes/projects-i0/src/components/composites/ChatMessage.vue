@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { copy, thumbsUp, thumbsDown } from '@wordpress/icons'
-import Button from './Button.vue'
-import Text from './Text.vue'
+import Button from '@/components/primitives/Button.vue'
+import Text from '@/components/primitives/Text.vue'
 
 const props = defineProps<{
   role: 'user' | 'agent'

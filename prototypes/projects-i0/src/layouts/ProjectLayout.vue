@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import Titlebar from '@/components/Titlebar.vue'
-import Sidebar from '@/components/Sidebar.vue'
+import Titlebar from '@/components/primitives/Titlebar.vue'
+import Sidebar from '@/components/features/Sidebar.vue'
 </script>
 
 <template>

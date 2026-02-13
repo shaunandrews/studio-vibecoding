@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import StatusIndicator from './StatusIndicator.vue'
+import StatusIndicator from '@/components/primitives/StatusIndicator.vue'
 
 defineProps<{
   name: string

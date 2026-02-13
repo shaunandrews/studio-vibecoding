@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref } from 'vue'
-import WPIcon from './WPIcon.vue'
+import WPIcon from '@/components/primitives/WPIcon.vue'
 
 const props = defineProps<{
   icon?: any

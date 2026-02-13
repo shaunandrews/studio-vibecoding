@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import Button from './Button.vue'
-import Dropdown from './Dropdown.vue'
+import Button from '@/components/primitives/Button.vue'
+import Dropdown from '@/components/primitives/Dropdown.vue'
 
 const message = ref('')
 const selectedModel = ref('Sonnet 4.5')

@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import Button from './Button.vue'
-import ProjectListItem from './ProjectListItem.vue'
-import Text from './Text.vue'
+import Button from '@/components/primitives/Button.vue'
+import ProjectListItem from '@/components/composites/ProjectListItem.vue'
+import Text from '@/components/primitives/Text.vue'
 </script>
 
 <template>

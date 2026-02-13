@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { chevronLeft, chevronRight, rotateRight, desktop, tablet, mobile } from '@wordpress/icons'
-import Button from './Button.vue'
-import Dropdown from './Dropdown.vue'
-import PanelToolbar from './PanelToolbar.vue'
-import Text from './Text.vue'
+import Button from '@/components/primitives/Button.vue'
+import Dropdown from '@/components/primitives/Dropdown.vue'
+import PanelToolbar from '@/components/composites/PanelToolbar.vue'
+import Text from '@/components/primitives/Text.vue'
 
 const url = ref('https://downstreet-cafe.local')
 const viewport = ref('desktop')

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { cog, help } from '@wordpress/icons'
-import Button from './Button.vue'
-import Text from './Text.vue'
+import Button from '@/components/primitives/Button.vue'
+import Text from '@/components/primitives/Text.vue'
 </script>
 
 <template>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import Text from '../components/Text.vue'
+import Text from '@/components/primitives/Text.vue'
 
 const sections = [
   { id: 'overview', label: 'Overview' },
