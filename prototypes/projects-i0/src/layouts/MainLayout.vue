@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import Titlebar from '@/components/primitives/Titlebar.vue'
+import ProjectList from '@/components/features/ProjectList.vue'
 
 const route = useRoute()
 const mode = computed(() => (route.meta.mode as string) || 'home')
@@ -13,9 +14,7 @@ const mode = computed(() => (route.meta.mode as string) || 'home')
     <div class="app-body flex-1 min-w-0 p-xs">
       <!-- Left column: full width on home, 210px on project -->
       <div class="left-column" :class="{ 'is-sidebar': mode === 'project' }">
-        <Transition name="crossfade" mode="out-in">
-          <router-view name="left" />
-        </Transition>
+        <ProjectList :mode="mode === 'project' ? 'list' : 'grid'" />
       </div>
       <!-- Frame: slides in from right as a solid block -->
       <main class="frame" :class="{ 'frame-visible': mode === 'project' }">
@@ -52,18 +51,6 @@ const mode = computed(() => (route.meta.mode as string) || 'home')
 
 .left-column.is-sidebar {
   width: 210px;
-}
-
-/* Crossfade for left column content swap */
-.crossfade-enter-active {
-  transition: opacity 150ms ease 100ms; /* slight delay so shrink starts first */
-}
-.crossfade-leave-active {
-  transition: opacity 100ms ease;
-}
-.crossfade-enter-from,
-.crossfade-leave-to {
-  opacity: 0;
 }
 
 /* Frame: positioned at final size, slides in from right */

@@ -7,16 +7,13 @@ const router = createRouter({
     {
       name: 'home',
       path: '/',
-      components: {
-        left: () => import('@/pages/HomePage.vue'),
-      },
+      component: { render: () => null },
       meta: { layout: 'main', mode: 'home' },
     },
     {
       name: 'project',
       path: '/projects/:id',
       components: {
-        left: () => import('@/components/features/Sidebar.vue'),
         main: () => import('@/pages/ProjectPage.vue'),
       },
       meta: { layout: 'main', mode: 'project' },
@@ -29,9 +26,7 @@ const router = createRouter({
     {
       name: 'settings',
       path: '/settings',
-      components: {
-        left: () => import('@/pages/SettingsPage.vue'),
-      },
+      component: { render: () => null },
       meta: { layout: 'main', mode: 'home' },
     },
     // Dev pages — bare layout (no app chrome)
