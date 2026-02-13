@@ -62,7 +62,7 @@ watch(() => props.tabs.length, () => {
           :class="{ active: tab.id === activeId }"
           @click="$emit('update:activeId', tab.id)"
         >
-          <Text variant="caption" :color="tab.id === activeId ? 'default' : 'secondary'">{{ tab.label }}</Text>
+          <Text :color="tab.id === activeId ? 'default' : 'secondary'">{{ tab.label }}</Text>
           <button
             v-if="tab.id === activeId"
             class="tab-bar__close"

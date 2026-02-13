@@ -2,7 +2,7 @@
 </script>
 
 <template>
-  <div class="panel-toolbar hstack gap-xxs px-xxs py-xxs">
+  <div class="panel-toolbar hstack gap-xxs px-xxs py-xs">
     <div v-if="$slots.start" class="panel-toolbar-start hstack gap-xxxs min-w-0" :class="{ 'flex-1': !$slots.center }">
       <slot name="start" />
     </div>
