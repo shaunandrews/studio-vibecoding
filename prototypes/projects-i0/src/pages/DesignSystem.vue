@@ -1,6 +1,69 @@
+<script setup lang="ts">
+import Text from '../components/Text.vue'
+</script>
+
 <template>
   <div class="ds">
     <h1>Design System</h1>
+
+    <section>
+      <h2>Typography</h2>
+      <p class="section-desc">Four text variants via the <code>Text</code> component. No raw font-size in component styles.</p>
+
+      <div class="type-samples vstack gap-m">
+        <div class="type-sample hstack gap-m">
+          <div class="type-meta">
+            <code>body</code>
+            <span class="type-spec">13px / 400</span>
+          </div>
+          <Text variant="body">The quick brown fox jumps over the lazy dog</Text>
+        </div>
+        <div class="type-sample hstack gap-m">
+          <div class="type-meta">
+            <code>body-large</code>
+            <span class="type-spec">14px / 400</span>
+          </div>
+          <Text variant="body-large">The quick brown fox jumps over the lazy dog</Text>
+        </div>
+        <div class="type-sample hstack gap-m">
+          <div class="type-meta">
+            <code>caption</code>
+            <span class="type-spec">12px / 400</span>
+          </div>
+          <Text variant="caption" color="secondary">The quick brown fox jumps over the lazy dog</Text>
+        </div>
+        <div class="type-sample hstack gap-m">
+          <div class="type-meta">
+            <code>label</code>
+            <span class="type-spec">11px / 600 / uppercase</span>
+          </div>
+          <Text variant="label" color="muted">The quick brown fox jumps over the lazy dog</Text>
+        </div>
+      </div>
+
+      <h3>Colors</h3>
+      <div class="hstack gap-l mt-xs">
+        <div class="vstack align-center gap-xxxs">
+          <Text color="default">Default</Text>
+          <Text variant="caption" color="muted">--color-text</Text>
+        </div>
+        <div class="vstack align-center gap-xxxs">
+          <Text color="secondary">Secondary</Text>
+          <Text variant="caption" color="muted">--color-text-secondary</Text>
+        </div>
+        <div class="vstack align-center gap-xxxs">
+          <Text color="muted">Muted</Text>
+          <Text variant="caption" color="muted">--color-text-muted</Text>
+        </div>
+      </div>
+
+      <h3>Weights</h3>
+      <div class="hstack gap-l mt-xs">
+        <Text weight="regular">Regular (400)</Text>
+        <Text weight="medium">Medium (500)</Text>
+        <Text weight="semibold">Semibold (600)</Text>
+      </div>
+    </section>
 
     <section>
       <h2>Space</h2>
@@ -200,6 +263,96 @@
         </div>
       </div>
     </section>
+
+    <section>
+      <h2>Layout Utilities</h2>
+      <p class="section-desc">Global utility classes for flex layout. Use instead of writing <code>display: flex</code> in scoped styles.</p>
+
+      <h3>Stacks</h3>
+      <div class="utility-grid mt-xs">
+        <div class="utility-item">
+          <code>.hstack</code>
+          <Text variant="caption" color="secondary">flex + align-items: center</Text>
+        </div>
+        <div class="utility-item">
+          <code>.vstack</code>
+          <Text variant="caption" color="secondary">flex + flex-direction: column</Text>
+        </div>
+      </div>
+
+      <h3>Gap</h3>
+      <div class="gap-demo vstack gap-xxs mt-xs">
+        <div v-for="g in ['xxxs','xxs','xs','s','m','l','xl','xxl','xxxl']" :key="g" class="hstack gap-xs">
+          <code class="gap-label">.gap-{{ g }}</code>
+          <div class="hstack" :class="`gap-${g}`">
+            <div class="gap-dot"></div>
+            <div class="gap-dot"></div>
+            <div class="gap-dot"></div>
+          </div>
+        </div>
+      </div>
+
+      <h3>Spacing Utilities</h3>
+      <Text variant="caption" color="secondary" tag="p" class="mt-xs">Padding and margin mapped to space tokens. Pattern: <code>.p-xs</code>, <code>.px-xxs</code>, <code>.py-xxxs</code>, <code>.pt-s</code>, <code>.mb-xs</code>, <code>.me-xxs</code>, <code>.mx-auto</code></Text>
+      <div class="utility-grid mt-xs">
+        <div class="utility-item">
+          <code>.p-{size}</code>
+          <Text variant="caption" color="secondary">Uniform padding</Text>
+        </div>
+        <div class="utility-item">
+          <code>.px-{size}</code> / <code>.py-{size}</code>
+          <Text variant="caption" color="secondary">Inline / block axis</Text>
+        </div>
+        <div class="utility-item">
+          <code>.pt-</code> <code>.pb-</code> <code>.ps-</code> <code>.pe-</code>
+          <Text variant="caption" color="secondary">Individual sides</Text>
+        </div>
+        <div class="utility-item">
+          <code>.m-{size}</code> / <code>.mx-</code> / <code>.my-</code>
+          <Text variant="caption" color="secondary">Margin (same pattern)</Text>
+        </div>
+      </div>
+
+      <h3>Flex</h3>
+      <div class="utility-grid mt-xs">
+        <div class="utility-item">
+          <code>.flex-1</code>
+          <Text variant="caption" color="secondary">flex: 1</Text>
+        </div>
+        <div class="utility-item">
+          <code>.shrink-0</code>
+          <Text variant="caption" color="secondary">flex-shrink: 0</Text>
+        </div>
+        <div class="utility-item">
+          <code>.min-w-0</code>
+          <Text variant="caption" color="secondary">min-width: 0</Text>
+        </div>
+        <div class="utility-item">
+          <code>.flex-wrap</code>
+          <Text variant="caption" color="secondary">flex-wrap: wrap</Text>
+        </div>
+      </div>
+
+      <h3>Alignment</h3>
+      <div class="utility-grid mt-xs">
+        <div class="utility-item">
+          <code>.justify-between</code>
+          <Text variant="caption" color="secondary">space-between</Text>
+        </div>
+        <div class="utility-item">
+          <code>.justify-center</code>
+          <Text variant="caption" color="secondary">center</Text>
+        </div>
+        <div class="utility-item">
+          <code>.align-stretch</code>
+          <Text variant="caption" color="secondary">Override hstack's center</Text>
+        </div>
+        <div class="utility-item">
+          <code>.align-center</code>
+          <Text variant="caption" color="secondary">center (for vstack)</Text>
+        </div>
+      </div>
+    </section>
   </div>
 </template>
 
@@ -344,6 +497,69 @@ h2 {
 .radius-desc {
   font-size: 11px;
   color: var(--color-text-muted);
+}
+
+/* Typography */
+.type-sample {
+  padding-block-end: var(--space-m);
+  border-block-end: 1px solid var(--color-surface-secondary);
+}
+
+.type-meta {
+  width: 120px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xxxs);
+}
+
+.type-meta code {
+  font-size: 12px;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  color: var(--color-text);
+}
+
+.type-spec {
+  font-size: 11px;
+  color: var(--color-text-muted);
+}
+
+/* Layout utilities */
+.utility-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: var(--space-xs);
+}
+
+.utility-item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xxxs);
+  padding: var(--space-xs);
+  background: var(--color-surface-secondary);
+  border-radius: var(--radius-m);
+}
+
+.utility-item code {
+  font-size: 12px;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  color: var(--color-text);
+}
+
+.gap-label {
+  font-size: 12px;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  color: var(--color-text-secondary);
+  width: 80px;
+  flex-shrink: 0;
+}
+
+.gap-dot {
+  width: var(--space-xxs);
+  height: var(--space-xxs);
+  border-radius: 50%;
+  background: var(--color-primary);
+  opacity: 0.4;
 }
 
 .swatch-value {
