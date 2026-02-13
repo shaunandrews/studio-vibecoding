@@ -91,6 +91,7 @@ watch(() => props.tabs.length, () => {
 
 .tab-bar__add {
   flex-shrink: 0;
+  margin-inline-start: var(--space-xxs);
 }
 
 .tab-bar__scroll {

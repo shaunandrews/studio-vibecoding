@@ -8,16 +8,10 @@ const props = defineProps<{
 }>()
 
 defineEmits<{
-  'select-message': [id: string]
   action: [messageId: string, action: ActionButton]
 }>()
 
-const selectedId = ref<string | null>(null)
 const scrollerRef = ref<HTMLDivElement | null>(null)
-
-function toggleSelect(id: string) {
-  selectedId.value = selectedId.value === id ? null : id
-}
 
 function scrollToBottom() {
   if (!scrollerRef.value) return
@@ -43,8 +37,6 @@ watch(
         :role="msg.role"
         :content="msg.content"
         :agent-id="msg.agentId"
-        :selected="msg.id === selectedId"
-        @select="toggleSelect(msg.id); $emit('select-message', msg.id)"
         @action="$emit('action', msg.id, $event)"
       />
     </div>
