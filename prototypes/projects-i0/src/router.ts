@@ -41,6 +41,13 @@ const router = createRouter({
       path: '/components',
       component: () => import('@/pages/Components.vue'),
       meta: { layout: 'bare' },
+      redirect: '/components/primitives',
+      children: [
+        { name: 'components-primitives', path: 'primitives', component: () => import('@/pages/components/PrimitivesPage.vue'), meta: { layout: 'bare' } },
+        { name: 'components-composites', path: 'composites', component: () => import('@/pages/components/CompositesPage.vue'), meta: { layout: 'bare' } },
+        { name: 'components-features', path: 'features', component: () => import('@/pages/components/FeaturesPage.vue'), meta: { layout: 'bare' } },
+        { name: 'components-chat-cards', path: 'chat-cards', component: () => import('@/pages/components/ChatCardsPage.vue'), meta: { layout: 'bare' } },
+      ],
     },
     {
       name: 'architecture',
