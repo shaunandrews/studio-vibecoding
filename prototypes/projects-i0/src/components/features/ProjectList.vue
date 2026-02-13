@@ -76,8 +76,10 @@ function toggleStatus(id: string) {
 }
 
 .project-list.mode-grid {
-  padding: var(--space-m);
-  gap: var(--space-s);
+  padding: var(--space-xl);
+  gap: var(--space-m);
+  justify-content: center;
+  align-items: center;
 }
 
 .project-list.mode-list {
@@ -86,8 +88,10 @@ function toggleStatus(id: string) {
 
 .items-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: var(--space-m);
+  width: 100%;
+  max-width: 1200px;
 }
 
 .items-stack {
