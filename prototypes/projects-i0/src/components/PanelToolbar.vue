@@ -3,7 +3,7 @@
 
 <template>
   <div class="panel-toolbar hstack gap-xxs px-xxs py-xxs">
-    <div v-if="$slots.start" class="panel-toolbar-start hstack gap-xxxs">
+    <div v-if="$slots.start" class="panel-toolbar-start hstack gap-xxxs flex-1 min-w-0">
       <slot name="start" />
     </div>
     <div v-if="$slots.center" class="panel-toolbar-center hstack flex-1 min-w-0">
