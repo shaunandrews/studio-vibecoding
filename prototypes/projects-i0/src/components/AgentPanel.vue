@@ -1,26 +1,22 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { plus, sidebar } from '@wordpress/icons'
-import Button from './Button.vue'
-import ChatMessage from './ChatMessage.vue'
-import PanelToolbar from './PanelToolbar.vue'
-import InputChat from './InputChat.vue'
-import Text from './Text.vue'
+import Button from '@/components/Button.vue'
+import ChatMessage from '@/components/ChatMessage.vue'
+import PanelToolbar from '@/components/PanelToolbar.vue'
+import InputChat from '@/components/InputChat.vue'
+import Text from '@/components/Text.vue'
+import { useAgents } from '@/data/useAgents'
+import { useConversations } from '@/data/useConversations'
+import type { AgentId } from '@/data/types'
 
-interface AgentTab {
-  id: string
-  label: string
-}
+const { agents } = useAgents()
+const { getConversation, getMessages, ensureConversation, sendMessage } = useConversations()
 
-const tabs = ref<AgentTab[]>([
-  { id: 'assistant', label: 'Site Assistant' },
-  { id: 'code', label: 'Code Agent' },
-  { id: 'design', label: 'Design Agent' },
-])
-
-const activeTab = ref('assistant')
+const activeTab = ref<AgentId>('assistant')
 
 const props = defineProps<{
+  projectId?: string | null
   previewVisible?: boolean
 }>()
 
@@ -28,10 +24,20 @@ const emit = defineEmits<{
   'toggle-preview': []
 }>()
 
-const selectedMessage = ref<number | null>(null)
+const projectIdRef = computed(() => props.projectId ?? null)
+const conversation = getConversation(projectIdRef, activeTab)
+const conversationId = computed(() => conversation.value?.id ?? null)
+const msgs = getMessages(conversationId)
 
-function selectMessage(index: number) {
-  selectedMessage.value = selectedMessage.value === index ? null : index
+const selectedMessage = ref<string | null>(null)
+
+function selectMessage(id: string) {
+  selectedMessage.value = selectedMessage.value === id ? null : id
+}
+
+function handleSend(text: string) {
+  const conv = ensureConversation(props.projectId ?? null, activeTab.value)
+  sendMessage(conv.id, 'user', text)
 }
 </script>
 
@@ -41,13 +47,13 @@ function selectMessage(index: number) {
       <template #start>
         <div class="agent-tabs hstack gap-xxxs overflow-auto">
           <button
-            v-for="tab in tabs"
-            :key="tab.id"
+            v-for="agent in agents"
+            :key="agent.id"
             class="agent-tab px-xs py-xxxs"
-            :class="{ active: tab.id === activeTab }"
-            @click="activeTab = tab.id"
+            :class="{ active: agent.id === activeTab }"
+            @click="activeTab = agent.id"
           >
-            <Text variant="caption" :color="tab.id === activeTab ? 'default' : 'muted'">{{ tab.label }}</Text>
+            <Text variant="caption" :color="agent.id === activeTab ? 'default' : 'muted'">{{ agent.label }}</Text>
           </button>
         </div>
       </template>
@@ -59,27 +65,17 @@ function selectMessage(index: number) {
     <div class="messages flex-1 overflow-auto px-m py-l">
       <div class="messages-inner vstack gap-m">
         <ChatMessage
-          role="agent"
-          content="Hello! I'm your site assistant. I can help you build, customize, and manage your WordPress site. What would you like to work on?"
-          :selected="selectedMessage === 0"
-          @select="selectMessage(0)"
-        />
-        <ChatMessage
-          role="user"
-          content="I want to change the hero section on my homepage to have a gradient background and bigger text."
-          :selected="selectedMessage === 1"
-          @select="selectMessage(1)"
-        />
-        <ChatMessage
-          role="agent"
-          content="I'll update your hero section with a gradient background and increase the heading size. Let me make those changes to your theme now."
-          :selected="selectedMessage === 2"
-          @select="selectMessage(2)"
+          v-for="msg in msgs"
+          :key="msg.id"
+          :role="msg.role"
+          :content="msg.content"
+          :selected="selectedMessage === msg.id"
+          @select="selectMessage(msg.id)"
         />
       </div>
     </div>
     <div class="px-l pb-l shrink-0">
-      <InputChat />
+      <InputChat @send="handleSend" />
     </div>
   </div>
 </template>

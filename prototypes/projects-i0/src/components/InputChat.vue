@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { send as sendIcon } from '@wordpress/icons'
 import Button from './Button.vue'
 import Dropdown from './Dropdown.vue'
 

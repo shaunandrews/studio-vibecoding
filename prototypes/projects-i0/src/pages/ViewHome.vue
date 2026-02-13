@@ -1,27 +1,14 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import { plus, cog, help } from '@wordpress/icons'
-import Titlebar from '../components/Titlebar.vue'
-import Panel from '../components/Panel.vue'
-import Button from '../components/Button.vue'
-import Text from '../components/Text.vue'
-import StatusIndicator from '../components/StatusIndicator.vue'
-import InputChat from '../components/InputChat.vue'
+import { plus } from '@wordpress/icons'
+import Titlebar from '@/components/Titlebar.vue'
+import Panel from '@/components/Panel.vue'
+import Button from '@/components/Button.vue'
+import Text from '@/components/Text.vue'
+import StatusIndicator from '@/components/StatusIndicator.vue'
+import InputChat from '@/components/InputChat.vue'
+import { useProjects } from '@/data/useProjects'
 
-interface Project {
-  id: string
-  name: string
-  favicon: string
-  status: 'running' | 'stopped' | 'loading'
-  url: string
-}
-
-const projects = ref<Project[]>([
-  { id: '1', name: 'Downstreet Cafe', favicon: 'https://api.dicebear.com/9.x/shapes/svg?seed=cafe', status: 'running', url: 'downstreet-cafe.local' },
-  { id: '2', name: "Shaun's Blog", favicon: 'https://api.dicebear.com/9.x/shapes/svg?seed=blog', status: 'running', url: 'shaunsblog.local' },
-  { id: '3', name: 'UI Portfolio', favicon: 'https://api.dicebear.com/9.x/shapes/svg?seed=portfolio', status: 'stopped', url: 'ui-portfolio.local' },
-  { id: '4', name: 'Client Project', favicon: 'https://api.dicebear.com/9.x/shapes/svg?seed=client', status: 'stopped', url: 'client-project.local' },
-])
+const { projects } = useProjects()
 </script>
 
 <template>

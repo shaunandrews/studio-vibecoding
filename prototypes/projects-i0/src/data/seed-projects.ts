@@ -1,0 +1,40 @@
+import type { Project } from './types'
+
+export const seedProjects: Project[] = [
+  {
+    id: 'downstreet-cafe',
+    name: 'Downstreet Cafe',
+    favicon: 'https://api.dicebear.com/9.x/shapes/svg?seed=cafe',
+    status: 'running',
+    url: 'http://localhost:8881',
+    createdAt: '2025-11-15T10:00:00Z',
+    description: 'A cozy neighborhood coffee shop website.',
+  },
+  {
+    id: 'shauns-blog',
+    name: "Shaun's Blog",
+    favicon: 'https://api.dicebear.com/9.x/shapes/svg?seed=blog',
+    status: 'running',
+    url: 'http://localhost:8882',
+    createdAt: '2025-09-01T14:30:00Z',
+    description: 'Personal blog about design and technology.',
+  },
+  {
+    id: 'ui-portfolio',
+    name: 'UI Portfolio',
+    favicon: 'https://api.dicebear.com/9.x/shapes/svg?seed=portfolio',
+    status: 'stopped',
+    url: 'http://localhost:8883',
+    createdAt: '2026-01-20T09:00:00Z',
+    description: 'Portfolio showcasing UI/UX design work.',
+  },
+  {
+    id: 'flavor-records',
+    name: 'Flavor Records',
+    favicon: 'https://api.dicebear.com/9.x/shapes/svg?seed=records',
+    status: 'running',
+    url: 'http://localhost:8884',
+    createdAt: '2026-02-01T16:00:00Z',
+    description: 'Independent record label and music blog.',
+  },
+]
