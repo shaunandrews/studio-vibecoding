@@ -1,11 +1,21 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import Titlebar from '@/components/primitives/Titlebar.vue'
 import ProjectList from '@/components/features/ProjectList.vue'
 
 const route = useRoute()
 const mode = computed(() => (route.meta.mode as string) || 'home')
+const transitioning = ref(false)
+let transitionTimer: ReturnType<typeof setTimeout> | null = null
+
+watch(mode, () => {
+  transitioning.value = true
+  if (transitionTimer) clearTimeout(transitionTimer)
+  transitionTimer = setTimeout(() => {
+    transitioning.value = false
+  }, 300) // matches --duration-slow
+})
 </script>
 
 <template>
@@ -13,7 +23,7 @@ const mode = computed(() => (route.meta.mode as string) || 'home')
     <Titlebar />
     <div class="app-body flex-1 min-w-0 p-xs">
       <!-- Left column: full width on home, 210px on project -->
-      <div class="left-column" :class="{ 'is-sidebar': mode === 'project' }">
+      <div class="left-column" :class="{ 'is-sidebar': mode === 'project', 'is-transitioning': transitioning }">
         <ProjectList :mode="mode === 'project' ? 'list' : 'grid'" />
       </div>
       <!-- Frame: slides in from right as a solid block -->
@@ -51,6 +61,10 @@ const mode = computed(() => (route.meta.mode as string) || 'home')
 
 .left-column.is-sidebar {
   width: 210px;
+}
+
+.left-column.is-transitioning {
+  pointer-events: none;
 }
 
 /* Frame: positioned at final size, slides in from right */
