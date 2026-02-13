@@ -5,26 +5,26 @@ import StatusIndicator from './StatusIndicator.vue'
 
 <template>
   <aside class="sidebar">
-    <div class="sidebar-sites">
-      <div class="site-item">
-        <span class="site-name">Downstreet Cafe</span>
+    <h2 class="sidebar-heading">Projects</h2>
+    <div class="sidebar-projects">
+      <div class="project-item">
+        <img class="project-favicon" src="https://api.dicebear.com/9.x/shapes/svg?seed=cafe" alt="" />
+        <span class="project-name">Downstreet Cafe</span>
         <StatusIndicator status="running" />
       </div>
-      <div class="site-item active">
-        <span class="site-name">Shaun's Blog</span>
+      <div class="project-item active">
+        <img class="project-favicon" src="https://api.dicebear.com/9.x/shapes/svg?seed=blog" alt="" />
+        <span class="project-name">Shaun's Blog</span>
         <StatusIndicator status="running" />
       </div>
-      <div class="site-item">
-        <span class="site-name">UI Portfolio</span>
+      <div class="project-item">
+        <img class="project-favicon" src="https://api.dicebear.com/9.x/shapes/svg?seed=portfolio" alt="" />
+        <span class="project-name">UI Portfolio</span>
         <StatusIndicator status="stopped" />
       </div>
     </div>
     <div class="sidebar-footer">
-      <div class="sidebar-meta">
-        <span>3 sites running</span>
-        <a href="#">Stop all</a>
-      </div>
-      <Button variant="secondary" surface="dark" label="Add site" width="full" />
+      <Button variant="secondary" surface="dark" label="Add project" width="full" />
     </div>
   </aside>
 </template>
@@ -37,59 +37,56 @@ import StatusIndicator from './StatusIndicator.vue'
   flex-shrink: 0;
 }
 
-.sidebar-sites {
+.sidebar-heading {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-chrome-text-muted);
+  margin: 0;
+  padding: var(--space-xs) var(--space-xs) var(--space-xs) var(--space-xs);
+}
+
+.sidebar-projects {
   flex: 1;
-  padding: 0 var(--space-xs);
   display: flex;
   flex-direction: column;
   gap: var(--space-xxxs);
   overflow-y: auto;
 }
 
-.site-item {
+.project-item {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: var(--space-xs) var(--space-xs) var(--space-xs) var(--space-s);
-  border-radius: var(--radius-m);
+  gap: var(--space-xs);
+  padding: var(--space-xs);
+  border-radius: var(--radius-s);
   cursor: pointer;
   color: var(--color-chrome-text-secondary);
   transition: background 150ms ease;
 }
 
-.site-item:hover {
+.project-item:hover {
   background: var(--color-chrome-hover);
 }
 
-.site-item.active {
+.project-item.active {
   background: var(--color-chrome-active);
   color: var(--color-chrome-text);
 }
 
-.site-name {
+.project-favicon {
+  width: 20px; /* Standard favicon size — intentional, not on grid */
+  height: 20px;
+  border-radius: var(--radius-s);
+  flex-shrink: 0;
+}
+
+.project-name {
   flex: 1;
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-.sidebar-footer {
-  padding: var(--space-xs);
-}
-
-.sidebar-meta {
-  display: flex;
-  justify-content: space-between;
-  font-size: 11px;
-  color: var(--color-chrome-text-muted);
-  margin-block-end: var(--space-xs);
-}
-.sidebar-meta a {
-  color: var(--color-chrome-text-muted);
-  text-decoration: none;
-}
-.sidebar-meta a:hover {
-  color: var(--color-chrome-text);
 }
 </style>

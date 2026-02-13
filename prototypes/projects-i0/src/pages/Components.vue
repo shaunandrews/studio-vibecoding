@@ -3,7 +3,15 @@ import * as wpIcons from '@wordpress/icons'
 import WPIcon from '../components/WPIcon.vue'
 import Button from '../components/Button.vue'
 import StatusIndicator from '../components/StatusIndicator.vue'
+import Titlebar from '../components/Titlebar.vue'
 import { cog, plus, upload, external, trash, pencil, chevronDown } from '@wordpress/icons'
+
+const componentNav = [
+  { id: 'button', label: 'Button' },
+  { id: 'status-indicator', label: 'StatusIndicator' },
+  { id: 'titlebar', label: 'Titlebar' },
+  { id: 'wpicon', label: 'WPIcon' },
+]
 
 const icons = Object.entries(wpIcons)
   .filter(([key, val]) => key !== 'Icon' && typeof val === 'object' && val !== null && (val as any)?.props)
@@ -12,11 +20,19 @@ const icons = Object.entries(wpIcons)
 </script>
 
 <template>
-  <div class="components">
-    <h1>Components</h1>
+  <div class="components-layout">
+    <nav class="components-nav">
+      <h2 class="nav-heading">Components</h2>
+      <ul>
+        <li v-for="item in componentNav" :key="item.id">
+          <a :href="'#' + item.id" class="nav-link">{{ item.label }}</a>
+        </li>
+      </ul>
+    </nav>
+    <div class="components">
 
     <!-- Button -->
-    <section>
+    <section id="button">
       <h2>Button</h2>
       <p class="section-desc">Flexible button with three variants, two sizes, two surfaces, and optional icon/label.</p>
 
@@ -38,7 +54,7 @@ const icons = Object.entries(wpIcons)
       </div>
 
     <!-- StatusIndicator -->
-    <section>
+    <section id="status-indicator">
       <h2>StatusIndicator</h2>
       <p class="section-desc">Shows site state with animated hover transitions. Click to toggle start/stop.</p>
 
@@ -169,8 +185,33 @@ const icons = Object.entries(wpIcons)
       </div>
     </section>
 
+    <!-- Titlebar -->
+    <section id="titlebar">
+      <h2>Titlebar</h2>
+      <p class="section-desc">App chrome title bar with traffic lights, sidebar toggle, centered heading, and action buttons.</p>
+
+      <h3>Preview (dark surface)</h3>
+      <div class="example-section example-section--dark" style="padding: 0; overflow: hidden; border-radius: var(--radius-m);">
+        <Titlebar />
+      </div>
+
+      <div class="props-table">
+        <h3>Slots / Structure</h3>
+        <table>
+          <thead>
+            <tr><th>Region</th><th>Contents</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>titlebar-start</code></td><td>Traffic lights + sidebar toggle button</td></tr>
+            <tr><td><code>titlebar-center</code></td><td>Absolutely centered heading: "WordPress Studio • Site Title"</td></tr>
+            <tr><td><code>titlebar-end</code></td><td>Settings + help buttons</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
     <!-- WPIcon -->
-    <section>
+    <section id="wpicon">
       <h2>WPIcon</h2>
       <p class="section-desc">Vue wrapper for <code>@wordpress/icons</code>. Resolves React element trees to native SVG.</p>
 
@@ -199,22 +240,67 @@ const icons = Object.entries(wpIcons)
         </div>
       </div>
     </section>
+    </div>
   </div>
 </template>
 
 <style scoped>
-.components {
-  max-width: 960px;
-  margin: 0 auto;
-  padding: var(--space-xxxl) var(--space-xl);
+.components-layout {
+  display: flex;
+  min-height: 100vh;
+  scroll-behavior: smooth;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   color: var(--color-text);
 }
 
-h1 {
-  font-size: 32px;
-  font-weight: 400;
-  margin-block-end: var(--space-xxl);
+.components-nav {
+  position: sticky;
+  top: 0;
+  align-self: flex-start;
+  width: 200px;
+  flex-shrink: 0;
+  padding: var(--space-xxxl) var(--space-m);
+  border-inline-end: 1px solid var(--color-surface-border);
+}
+
+.nav-heading {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-secondary);
+  margin: 0 0 var(--space-xs);
+}
+
+.components-nav ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xxxs);
+}
+
+.nav-link {
+  display: block;
+  padding: var(--space-xxs) var(--space-xs);
+  border-radius: var(--radius-s);
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  transition: background 120ms ease, color 120ms ease;
+}
+
+.nav-link:hover {
+  background: var(--color-surface-secondary);
+  color: var(--color-text);
+}
+
+.components {
+  flex: 1;
+  min-width: 0;
+  max-width: 960px;
+  padding: var(--space-xxxl) var(--space-xl);
 }
 
 section {

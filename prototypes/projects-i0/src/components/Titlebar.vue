@@ -11,21 +11,22 @@ import Button from './Button.vue'
         <span class="light minimize"></span>
         <span class="light maximize"></span>
       </div>
-      <Button variant="tertiary" surface="dark" :icon="sidebar" />
     </div>
     <div class="titlebar-center">
-      <h1 class="titlebar-heading">WordPress Studio <span class="titlebar-separator">•</span> Site Title</h1>
+      <h1 class="titlebar-apptitle">WordPress Studio</h1>
+      <span class="titlebar-separator">•</span>
+      <h2 class="titlebar-pagetitle">Site Title</h2>
     </div>
     <div class="titlebar-end">
-      <Button variant="tertiary" surface="dark" :icon="cog" />
-      <Button variant="tertiary" surface="dark" :icon="help" />
+      <Button variant="tertiary" surface="dark" :icon="cog" size="small" />
+      <Button variant="tertiary" surface="dark" :icon="help" size="small" />
     </div>
   </div>
 </template>
 
 <style scoped>
 .titlebar {
-  height: 50px; /* 10 units */
+  height: 35px;
   position: relative;
   display: flex;
   align-items: center;
@@ -33,6 +34,7 @@ import Button from './Button.vue'
   padding: 0 var(--space-xs) 0 var(--space-s);
   flex-shrink: 0;
   -webkit-app-region: drag;
+  border-bottom: 1px solid var(--color-chrome-border);
 }
 
 .titlebar-center {
@@ -40,14 +42,21 @@ import Button from './Button.vue'
   left: 50%;
   transform: translateX(-50%);
   pointer-events: none;
+  display: flex;
+  align-items: center;
 }
 
-.titlebar-heading {
+.titlebar-apptitle,
+.titlebar-pagetitle {
   font-size: 13px;
-  font-weight: 400;
   color: var(--color-chrome-text-secondary);
   margin: 0;
   white-space: nowrap;
+  font-weight: 400;
+}
+
+.titlebar-pagetitle {
+  font-weight: 550;
 }
 
 .titlebar-separator {
@@ -59,7 +68,7 @@ import Button from './Button.vue'
 .titlebar-end {
   display: flex;
   align-items: center;
-  gap: var(--space-xs);
+  gap: var(--space-xxs);
   -webkit-app-region: no-drag;
 }
 
@@ -74,20 +83,8 @@ import Button from './Button.vue'
   height: 12px;
   border-radius: 50%;
 }
+
 .light.close { background: var(--color-light-close); }
 .light.minimize { background: var(--color-light-minimize); }
 .light.maximize { background: var(--color-light-maximize); }
-
-.titlebar-greeting {
-  font-size: 13px;
-  color: var(--color-chrome-text-secondary);
-}
-
-.titlebar-avatar {
-  width: var(--space-m);
-  height: var(--space-m);
-  border-radius: 50%;
-  background: var(--color-avatar);
-  flex-shrink: 0;
-}
 </style>

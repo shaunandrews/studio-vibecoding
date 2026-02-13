@@ -32,14 +32,15 @@ import Sidebar from '../components/Sidebar.vue'
 .app-body {
   flex: 1;
   display: flex;
+  gap: var(--space-xs);
   min-height: 0;
+  padding: 10px;
 }
 
 .frame {
   flex: 1;
   background: var(--color-surface);
   border-radius: var(--radius-m);
-  margin: 0 var(--space-xs) var(--space-xs) 0; /* physical directions intentional — frame hugs app chrome edges */
   overflow: hidden;
   display: flex;
 }
