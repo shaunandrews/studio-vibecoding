@@ -47,7 +47,7 @@ import Sidebar from '../components/Sidebar.vue'
 
 .app-body {
   min-height: 0;
-  padding: var(--space-xxs);
+  padding: var(--space-xs);
 }
 
 .frame {
