@@ -28,7 +28,7 @@ const emit = defineEmits<{
           class="setting-row hstack justify-between gap-xs"
         >
           <span class="setting-key">{{ setting.key }}</span>
-          <span class="setting-arrow">{{ setting.current }} -> {{ setting.proposed }}</span>
+          <span class="setting-arrow">{{ setting.current }} → {{ setting.proposed }}</span>
         </div>
       </div>
       <div v-if="data.actions?.length" class="hstack gap-xxs">
@@ -36,7 +36,7 @@ const emit = defineEmits<{
           v-for="action in data.actions"
           :key="action.id"
           :label="action.label"
-          :variant="action.variant === 'destructive' ? 'secondary' : (action.variant || 'secondary')"
+          :variant="action.variant === 'destructive' ? 'tertiary' : (action.variant || 'secondary')"
           :icon="action.icon"
           size="small"
           @click.stop="emit('action', action)"

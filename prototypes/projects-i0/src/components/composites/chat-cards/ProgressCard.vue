@@ -51,7 +51,7 @@ function statusLabel(status: ProgressCardData['steps'][number]['status']): strin
 }
 
 .progress-status--done {
-  color: var(--color-status-running);
+  color: #00a32a;
 }
 
 .progress-status--running {

@@ -58,7 +58,7 @@ const statusVariant = computed(() => {
       <div v-if="data.action" class="pt-xxxs">
         <Button
           :label="data.action.label"
-          :variant="data.action.variant === 'destructive' ? 'secondary' : (data.action.variant || 'secondary')"
+          :variant="data.action.variant === 'destructive' ? 'tertiary' : (data.action.variant || 'secondary')"
           :icon="data.action.icon"
           size="small"
           @click.stop="emit('action', data.action)"

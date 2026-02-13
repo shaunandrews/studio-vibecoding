@@ -444,6 +444,290 @@ export const scriptedFlows: ScriptFlow[] = [
       },
     ],
   },
+
+  // Phase 2: Theme Browsing
+  {
+    conversationId: 'blog-assistant-themes',
+    initialState: 'start',
+    transitions: [
+      {
+        from: 'start',
+        to: 'theme-applied',
+        when: { actionId: 'theme.apply.flavor' },
+        responses: [
+          {
+            role: 'agent',
+            content: [
+              textBlock('Switching to **Flavor**. Give me just a moment…'),
+              {
+                type: 'card',
+                card: 'progress',
+                state: 'complete',
+                data: {
+                  label: 'Theme activation',
+                  steps: [
+                    { name: 'Download theme', status: 'done' },
+                    { name: 'Install theme', status: 'done' },
+                    { name: 'Activate theme', status: 'done' },
+                    { name: 'Apply default settings', status: 'done' },
+                  ],
+                },
+              },
+            ],
+          },
+          {
+            role: 'agent',
+            content: [
+              textBlock('Flavor is now active. Here\'s what changed:'),
+              {
+                type: 'card',
+                card: 'settings',
+                state: 'complete',
+                data: {
+                  label: 'Theme settings updated',
+                  settings: [
+                    { key: 'theme', current: 'Twenty Twenty-Five', proposed: 'Flavor' },
+                    { key: 'color.primary', current: '#3858E9', proposed: '#C9774A' },
+                    { key: 'layout.content_width', current: '650px', proposed: '720px' },
+                  ],
+                },
+              },
+            ],
+          },
+        ],
+      },
+      {
+        from: 'start',
+        to: 'theme-applied',
+        when: { actionId: 'theme.apply.twentytwentyfive' },
+        responses: [
+          {
+            role: 'agent',
+            content: [
+              textBlock('Activating **Twenty Twenty-Five** now…'),
+              {
+                type: 'card',
+                card: 'progress',
+                state: 'complete',
+                data: {
+                  label: 'Theme activation',
+                  steps: [
+                    { name: 'Verify theme files', status: 'done' },
+                    { name: 'Activate theme', status: 'done' },
+                    { name: 'Apply default settings', status: 'done' },
+                  ],
+                },
+              },
+            ],
+          },
+          {
+            role: 'agent',
+            content: [
+              textBlock('Twenty Twenty-Five is active. Here are the updated settings:'),
+              {
+                type: 'card',
+                card: 'settings',
+                state: 'complete',
+                data: {
+                  label: 'Theme settings updated',
+                  settings: [
+                    { key: 'theme', current: 'Flavor', proposed: 'Twenty Twenty-Five' },
+                    { key: 'color.primary', current: '#C9774A', proposed: '#3858E9' },
+                    { key: 'layout.content_width', current: '720px', proposed: '650px' },
+                  ],
+                },
+              },
+            ],
+          },
+        ],
+      },
+      {
+        from: 'start',
+        to: 'theme-applied',
+        when: { actionId: 'theme.apply.suspended' },
+        responses: [
+          {
+            role: 'agent',
+            content: [
+              textBlock('Installing and activating **Suspended**…'),
+              {
+                type: 'card',
+                card: 'progress',
+                state: 'complete',
+                data: {
+                  label: 'Theme activation',
+                  steps: [
+                    { name: 'Download theme', status: 'done' },
+                    { name: 'Install theme', status: 'done' },
+                    { name: 'Activate theme', status: 'done' },
+                  ],
+                },
+              },
+            ],
+          },
+          {
+            role: 'agent',
+            content: [
+              textBlock('Suspended is live. Here\'s what I updated:'),
+              {
+                type: 'card',
+                card: 'settings',
+                state: 'complete',
+                data: {
+                  label: 'Theme settings updated',
+                  settings: [
+                    { key: 'theme', current: 'Twenty Twenty-Five', proposed: 'Suspended' },
+                    { key: 'color.primary', current: '#3858E9', proposed: '#1A1A2E' },
+                    { key: 'typography.heading', current: 'System Sans', proposed: 'Space Grotesk' },
+                  ],
+                },
+              },
+            ],
+          },
+        ],
+      },
+      {
+        from: 'start',
+        to: 'start',
+        when: { textIncludes: ['theme', 'change', 'switch', 'browse'] },
+        responses: [
+          {
+            role: 'agent',
+            content: [
+              textBlock('Sure! You can pick any of the themes above, or tell me what style you\'re looking for and I can narrow it down.'),
+            ],
+          },
+        ],
+      },
+    ],
+  },
+
+  // Phase 2: Content Creation
+  {
+    conversationId: 'cafe-assistant-content',
+    initialState: 'start',
+    transitions: [
+      {
+        from: 'start',
+        to: 'about-page-created',
+        when: { textIncludes: ['about', 'about page'] },
+        responses: [
+          {
+            role: 'agent',
+            content: [
+              textBlock('I\'ve created an About page for Downstreet Cafe. Here are the details:'),
+              {
+                type: 'card',
+                card: 'page',
+                data: {
+                  title: 'About Us',
+                  slug: 'about',
+                  template: 'Full Width',
+                  status: 'draft',
+                  excerpt: 'Learn about Downstreet Cafe — our story, our team, and our passion for great coffee and community.',
+                  actions: [
+                    action('page.edit.about', 'Edit', 'Edit the About page', 'secondary', undefined, pencil),
+                  ],
+                },
+              },
+              textBlock('The page is in draft mode. You can edit it or let me know when you\'re ready to publish. Need anything else — maybe a blog post?'),
+            ],
+          },
+        ],
+      },
+      {
+        from: 'about-page-created',
+        to: 'post-drafted',
+        when: { textIncludes: ['blog', 'post', 'grand opening', 'write'] },
+        responses: [
+          {
+            role: 'agent',
+            content: [
+              textBlock('Here\'s a draft post for the grand opening. I\'ve added some suggested categories and tags:'),
+              {
+                type: 'card',
+                card: 'postDraft',
+                data: {
+                  title: 'Welcome to Downstreet Cafe — We\'re Open!',
+                  excerpt: 'After months of preparation, Downstreet Cafe is officially open for business. Stop by for handcrafted espresso drinks, fresh pastries, and a warm community space right in the heart of downtown.',
+                  categories: ['Announcements', 'News'],
+                  tags: ['grand opening', 'coffee', 'downtown'],
+                  status: 'draft',
+                  actions: [
+                    action('post.edit.opening', 'Edit', 'Edit this post', 'secondary', undefined, pencil),
+                    action('post.publish.opening', 'Publish', 'Publish this post', 'primary', undefined, check),
+                  ],
+                },
+              },
+            ],
+          },
+        ],
+      },
+      {
+        from: 'post-drafted',
+        to: 'done',
+        when: { actionId: 'post.publish.opening' },
+        responses: [
+          {
+            role: 'agent',
+            content: [
+              textBlock('Published! Your grand opening post is now live.'),
+              {
+                type: 'card',
+                card: 'postDraft',
+                state: 'complete',
+                data: {
+                  title: 'Welcome to Downstreet Cafe — We\'re Open!',
+                  excerpt: 'After months of preparation, Downstreet Cafe is officially open for business. Stop by for handcrafted espresso drinks, fresh pastries, and a warm community space right in the heart of downtown.',
+                  categories: ['Announcements', 'News'],
+                  tags: ['grand opening', 'coffee', 'downtown'],
+                  status: 'published',
+                },
+              },
+            ],
+          },
+        ],
+      },
+      {
+        from: 'post-drafted',
+        to: 'post-drafted',
+        when: { actionId: 'post.edit.opening' },
+        responses: [
+          {
+            role: 'agent',
+            content: [
+              textBlock('Opening the editor for the grand opening post. What would you like to change?'),
+            ],
+          },
+        ],
+      },
+      {
+        from: 'post-drafted',
+        to: 'done',
+        when: { textIncludes: ['publish', 'go live', 'make it live'] },
+        responses: [
+          {
+            role: 'agent',
+            content: [
+              textBlock('Done — your grand opening post is now published and live on the site.'),
+              {
+                type: 'card',
+                card: 'postDraft',
+                state: 'complete',
+                data: {
+                  title: 'Welcome to Downstreet Cafe — We\'re Open!',
+                  excerpt: 'After months of preparation, Downstreet Cafe is officially open for business. Stop by for handcrafted espresso drinks, fresh pastries, and a warm community space right in the heart of downtown.',
+                  categories: ['Announcements', 'News'],
+                  tags: ['grand opening', 'coffee', 'downtown'],
+                  status: 'published',
+                },
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  },
 ]
 
 const flowByConversation = new Map(scriptedFlows.map(flow => [flow.conversationId, flow]))
@@ -490,7 +774,7 @@ export function buildFallbackAgentMessage(conversationId: string): ScriptMessage
     return {
       role: 'agent',
       content: [
-        textBlock("I can help with that. Try one of the action buttons so I can continue this demo flow."),
+        textBlock("I can help with plugins — would you like me to recommend some options? You can also pick one of the suggestions above to get started."),
       ],
     }
   }
@@ -499,13 +783,31 @@ export function buildFallbackAgentMessage(conversationId: string): ScriptMessage
     return {
       role: 'agent',
       content: [
-        textBlock("Try 'Make palette warmer' or ask for a bluer revision so I can continue this scripted flow."),
+        textBlock("I can work with that. Want me to propose a warmer palette, or do you have specific colors in mind?"),
+      ],
+    }
+  }
+
+  if (conversationId === 'blog-assistant-themes') {
+    return {
+      role: 'agent',
+      content: [
+        textBlock("I can help you find the right theme. Pick one of the options above, or describe the style you're after and I'll suggest something."),
+      ],
+    }
+  }
+
+  if (conversationId === 'cafe-assistant-content') {
+    return {
+      role: 'agent',
+      content: [
+        textBlock("I can help with pages and posts — would you like to create an About page, write a blog post, or something else?"),
       ],
     }
   }
 
   return {
     role: 'agent',
-    content: [textBlock('I do not have a scripted response for that yet.')],
+    content: [textBlock("I'm not sure how to help with that yet, but I'm learning. Could you try rephrasing?")],
   }
 }
