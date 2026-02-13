@@ -6,7 +6,7 @@ import Sidebar from '../components/Sidebar.vue'
 <template>
   <div class="app-shell vstack">
     <Titlebar />
-    <div class="app-body hstack gap-xs flex-1 min-w-0">
+    <div class="app-body hstack align-stretch gap-xs flex-1 min-w-0">
       <Sidebar />
       <main class="frame flex-1 overflow-hidden">
         <div class="site-assistant">
