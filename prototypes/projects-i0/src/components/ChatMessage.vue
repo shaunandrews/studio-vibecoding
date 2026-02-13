@@ -65,12 +65,11 @@ function copyMessage(content: string) {
   max-width: 640px;
   cursor: pointer;
   border-radius: var(--radius-m);
-  border: 2px solid transparent;
-  transition: border-color 150ms ease;
 }
 
 .chat-message--selected {
-  border-color: var(--color-primary);
+  outline: 2px solid var(--color-primary);
+  outline-offset: 1px;
 }
 
 .chat-message-content {

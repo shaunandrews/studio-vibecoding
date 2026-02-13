@@ -56,7 +56,7 @@ function selectMessage(index: number) {
         <Button variant="tertiary" :icon="sidebar" size="small" :active="previewVisible" @click="$emit('toggle-preview')" />
       </template>
     </PanelToolbar>
-    <div class="messages flex-1 overflow-auto p-l">
+    <div class="messages flex-1 overflow-auto px-m py-l">
       <div class="messages-inner vstack gap-m">
         <ChatMessage
           role="agent"
