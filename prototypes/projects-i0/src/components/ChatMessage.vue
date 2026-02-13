@@ -33,7 +33,7 @@ function copyMessage(content: string) {
   >
     <Text v-if="role === 'agent' && agentName" variant="label" color="muted">{{ agentName }}</Text>
     <Text variant="body-large" tag="div" class="chat-message-content">{{ content }}</Text>
-    <div class="chat-message-actions hstack gap-xxxs">
+    <div v-if="selected" class="chat-message-actions hstack gap-xxxs">
       <Button
         variant="tertiary"
         :icon="copy"
@@ -63,30 +63,41 @@ function copyMessage(content: string) {
 <style scoped>
 .chat-message {
   max-width: 640px;
-  position: relative;
   cursor: pointer;
+  border-radius: var(--radius-m);
+  border: 2px solid transparent;
+  padding: var(--space-xxs);
+  margin-inline: calc(-1 * var(--space-xxs));
+  transition: border-color 150ms ease;
+}
+
+.chat-message--selected {
+  border-color: var(--color-primary);
 }
 
 .chat-message-content {
-  padding: var(--space-xs) var(--space-s);
+  padding: var(--space-xxs) var(--space-xs);
 
   .chat-message--user & {
     background: var(--color-surface-secondary);
-    border-radius: var(--radius-m);
+    border-radius: var(--radius-s);
   }
 }
 
 .chat-message-actions {
-  position: absolute;
-  bottom: -18px;
-  left: var(--space-xs);
-  opacity: 0;
-  transition: opacity 150ms ease;
-  z-index: 1;
-  background: var(--color-surface);
-  border-radius: var(--radius-s);
+  display: grid;
+  grid-template-rows: 1fr;
+  overflow: hidden;
+  animation: actions-in 150ms ease;
+}
 
-  .chat-message--selected & {
+@keyframes actions-in {
+  from {
+    grid-template-rows: 0fr;
+    opacity: 0;
+  }
+  to {
+    grid-template-rows: 1fr;
     opacity: 1;
   }
 }
