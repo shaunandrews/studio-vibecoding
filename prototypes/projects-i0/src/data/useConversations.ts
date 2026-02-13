@@ -1,10 +1,110 @@
 import { ref, computed, type Ref, unref } from 'vue'
 import { seedConversations, seedMessages } from './seed-conversations'
-import type { Conversation, Message, AgentId } from './types'
+import {
+  SCRIPTED_REPLY_DELAY_MS,
+  buildFallbackAgentMessage,
+  getInitialScriptState,
+  resolveScriptTransition,
+} from './scripted-flows'
+import type { Conversation, Message, AgentId, ContentBlock, MessageContext } from './types'
 
 // Module-level state (singleton)
-const conversations = ref<Conversation[]>(structuredClone(seedConversations))
-const messages = ref<Message[]>(structuredClone(seedMessages))
+function cloneContentBlock(block: ContentBlock): ContentBlock {
+  if (block.type === 'text') return { ...block }
+  if (block.type === 'actions') {
+    return {
+      ...block,
+      actions: block.actions.map(action => ({
+        ...action,
+        action: {
+          ...action.action,
+          payload: action.action.payload ? { ...action.action.payload } : undefined,
+        },
+      })),
+    }
+  }
+  return { ...block }
+}
+
+function cloneMessage(message: Message): Message {
+  return {
+    ...message,
+    content: message.content.map(cloneContentBlock),
+    messageContext: message.messageContext
+      ? {
+          ...message.messageContext,
+          payload: message.messageContext.payload ? { ...message.messageContext.payload } : undefined,
+        }
+      : undefined,
+  }
+}
+
+const conversations = ref<Conversation[]>(seedConversations.map(conversation => ({ ...conversation })))
+const messages = ref<Message[]>(seedMessages.map(cloneMessage))
+const scriptedState = ref<Record<string, string>>({})
+
+function textBlocks(text: string): ContentBlock[] {
+  return [{ type: 'text', text }]
+}
+
+function normalizeContent(content: string | ContentBlock[]): ContentBlock[] {
+  return typeof content === 'string' ? textBlocks(content) : content
+}
+
+function appendMessage(
+  conversationId: string,
+  role: 'user' | 'agent',
+  content: string | ContentBlock[],
+  agentId?: AgentId,
+  messageContext?: MessageContext,
+) {
+  messages.value.push({
+    id: `msg-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+    conversationId,
+    role,
+    agentId,
+    content: normalizeContent(content),
+    messageContext,
+    timestamp: new Date().toISOString(),
+  })
+}
+
+function getConversationAgent(conversationId: string): AgentId | undefined {
+  return conversations.value.find(c => c.id === conversationId)?.agentId
+}
+
+function ensureScriptState(conversationId: string): string | null {
+  const existing = scriptedState.value[conversationId]
+  if (existing) return existing
+  const initial = getInitialScriptState(conversationId)
+  if (!initial) return null
+  scriptedState.value = { ...scriptedState.value, [conversationId]: initial }
+  return initial
+}
+
+function setScriptState(conversationId: string, state: string) {
+  scriptedState.value = { ...scriptedState.value, [conversationId]: state }
+}
+
+function maybeQueueScriptedResponse(conversationId: string, text: string, messageContext?: MessageContext) {
+  const state = ensureScriptState(conversationId)
+  if (!state) return
+
+  const transition = resolveScriptTransition(conversationId, state, text, messageContext)
+  const fallback = !transition ? buildFallbackAgentMessage(conversationId) : null
+  const replies = transition?.responses ?? (fallback ? [fallback] : [])
+  const agentId = getConversationAgent(conversationId)
+
+  if (replies.length === 0) return
+
+  if (transition) setScriptState(conversationId, transition.to)
+
+  window.setTimeout(() => {
+    for (const reply of replies) {
+      appendMessage(conversationId, reply.role, reply.content, agentId)
+    }
+  }, SCRIPTED_REPLY_DELAY_MS)
+}
 
 export function useConversations() {
   function getConversations(projectId: Ref<string | null> | string | null) {
@@ -42,15 +142,24 @@ export function useConversations() {
     return conv
   }
 
-  function sendMessage(conversationId: string, role: 'user' | 'agent', content: string, agentId?: AgentId) {
-    messages.value.push({
-      id: `msg-${Date.now()}`,
-      conversationId,
-      role,
-      agentId,
-      content,
-      timestamp: new Date().toISOString(),
-    })
+  function sendMessage(
+    conversationId: string,
+    role: 'user' | 'agent',
+    content: string | ContentBlock[],
+    agentId?: AgentId,
+    messageContext?: MessageContext,
+  ) {
+    appendMessage(conversationId, role, content, agentId, messageContext)
+
+    if (role === 'user') {
+      const text = typeof content === 'string'
+        ? content
+        : content
+          .filter(block => block.type === 'text')
+          .map(block => block.text)
+          .join('\n')
+      maybeQueueScriptedResponse(conversationId, text, messageContext)
+    }
   }
 
   return {

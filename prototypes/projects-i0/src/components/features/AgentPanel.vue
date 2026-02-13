@@ -1,18 +1,16 @@
 <script setup lang="ts">
-import { ref, computed, reactive, watch, nextTick } from 'vue'
+import { ref, computed, nextTick } from 'vue'
 import { drawerRight } from '@wordpress/icons'
 import Button from '@/components/primitives/Button.vue'
 import PanelToolbar from '@/components/composites/PanelToolbar.vue'
 import TabBar from '@/components/composites/TabBar.vue'
 import ChatMessageList from '@/components/composites/ChatMessageList.vue'
 import InputChat from '@/components/composites/InputChat.vue'
-import { useAgents } from '@/data/useAgents'
 import { useConversations } from '@/data/useConversations'
-import type { Agent, AgentId, Conversation } from '@/data/types'
+import type { ActionButton, Conversation } from '@/data/types'
 import type { Tab } from '@/components/composites/TabBar.vue'
 
-const { agents } = useAgents()
-const { conversations, getConversation, getMessages, ensureConversation, sendMessage } = useConversations()
+const { conversations, getMessages, ensureConversation, sendMessage } = useConversations()
 
 const props = defineProps<{
   projectId?: string | null
@@ -37,17 +35,22 @@ const projectConvos = computed(() =>
 
 function ensureTabState(): { openConvoIds: string[], activeConvoId: string } {
   const key = getProjectKey()
-  if (!tabStateMap.value[key]) {
-    const convoIds = projectConvos.value.map(c => c.id)
-    const openIds = convoIds.length > 0 ? convoIds : []
-    // If no convos exist, create one
-    if (openIds.length === 0) {
-      const conv = ensureConversation(props.projectId ?? null, 'assistant')
-      openIds.push(conv.id)
-    }
-    tabStateMap.value[key] = { openConvoIds: openIds, activeConvoId: openIds[0] }
+  const existing = tabStateMap.value[key]
+  if (existing) return existing
+
+  const convoIds = projectConvos.value.map(c => c.id)
+  const openIds = convoIds.length > 0 ? convoIds : []
+  // If no convos exist, create one
+  if (openIds.length === 0) {
+    const conv = ensureConversation(props.projectId ?? null, 'assistant')
+    openIds.push(conv.id)
   }
-  return tabStateMap.value[key]
+  const activeId = openIds[0]
+  if (!activeId) {
+    throw new Error('Failed to initialize a conversation tab state')
+  }
+  tabStateMap.value[key] = { openConvoIds: openIds, activeConvoId: activeId }
+  return tabStateMap.value[key]!
 }
 
 const openTabs = computed<Tab[]>(() => {
@@ -56,7 +59,6 @@ const openTabs = computed<Tab[]>(() => {
     .map(id => {
       const convo = conversations.value.find(c => c.id === id)
       if (!convo) return null
-      const agent = agents.find(a => a.id === convo.agentId)
       return {
         id: convo.id,
         label: convo.title || 'New chat',
@@ -66,11 +68,6 @@ const openTabs = computed<Tab[]>(() => {
 })
 
 const activeConvoId = computed(() => ensureTabState().activeConvoId)
-
-const activeAgentId = computed<AgentId>(() => {
-  const convo = conversations.value.find(c => c.id === activeConvoId.value)
-  return convo?.agentId ?? 'assistant'
-})
 
 function setActiveTab(id: string) {
   ensureTabState().activeConvoId = id
@@ -98,7 +95,8 @@ function handleCloseTab(id: string) {
   if (idx === -1 || state.openConvoIds.length <= 1) return
   state.openConvoIds.splice(idx, 1)
   if (state.activeConvoId === id) {
-    state.activeConvoId = state.openConvoIds[Math.min(idx, state.openConvoIds.length - 1)]
+    const nextId = state.openConvoIds[Math.min(idx, state.openConvoIds.length - 1)]
+    state.activeConvoId = nextId ?? state.openConvoIds[0] ?? state.activeConvoId
   }
   tabStateMap.value = { ...tabStateMap.value }
 }
@@ -115,8 +113,29 @@ const currentDraft = computed({
 })
 
 function handleSend(text: string) {
-  sendMessage(activeConvoId.value, 'user', text)
+  sendMessage(
+    activeConvoId.value,
+    'user',
+    text,
+    undefined,
+    { source: 'typed' },
+  )
   drafts.value[activeConvoId.value] = ''
+}
+
+function handleAction(action: ActionButton) {
+  sendMessage(
+    activeConvoId.value,
+    'user',
+    action.action.message,
+    undefined,
+    {
+      source: 'action',
+      actionId: action.id,
+      cardRef: action.action.cardRef,
+      payload: action.action.payload,
+    },
+  )
 }
 </script>
 
@@ -132,7 +151,7 @@ function handleSend(text: string) {
       </template>
     </PanelToolbar>
 
-    <ChatMessageList :messages="msgs" />
+    <ChatMessageList :messages="msgs" @action="(_, action) => handleAction(action)" />
 
     <div class="agent-panel__input shrink-0 px-l pb-l">
       <div class="agent-panel__input-inner">

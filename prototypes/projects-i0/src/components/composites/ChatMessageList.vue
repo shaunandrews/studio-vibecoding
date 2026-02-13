@@ -1,25 +1,41 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { nextTick, ref, watch } from 'vue'
 import ChatMessage from '@/components/composites/ChatMessage.vue'
-import type { Message } from '@/data/types'
+import type { ActionButton, Message } from '@/data/types'
 
-defineProps<{
+const props = defineProps<{
   messages: Message[]
 }>()
 
 defineEmits<{
   'select-message': [id: string]
+  action: [messageId: string, action: ActionButton]
 }>()
 
 const selectedId = ref<string | null>(null)
+const scrollerRef = ref<HTMLDivElement | null>(null)
 
 function toggleSelect(id: string) {
   selectedId.value = selectedId.value === id ? null : id
 }
+
+function scrollToBottom() {
+  if (!scrollerRef.value) return
+  scrollerRef.value.scrollTop = scrollerRef.value.scrollHeight
+}
+
+watch(
+  () => props.messages.length,
+  async () => {
+    await nextTick()
+    scrollToBottom()
+  },
+  { immediate: true },
+)
 </script>
 
 <template>
-  <div class="messages flex-1 overflow-auto px-m py-l">
+  <div ref="scrollerRef" class="messages flex-1 overflow-auto px-m py-l">
     <div class="messages-inner vstack gap-m">
       <ChatMessage
         v-for="msg in messages"
@@ -29,6 +45,7 @@ function toggleSelect(id: string) {
         :agent-id="msg.agentId"
         :selected="msg.id === selectedId"
         @select="toggleSelect(msg.id); $emit('select-message', msg.id)"
+        @action="$emit('action', msg.id, $event)"
       />
     </div>
   </div>
