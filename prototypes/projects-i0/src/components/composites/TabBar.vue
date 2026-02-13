@@ -72,11 +72,11 @@ watch(() => props.tabs.length, () => {
             @click.stop="$emit('close', tab.id)"
           />
         </button>
+        <Button variant="tertiary" :icon="plus" @click="$emit('add')" />
       </div>
       <div class="tab-bar__fade-left" :class="{ visible: canScrollLeft }" />
       <div class="tab-bar__fade-right" :class="{ visible: canScrollRight }" />
     </div>
-    <Button variant="tertiary" :icon="plus" @click="$emit('add')" />
   </div>
 </template>
 
