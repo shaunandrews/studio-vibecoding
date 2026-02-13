@@ -12,6 +12,7 @@ const dsNav = [
   { id: 'text-colors', label: 'Text Colors' },
   { id: 'interactive', label: 'Interactive' },
   { id: 'layout-utilities', label: 'Layout Utilities' },
+  { id: 'motion', label: 'Motion' },
 ]
 </script>
 
@@ -446,6 +447,77 @@ const dsNav = [
         </div>
       </div>
     </section>
+
+    <!-- Motion -->
+    <section id="motion">
+      <h2>Motion</h2>
+      <p class="section-desc">Motion tokens in <code>styles/motion.css</code>. All transition durations and easing flow through tokens — no raw timing values in component styles.</p>
+
+      <div class="subsection">
+        <h3>Duration Scale</h3>
+        <p class="section-desc">Hover each bar to see the transition in action.</p>
+        <div class="motion-list vstack gap-xxs mt-xs">
+          <div class="motion-item hstack gap-m" v-for="d in [
+            { token: '--duration-instant', val: '100ms', use: 'Near-instant feedback, micro hover states' },
+            { token: '--duration-fast', val: '150ms', use: 'Hover, focus, button states' },
+            { token: '--duration-moderate', val: '200ms', use: 'Resize, status changes, fade' },
+            { token: '--duration-slow', val: '300ms', use: 'Layout transitions, panel morph, frame slide' },
+          ]" :key="d.token">
+            <code class="motion-token">{{ d.token }}</code>
+            <div class="motion-demo-track">
+              <div class="motion-demo-bar" :style="{ transitionDuration: `var(${d.token})` }"></div>
+            </div>
+            <span class="motion-val">{{ d.val }}</span>
+            <Text variant="caption" color="muted">{{ d.use }}</Text>
+          </div>
+        </div>
+      </div>
+
+      <div class="subsection">
+        <h3>Easing Functions</h3>
+        <div class="utility-grid mt-xs">
+          <div class="utility-item">
+            <code>--ease-default</code>
+            <Text variant="caption" color="secondary">ease — general purpose</Text>
+          </div>
+          <div class="utility-item">
+            <code>--ease-in-out</code>
+            <Text variant="caption" color="secondary">ease-in-out — symmetrical transitions</Text>
+          </div>
+          <div class="utility-item">
+            <code>--ease-out</code>
+            <Text variant="caption" color="secondary">ease-out — elements entering/appearing</Text>
+          </div>
+          <div class="utility-item">
+            <code>--ease-in</code>
+            <Text variant="caption" color="secondary">ease-in — elements leaving/disappearing</Text>
+          </div>
+        </div>
+      </div>
+
+      <div class="subsection">
+        <h3>Composed Shortcuts</h3>
+        <p class="section-desc">Pre-composed <code>duration + easing</code> pairs for common patterns. Use in <code>transition</code> shorthand after the property name.</p>
+        <div class="utility-grid mt-xs">
+          <div class="utility-item">
+            <code>--transition-hover</code>
+            <Text variant="caption" color="secondary">150ms ease — hover &amp; active states</Text>
+          </div>
+          <div class="utility-item">
+            <code>--transition-focus</code>
+            <Text variant="caption" color="secondary">150ms ease — focus rings, input borders</Text>
+          </div>
+          <div class="utility-item">
+            <code>--transition-fade</code>
+            <Text variant="caption" color="secondary">200ms ease — opacity, resize, status</Text>
+          </div>
+          <div class="utility-item">
+            <code>--transition-layout</code>
+            <Text variant="caption" color="secondary">300ms ease — panel morph, frame slide</Text>
+          </div>
+        </div>
+      </div>
+    </section>
     </div>
   </div>
 </template>
@@ -751,5 +823,46 @@ h3 {
   border-radius: 50%;
   background: var(--color-primary);
   opacity: 0.4;
+}
+
+/* Motion */
+.motion-token {
+  font-size: var(--font-size-s);
+  font-family: var(--font-family-mono);
+  color: var(--color-text);
+  width: 160px;
+  flex-shrink: 0;
+}
+
+.motion-demo-track {
+  width: 120px;
+  height: 20px;
+  background: var(--color-surface-secondary);
+  border-radius: var(--radius-s);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.motion-demo-bar {
+  width: 30%;
+  height: 100%;
+  background: var(--color-primary);
+  opacity: 0.3;
+  border-radius: var(--radius-s);
+  transition-property: width;
+  transition-timing-function: var(--ease-default);
+}
+
+.motion-demo-track:hover .motion-demo-bar {
+  width: 100%;
+  opacity: 0.5;
+}
+
+.motion-val {
+  font-size: var(--font-size-s);
+  font-family: var(--font-family-mono);
+  color: var(--color-text-secondary);
+  width: 50px;
+  flex-shrink: 0;
 }
 </style>

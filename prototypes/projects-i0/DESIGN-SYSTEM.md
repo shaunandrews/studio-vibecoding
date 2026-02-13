@@ -25,6 +25,49 @@
 - **Use `--radius-s`, `--radius-m`, or `--radius-l`** from `styles/radius.css`.
 - **Exception:** `border-radius: 50%` for circles (avatars, status dots) is fine.
 
+## Motion
+
+All transition timing flows through tokens in `styles/motion.css`. No raw duration or easing values in component styles.
+
+### Durations
+
+| Token | Value | Use for |
+|-------|-------|---------|
+| `--duration-instant` | 100ms | Near-instant feedback, micro hover states |
+| `--duration-fast` | 150ms | Hover, focus, button states |
+| `--duration-moderate` | 200ms | Resize, status changes, fade |
+| `--duration-slow` | 300ms | Layout transitions, panel morph, frame slide |
+
+### Easing
+
+| Token | Value | Use for |
+|-------|-------|---------|
+| `--ease-default` | ease | General purpose |
+| `--ease-in-out` | ease-in-out | Symmetrical transitions |
+| `--ease-out` | ease-out | Elements entering/appearing |
+| `--ease-in` | ease-in | Elements leaving/disappearing |
+
+### Composed Shortcuts
+
+Pre-composed `duration + easing` pairs. Use after the property name in `transition` shorthand:
+
+| Token | Expands to | Use for |
+|-------|-----------|---------|
+| `--transition-hover` | 150ms ease | Hover & active states |
+| `--transition-focus` | 150ms ease | Focus rings, input borders |
+| `--transition-fade` | 200ms ease | Opacity, resize, status |
+| `--transition-layout` | 300ms ease | Panel morph, frame slide |
+
+### Usage
+
+```css
+/* Property + composed shortcut */
+transition: background var(--transition-hover), color var(--transition-hover);
+
+/* Property + individual tokens */
+transition: opacity var(--duration-instant) var(--ease-default);
+```
+
 ## Colors
 
 - **All colors use CSS variables** from `styles/colors.css`.
