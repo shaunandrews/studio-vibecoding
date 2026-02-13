@@ -2,7 +2,7 @@
 </script>
 
 <template>
-  <div class="panel-toolbar hstack gap-xxs px-xs py-xxs">
+  <div class="panel-toolbar hstack gap-xxs px-xxs py-xxs">
     <div v-if="$slots.start" class="panel-toolbar-start hstack gap-xxxs">
       <slot name="start" />
     </div>

@@ -42,7 +42,7 @@ const activeTab = ref('assistant')
     </PanelToolbar>
     <div class="messages flex-1 overflow-auto p-s">
       <div class="messages-inner">
-        <div class="message">Hello! I'm your site assistant. How can I help you today?</div>
+        <Text variant="body-large">Hello! I'm your site assistant. How can I help you today?</Text>
       </div>
     </div>
     <InputChat />
