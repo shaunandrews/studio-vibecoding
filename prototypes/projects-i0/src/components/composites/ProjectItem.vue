@@ -138,14 +138,14 @@ defineEmits<{
 
 .mode-card .item-preview {
   opacity: 1;
-  max-height: 120px;
+  max-height: 180px;
   margin-top: var(--space-xs);
 }
 
 .mode-card .item-preview .preview-placeholder {
   background: var(--color-chrome-border);
   border-radius: var(--radius-s);
-  height: 120px;
+  height: 180px;
   display: flex;
   align-items: center;
   justify-content: center;

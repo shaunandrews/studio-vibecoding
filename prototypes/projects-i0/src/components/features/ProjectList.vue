@@ -76,10 +76,8 @@ function toggleStatus(id: string) {
 }
 
 .project-list.mode-grid {
-  padding: var(--space-xl);
-  gap: var(--space-m);
-  justify-content: center;
-  align-items: center;
+  padding: var(--space-m);
+  gap: var(--space-s);
 }
 
 .project-list.mode-list {
