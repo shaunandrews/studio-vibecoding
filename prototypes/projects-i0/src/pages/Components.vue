@@ -9,14 +9,22 @@ import ProjectListItem from '../components/ProjectListItem.vue'
 import InputChat from '../components/InputChat.vue'
 import ChatMessage from '../components/ChatMessage.vue'
 import Dropdown from '../components/Dropdown.vue'
+import Panel from '../components/Panel.vue'
+import PanelToolbar from '../components/PanelToolbar.vue'
+import Sidebar from '../components/Sidebar.vue'
+import AgentPanel from '../components/AgentPanel.vue'
 import { cog, plus, upload, external, trash, pencil, chevronDown } from '@wordpress/icons'
 
 const componentNav = [
+  { id: 'agent-panel', label: 'AgentPanel' },
   { id: 'button', label: 'Button' },
   { id: 'chat-message', label: 'ChatMessage' },
   { id: 'dropdown', label: 'Dropdown' },
   { id: 'input-chat', label: 'InputChat' },
+  { id: 'panel', label: 'Panel' },
+  { id: 'panel-toolbar', label: 'PanelToolbar' },
   { id: 'project-list-item', label: 'ProjectListItem' },
+  { id: 'sidebar', label: 'Sidebar' },
   { id: 'status-indicator', label: 'StatusIndicator' },
   { id: 'text', label: 'Text' },
   { id: 'titlebar', label: 'Titlebar' },
@@ -40,6 +48,38 @@ const icons = Object.entries(wpIcons)
       </ul>
     </nav>
     <div class="components flex-1 min-w-0">
+
+    <!-- AgentPanel -->
+    <section id="agent-panel">
+      <h2>AgentPanel</h2>
+      <p class="section-desc">Chat-focused panel with tabbed agent switcher, message list, and input. The primary interaction surface for AI conversations.</p>
+
+      <div class="props-table">
+        <h3>Props</h3>
+        <table>
+          <thead>
+            <tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>previewVisible</code></td><td><code>boolean</code></td><td>—</td><td>Whether the site preview panel is showing (toggles sidebar icon state)</td></tr>
+          </tbody>
+        </table>
+        <h3>Events</h3>
+        <table>
+          <thead>
+            <tr><th>Event</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>toggle-preview</code></td><td>Emitted when the preview toggle button is clicked</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Preview</h3>
+      <div class="example-section" style="height: 400px; border: 1px solid var(--color-surface-border); border-radius: var(--radius-m); overflow: hidden;">
+        <AgentPanel :preview-visible="true" />
+      </div>
+    </section>
 
     <!-- Button -->
     <section id="button">
@@ -231,6 +271,76 @@ const icons = Object.entries(wpIcons)
       </div>
     </section>
 
+    <!-- Panel -->
+    <section id="panel">
+      <h2>Panel</h2>
+      <p class="section-desc">Generic content panel with a left border separator. Used as the main layout container within the app body — panels sit side by side (e.g. AgentPanel + SitePreview).</p>
+
+      <div class="props-table">
+        <h3>Props</h3>
+        <table>
+          <thead>
+            <tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>title</code></td><td><code>string</code></td><td>—</td><td>Optional panel title (unused currently, reserved)</td></tr>
+          </tbody>
+        </table>
+        <h3>Slots</h3>
+        <table>
+          <thead>
+            <tr><th>Slot</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>default</code></td><td>Panel content</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Preview</h3>
+      <div class="example-section hstack" style="height: 120px; border: 1px solid var(--color-surface-border); border-radius: var(--radius-m); overflow: hidden;">
+        <Panel><div class="p-s"><Text color="secondary">Panel A</Text></div></Panel>
+        <Panel><div class="p-s"><Text color="secondary">Panel B</Text></div></Panel>
+      </div>
+    </section>
+
+    <!-- PanelToolbar -->
+    <section id="panel-toolbar">
+      <h2>PanelToolbar</h2>
+      <p class="section-desc">Horizontal toolbar with start/center/end slots, used at the top of panels. Has a bottom border separator.</p>
+
+      <div class="props-table">
+        <h3>Slots</h3>
+        <table>
+          <thead>
+            <tr><th>Slot</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>start</code></td><td>Left-aligned content (flex-1 when no center slot)</td></tr>
+            <tr><td><code>center</code></td><td>Center content (takes flex-1)</td></tr>
+            <tr><td><code>end</code></td><td>Right-aligned content</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>With start and end</h3>
+      <div class="example-section" style="border: 1px solid var(--color-surface-border); border-radius: var(--radius-m); overflow: hidden;">
+        <PanelToolbar>
+          <template #start><Text variant="caption" color="secondary">Left content</Text></template>
+          <template #end><Button variant="tertiary" :icon="cog" size="small" /></template>
+        </PanelToolbar>
+      </div>
+
+      <h3>With all three slots</h3>
+      <div class="example-section" style="border: 1px solid var(--color-surface-border); border-radius: var(--radius-m); overflow: hidden;">
+        <PanelToolbar>
+          <template #start><Button variant="tertiary" :icon="chevronDown" size="small" /></template>
+          <template #center><Text variant="caption" color="muted">https://example.local</Text></template>
+          <template #end><Button variant="tertiary" :icon="cog" size="small" /></template>
+        </PanelToolbar>
+      </div>
+    </section>
+
     <!-- ProjectListItem -->
     <section id="project-list-item">
       <h2>ProjectListItem</h2>
@@ -266,6 +376,17 @@ const icons = Object.entries(wpIcons)
         <ProjectListItem name="Downstreet Cafe" favicon="https://api.dicebear.com/9.x/shapes/svg?seed=cafe" status="running" />
         <ProjectListItem name="Shaun's Blog" favicon="https://api.dicebear.com/9.x/shapes/svg?seed=blog" status="running" :active="true" />
         <ProjectListItem name="UI Portfolio" favicon="https://api.dicebear.com/9.x/shapes/svg?seed=portfolio" status="stopped" />
+      </div>
+    </section>
+
+    <!-- Sidebar -->
+    <section id="sidebar">
+      <h2>Sidebar</h2>
+      <p class="section-desc">App sidebar with project list, section label, and add project button. Fixed 210px width, dark surface context.</p>
+
+      <h3>Preview</h3>
+      <div class="example-section example-section--dark" style="width: 240px; padding: var(--space-xs); overflow: hidden; border-radius: var(--radius-m);">
+        <Sidebar />
       </div>
     </section>
 
