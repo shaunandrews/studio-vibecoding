@@ -26,7 +26,7 @@ const emit = defineEmits<{
 </script>
 
 <template>
-  <div class="agent-panel vstack flex-1">
+  <div class="agent-panel vstack flex-1 overflow-hidden">
     <PanelToolbar>
       <template #start>
         <div class="agent-tabs hstack gap-xxxs overflow-auto">
@@ -62,7 +62,7 @@ const emit = defineEmits<{
         />
       </div>
     </div>
-    <div class="px-l pb-xxxl">
+    <div class="px-l pb-xxxl shrink-0">
       <InputChat />
     </div>
   </div>

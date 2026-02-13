@@ -5,7 +5,7 @@ defineProps<{
 </script>
 
 <template>
-  <div class="panel vstack flex-1 min-w-0">
+  <div class="panel vstack flex-1 min-w-0 overflow-hidden">
     <slot />
   </div>
 </template>

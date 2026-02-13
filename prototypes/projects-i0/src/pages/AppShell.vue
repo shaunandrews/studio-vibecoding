@@ -14,8 +14,8 @@ const showPreview = ref(true)
     <Titlebar />
     <div class="app-body hstack align-stretch gap-xs flex-1 min-w-0 p-xs">
       <Sidebar />
-      <main class="frame vstack flex-1 overflow-hidden">
-        <div class="panels hstack align-stretch flex-1 min-w-0">
+      <main class="frame vstack flex-1 overflow-hidden min-h-0">
+        <div class="panels hstack align-stretch flex-1 min-w-0 min-h-0">
           <Panel>
             <AgentPanel @toggle-preview="showPreview = !showPreview" />
           </Panel>

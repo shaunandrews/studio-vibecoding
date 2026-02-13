@@ -28,7 +28,7 @@ const viewportWidths: Record<string, string> = {
 </script>
 
 <template>
-  <div class="site-preview vstack flex-1">
+  <div class="site-preview vstack flex-1 overflow-hidden">
     <PanelToolbar>
       <template #start>
         <Button variant="tertiary" :icon="chevronLeft" size="small" />
