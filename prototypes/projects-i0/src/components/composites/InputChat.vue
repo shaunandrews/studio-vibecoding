@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import Button from '@/components/primitives/Button.vue'
 import Dropdown from '@/components/primitives/Dropdown.vue'
 
-const message = ref('')
 const selectedModel = ref('Sonnet 4.5')
 const textareaRef = ref<HTMLTextAreaElement | null>(null)
 
@@ -14,13 +13,21 @@ const models = [
 
 const props = withDefaults(defineProps<{
   surface?: 'light' | 'dark'
+  modelValue?: string
 }>(), {
   surface: 'light',
+  modelValue: '',
 })
 
 const emit = defineEmits<{
   send: [message: string, model: string]
+  'update:modelValue': [value: string]
 }>()
+
+const message = computed({
+  get: () => props.modelValue,
+  set: (val: string) => emit('update:modelValue', val),
+})
 
 function send() {
   const text = message.value.trim()

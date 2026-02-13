@@ -104,8 +104,17 @@ function handleCloseTab(id: string) {
 
 const msgs = getMessages(activeConvoId)
 
+// Per-conversation draft text
+const drafts = ref<Record<string, string>>({})
+
+const currentDraft = computed({
+  get: () => drafts.value[activeConvoId.value] ?? '',
+  set: (val: string) => { drafts.value[activeConvoId.value] = val },
+})
+
 function handleSend(text: string) {
   sendMessage(activeConvoId.value, 'user', text)
+  drafts.value[activeConvoId.value] = ''
 }
 </script>
 
@@ -124,7 +133,7 @@ function handleSend(text: string) {
     <ChatMessageList :messages="msgs" />
 
     <div class="px-l pb-l shrink-0">
-      <InputChat :key="activeConvoId" @send="handleSend" />
+      <InputChat v-model="currentDraft" @send="handleSend" />
     </div>
   </div>
 </template>
