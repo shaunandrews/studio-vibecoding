@@ -33,8 +33,8 @@ const sections = [
         <p class="section-desc">Architecture plans for the projects-i0 prototype. This page summarizes the key decisions; full details live in the linked plan docs.</p>
 
         <div class="card vstack gap-xs p-m mt-m">
-          <Text variant="body" weight="medium">Status: Planning</Text>
-          <Text variant="body" color="secondary">Sub-agents are researching data layer, routing, and component architecture. Plans will appear in the prototype root as MD files. This page will be updated with summaries and diagrams as plans are finalized.</Text>
+          <Text variant="body" weight="medium">Status: Plans Complete ✅</Text>
+          <Text variant="body" color="secondary">All three architecture plans (data layer, routing, components) are finalized. See summaries below or read the full MD files linked in the sidebar.</Text>
         </div>
       </section>
 
@@ -66,24 +66,80 @@ const sections = [
       <section id="data-layer">
         <h2>Data Layer</h2>
         <p class="section-desc">How the app manages state — models, stores, and seed data.</p>
+
+        <h3>Approach</h3>
         <div class="card vstack gap-xs p-m">
-          <Text variant="body" color="muted">⏳ Plan in progress — see DATA-LAYER.md when complete</Text>
+          <Text variant="body"><strong>Vue composables with reactive state + typed seed data.</strong> No Pinia, no JSON server, no localStorage. Module-level <code>ref</code>/<code>reactive</code> state initialized from TypeScript seed objects acts as a singleton store shared across components.</Text>
+          <Text variant="body" color="secondary">Refreshing resets to seed state — a feature for demos, not a limitation. Zero new dependencies.</Text>
+        </div>
+
+        <h3>Core Models</h3>
+        <div class="card vstack gap-xs p-m">
+          <Text variant="body"><code>Project</code> — id, name, favicon, status (<code>running</code> | <code>stopped</code> | <code>loading</code>), url, description</Text>
+          <Text variant="body"><code>Agent</code> — id (<code>assistant</code> | <code>code</code> | <code>design</code>), label, description</Text>
+          <Text variant="body"><code>Conversation</code> — ties a project (or <code>null</code> for global) to an agent</Text>
+          <Text variant="body"><code>Message</code> — role (<code>user</code> | <code>agent</code>), content, timestamp, linked to conversation</Text>
+        </div>
+
+        <h3>File Structure</h3>
+        <div class="card vstack gap-xs p-m">
+          <Text variant="body"><code>src/data/types.ts</code> — TypeScript interfaces</Text>
+          <Text variant="body"><code>src/data/agents.ts</code> — Static agent definitions</Text>
+          <Text variant="body"><code>src/data/seed-projects.ts</code> — 4 demo projects</Text>
+          <Text variant="body"><code>src/data/seed-conversations.ts</code> — Conversations + messages</Text>
+          <Text variant="body"><code>src/data/useProjects.ts</code> — Project CRUD composable</Text>
+          <Text variant="body"><code>src/data/useConversations.ts</code> — Conversation/message composable</Text>
+          <Text variant="body"><code>src/data/useAgents.ts</code> — Agent list composable</Text>
         </div>
       </section>
 
       <section id="routing">
         <h2>Routing</h2>
         <p class="section-desc">Route structure, layouts, and navigation patterns.</p>
+
+        <h3>Approach</h3>
         <div class="card vstack gap-xs p-m">
-          <Text variant="body" color="muted">⏳ Plan in progress — see ROUTING.md when complete</Text>
+          <Text variant="body"><strong>Layout wrapper pattern via <code>route.meta.layout</code>.</strong> Each route declares its layout; <code>App.vue</code> dynamically renders the correct layout component wrapping <code>&lt;router-view&gt;</code>.</Text>
+          <Text variant="body" color="secondary">Two real layouts + bare for dev pages. Simpler than nested routes since layouts don't share sub-routes. Project switching is a route change (<code>/projects/:id</code>) so URLs are shareable and back-button works.</Text>
+        </div>
+
+        <h3>Layouts</h3>
+        <div class="card vstack gap-xs p-m">
+          <Text variant="body"><code>AppLayout</code> — Titlebar + full-width content (Home, Settings)</Text>
+          <Text variant="body"><code>ProjectLayout</code> — Titlebar + Sidebar + panel area (extracted from AppShell)</Text>
+          <Text variant="body"><code>BareLayout</code> — No chrome, just <code>&lt;slot /&gt;</code> (dev pages)</Text>
+        </div>
+
+        <h3>Route Table</h3>
+        <div class="card vstack gap-xs p-m">
+          <Text variant="body"><code>/</code> → <code>HomePage</code> · AppLayout — project grid + global chat</Text>
+          <Text variant="body"><code>/projects/:id</code> → <code>ProjectPage</code> · ProjectLayout — sidebar + agent chat + preview</Text>
+          <Text variant="body"><code>/settings</code> → <code>SettingsPage</code> · AppLayout</Text>
+          <Text variant="body"><code>/design-system</code>, <code>/components</code>, <code>/architecture</code> → BareLayout (dev pages)</Text>
         </div>
       </section>
 
       <section id="components">
         <h2>Components</h2>
         <p class="section-desc">Component organization, decomposition, and new components needed.</p>
+
+        <h3>Approach</h3>
         <div class="card vstack gap-xs p-m">
-          <Text variant="body" color="muted">⏳ Plan in progress — see COMPONENTS.md when complete</Text>
+          <Text variant="body"><strong>Three-tier component organization:</strong> <code>primitives/</code> (atomic, no business logic), <code>composites/</code> (multi-primitive combos, still generic), and <code>features/</code> (screen-specific, business-aware). Layouts live separately in <code>layouts/</code>.</Text>
+          <Text variant="body" color="secondary">Key refactor: AgentPanel is decomposed into TabBar + ChatMessageList + InputChat, with state extracted into composables (<code>useChat</code>, <code>useAgentTabs</code>, <code>useProjects</code>).</Text>
+        </div>
+
+        <h3>New Components</h3>
+        <div class="card vstack gap-xs p-m">
+          <Text variant="body"><strong>Primitives:</strong> <code>Avatar</code>, <code>Badge</code></Text>
+          <Text variant="body"><strong>Composites:</strong> <code>TabBar</code>, <code>ChatMessageList</code>, <code>ProjectCard</code></Text>
+          <Text variant="body"><strong>Features:</strong> <code>ProjectGrid</code>, <code>HomeChat</code>, <code>OnboardingEmpty</code></Text>
+          <Text variant="body"><strong>Layouts:</strong> <code>AppChrome</code> (titlebar + chrome background), <code>SplitLayout</code> (resizable two-pane)</Text>
+        </div>
+
+        <h3>Implementation Order</h3>
+        <div class="card vstack gap-xs p-m">
+          <Text variant="body" color="secondary">1. Create folder structure + move files → 2. Extract types + composables → 3. Split AgentPanel → 4. Build layouts → 5. Refactor ProjectPage → 6. Build Home components → 7. Build HomePage → 8. Stub Settings → 9. Update router. Steps 1–5 are refactors (no visual change); 6–9 add new screens.</Text>
         </div>
       </section>
 
