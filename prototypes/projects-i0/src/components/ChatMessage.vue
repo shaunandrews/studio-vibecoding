@@ -57,10 +57,10 @@ function copyMessage(content: string) {
 }
 
 .chat-message--user {
-  margin-inline-start: auto;
+  /* no bubble, plain text */
 }
 
-.chat-message--user .chat-message-content {
+.chat-message--agent .chat-message-content {
   background: var(--color-surface-secondary);
   border-radius: var(--radius-m);
   padding: var(--space-xs) var(--space-s);

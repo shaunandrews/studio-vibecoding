@@ -41,8 +41,8 @@ const activeTab = ref('assistant')
         <Button variant="tertiary" :icon="plus" size="small" />
       </template>
     </PanelToolbar>
-    <div class="messages flex-1 overflow-auto p-s">
-      <div class="messages-inner vstack gap-m">
+    <div class="messages flex-1 overflow-auto p-l">
+      <div class="messages-inner vstack gap-s">
         <ChatMessage
           role="agent"
           agent-name="Site Assistant"
@@ -59,7 +59,7 @@ const activeTab = ref('assistant')
         />
       </div>
     </div>
-    <div class="p-xs">
+    <div class="px-l pb-l">
       <InputChat />
     </div>
   </div>
