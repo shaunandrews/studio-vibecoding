@@ -1,121 +1,156 @@
 <script setup lang="ts">
 import Text from '../components/Text.vue'
+
+const dsNav = [
+  { id: 'typography', label: 'Typography' },
+  { id: 'space', label: 'Space' },
+  { id: 'border-radius', label: 'Border Radius' },
+  { id: 'chrome', label: 'Chrome' },
+  { id: 'traffic-lights', label: 'Traffic Lights' },
+  { id: 'status', label: 'Status' },
+  { id: 'surface', label: 'Surface' },
+  { id: 'text-colors', label: 'Text Colors' },
+  { id: 'interactive', label: 'Interactive' },
+  { id: 'layout-utilities', label: 'Layout Utilities' },
+]
 </script>
 
 <template>
-  <div class="ds">
-    <h1>Design System</h1>
+  <div class="ds-layout hstack">
+    <nav class="ds-nav">
+      <h2 class="nav-heading">Design System</h2>
+      <ul class="vstack gap-xxxs">
+        <li v-for="item in dsNav" :key="item.id">
+          <a :href="'#' + item.id" class="nav-link">{{ item.label }}</a>
+        </li>
+      </ul>
+    </nav>
+    <div class="ds flex-1 min-w-0">
 
-    <section>
+    <!-- Typography -->
+    <section id="typography">
       <h2>Typography</h2>
       <p class="section-desc">Typography tokens in <code>styles/typography.css</code>. All font values flow through tokens — no raw px in component styles.</p>
 
-      <h3>Font Stacks</h3>
-      <div class="utility-grid mt-xs">
-        <div class="utility-item">
-          <code>--font-family</code>
-          <Text variant="caption" color="secondary">-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif</Text>
-        </div>
-        <div class="utility-item">
-          <code>--font-family-mono</code>
-          <Text variant="caption" color="secondary" style="font-family: var(--font-family-mono)">'SF Mono', 'Fira Code', monospace</Text>
-        </div>
-      </div>
-
-      <h3>Font Sizes</h3>
-      <div class="type-scale vstack gap-xxs mt-xs">
-        <div class="type-scale-item hstack gap-m" v-for="t in [
-          { token: '--font-size-xs', val: '11px', use: 'Labels, shortcut hints' },
-          { token: '--font-size-s', val: '12px', use: 'Captions, small controls' },
-          { token: '--font-size-m', val: '13px', use: 'Default UI text, buttons' },
-          { token: '--font-size-l', val: '14px', use: 'Body text, inputs' },
-          { token: '--font-size-xl', val: '16px', use: 'Body-large, chat messages' },
-        ]" :key="t.token">
-          <code class="type-scale-token">{{ t.token }}</code>
-          <span class="type-scale-sample" :style="{ fontSize: `var(${t.token})` }">The quick brown fox</span>
-          <span class="type-scale-val">{{ t.val }}</span>
-          <Text variant="caption" color="muted">{{ t.use }}</Text>
-        </div>
-      </div>
-
-      <h3>Font Weights</h3>
-      <div class="hstack gap-l mt-xs">
-        <div class="vstack gap-xxxs">
-          <Text weight="regular">Regular</Text>
-          <Text variant="caption" color="muted">--font-weight-regular (400)</Text>
-        </div>
-        <div class="vstack gap-xxxs">
-          <Text weight="medium">Medium</Text>
-          <Text variant="caption" color="muted">--font-weight-medium (500)</Text>
-        </div>
-        <div class="vstack gap-xxxs">
-          <Text weight="semibold">Semibold</Text>
-          <Text variant="caption" color="muted">--font-weight-semibold (600)</Text>
-        </div>
-      </div>
-
-      <h3>Line Heights</h3>
-      <div class="utility-grid mt-xs">
-        <div class="utility-item">
-          <code>--line-height-tight</code>
-          <Text variant="caption" color="secondary">1.2 — labels, single-line</Text>
-        </div>
-        <div class="utility-item">
-          <code>--line-height-normal</code>
-          <Text variant="caption" color="secondary">1.4 — body text, multi-line</Text>
-        </div>
-      </div>
-
-      <h3>Text Component Variants</h3>
-      <div class="type-samples vstack gap-m mt-xs">
-        <div class="type-sample hstack gap-m">
-          <div class="type-meta">
-            <code>body</code>
-            <span class="type-spec">--font-size-l / regular</span>
+      <div class="subsection">
+        <h3>Font Stacks</h3>
+        <div class="utility-grid mt-xs">
+          <div class="utility-item">
+            <code>--font-family</code>
+            <Text variant="caption" color="secondary">-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif</Text>
           </div>
-          <Text variant="body">The quick brown fox jumps over the lazy dog</Text>
-        </div>
-        <div class="type-sample hstack gap-m">
-          <div class="type-meta">
-            <code>body-large</code>
-            <span class="type-spec">--font-size-xl / regular</span>
+          <div class="utility-item">
+            <code>--font-family-mono</code>
+            <Text variant="caption" color="secondary" style="font-family: var(--font-family-mono)">'SF Mono', 'Fira Code', monospace</Text>
           </div>
-          <Text variant="body-large">The quick brown fox jumps over the lazy dog</Text>
-        </div>
-        <div class="type-sample hstack gap-m">
-          <div class="type-meta">
-            <code>caption</code>
-            <span class="type-spec">--font-size-s / regular</span>
-          </div>
-          <Text variant="caption" color="secondary">The quick brown fox jumps over the lazy dog</Text>
-        </div>
-        <div class="type-sample hstack gap-m">
-          <div class="type-meta">
-            <code>label</code>
-            <span class="type-spec">--font-size-xs / semibold / uppercase</span>
-          </div>
-          <Text variant="label" color="muted">The quick brown fox jumps over the lazy dog</Text>
         </div>
       </div>
 
-      <h3>Text Colors</h3>
-      <div class="hstack gap-l mt-xs">
-        <div class="vstack align-center gap-xxxs">
-          <Text color="default">Default</Text>
-          <Text variant="caption" color="muted">--color-text</Text>
+      <div class="subsection">
+        <h3>Font Sizes</h3>
+        <div class="type-scale vstack gap-xxs mt-xs">
+          <div class="type-scale-item hstack gap-m" v-for="t in [
+            { token: '--font-size-xs', val: '11px', use: 'Labels, shortcut hints' },
+            { token: '--font-size-s', val: '12px', use: 'Captions, small controls' },
+            { token: '--font-size-m', val: '13px', use: 'Default UI text, buttons' },
+            { token: '--font-size-l', val: '14px', use: 'Body text, inputs' },
+            { token: '--font-size-xl', val: '16px', use: 'Body-large, chat messages' },
+          ]" :key="t.token">
+            <code class="type-scale-token">{{ t.token }}</code>
+            <span class="type-scale-sample" :style="{ fontSize: `var(${t.token})` }">The quick brown fox</span>
+            <span class="type-scale-val">{{ t.val }}</span>
+            <Text variant="caption" color="muted">{{ t.use }}</Text>
+          </div>
         </div>
-        <div class="vstack align-center gap-xxxs">
-          <Text color="secondary">Secondary</Text>
-          <Text variant="caption" color="muted">--color-text-secondary</Text>
+      </div>
+
+      <div class="subsection">
+        <h3>Font Weights</h3>
+        <div class="hstack gap-l mt-xs">
+          <div class="vstack gap-xxxs">
+            <Text weight="regular">Regular</Text>
+            <Text variant="caption" color="muted">--font-weight-regular (400)</Text>
+          </div>
+          <div class="vstack gap-xxxs">
+            <Text weight="medium">Medium</Text>
+            <Text variant="caption" color="muted">--font-weight-medium (500)</Text>
+          </div>
+          <div class="vstack gap-xxxs">
+            <Text weight="semibold">Semibold</Text>
+            <Text variant="caption" color="muted">--font-weight-semibold (600)</Text>
+          </div>
         </div>
-        <div class="vstack align-center gap-xxxs">
-          <Text color="muted">Muted</Text>
-          <Text variant="caption" color="muted">--color-text-muted</Text>
+      </div>
+
+      <div class="subsection">
+        <h3>Line Heights</h3>
+        <div class="utility-grid mt-xs">
+          <div class="utility-item">
+            <code>--line-height-tight</code>
+            <Text variant="caption" color="secondary">1.2 — labels, single-line</Text>
+          </div>
+          <div class="utility-item">
+            <code>--line-height-normal</code>
+            <Text variant="caption" color="secondary">1.4 — body text, multi-line</Text>
+          </div>
+        </div>
+      </div>
+
+      <div class="subsection">
+        <h3>Text Component Variants</h3>
+        <div class="type-samples vstack gap-m mt-xs">
+          <div class="type-sample hstack gap-m">
+            <div class="type-meta">
+              <code>body</code>
+              <span class="type-spec">--font-size-l / regular</span>
+            </div>
+            <Text variant="body">The quick brown fox jumps over the lazy dog</Text>
+          </div>
+          <div class="type-sample hstack gap-m">
+            <div class="type-meta">
+              <code>body-large</code>
+              <span class="type-spec">--font-size-xl / regular</span>
+            </div>
+            <Text variant="body-large">The quick brown fox jumps over the lazy dog</Text>
+          </div>
+          <div class="type-sample hstack gap-m">
+            <div class="type-meta">
+              <code>caption</code>
+              <span class="type-spec">--font-size-s / regular</span>
+            </div>
+            <Text variant="caption" color="secondary">The quick brown fox jumps over the lazy dog</Text>
+          </div>
+          <div class="type-sample hstack gap-m">
+            <div class="type-meta">
+              <code>label</code>
+              <span class="type-spec">--font-size-xs / semibold / uppercase</span>
+            </div>
+            <Text variant="label" color="muted">The quick brown fox jumps over the lazy dog</Text>
+          </div>
+        </div>
+      </div>
+
+      <div class="subsection">
+        <h3>Text Colors</h3>
+        <div class="hstack gap-l mt-xs">
+          <div class="vstack align-center gap-xxxs">
+            <Text color="default">Default</Text>
+            <Text variant="caption" color="muted">--color-text</Text>
+          </div>
+          <div class="vstack align-center gap-xxxs">
+            <Text color="secondary">Secondary</Text>
+            <Text variant="caption" color="muted">--color-text-secondary</Text>
+          </div>
+          <div class="vstack align-center gap-xxxs">
+            <Text color="muted">Muted</Text>
+            <Text variant="caption" color="muted">--color-text-muted</Text>
+          </div>
         </div>
       </div>
     </section>
 
-    <section>
+    <!-- Space -->
+    <section id="space">
       <h2>Space</h2>
       <p class="section-desc">5px grid. All spacing must use these tokens. No magic numbers.</p>
       <div class="space-list">
@@ -138,7 +173,8 @@ import Text from '../components/Text.vue'
       </div>
     </section>
 
-    <section>
+    <!-- Border Radius -->
+    <section id="border-radius">
       <h2>Border Radius</h2>
       <p class="section-desc">On the 5px grid. Use for consistent rounding across components.</p>
       <div class="radius-list">
@@ -157,7 +193,8 @@ import Text from '../components/Text.vue'
       </div>
     </section>
 
-    <section>
+    <!-- Chrome -->
+    <section id="chrome">
       <h2>Chrome</h2>
       <p class="section-desc">App frame, sidebar, and titlebar colors.</p>
       <div class="swatches">
@@ -209,7 +246,8 @@ import Text from '../components/Text.vue'
       </div>
     </section>
 
-    <section>
+    <!-- Traffic Lights -->
+    <section id="traffic-lights">
       <h2>Traffic Lights</h2>
       <p class="section-desc">macOS window controls.</p>
       <div class="swatches">
@@ -231,7 +269,8 @@ import Text from '../components/Text.vue'
       </div>
     </section>
 
-    <section>
+    <!-- Status -->
+    <section id="status">
       <h2>Status</h2>
       <p class="section-desc">Site running state indicators.</p>
       <div class="swatches">
@@ -248,7 +287,8 @@ import Text from '../components/Text.vue'
       </div>
     </section>
 
-    <section>
+    <!-- Surface -->
+    <section id="surface">
       <h2>Surface</h2>
       <p class="section-desc">Main content area backgrounds and borders.</p>
       <div class="swatches">
@@ -270,8 +310,9 @@ import Text from '../components/Text.vue'
       </div>
     </section>
 
-    <section>
-      <h2>Text</h2>
+    <!-- Text Colors -->
+    <section id="text-colors">
+      <h2>Text Colors</h2>
       <p class="section-desc">Content typography colors.</p>
       <div class="swatches">
         <div class="swatch">
@@ -292,7 +333,8 @@ import Text from '../components/Text.vue'
       </div>
     </section>
 
-    <section>
+    <!-- Interactive -->
+    <section id="interactive">
       <h2>Interactive</h2>
       <p class="section-desc">Primary actions and links.</p>
       <div class="swatches">
@@ -314,7 +356,8 @@ import Text from '../components/Text.vue'
       </div>
     </section>
 
-    <section>
+    <!-- Layout Utilities -->
+    <section id="layout-utilities">
       <h2>Layout Utilities</h2>
       <p class="section-desc">Global utility classes for flex layout. Use instead of writing <code>display: flex</code> in scoped styles.</p>
 
@@ -403,22 +446,63 @@ import Text from '../components/Text.vue'
         </div>
       </div>
     </section>
+    </div>
   </div>
 </template>
 
 <style scoped>
-.ds {
-  max-width: 960px;
-  margin: 0 auto;
-  padding: var(--space-xxxl) var(--space-xl);
+/* Two-column layout matching Components.vue */
+.ds-layout {
+  min-height: 100vh;
+  scroll-behavior: smooth;
   font-family: var(--font-family);
   color: var(--color-text);
 }
 
-h1 {
-  font-size: 32px; /* Page title — intentional, outside type scale */
-  font-weight: var(--font-weight-regular);
-  margin-block-end: var(--space-xxl);
+.ds-nav {
+  position: sticky;
+  top: 0;
+  align-self: flex-start;
+  width: 200px;
+  padding: var(--space-xxxl) var(--space-m);
+  border-inline-end: 1px solid var(--color-surface-border);
+}
+
+.nav-heading {
+  /* 11px — intentional, matches Components.vue nav heading outside type scale */
+  font-size: 11px;
+  font-weight: var(--font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-secondary);
+  margin: 0 0 var(--space-xs);
+}
+
+.ds-nav ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.nav-link {
+  display: block;
+  padding: var(--space-xxs) var(--space-xs);
+  border-radius: var(--radius-s);
+  font-size: var(--font-size-m);
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  transition: background 120ms ease, color 120ms ease;
+}
+
+.nav-link:hover {
+  background: var(--color-surface-secondary);
+  color: var(--color-text);
+}
+
+/* Main content area */
+.ds {
+  max-width: 960px;
+  padding: var(--space-xxxl) var(--space-xl);
 }
 
 section {
@@ -426,9 +510,19 @@ section {
 }
 
 h2 {
-  font-size: 18px; /* Section heading — intentional, outside type scale */
+  /* 20px — intentional, section heading outside type scale */
+  font-size: 20px;
   font-weight: var(--font-weight-semibold);
   margin-block-end: var(--space-xxxs);
+  padding-block-end: var(--space-xs);
+  border-block-end: 1px solid var(--color-surface-border);
+}
+
+h3 {
+  font-size: var(--font-size-l);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text);
+  margin: var(--space-m) 0 var(--space-xxs);
 }
 
 .section-desc {
@@ -437,6 +531,20 @@ h2 {
   margin-block-end: var(--space-m);
 }
 
+.section-desc code {
+  font-size: var(--font-size-s);
+  background: var(--color-surface-secondary);
+  padding: var(--space-xxxs) var(--space-xxs);
+  border-radius: var(--radius-s);
+  font-family: var(--font-family-mono);
+}
+
+/* Typography subsections — extra breathing room */
+.subsection {
+  margin-block-end: var(--space-xl);
+}
+
+/* Color swatches */
 .swatches {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
@@ -463,6 +571,16 @@ h2 {
   font-size: var(--font-size-m);
   font-weight: var(--font-weight-medium);
   color: var(--color-text);
+}
+
+.swatch-value {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+  font-family: var(--font-family-mono);
+  background: var(--color-surface-secondary);
+  padding: var(--space-xxxs) var(--space-xxs);
+  border-radius: var(--radius-s);
+  width: fit-content;
 }
 
 /* Space */
@@ -633,15 +751,5 @@ h2 {
   border-radius: 50%;
   background: var(--color-primary);
   opacity: 0.4;
-}
-
-.swatch-value {
-  font-size: var(--font-size-xs);
-  color: var(--color-text-secondary);
-  font-family: var(--font-family-mono);
-  background: var(--color-surface-secondary);
-  padding: var(--space-xxxs) var(--space-xxs);
-  border-radius: var(--radius-s);
-  width: fit-content;
 }
 </style>
