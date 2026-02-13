@@ -132,7 +132,7 @@ function handleSend(text: string) {
       </template>
     </PanelToolbar>
 
-    <div class="agent-panel__content vstack flex-1 overflow-hidden" :class="{ centered: !previewVisible }">
+    <div class="agent-panel__content vstack flex-1 overflow-hidden">
       <ChatMessageList :messages="msgs" />
 
       <div class="px-l pb-l shrink-0">
@@ -143,7 +143,7 @@ function handleSend(text: string) {
 </template>
 
 <style scoped>
-.agent-panel__content.centered {
+.agent-panel__content {
   max-width: 768px;
   margin: 0 auto;
   width: 100%;
