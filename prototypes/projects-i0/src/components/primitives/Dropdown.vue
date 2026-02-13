@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, watch, nextTick, onMounted, onUnmounted } from 'vue'
 import { chevronDown } from '@wordpress/icons'
 import WPIcon from '@/components/primitives/WPIcon.vue'
 import Text from '@/components/primitives/Text.vue'
@@ -39,8 +39,12 @@ function currentOption(): DropdownOption | undefined {
   }
 }
 
+const EDGE_PADDING = 8
 const open = ref(false)
 const triggerRef = ref<HTMLElement | null>(null)
+const menuRef = ref<HTMLElement | null>(null)
+const menuStyle = ref<Record<string, string>>({})
+const resolvedPlacement = ref<'above' | 'below'>('below')
 
 function toggle() {
   open.value = !open.value
@@ -51,14 +55,115 @@ function select(value: string) {
   open.value = false
 }
 
+function positionMenu() {
+  const trigger = triggerRef.value
+  const menu = menuRef.value
+  if (!trigger || !menu) return
+
+  const triggerRect = trigger.getBoundingClientRect()
+  const menuRect = menu.getBoundingClientRect()
+  const vw = window.innerWidth
+  const vh = window.innerHeight
+
+  const gap = 4 // matches --space-xxxs roughly
+  const spaceBelow = vh - triggerRect.bottom - gap
+  const spaceAbove = triggerRect.top - gap
+
+  // Vertical: prefer props.placement, flip if not enough room
+  let placeAbove = props.placement === 'above'
+  if (!props.placement) {
+    placeAbove = spaceBelow < menuRect.height && spaceAbove > spaceBelow
+  } else if (placeAbove && spaceAbove < menuRect.height && spaceBelow > spaceAbove) {
+    placeAbove = false
+  } else if (!placeAbove && spaceBelow < menuRect.height && spaceAbove > spaceBelow) {
+    placeAbove = true
+  }
+
+  resolvedPlacement.value = placeAbove ? 'above' : 'below'
+
+  const style: Record<string, string> = {}
+
+  // Vertical position
+  if (placeAbove) {
+    let bottom = triggerRect.height + gap
+    // Constrain: menu top shouldn't go above viewport
+    const menuTop = triggerRect.top - gap - menuRect.height
+    if (menuTop < EDGE_PADDING) {
+      style.maxHeight = `${triggerRect.top - gap - EDGE_PADDING}px`
+      style.overflowY = 'auto'
+      bottom = triggerRect.height + gap
+    }
+    style.bottom = `${bottom}px`
+    style.top = 'auto'
+  } else {
+    let top = triggerRect.height + gap
+    // Constrain: menu bottom shouldn't go below viewport
+    const menuBottom = triggerRect.bottom + gap + menuRect.height
+    if (menuBottom > vh - EDGE_PADDING) {
+      style.maxHeight = `${vh - triggerRect.bottom - gap - EDGE_PADDING}px`
+      style.overflowY = 'auto'
+    }
+    style.top = `${top}px`
+    style.bottom = 'auto'
+  }
+
+  // Horizontal: start aligned left, shift if overflowing right, or flip to right-align
+  let left = 0
+  const menuLeft = triggerRect.left + left
+  const menuRight = menuLeft + menuRect.width
+
+  if (menuRight > vw - EDGE_PADDING) {
+    // Try right-aligning to trigger
+    const rightAlignLeft = triggerRect.width - menuRect.width
+    const absLeft = triggerRect.left + rightAlignLeft
+    if (absLeft >= EDGE_PADDING) {
+      left = rightAlignLeft
+    } else {
+      // Pin to right edge of viewport
+      left = (vw - EDGE_PADDING - menuRect.width) - triggerRect.left
+    }
+  }
+  if (triggerRect.left + left < EDGE_PADDING) {
+    left = EDGE_PADDING - triggerRect.left
+  }
+
+  style.left = `${left}px`
+
+  menuStyle.value = style
+}
+
+watch(open, (val) => {
+  if (val) {
+    nextTick(() => {
+      positionMenu()
+      // Re-measure after maxHeight constraints might change layout
+      nextTick(positionMenu)
+    })
+  } else {
+    menuStyle.value = {}
+  }
+})
+
+function onScrollOrResize() {
+  if (open.value) positionMenu()
+}
+
 function onClickOutside(e: MouseEvent) {
   if (!triggerRef.value?.contains(e.target as Node)) {
     open.value = false
   }
 }
 
-onMounted(() => document.addEventListener('click', onClickOutside))
-onUnmounted(() => document.removeEventListener('click', onClickOutside))
+onMounted(() => {
+  document.addEventListener('click', onClickOutside)
+  window.addEventListener('scroll', onScrollOrResize, true)
+  window.addEventListener('resize', onScrollOrResize)
+})
+onUnmounted(() => {
+  document.removeEventListener('click', onClickOutside)
+  window.removeEventListener('scroll', onScrollOrResize, true)
+  window.removeEventListener('resize', onScrollOrResize)
+})
 </script>
 
 <template>
@@ -71,8 +176,10 @@ onUnmounted(() => document.removeEventListener('click', onClickOutside))
     <Transition name="dropdown">
       <div
         v-if="open"
+        ref="menuRef"
         class="dropdown-menu vstack p-xxxs"
-        :class="placement === 'below' ? 'dropdown-menu--below' : 'dropdown-menu--above'"
+        :class="resolvedPlacement === 'below' ? 'dropdown-menu--below' : 'dropdown-menu--above'"
+        :style="menuStyle"
       >
         <div v-for="group in groups" :key="group.label" class="dropdown-group">
           <Text variant="label" color="muted" class="dropdown-group-label px-xs py-xxxs">{{ group.label }}</Text>
@@ -115,7 +222,6 @@ onUnmounted(() => document.removeEventListener('click', onClickOutside))
 
 .dropdown-menu {
   position: absolute;
-  left: 0;
   background: var(--color-surface);
   border: 1px solid var(--color-surface-border);
   border-radius: var(--radius-m);
@@ -125,11 +231,11 @@ onUnmounted(() => document.removeEventListener('click', onClickOutside))
 }
 
 .dropdown-menu--above {
-  bottom: calc(100% + var(--space-xxxs));
+  /* positioned via inline styles */
 }
 
 .dropdown-menu--below {
-  top: calc(100% + var(--space-xxxs));
+  /* positioned via inline styles */
 }
 
 .dropdown-group + .dropdown-group {
