@@ -4,20 +4,40 @@ import { chevronDown } from '@wordpress/icons'
 import WPIcon from './WPIcon.vue'
 import Text from './Text.vue'
 
+export interface DropdownOption {
+  value: string
+  label: string
+  icon?: any
+}
+
 export interface DropdownGroup {
   label: string
-  options: string[]
+  options: (string | DropdownOption)[]
 }
 
 const props = defineProps<{
   modelValue: string
   groups: DropdownGroup[]
   placement?: 'above' | 'below'
+  triggerIcon?: any
 }>()
 
 const emit = defineEmits<{
   'update:modelValue': [value: string]
 }>()
+
+function normalize(opt: string | DropdownOption): DropdownOption {
+  return typeof opt === 'string' ? { value: opt, label: opt } : opt
+}
+
+function currentOption(): DropdownOption | undefined {
+  for (const g of props.groups) {
+    for (const o of g.options) {
+      const n = normalize(o)
+      if (n.value === props.modelValue) return n
+    }
+  }
+}
 
 const open = ref(false)
 const triggerRef = ref<HTMLElement | null>(null)
@@ -26,8 +46,8 @@ function toggle() {
   open.value = !open.value
 }
 
-function select(option: string) {
-  emit('update:modelValue', option)
+function select(value: string) {
+  emit('update:modelValue', value)
   open.value = false
 }
 
@@ -44,7 +64,8 @@ onUnmounted(() => document.removeEventListener('click', onClickOutside))
 <template>
   <div class="dropdown" ref="triggerRef">
     <button class="dropdown-trigger hstack gap-xxxs px-xxs py-xxxs" @click="toggle">
-      <span class="dropdown-label">{{ modelValue }}</span>
+      <WPIcon v-if="triggerIcon" :icon="currentOption()?.icon || triggerIcon" :size="18" />
+      <span v-else class="dropdown-label">{{ currentOption()?.label || modelValue }}</span>
       <WPIcon :icon="chevronDown" :size="16" />
     </button>
     <Transition name="dropdown">
@@ -57,12 +78,13 @@ onUnmounted(() => document.removeEventListener('click', onClickOutside))
           <Text variant="label" color="muted" class="dropdown-group-label px-xs py-xxxs">{{ group.label }}</Text>
           <button
             v-for="option in group.options"
-            :key="option"
-            class="dropdown-option px-xs py-xxxs"
-            :class="{ active: option === modelValue }"
-            @click="select(option)"
+            :key="normalize(option).value"
+            class="dropdown-option hstack gap-xxs px-xs py-xxxs"
+            :class="{ active: normalize(option).value === modelValue }"
+            @click="select(normalize(option).value)"
           >
-            {{ option }}
+            <WPIcon v-if="normalize(option).icon" :icon="normalize(option).icon" :size="18" />
+            <span>{{ normalize(option).label }}</span>
           </button>
         </div>
       </div>

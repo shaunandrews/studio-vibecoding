@@ -2,12 +2,24 @@
 import { ref } from 'vue'
 import { chevronLeft, chevronRight, rotateRight, desktop, tablet, mobile } from '@wordpress/icons'
 import Button from './Button.vue'
+import Dropdown from './Dropdown.vue'
 import Text from './Text.vue'
 
 const url = ref('https://downstreet-cafe.local')
-const viewport = ref<'desktop' | 'tablet' | 'mobile'>('desktop')
+const viewport = ref('desktop')
 
-const viewportWidths = {
+const viewportGroups = [
+  {
+    label: 'Viewport',
+    options: [
+      { value: 'desktop', label: 'Desktop', icon: desktop },
+      { value: 'tablet', label: 'Tablet', icon: tablet },
+      { value: 'mobile', label: 'Mobile', icon: mobile },
+    ],
+  },
+]
+
+const viewportWidths: Record<string, string> = {
   desktop: '100%',
   tablet: '768px',
   mobile: '375px',
@@ -16,7 +28,7 @@ const viewportWidths = {
 
 <template>
   <div class="site-preview vstack flex-1">
-    <div class="preview-toolbar hstack gap-xxs px-xs py-xxxs">
+    <div class="preview-toolbar hstack gap-xs px-s py-xxs">
       <div class="preview-nav hstack gap-xxxs">
         <Button variant="tertiary" :icon="chevronLeft" size="small" />
         <Button variant="tertiary" :icon="chevronRight" size="small" />
@@ -25,29 +37,12 @@ const viewportWidths = {
       <div class="preview-url-bar hstack flex-1 px-xs py-xxxs">
         <Text variant="caption" color="muted" class="flex-1">{{ url }}</Text>
       </div>
-      <div class="preview-viewport hstack gap-xxxs">
-        <Button
-          variant="tertiary"
-          :icon="desktop"
-          size="small"
-          :class="{ 'viewport-active': viewport === 'desktop' }"
-          @click="viewport = 'desktop'"
-        />
-        <Button
-          variant="tertiary"
-          :icon="tablet"
-          size="small"
-          :class="{ 'viewport-active': viewport === 'tablet' }"
-          @click="viewport = 'tablet'"
-        />
-        <Button
-          variant="tertiary"
-          :icon="mobile"
-          size="small"
-          :class="{ 'viewport-active': viewport === 'mobile' }"
-          @click="viewport = 'mobile'"
-        />
-      </div>
+      <Dropdown
+        v-model="viewport"
+        :groups="viewportGroups"
+        :trigger-icon="desktop"
+        placement="below"
+      />
     </div>
     <div class="preview-frame flex-1 overflow-auto">
       <div
@@ -92,8 +87,4 @@ const viewportWidths = {
   gap: var(--space-xxxs);
 }
 
-/* Active viewport button */
-:deep(.viewport-active) {
-  color: var(--color-primary) !important;
-}
 </style>
