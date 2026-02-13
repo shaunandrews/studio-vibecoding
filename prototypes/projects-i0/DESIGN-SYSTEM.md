@@ -168,6 +168,19 @@ Use `tag` prop to control the rendered element: `<Text variant="label" tag="h2">
 
 ## Components
 
+### AgentPanel
+- **Structure:** PanelToolbar with scrolling tabs + ChatMessage list + InputChat
+- Tabs represent different agent chats (Site Assistant, Code Agent, Design Agent)
+- Messages area is max-width constrained and auto-scrolls
+- InputChat wrapped in `p-xs` for breathing room
+
+### ChatMessage
+- **Props:** `role` (user/agent), `content` (string), `agentName` (string, optional)
+- Agent messages: left-aligned, show agent name label above, thumbs up/down + copy actions on hover
+- User messages: right-aligned with `surface-secondary` background bubble, copy action on hover
+- Actions are invisible until hover (opacity transition)
+- Uses `body-large` Text for message content
+
 ### Button
 - **Props:** `variant` (primary/secondary/tertiary), `surface` (light/dark), `size` (default/small), `width` (hug/full), `icon`, `label`, `shortcut`
 - `shortcut` — e.g. `"mod+enter"` — registers global keydown listener and displays formatted badge (⌘↵ on Mac, Ctrl↵ on Windows). Supports `mod`, `shift`, `alt` modifiers.

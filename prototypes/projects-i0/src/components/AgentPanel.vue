@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { plus } from '@wordpress/icons'
 import Button from './Button.vue'
+import ChatMessage from './ChatMessage.vue'
 import PanelToolbar from './PanelToolbar.vue'
 import InputChat from './InputChat.vue'
 import Text from './Text.vue'
@@ -41,11 +42,26 @@ const activeTab = ref('assistant')
       </template>
     </PanelToolbar>
     <div class="messages flex-1 overflow-auto p-s">
-      <div class="messages-inner">
-        <Text variant="body-large">Hello! I'm your site assistant. How can I help you today?</Text>
+      <div class="messages-inner vstack gap-m">
+        <ChatMessage
+          role="agent"
+          agent-name="Site Assistant"
+          content="Hello! I'm your site assistant. I can help you build, customize, and manage your WordPress site. What would you like to work on?"
+        />
+        <ChatMessage
+          role="user"
+          content="I want to change the hero section on my homepage to have a gradient background and bigger text."
+        />
+        <ChatMessage
+          role="agent"
+          agent-name="Site Assistant"
+          content="I'll update your hero section with a gradient background and increase the heading size. Let me make those changes to your theme now."
+        />
       </div>
     </div>
-    <InputChat />
+    <div class="p-xs">
+      <InputChat />
+    </div>
   </div>
 </template>
 
@@ -78,7 +94,7 @@ const activeTab = ref('assistant')
 }
 
 .messages-inner {
-  max-width: 640px;
+  max-width: 720px;
   width: 100%;
   margin: 0 auto;
 }

@@ -7,11 +7,13 @@ import Text from '../components/Text.vue'
 import Titlebar from '../components/Titlebar.vue'
 import ProjectListItem from '../components/ProjectListItem.vue'
 import InputChat from '../components/InputChat.vue'
+import ChatMessage from '../components/ChatMessage.vue'
 import Dropdown from '../components/Dropdown.vue'
 import { cog, plus, upload, external, trash, pencil, chevronDown } from '@wordpress/icons'
 
 const componentNav = [
   { id: 'button', label: 'Button' },
+  { id: 'chat-message', label: 'ChatMessage' },
   { id: 'dropdown', label: 'Dropdown' },
   { id: 'input-chat', label: 'InputChat' },
   { id: 'project-list-item', label: 'ProjectListItem' },
@@ -144,6 +146,36 @@ const icons = Object.entries(wpIcons)
           <Button variant="tertiary" surface="dark" label="Small" size="small" :icon="trash" />
           <Button variant="tertiary" surface="dark" :icon="chevronDown" size="small" />
         </div>
+      </div>
+    </section>
+
+    <!-- ChatMessage -->
+    <section id="chat-message">
+      <h2>ChatMessage</h2>
+      <p class="section-desc">A single chat message with role-based styling, copy action, and agent feedback (thumbs up/down).</p>
+
+      <div class="props-table">
+        <h3>Props</h3>
+        <table>
+          <thead>
+            <tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>role</code></td><td><code>'user' | 'agent'</code></td><td>—</td><td>Message sender</td></tr>
+            <tr><td><code>content</code></td><td><code>string</code></td><td>—</td><td>Message text</td></tr>
+            <tr><td><code>agentName</code></td><td><code>string</code></td><td>—</td><td>Agent label shown above agent messages</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Agent message</h3>
+      <div class="example-section" style="max-width: 640px;">
+        <ChatMessage role="agent" agent-name="Site Assistant" content="I'll update your hero section with a gradient background and increase the heading size." />
+      </div>
+
+      <h3>User message</h3>
+      <div class="example-section" style="max-width: 640px;">
+        <ChatMessage role="user" content="I want to change the hero section on my homepage." />
       </div>
     </section>
 
