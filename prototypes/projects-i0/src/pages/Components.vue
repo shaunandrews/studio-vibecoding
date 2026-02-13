@@ -309,8 +309,8 @@ const icons = Object.entries(wpIcons)
           <div class="vstack gap-xxxs">
             <Text variant="label" color="muted">Label — 11px / 600 / uppercase</Text>
             <Text variant="caption" color="secondary">Caption — 12px</Text>
-            <Text variant="body">Body — 13px (default)</Text>
-            <Text variant="body-large">Body Large — 14px</Text>
+            <Text variant="body">Body — 14px (default)</Text>
+            <Text variant="body-large">Body Large — 16px</Text>
           </div>
         </div>
       </div>

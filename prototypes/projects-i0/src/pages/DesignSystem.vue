@@ -14,14 +14,14 @@ import Text from '../components/Text.vue'
         <div class="type-sample hstack gap-m">
           <div class="type-meta">
             <code>body</code>
-            <span class="type-spec">13px / 400</span>
+            <span class="type-spec">14px / 400</span>
           </div>
           <Text variant="body">The quick brown fox jumps over the lazy dog</Text>
         </div>
         <div class="type-sample hstack gap-m">
           <div class="type-meta">
             <code>body-large</code>
-            <span class="type-spec">14px / 400</span>
+            <span class="type-spec">16px / 400</span>
           </div>
           <Text variant="body-large">The quick brown fox jumps over the lazy dog</Text>
         </div>

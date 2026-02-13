@@ -26,12 +26,12 @@ defineProps<{
 
 /* Variants */
 .text--body {
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.4;
 }
 
 .text--body-large {
-  font-size: 14px;
+  font-size: 16px;
   line-height: 1.4;
 }
 

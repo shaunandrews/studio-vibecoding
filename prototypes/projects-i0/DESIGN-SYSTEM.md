@@ -147,8 +147,8 @@ Use the `<Text>` component for all text. No raw `font-size` or `font-weight` in 
 
 | Variant | Size | Weight | Extras | Use for |
 |---------|------|--------|--------|---------|
-| `body` | 13px | 400 | — | Default UI text, descriptions |
-| `body-large` | 14px | 400 | line-height 1.4 | Input text, longer content |
+| `body` | 14px | 400 | — | Default UI text, descriptions |
+| `body-large` | 16px | 400 | line-height 1.4 | Input text, longer content |
 | `caption` | 12px | 400 | — | Secondary info, small labels |
 | `label` | 11px | 600 | uppercase, letter-spacing 0.05em | Section headings, group labels |
 
