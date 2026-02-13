@@ -1,18 +1,62 @@
 <script setup lang="ts">
+import { onMounted, onUnmounted, ref } from 'vue'
 import WPIcon from './WPIcon.vue'
 
-defineProps<{
+const props = defineProps<{
   icon?: any
   label?: string
   variant?: 'primary' | 'secondary' | 'tertiary'
   surface?: 'light' | 'dark'
   size?: 'small' | 'default'
   width?: 'hug' | 'full'
+  shortcut?: string
 }>()
+
+const emit = defineEmits<{
+  click: [e: MouseEvent | KeyboardEvent]
+}>()
+
+const btnRef = ref<HTMLButtonElement | null>(null)
+
+function formatShortcut(shortcut: string): string {
+  const isMac = navigator.platform.includes('Mac')
+  return shortcut
+    .replace('mod', isMac ? '⌘' : 'Ctrl')
+    .replace('shift', isMac ? '⇧' : 'Shift')
+    .replace('alt', isMac ? '⌥' : 'Alt')
+    .replace('enter', '↵')
+    .replace(/\+/g, '')
+}
+
+function onKeydown(e: KeyboardEvent) {
+  if (!props.shortcut) return
+  const parts = props.shortcut.toLowerCase().split('+')
+  const needsMod = parts.includes('mod')
+  const needsShift = parts.includes('shift')
+  const needsAlt = parts.includes('alt')
+  const key = parts.filter(p => !['mod', 'shift', 'alt'].includes(p))[0]
+
+  const modPressed = e.metaKey || e.ctrlKey
+  if (needsMod && !modPressed) return
+  if (needsShift && !e.shiftKey) return
+  if (needsAlt && !e.altKey) return
+  if (e.key.toLowerCase() !== key) return
+
+  e.preventDefault()
+  btnRef.value?.click()
+}
+
+onMounted(() => {
+  if (props.shortcut) document.addEventListener('keydown', onKeydown)
+})
+onUnmounted(() => {
+  if (props.shortcut) document.removeEventListener('keydown', onKeydown)
+})
 </script>
 
 <template>
   <button
+    ref="btnRef"
     class="btn"
     :class="[
       `btn--${variant || 'secondary'}`,
@@ -24,7 +68,8 @@ defineProps<{
   >
     <WPIcon v-if="icon" :icon="icon" :size="size === 'small' ? 18 : 18" />
     <span v-if="label" class="btn__label">{{ label }}</span>
-    <slot v-if="!icon && !label" />
+    <span v-if="shortcut" class="btn__shortcut">{{ formatShortcut(shortcut) }}</span>
+    <slot v-if="!icon && !label && !shortcut" />
   </button>
 </template>
 
@@ -71,6 +116,12 @@ defineProps<{
 .btn--icon-only.btn--small {
   width: 25px; /* matches height */
   padding: 0;
+}
+
+.btn__shortcut {
+  font-size: 11px;
+  opacity: 0.5;
+  margin-inline-start: var(--space-xxs);
 }
 
 /* Width */

@@ -24,12 +24,7 @@ function send() {
   message.value = ''
 }
 
-function onKeydown(e: KeyboardEvent) {
-  if (e.key === 'Enter' && !e.shiftKey) {
-    e.preventDefault()
-    send()
-  }
-}
+// Cmd+Enter handled via Button shortcut prop
 
 function focusInput(e: MouseEvent) {
   // Don't steal focus from buttons inside the component
@@ -47,14 +42,15 @@ function focusInput(e: MouseEvent) {
       class="input-textarea flex-1 px-xxs py-xxxs"
       placeholder="Ask anything..."
       rows="1"
-      @keydown="onKeydown"
     />
     <div class="input-toolbar hstack justify-between pt-xxs">
       <Dropdown v-model="selectedModel" :groups="models" placement="above" />
       <Button
         variant="primary"
         :icon="sendIcon"
+        label="Send"
         size="small"
+        shortcut="mod+enter"
         @click="send"
       />
     </div>
