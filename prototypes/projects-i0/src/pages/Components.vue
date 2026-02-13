@@ -4,10 +4,12 @@ import WPIcon from '../components/WPIcon.vue'
 import Button from '../components/Button.vue'
 import StatusIndicator from '../components/StatusIndicator.vue'
 import Titlebar from '../components/Titlebar.vue'
+import ProjectListItem from '../components/ProjectListItem.vue'
 import { cog, plus, upload, external, trash, pencil, chevronDown } from '@wordpress/icons'
 
 const componentNav = [
   { id: 'button', label: 'Button' },
+  { id: 'project-list-item', label: 'ProjectListItem' },
   { id: 'status-indicator', label: 'StatusIndicator' },
   { id: 'titlebar', label: 'Titlebar' },
   { id: 'wpicon', label: 'WPIcon' },
@@ -52,52 +54,6 @@ const icons = Object.entries(wpIcons)
           </tbody>
         </table>
       </div>
-
-    <!-- StatusIndicator -->
-    <section id="status-indicator">
-      <h2>StatusIndicator</h2>
-      <p class="section-desc">Shows site state with animated hover transitions. Click to toggle start/stop.</p>
-
-      <div class="props-table">
-        <h3>Props</h3>
-        <table>
-          <thead>
-            <tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr>
-          </thead>
-          <tbody>
-            <tr><td><code>status</code></td><td><code>'stopped' | 'loading' | 'running'</code></td><td>—</td><td>Current site state</td></tr>
-          </tbody>
-        </table>
-        <h3>Events</h3>
-        <table>
-          <thead>
-            <tr><th>Event</th><th>Description</th></tr>
-          </thead>
-          <tbody>
-            <tr><td><code>toggle</code></td><td>Emitted on click (start/stop)</td></tr>
-          </tbody>
-        </table>
-      </div>
-
-      <h3>States</h3>
-      <div class="example-section example-section--dark" style="padding: 24px 32px;">
-        <div class="status-demo-row">
-          <div class="status-demo-item">
-            <StatusIndicator status="stopped" />
-            <span class="status-demo-label">Stopped</span>
-          </div>
-          <div class="status-demo-item">
-            <StatusIndicator status="loading" />
-            <span class="status-demo-label">Loading</span>
-          </div>
-          <div class="status-demo-item">
-            <StatusIndicator status="running" />
-            <span class="status-demo-label">Running</span>
-          </div>
-        </div>
-        <p class="status-demo-hint">Hover stopped or running to see the transition.</p>
-      </div>
-    </section>
 
       <!-- Width -->
       <div class="example-section">
@@ -182,6 +138,90 @@ const icons = Object.entries(wpIcons)
           <Button variant="tertiary" surface="dark" label="Small" size="small" :icon="trash" />
           <Button variant="tertiary" surface="dark" :icon="chevronDown" size="small" />
         </div>
+      </div>
+    </section>
+
+    <!-- ProjectListItem -->
+    <section id="project-list-item">
+      <h2>ProjectListItem</h2>
+      <p class="section-desc">A single project row for the sidebar. Favicon, name, and status indicator with select/toggle events.</p>
+
+      <div class="props-table">
+        <h3>Props</h3>
+        <table>
+          <thead>
+            <tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>name</code></td><td><code>string</code></td><td>—</td><td>Project name</td></tr>
+            <tr><td><code>favicon</code></td><td><code>string</code></td><td>—</td><td>URL for the project icon</td></tr>
+            <tr><td><code>status</code></td><td><code>'stopped' | 'loading' | 'running'</code></td><td>—</td><td>Current project state</td></tr>
+            <tr><td><code>active</code></td><td><code>boolean</code></td><td><code>false</code></td><td>Whether this project is currently selected</td></tr>
+          </tbody>
+        </table>
+        <h3>Events</h3>
+        <table>
+          <thead>
+            <tr><th>Event</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>select</code></td><td>Emitted when the row is clicked</td></tr>
+            <tr><td><code>toggle</code></td><td>Emitted when the status indicator is toggled</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Preview (dark surface)</h3>
+      <div class="example-section example-section--dark" style="max-width: 240px;">
+        <ProjectListItem name="Downstreet Cafe" favicon="https://api.dicebear.com/9.x/shapes/svg?seed=cafe" status="running" />
+        <ProjectListItem name="Shaun's Blog" favicon="https://api.dicebear.com/9.x/shapes/svg?seed=blog" status="running" :active="true" />
+        <ProjectListItem name="UI Portfolio" favicon="https://api.dicebear.com/9.x/shapes/svg?seed=portfolio" status="stopped" />
+      </div>
+    </section>
+
+    <!-- StatusIndicator -->
+    <section id="status-indicator">
+      <h2>StatusIndicator</h2>
+      <p class="section-desc">Shows site state with animated hover transitions. Click to toggle start/stop.</p>
+
+      <div class="props-table">
+        <h3>Props</h3>
+        <table>
+          <thead>
+            <tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>status</code></td><td><code>'stopped' | 'loading' | 'running'</code></td><td>—</td><td>Current site state</td></tr>
+          </tbody>
+        </table>
+        <h3>Events</h3>
+        <table>
+          <thead>
+            <tr><th>Event</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>toggle</code></td><td>Emitted on click (start/stop)</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>States</h3>
+      <div class="example-section example-section--dark" style="padding: 24px 32px;">
+        <div class="status-demo-row">
+          <div class="status-demo-item">
+            <StatusIndicator status="stopped" />
+            <span class="status-demo-label">Stopped</span>
+          </div>
+          <div class="status-demo-item">
+            <StatusIndicator status="loading" />
+            <span class="status-demo-label">Loading</span>
+          </div>
+          <div class="status-demo-item">
+            <StatusIndicator status="running" />
+            <span class="status-demo-label">Running</span>
+          </div>
+        </div>
+        <p class="status-demo-hint">Hover stopped or running to see the transition.</p>
       </div>
     </section>
 
