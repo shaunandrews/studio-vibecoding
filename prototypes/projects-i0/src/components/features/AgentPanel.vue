@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, reactive, watch, nextTick } from 'vue'
-import { sidebar } from '@wordpress/icons'
+import { drawerRight } from '@wordpress/icons'
 import Button from '@/components/primitives/Button.vue'
 import PanelToolbar from '@/components/composites/PanelToolbar.vue'
 import TabBar from '@/components/composites/TabBar.vue'
@@ -127,7 +127,7 @@ function handleSend(text: string) {
         <TabBar :tabs="openTabs" :active-id="activeConvoId" @update:active-id="setActiveTab" @add="handleAddTab" @close="handleCloseTab" />
       </template>
       <template #end>
-        <Button variant="tertiary" :icon="sidebar"
+        <Button variant="tertiary" :icon="drawerRight"
           :active="previewVisible" @click="$emit('toggle-preview')" />
       </template>
     </PanelToolbar>
