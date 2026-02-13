@@ -7,7 +7,9 @@ import SitePreview from '@/components/features/SitePreview.vue'
 import { useProjects } from '@/data/useProjects'
 
 const route = useRoute()
-const showPreview = ref(true)
+const showPreview = ref(localStorage.getItem('showPreview') !== 'false')
+
+watch(showPreview, (v) => localStorage.setItem('showPreview', String(v)))
 const { activeProjectId } = useProjects()
 
 watch(() => route.params.id as string, (newId) => {
