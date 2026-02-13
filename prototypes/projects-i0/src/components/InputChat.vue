@@ -2,18 +2,25 @@
 import { ref } from 'vue'
 import { arrowUp } from '@wordpress/icons'
 import Button from './Button.vue'
+import Dropdown from './Dropdown.vue'
 
 const message = ref('')
+const selectedModel = ref('Sonnet 4.5')
 const textareaRef = ref<HTMLTextAreaElement | null>(null)
 
+const models = [
+  { label: 'Anthropic', options: ['Opus 4.6', 'Sonnet 4.5', 'Haiku 4.5'] },
+  { label: 'OpenAI', options: ['GPT-4.5', 'GPT-4', 'GPT-3.5'] },
+]
+
 const emit = defineEmits<{
-  send: [message: string]
+  send: [message: string, model: string]
 }>()
 
 function send() {
   const text = message.value.trim()
   if (!text) return
-  emit('send', text)
+  emit('send', text, selectedModel.value)
   message.value = ''
 }
 
@@ -43,9 +50,7 @@ function focusInput(e: MouseEvent) {
       @keydown="onKeydown"
     />
     <div class="input-toolbar hstack justify-between">
-      <button class="model-selector">
-        Sonnet 4.5
-      </button>
+      <Dropdown v-model="selectedModel" :groups="models" placement="above" />
       <Button
         variant="primary"
         :icon="arrowUp"
@@ -100,20 +105,4 @@ function focusInput(e: MouseEvent) {
   padding-block-start: var(--space-xxs);
 }
 
-.model-selector {
-  background: none;
-  border: none;
-  font-family: inherit;
-  font-size: 12px;
-  color: var(--color-text-muted);
-  padding: var(--space-xxxs) var(--space-xxs);
-  border-radius: var(--radius-s);
-  cursor: pointer;
-  transition: background 120ms ease, color 120ms ease;
-}
-
-.model-selector:hover {
-  background: var(--color-surface);
-  color: var(--color-text-secondary);
-}
 </style>

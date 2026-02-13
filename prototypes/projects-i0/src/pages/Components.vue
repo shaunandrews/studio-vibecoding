@@ -6,10 +6,12 @@ import StatusIndicator from '../components/StatusIndicator.vue'
 import Titlebar from '../components/Titlebar.vue'
 import ProjectListItem from '../components/ProjectListItem.vue'
 import InputChat from '../components/InputChat.vue'
+import Dropdown from '../components/Dropdown.vue'
 import { cog, plus, upload, external, trash, pencil, chevronDown } from '@wordpress/icons'
 
 const componentNav = [
   { id: 'button', label: 'Button' },
+  { id: 'dropdown', label: 'Dropdown' },
   { id: 'input-chat', label: 'InputChat' },
   { id: 'project-list-item', label: 'ProjectListItem' },
   { id: 'status-indicator', label: 'StatusIndicator' },
@@ -140,6 +142,35 @@ const icons = Object.entries(wpIcons)
           <Button variant="tertiary" surface="dark" label="Small" size="small" :icon="trash" />
           <Button variant="tertiary" surface="dark" :icon="chevronDown" size="small" />
         </div>
+      </div>
+    </section>
+
+    <!-- Dropdown -->
+    <section id="dropdown">
+      <h2>Dropdown</h2>
+      <p class="section-desc">Grouped option picker with click-outside dismiss, animated open/close, and above/below placement.</p>
+
+      <div class="props-table">
+        <h3>Props</h3>
+        <table>
+          <thead>
+            <tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>modelValue</code></td><td><code>string</code></td><td>—</td><td>Currently selected value (v-model)</td></tr>
+            <tr><td><code>groups</code></td><td><code>{ label, options[] }[]</code></td><td>—</td><td>Grouped options</td></tr>
+            <tr><td><code>placement</code></td><td><code>'above' | 'below'</code></td><td><code>'above'</code></td><td>Menu direction</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Preview</h3>
+      <div class="example-section" style="padding-top: 200px;">
+        <Dropdown
+          model-value="Sonnet 4.5"
+          :groups="[{ label: 'Anthropic', options: ['Opus 4.6', 'Sonnet 4.5', 'Haiku 4.5'] }, { label: 'OpenAI', options: ['GPT-4.5', 'GPT-4'] }]"
+          placement="below"
+        />
       </div>
     </section>
 
