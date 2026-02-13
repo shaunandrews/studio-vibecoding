@@ -13,6 +13,12 @@ const models = [
   { label: 'OpenAI', options: ['GPT-4.5', 'GPT-4', 'GPT-3.5'] },
 ]
 
+const props = withDefaults(defineProps<{
+  surface?: 'light' | 'dark'
+}>(), {
+  surface: 'light',
+})
+
 const emit = defineEmits<{
   send: [message: string, model: string]
 }>()
@@ -35,7 +41,7 @@ function focusInput(e: MouseEvent) {
 </script>
 
 <template>
-  <div class="input-chat p-xs" :class="{ 'has-content': message.trim().length > 0 }" @click="focusInput">
+  <div class="input-chat p-xs" :class="[`surface-${props.surface}`, { 'has-content': message.trim().length > 0 }]" @click="focusInput">
     <textarea
       ref="textareaRef"
       v-model="message"
@@ -92,8 +98,26 @@ function focusInput(e: MouseEvent) {
   max-height: 150px; /* ~7 lines — intentional cap */
 }
 
+/* Dark surface variant */
+.input-chat.surface-dark {
+  background: var(--color-chrome-secondary);
+  border-color: var(--color-chrome-border);
+}
+
+.input-chat.surface-dark:hover {
+  border-color: var(--color-chrome-text-muted);
+}
+
+.input-chat.surface-dark .input-textarea {
+  color: var(--color-chrome-text);
+}
+
 .input-textarea::placeholder {
   color: var(--color-text-muted);
+}
+
+.input-chat.surface-dark .input-textarea::placeholder {
+  color: var(--color-chrome-text-muted);
 }
 
 .input-toolbar {

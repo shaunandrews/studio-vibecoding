@@ -62,7 +62,7 @@ const projects = ref<Project[]>([
           <Text variant="label" color="muted" tag="h2">Chat</Text>
           <Text variant="body" color="secondary">Ask anything across all your projects.</Text>
           <div class="home-chat-input">
-            <InputChat />
+            <InputChat surface="dark" />
           </div>
         </section>
 
