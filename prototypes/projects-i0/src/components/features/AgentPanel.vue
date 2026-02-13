@@ -15,6 +15,14 @@ const { getConversation, getMessages, ensureConversation, sendMessage } = useCon
 
 const activeAgentId = ref<AgentId>('assistant')
 
+function handleAddTab() {
+  console.log('Add tab')
+}
+
+function handleCloseTab(id: AgentId) {
+  console.log('Close tab', id)
+}
+
 const props = defineProps<{
   projectId?: string | null
   previewVisible?: boolean
@@ -39,7 +47,7 @@ function handleSend(text: string) {
   <div class="agent-panel vstack flex-1 overflow-hidden">
     <PanelToolbar>
       <template #start>
-        <TabBar :tabs="agents" :active-id="activeAgentId" @update:active-id="activeAgentId = $event" />
+        <TabBar :tabs="agents" :active-id="activeAgentId" @update:active-id="activeAgentId = $event" @add="handleAddTab" @close="handleCloseTab" />
       </template>
       <template #end>
         <Button variant="tertiary" :icon="sidebar" size="small"
