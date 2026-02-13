@@ -1,6 +1,7 @@
 @import './styles/colors.css';
 @import './styles/space.css';
 @import './styles/radius.css';
+@import './styles/layout.css';
 
 /* Reset */
 *, *::before, *::after { box-sizing: border-box; margin: 0; }
