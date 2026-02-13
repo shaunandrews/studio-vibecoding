@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import Titlebar from '../components/Titlebar.vue'
 import Sidebar from '../components/Sidebar.vue'
+import Panel from '../components/Panel.vue'
 import InputChat from '../components/InputChat.vue'
+import SitePreview from '../components/SitePreview.vue'
 </script>
 
 <template>
@@ -10,29 +12,18 @@ import InputChat from '../components/InputChat.vue'
     <div class="app-body hstack align-stretch gap-xs flex-1 min-w-0 p-xs">
       <Sidebar />
       <main class="frame vstack flex-1 overflow-hidden">
-        <header>
-          <h2>Shaun's Blog</h2>
-        </header>
         <div class="panels hstack align-stretch flex-1 min-w-0">
-          <div class="site-assistant vstack flex-1 p-s">
-            <div class="messages flex-1 overflow-auto">
-              <div class="message">Hello! I'm your site assistant. How can I help you today?</div>
+          <Panel title="Assistant">
+            <div class="assistant-content vstack flex-1">
+              <div class="messages flex-1 overflow-auto p-s">
+                <div class="message">Hello! I'm your site assistant. How can I help you today?</div>
+              </div>
+              <InputChat />
             </div>
-            <InputChat />
-          </div>
-          <div class="site-preview">
-            <header>
-              <button>back</button>
-              <button>forward</button>
-              <button>refresh</button>
-              <input type="text" value="https://downstreet-cafe.local" />
-              <select>
-                <option>Desktop</option>
-                <option>Tablet</option>
-                <option>Mobile</option>
-              </select>
-            </header>
-          </div>
+          </Panel>
+          <Panel title="Preview" closable>
+            <SitePreview />
+          </Panel>
         </div>
       </main>
     </div>
@@ -58,13 +49,8 @@ import InputChat from '../components/InputChat.vue'
   border-radius: var(--radius-m);
 }
 
-.frame-placeholder {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--color-text-muted);
-  font-size: 14px;
+.assistant-content {
+  height: 100%;
 }
 
 .messages {

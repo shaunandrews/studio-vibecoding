@@ -1,0 +1,99 @@
+<script setup lang="ts">
+import { ref } from 'vue'
+import { chevronLeft, chevronRight, rotateRight, desktop, tablet, mobile } from '@wordpress/icons'
+import Button from './Button.vue'
+import Text from './Text.vue'
+
+const url = ref('https://downstreet-cafe.local')
+const viewport = ref<'desktop' | 'tablet' | 'mobile'>('desktop')
+
+const viewportWidths = {
+  desktop: '100%',
+  tablet: '768px',
+  mobile: '375px',
+}
+</script>
+
+<template>
+  <div class="site-preview vstack flex-1">
+    <div class="preview-toolbar hstack gap-xxs px-xs py-xxxs">
+      <div class="preview-nav hstack gap-xxxs">
+        <Button variant="tertiary" :icon="chevronLeft" size="small" />
+        <Button variant="tertiary" :icon="chevronRight" size="small" />
+        <Button variant="tertiary" :icon="rotateRight" size="small" />
+      </div>
+      <div class="preview-url-bar hstack flex-1 px-xs py-xxxs">
+        <Text variant="caption" color="muted" class="flex-1">{{ url }}</Text>
+      </div>
+      <div class="preview-viewport hstack gap-xxxs">
+        <Button
+          variant="tertiary"
+          :icon="desktop"
+          size="small"
+          :class="{ 'viewport-active': viewport === 'desktop' }"
+          @click="viewport = 'desktop'"
+        />
+        <Button
+          variant="tertiary"
+          :icon="tablet"
+          size="small"
+          :class="{ 'viewport-active': viewport === 'tablet' }"
+          @click="viewport = 'tablet'"
+        />
+        <Button
+          variant="tertiary"
+          :icon="mobile"
+          size="small"
+          :class="{ 'viewport-active': viewport === 'mobile' }"
+          @click="viewport = 'mobile'"
+        />
+      </div>
+    </div>
+    <div class="preview-frame flex-1 overflow-auto">
+      <div
+        class="preview-viewport-container"
+        :style="{ width: viewportWidths[viewport], maxWidth: '100%' }"
+      >
+        <div class="preview-placeholder vstack align-center justify-center flex-1">
+          <Text variant="body" color="muted">Site preview</Text>
+          <Text variant="caption" color="muted">{{ url }}</Text>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<style scoped>
+.preview-toolbar {
+  border-block-end: 1px solid var(--color-surface-border);
+  flex-shrink: 0;
+}
+
+.preview-url-bar {
+  background: var(--color-surface-secondary);
+  border-radius: var(--radius-s);
+  min-width: 0;
+}
+
+.preview-frame {
+  background: var(--color-surface-secondary);
+  min-height: 0;
+}
+
+.preview-viewport-container {
+  height: 100%;
+  margin: 0 auto;
+  background: var(--color-surface);
+  transition: width 200ms ease;
+}
+
+.preview-placeholder {
+  height: 100%;
+  gap: var(--space-xxxs);
+}
+
+/* Active viewport button */
+:deep(.viewport-active) {
+  color: var(--color-primary) !important;
+}
+</style>
