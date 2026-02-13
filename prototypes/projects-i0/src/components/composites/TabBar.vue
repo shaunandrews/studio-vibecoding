@@ -3,16 +3,19 @@ import { ref, onMounted, onBeforeUnmount, nextTick, watch } from 'vue'
 import { plus } from '@wordpress/icons'
 import Text from '@/components/primitives/Text.vue'
 import Button from '@/components/primitives/Button.vue'
-import type { Agent, AgentId } from '@/data/types'
+export interface Tab {
+  id: string
+  label: string
+}
 
 const props = defineProps<{
-  tabs: Agent[]
-  activeId: AgentId
+  tabs: Tab[]
+  activeId: string
 }>()
 
 defineEmits<{
-  'update:activeId': [id: AgentId]
-  'close': [id: AgentId]
+  'update:activeId': [id: string]
+  'close': [id: string]
   'add': []
 }>()
 

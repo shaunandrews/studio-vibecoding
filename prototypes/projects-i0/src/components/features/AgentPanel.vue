@@ -8,7 +8,8 @@ import ChatMessageList from '@/components/composites/ChatMessageList.vue'
 import InputChat from '@/components/composites/InputChat.vue'
 import { useAgents } from '@/data/useAgents'
 import { useConversations } from '@/data/useConversations'
-import type { Agent, AgentId } from '@/data/types'
+import type { Agent, AgentId, Conversation } from '@/data/types'
+import type { Tab } from '@/components/composites/TabBar.vue'
 
 const { agents } = useAgents()
 const { conversations, getConversation, getMessages, ensureConversation, sendMessage } = useConversations()
@@ -22,69 +23,91 @@ const emit = defineEmits<{
   'toggle-preview': []
 }>()
 
-// Per-project tab state stored as a ref so Vue tracks mutations
-const tabStateMap = ref<Record<string, { openIds: AgentId[], activeId: AgentId }>>({})
+// Per-project tab state: tracks open conversation IDs
+const tabStateMap = ref<Record<string, { openConvoIds: string[], activeConvoId: string }>>({})
 
 function getProjectKey(): string {
   return props.projectId ?? '__global__'
 }
 
-function ensureTabState(): { openIds: AgentId[], activeId: AgentId } {
+// Get conversations for this project
+const projectConvos = computed(() =>
+  conversations.value.filter(c => c.projectId === (props.projectId ?? null))
+)
+
+function ensureTabState(): { openConvoIds: string[], activeConvoId: string } {
   const key = getProjectKey()
   if (!tabStateMap.value[key]) {
-    // Initialize with agents that have existing conversations for this project
-    const projectConvos = conversations.value.filter(c => c.projectId === props.projectId)
-    const agentIdsWithConvos = [...new Set(projectConvos.map(c => c.agentId))] as AgentId[]
-    const openIds: AgentId[] = agentIdsWithConvos.length > 0 ? agentIdsWithConvos : ['assistant']
-    tabStateMap.value[key] = { openIds, activeId: openIds[0] }
+    const convoIds = projectConvos.value.map(c => c.id)
+    const openIds = convoIds.length > 0 ? convoIds : []
+    // If no convos exist, create one
+    if (openIds.length === 0) {
+      const conv = ensureConversation(props.projectId ?? null, 'assistant')
+      openIds.push(conv.id)
+    }
+    tabStateMap.value[key] = { openConvoIds: openIds, activeConvoId: openIds[0] }
   }
   return tabStateMap.value[key]
 }
 
-const openTabs = computed<Agent[]>(() => {
+const openTabs = computed<Tab[]>(() => {
   const state = ensureTabState()
-  return state.openIds
-    .map(id => agents.find(a => a.id === id))
-    .filter((a): a is Agent => !!a)
+  return state.openConvoIds
+    .map(id => {
+      const convo = conversations.value.find(c => c.id === id)
+      if (!convo) return null
+      const agent = agents.find(a => a.id === convo.agentId)
+      return {
+        id: convo.id,
+        label: convo.title || agent?.label || 'New chat',
+      }
+    })
+    .filter((t): t is Tab => !!t)
 })
 
-const activeAgentId = computed<AgentId>(() => ensureTabState().activeId)
+const activeConvoId = computed(() => ensureTabState().activeConvoId)
 
-function setActiveTab(id: AgentId) {
-  ensureTabState().activeId = id
-  // Force reactivity by reassigning
+const activeAgentId = computed<AgentId>(() => {
+  const convo = conversations.value.find(c => c.id === activeConvoId.value)
+  return convo?.agentId ?? 'assistant'
+})
+
+function setActiveTab(id: string) {
+  ensureTabState().activeConvoId = id
   tabStateMap.value = { ...tabStateMap.value }
 }
 
 function handleAddTab() {
   const state = ensureTabState()
-  const available = agents.filter(a => !state.openIds.includes(a.id))
-  if (available.length === 0) return
-  const next = available[0]
-  state.openIds.push(next.id)
-  state.activeId = next.id
+  // Find an agent not already represented in open tabs
+  const openAgentIds = state.openConvoIds
+    .map(id => conversations.value.find(c => c.id === id)?.agentId)
+    .filter(Boolean) as AgentId[]
+  const available = agents.filter(a => !openAgentIds.includes(a.id))
+  const agentId: AgentId = available.length > 0 ? available[0].id : 'assistant'
+  const conv = ensureConversation(props.projectId ?? null, agentId)
+  if (!state.openConvoIds.includes(conv.id)) {
+    state.openConvoIds.push(conv.id)
+  }
+  state.activeConvoId = conv.id
   tabStateMap.value = { ...tabStateMap.value }
 }
 
-function handleCloseTab(id: AgentId) {
+function handleCloseTab(id: string) {
   const state = ensureTabState()
-  const idx = state.openIds.indexOf(id)
-  if (idx === -1 || state.openIds.length <= 1) return
-  state.openIds.splice(idx, 1)
-  if (state.activeId === id) {
-    state.activeId = state.openIds[Math.min(idx, state.openIds.length - 1)]
+  const idx = state.openConvoIds.indexOf(id)
+  if (idx === -1 || state.openConvoIds.length <= 1) return
+  state.openConvoIds.splice(idx, 1)
+  if (state.activeConvoId === id) {
+    state.activeConvoId = state.openConvoIds[Math.min(idx, state.openConvoIds.length - 1)]
   }
   tabStateMap.value = { ...tabStateMap.value }
 }
 
-const projectIdRef = computed(() => props.projectId ?? null)
-const conversation = getConversation(projectIdRef, activeAgentId)
-const conversationId = computed(() => conversation.value?.id ?? null)
-const msgs = getMessages(conversationId)
+const msgs = getMessages(activeConvoId)
 
 function handleSend(text: string) {
-  const conv = ensureConversation(props.projectId ?? null, activeAgentId.value)
-  sendMessage(conv.id, 'user', text)
+  sendMessage(activeConvoId.value, 'user', text)
 }
 </script>
 
@@ -92,7 +115,7 @@ function handleSend(text: string) {
   <div class="agent-panel vstack flex-1 overflow-hidden">
     <PanelToolbar>
       <template #start>
-        <TabBar :tabs="openTabs" :active-id="activeAgentId" @update:active-id="setActiveTab" @add="handleAddTab" @close="handleCloseTab" />
+        <TabBar :tabs="openTabs" :active-id="activeConvoId" @update:active-id="setActiveTab" @add="handleAddTab" @close="handleCloseTab" />
       </template>
       <template #end>
         <Button variant="tertiary" :icon="sidebar" size="small"
