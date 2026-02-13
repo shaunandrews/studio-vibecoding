@@ -59,7 +59,7 @@ const openTabs = computed<Tab[]>(() => {
       const agent = agents.find(a => a.id === convo.agentId)
       return {
         id: convo.id,
-        label: convo.title || agent?.label || 'New chat',
+        label: convo.title || 'New chat',
       }
     })
     .filter((t): t is Tab => !!t)
