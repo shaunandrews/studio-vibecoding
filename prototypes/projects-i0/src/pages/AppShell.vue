@@ -4,6 +4,9 @@ import Sidebar from '../components/Sidebar.vue'
 import Panel from '../components/Panel.vue'
 import AgentPanel from '../components/AgentPanel.vue'
 import SitePreview from '../components/SitePreview.vue'
+import { ref } from 'vue'
+
+const showPreview = ref(true)
 </script>
 
 <template>
@@ -14,9 +17,9 @@ import SitePreview from '../components/SitePreview.vue'
       <main class="frame vstack flex-1 overflow-hidden">
         <div class="panels hstack align-stretch flex-1 min-w-0">
           <Panel>
-            <AgentPanel />
+            <AgentPanel @toggle-preview="showPreview = !showPreview" />
           </Panel>
-          <Panel>
+          <Panel v-if="showPreview">
             <SitePreview />
           </Panel>
         </div>

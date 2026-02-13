@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { plus } from '@wordpress/icons'
+import { plus, sidebar } from '@wordpress/icons'
 import Button from './Button.vue'
 import ChatMessage from './ChatMessage.vue'
 import PanelToolbar from './PanelToolbar.vue'
@@ -19,6 +19,10 @@ const tabs = ref<AgentTab[]>([
 ])
 
 const activeTab = ref('assistant')
+
+const emit = defineEmits<{
+  'toggle-preview': []
+}>()
 </script>
 
 <template>
@@ -39,6 +43,7 @@ const activeTab = ref('assistant')
       </template>
       <template #end>
         <Button variant="tertiary" :icon="plus" size="small" />
+        <Button variant="tertiary" :icon="sidebar" size="small" @click="$emit('toggle-preview')" />
       </template>
     </PanelToolbar>
     <div class="messages flex-1 overflow-auto p-l">
