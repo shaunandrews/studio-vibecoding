@@ -15,18 +15,15 @@ defineEmits<{
 </script>
 
 <template>
-  <div class="project-list-item" :class="{ active }" @click="$emit('select')">
-    <img v-if="favicon" class="project-favicon" :src="favicon" alt="" />
-    <span class="project-name">{{ name }}</span>
+  <div class="project-list-item hstack gap-xs" :class="{ active }" @click="$emit('select')">
+    <img v-if="favicon" class="project-favicon shrink-0" :src="favicon" alt="" />
+    <span class="project-name flex-1 min-w-0">{{ name }}</span>
     <StatusIndicator :status="status" @toggle="$emit('toggle')" />
   </div>
 </template>
 
 <style scoped>
 .project-list-item {
-  display: flex;
-  align-items: center;
-  gap: var(--space-xs);
   padding: var(--space-xs);
   border-radius: var(--radius-s);
   cursor: pointer;
@@ -47,12 +44,9 @@ defineEmits<{
   width: 20px; /* Standard favicon size — intentional, not on grid */
   height: 20px;
   border-radius: var(--radius-s);
-  flex-shrink: 0;
 }
 
 .project-name {
-  flex: 1;
-  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

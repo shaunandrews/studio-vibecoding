@@ -5,17 +5,17 @@ import Button from './Button.vue'
 
 <template>
   <div class="titlebar">
-    <div class="titlebar-start">
-      <div class="traffic-lights">
+    <div class="titlebar-start hstack gap-xxs">
+      <div class="traffic-lights hstack gap-xs">
         <span class="light close"></span>
         <span class="light minimize"></span>
         <span class="light maximize"></span>
       </div>
     </div>
-    <div class="titlebar-center">
+    <div class="titlebar-center hstack">
       <h1 class="titlebar-apptitle">WordPress Studio</h1>
     </div>
-    <div class="titlebar-end">
+    <div class="titlebar-end hstack gap-xxs">
       <Button variant="tertiary" surface="dark" :icon="cog" size="small" />
       <Button variant="tertiary" surface="dark" :icon="help" size="small" />
     </div>
@@ -40,8 +40,6 @@ import Button from './Button.vue'
   left: 50%;
   transform: translateX(-50%);
   pointer-events: none;
-  display: flex;
-  align-items: center;
 }
 
 .titlebar-apptitle {
@@ -59,15 +57,10 @@ import Button from './Button.vue'
 
 .titlebar-start,
 .titlebar-end {
-  display: flex;
-  align-items: center;
-  gap: var(--space-xxs);
   -webkit-app-region: no-drag;
 }
 
 .traffic-lights {
-  display: flex;
-  gap: var(--space-xs);
   margin-inline-end: var(--space-xxs);
 }
 

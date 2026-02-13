@@ -4,13 +4,31 @@ import Sidebar from '../components/Sidebar.vue'
 </script>
 
 <template>
-  <div class="app-shell">
+  <div class="app-shell vstack">
     <Titlebar />
-    <div class="app-body">
+    <div class="app-body hstack gap-xs flex-1 min-w-0">
       <Sidebar />
-      <main class="frame">
-        <div class="frame-placeholder">
-          <span>Main content area</span>
+      <main class="frame flex-1 overflow-hidden">
+        <div class="site-assistant">
+          <div class="messages">
+            <div class="message">Hello! I'm your site assistant. How can I help you today?</div>
+          </div>
+          <div class="input">
+            <select>
+              <optgroup label="Anthropic">
+                <option>Opus 4.6</option>
+                <option>Sonnet 4.5</option>
+                <option>Hakiu 4.5</option>
+              </optgroup>
+              <optgroup label="OpenAI">
+                <option>GPT-4.5</option>
+                <option>GPT-4</option>
+                <option>GPT-3.5</option>
+              </optgroup>
+            </select>
+            <input type="text" placeholder="Type your message..." />
+            <button>Send</button>
+          </div>
         </div>
       </main>
     </div>
@@ -19,8 +37,6 @@ import Sidebar from '../components/Sidebar.vue'
 
 <style scoped>
 .app-shell {
-  display: flex;
-  flex-direction: column;
   height: 100vh;
   background: var(--color-chrome);
   color: var(--color-chrome-text);
@@ -30,18 +46,13 @@ import Sidebar from '../components/Sidebar.vue'
 }
 
 .app-body {
-  flex: 1;
-  display: flex;
-  gap: var(--space-xs);
   min-height: 0;
-  padding: 10px;
+  padding: var(--space-xxs);
 }
 
 .frame {
-  flex: 1;
   background: var(--color-surface);
   border-radius: var(--radius-m);
-  overflow: hidden;
   display: flex;
 }
 

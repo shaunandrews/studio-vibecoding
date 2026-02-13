@@ -22,16 +22,16 @@ const icons = Object.entries(wpIcons)
 </script>
 
 <template>
-  <div class="components-layout">
+  <div class="components-layout hstack">
     <nav class="components-nav">
       <h2 class="nav-heading">Components</h2>
-      <ul>
+      <ul class="vstack gap-xxxs">
         <li v-for="item in componentNav" :key="item.id">
           <a :href="'#' + item.id" class="nav-link">{{ item.label }}</a>
         </li>
       </ul>
     </nav>
-    <div class="components">
+    <div class="components flex-1 min-w-0">
 
     <!-- Button -->
     <section id="button">
@@ -59,12 +59,12 @@ const icons = Object.entries(wpIcons)
       <div class="example-section">
         <h3>Width</h3>
         <h4>Hug (default)</h4>
-        <div class="example-row">
+        <div class="example-row hstack flex-wrap gap-xxs">
           <Button variant="primary" label="Hug content" />
           <Button variant="secondary" label="Hug content" />
         </div>
         <h4>Full</h4>
-        <div class="example-row" style="max-width: 300px;">
+        <div class="example-row hstack flex-wrap gap-xxs" style="max-width: 300px;">
           <Button variant="primary" label="Full width" width="full" />
           <Button variant="secondary" label="Full width" width="full" />
         </div>
@@ -75,7 +75,7 @@ const icons = Object.entries(wpIcons)
         <h3>On light surface</h3>
 
         <h4>Primary</h4>
-        <div class="example-row">
+        <div class="example-row hstack flex-wrap gap-xxs">
           <Button variant="primary" label="Publish site" />
           <Button variant="primary" label="Publish" :icon="upload" />
           <Button variant="primary" :icon="plus" />
@@ -85,7 +85,7 @@ const icons = Object.entries(wpIcons)
         </div>
 
         <h4>Secondary</h4>
-        <div class="example-row">
+        <div class="example-row hstack flex-wrap gap-xxs">
           <Button variant="secondary" label="Open site" />
           <Button variant="secondary" label="Open site" :icon="external" />
           <Button variant="secondary" :icon="cog" />
@@ -95,7 +95,7 @@ const icons = Object.entries(wpIcons)
         </div>
 
         <h4>Tertiary</h4>
-        <div class="example-row">
+        <div class="example-row hstack flex-wrap gap-xxs">
           <Button variant="tertiary" label="Cancel" />
           <Button variant="tertiary" label="Delete" :icon="trash" />
           <Button variant="tertiary" :icon="chevronDown" />
@@ -110,7 +110,7 @@ const icons = Object.entries(wpIcons)
         <h3>On dark surface</h3>
 
         <h4>Primary</h4>
-        <div class="example-row">
+        <div class="example-row hstack flex-wrap gap-xxs">
           <Button variant="primary" surface="dark" label="Publish site" />
           <Button variant="primary" surface="dark" label="Publish" :icon="upload" />
           <Button variant="primary" surface="dark" :icon="plus" />
@@ -120,7 +120,7 @@ const icons = Object.entries(wpIcons)
         </div>
 
         <h4>Secondary</h4>
-        <div class="example-row">
+        <div class="example-row hstack flex-wrap gap-xxs">
           <Button variant="secondary" surface="dark" label="Add site" />
           <Button variant="secondary" surface="dark" label="Add site" :icon="plus" />
           <Button variant="secondary" surface="dark" :icon="cog" />
@@ -130,7 +130,7 @@ const icons = Object.entries(wpIcons)
         </div>
 
         <h4>Tertiary</h4>
-        <div class="example-row">
+        <div class="example-row hstack flex-wrap gap-xxs">
           <Button variant="tertiary" surface="dark" label="Stop all" />
           <Button variant="tertiary" surface="dark" label="Settings" :icon="cog" />
           <Button variant="tertiary" surface="dark" :icon="chevronDown" />
@@ -207,16 +207,16 @@ const icons = Object.entries(wpIcons)
 
       <h3>States</h3>
       <div class="example-section example-section--dark" style="padding: 24px 32px;">
-        <div class="status-demo-row">
-          <div class="status-demo-item">
+        <div class="status-demo-row hstack gap-xxl">
+          <div class="status-demo-item vstack align-center gap-xxs">
             <StatusIndicator status="stopped" />
             <span class="status-demo-label">Stopped</span>
           </div>
-          <div class="status-demo-item">
+          <div class="status-demo-item vstack align-center gap-xxs">
             <StatusIndicator status="loading" />
             <span class="status-demo-label">Loading</span>
           </div>
-          <div class="status-demo-item">
+          <div class="status-demo-item vstack align-center gap-xxs">
             <StatusIndicator status="running" />
             <span class="status-demo-label">Running</span>
           </div>
@@ -274,7 +274,7 @@ const icons = Object.entries(wpIcons)
 
       <h3>All icons ({{ icons.length }})</h3>
       <div class="icon-grid">
-        <div class="icon-cell" v-for="item in icons" :key="item.name">
+        <div class="icon-cell vstack align-center gap-xxs" v-for="item in icons" :key="item.name">
           <WPIcon :icon="item.icon" :size="24" />
           <span class="icon-name">{{ item.name }}</span>
         </div>
@@ -286,7 +286,6 @@ const icons = Object.entries(wpIcons)
 
 <style scoped>
 .components-layout {
-  display: flex;
   min-height: 100vh;
   scroll-behavior: smooth;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -298,7 +297,6 @@ const icons = Object.entries(wpIcons)
   top: 0;
   align-self: flex-start;
   width: 200px;
-  flex-shrink: 0;
   padding: var(--space-xxxl) var(--space-m);
   border-inline-end: 1px solid var(--color-surface-border);
 }
@@ -316,9 +314,6 @@ const icons = Object.entries(wpIcons)
   list-style: none;
   margin: 0;
   padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-xxxs);
 }
 
 .nav-link {
@@ -337,8 +332,6 @@ const icons = Object.entries(wpIcons)
 }
 
 .components {
-  flex: 1;
-  min-width: 0;
   max-width: 960px;
   padding: var(--space-xxxl) var(--space-xl);
 }
@@ -433,10 +426,6 @@ h4 {
 }
 
 .example-row {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: var(--space-xxs);
   margin-block-end: var(--space-xxxs);
 }
 
@@ -455,16 +444,11 @@ h4 {
 
 /* StatusIndicator demo */
 .status-demo-row {
-  display: flex;
-  gap: var(--space-xxl);
   margin-block-end: var(--space-xs);
 }
 
 .status-demo-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-xxs);
+  /* layout via utility classes */
 }
 
 .status-demo-label {
@@ -486,10 +470,6 @@ h4 {
 }
 
 .icon-cell {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-xxs);
   padding: var(--space-s) var(--space-xxs);
   border-radius: var(--radius-m);
   cursor: default;

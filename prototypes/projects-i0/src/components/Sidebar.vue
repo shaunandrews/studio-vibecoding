@@ -4,9 +4,9 @@ import ProjectListItem from './ProjectListItem.vue'
 </script>
 
 <template>
-  <aside class="sidebar">
+  <aside class="sidebar vstack shrink-0">
     <h2 class="sidebar-heading">Projects</h2>
-    <div class="sidebar-projects">
+    <div class="sidebar-projects vstack gap-xxxs flex-1 overflow-auto">
       <ProjectListItem name="Downstreet Cafe" favicon="https://api.dicebear.com/9.x/shapes/svg?seed=cafe" status="running" />
       <ProjectListItem name="Shaun's Blog" favicon="https://api.dicebear.com/9.x/shapes/svg?seed=blog" status="running" :active="true" />
       <ProjectListItem name="UI Portfolio" favicon="https://api.dicebear.com/9.x/shapes/svg?seed=portfolio" status="stopped" />
@@ -20,9 +20,6 @@ import ProjectListItem from './ProjectListItem.vue'
 <style scoped>
 .sidebar {
   width: 210px; /* 42 units */
-  display: flex;
-  flex-direction: column;
-  flex-shrink: 0;
 }
 
 .sidebar-heading {
@@ -36,11 +33,7 @@ import ProjectListItem from './ProjectListItem.vue'
 }
 
 .sidebar-projects {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-xxxs);
-  overflow-y: auto;
+  /* layout via utility classes */
 }
 
 </style>
