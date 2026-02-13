@@ -79,16 +79,14 @@ function setActiveTab(id: string) {
 
 function handleAddTab() {
   const state = ensureTabState()
-  // Find an agent not already represented in open tabs
-  const openAgentIds = state.openConvoIds
-    .map(id => conversations.value.find(c => c.id === id)?.agentId)
-    .filter(Boolean) as AgentId[]
-  const available = agents.filter(a => !openAgentIds.includes(a.id))
-  const agentId: AgentId = available.length > 0 ? available[0].id : 'assistant'
-  const conv = ensureConversation(props.projectId ?? null, agentId)
-  if (!state.openConvoIds.includes(conv.id)) {
-    state.openConvoIds.push(conv.id)
+  const conv: Conversation = {
+    id: `conv-${Date.now()}`,
+    projectId: props.projectId ?? null,
+    agentId: 'assistant',
+    createdAt: new Date().toISOString(),
   }
+  conversations.value.push(conv)
+  state.openConvoIds.push(conv.id)
   state.activeConvoId = conv.id
   tabStateMap.value = { ...tabStateMap.value }
 }
@@ -118,7 +116,7 @@ function handleSend(text: string) {
         <TabBar :tabs="openTabs" :active-id="activeConvoId" @update:active-id="setActiveTab" @add="handleAddTab" @close="handleCloseTab" />
       </template>
       <template #end>
-        <Button variant="tertiary" :icon="sidebar" size="small"
+        <Button variant="tertiary" :icon="sidebar"
           :active="previewVisible" @click="$emit('toggle-preview')" />
       </template>
     </PanelToolbar>
