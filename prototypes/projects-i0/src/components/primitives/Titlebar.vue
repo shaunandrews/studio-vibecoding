@@ -12,7 +12,7 @@ const route = useRoute()
 const { projects } = useProjects()
 
 const title = computed(() => {
-  const projectId = route.params.projectId as string | undefined
+  const projectId = route.params.id as string | undefined
   if (projectId) {
     const project = projects.value.find(p => p.id === projectId)
     if (project) return `WordPress Studio • ${project.name}`
