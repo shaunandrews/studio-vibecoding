@@ -186,7 +186,7 @@ const sections = [
   font-size: var(--font-size-m);
   color: var(--color-text-secondary);
   text-decoration: none;
-  transition: background 120ms ease, color 120ms ease;
+  transition: background var(--duration-instant) var(--ease-default), color var(--duration-instant) var(--ease-default);
 }
 
 .nav-link:hover {

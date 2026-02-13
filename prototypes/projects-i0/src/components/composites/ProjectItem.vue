@@ -39,7 +39,7 @@ defineEmits<{
 .project-item {
   cursor: pointer;
   color: var(--color-chrome-text);
-  transition: padding 300ms ease, border-radius 300ms ease;
+  transition: padding var(--transition-layout), border-radius var(--transition-layout);
 }
 
 /* Card mode */
@@ -73,7 +73,7 @@ defineEmits<{
 /* Favicon */
 .item-favicon {
   border-radius: var(--radius-s);
-  transition: width 300ms ease, height 300ms ease;
+  transition: width var(--transition-layout), height var(--transition-layout);
 }
 
 .mode-card .item-favicon {
@@ -98,7 +98,7 @@ defineEmits<{
 
 /* Collapsible: url */
 .item-url {
-  transition: opacity 300ms ease, max-height 300ms ease;
+  transition: opacity var(--transition-layout), max-height var(--transition-layout);
   overflow: hidden;
 }
 
@@ -112,40 +112,22 @@ defineEmits<{
   max-height: 0;
 }
 
-/* Collapsible: description */
-.item-description {
-  transition: opacity 300ms ease, max-height 300ms ease, margin-top 300ms ease;
-  overflow: hidden;
-}
-
-.mode-card .item-description {
-  opacity: 1;
-  max-height: 4em;
-  margin-top: var(--space-xs);
-}
-
-.mode-row .item-description {
-  opacity: 0;
-  max-height: 0;
-  margin-top: 0;
-}
-
 /* Collapsible: preview */
 .item-preview {
-  transition: opacity 300ms ease, max-height 300ms ease, margin-top 300ms ease;
+  transition: opacity var(--transition-layout), max-height var(--transition-layout), margin-top var(--transition-layout);
   overflow: hidden;
 }
 
 .mode-card .item-preview {
   opacity: 1;
-  max-height: 180px;
+  max-height: 240px;
   margin-top: var(--space-xs);
 }
 
 .mode-card .item-preview .preview-placeholder {
   background: var(--color-chrome-border);
   border-radius: var(--radius-s);
-  height: 180px;
+  height: 240px;
   display: flex;
   align-items: center;
   justify-content: center;

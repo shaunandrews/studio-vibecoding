@@ -217,7 +217,7 @@ onUnmounted(() => {
   color: var(--color-text-muted);
   border-radius: var(--radius-s);
   cursor: pointer;
-  transition: background 120ms ease, color 120ms ease;
+  transition: background var(--duration-instant) var(--ease-default), color var(--duration-instant) var(--ease-default);
 }
 
 .dropdown-trigger:hover {
@@ -264,7 +264,7 @@ onUnmounted(() => {
   color: var(--color-text-secondary);
   border-radius: var(--radius-s);
   cursor: pointer;
-  transition: background 100ms ease, color 100ms ease;
+  transition: background var(--duration-instant) var(--ease-default), color var(--duration-instant) var(--ease-default);
 }
 
 .dropdown-option:hover {
@@ -280,7 +280,7 @@ onUnmounted(() => {
 /* Transition */
 .dropdown-enter-active,
 .dropdown-leave-active {
-  transition: opacity 120ms ease, transform 120ms ease;
+  transition: opacity var(--duration-instant) var(--ease-default), transform var(--duration-instant) var(--ease-default);
 }
 
 .dropdown-enter-from,

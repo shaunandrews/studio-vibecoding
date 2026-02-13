@@ -79,7 +79,7 @@ const viewportWidths: Record<string, string> = {
   height: 100%;
   margin: 0 auto;
   background: var(--color-surface);
-  transition: width 200ms ease;
+  transition: width var(--transition-fade);
 }
 
 .preview-placeholder {

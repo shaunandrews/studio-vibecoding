@@ -69,7 +69,7 @@ function focusInput(e: MouseEvent) {
   border: 1px solid var(--color-surface-border);
   border-radius: var(--radius-s);
   cursor: text;
-  transition: border-color 150ms ease, box-shadow 150ms ease;
+  transition: border-color var(--transition-focus), box-shadow var(--transition-focus);
 }
 
 .input-chat:hover {

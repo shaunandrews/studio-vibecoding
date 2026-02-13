@@ -43,7 +43,7 @@ defineEmits<{
   cursor: pointer;
   white-space: nowrap;
   font-family: inherit;
-  transition: background 120ms ease;
+  transition: background var(--duration-instant) var(--ease-default);
 }
 
 .tab-bar__tab:hover {

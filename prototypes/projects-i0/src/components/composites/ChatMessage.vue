@@ -90,7 +90,7 @@ function copyMessage(content: string) {
 }
 
 .chat-message-actions {
-  animation: actions-in 150ms ease;
+  animation: actions-in var(--duration-fast) var(--ease-default);
 }
 
 @keyframes actions-in {

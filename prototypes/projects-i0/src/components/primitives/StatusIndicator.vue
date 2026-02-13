@@ -56,7 +56,7 @@ const emit = defineEmits<{
 .status__dot {
   width: 8px;
   height: 8px;
-  transition: background-color 200ms ease, border-radius 200ms ease, clip-path 250ms ease;
+  transition: background-color var(--transition-fade), border-radius var(--transition-fade), clip-path 250ms var(--ease-default);
 }
 
 /* Stopped: grey circle → green play */

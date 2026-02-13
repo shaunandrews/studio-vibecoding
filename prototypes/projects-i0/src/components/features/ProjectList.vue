@@ -86,10 +86,9 @@ function toggleStatus(id: string) {
 
 .items-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
   gap: var(--space-m);
   width: 100%;
-  max-width: 1200px;
 }
 
 .items-stack {
@@ -102,7 +101,7 @@ function toggleStatus(id: string) {
   border-radius: var(--radius-s);
   cursor: pointer;
   color: var(--color-chrome-text-secondary);
-  transition: background 150ms ease;
+  transition: background var(--transition-hover);
 }
 
 .all-projects:hover {

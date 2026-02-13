@@ -45,7 +45,7 @@ const mode = computed(() => (route.meta.mode as string) || 'home')
   z-index: 1;
   width: 100%;
   height: 100%;
-  transition: width 300ms ease;
+  transition: width var(--transition-layout);
   overflow: hidden;
 }
 
@@ -68,7 +68,7 @@ const mode = computed(() => (route.meta.mode as string) || 'home')
   flex-direction: column;
   transform: translateX(calc(100% + var(--space-xs)));
   opacity: 0;
-  transition: transform 300ms ease, opacity 200ms ease;
+  transition: transform var(--transition-layout), opacity var(--transition-fade);
   pointer-events: none;
 }
 

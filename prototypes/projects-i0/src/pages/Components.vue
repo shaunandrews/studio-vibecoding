@@ -633,7 +633,7 @@ const icons = Object.entries(wpIcons)
   font-size: 13px;
   color: var(--color-text-secondary);
   text-decoration: none;
-  transition: background 120ms ease, color 120ms ease;
+  transition: background var(--duration-instant) var(--ease-default), color var(--duration-instant) var(--ease-default);
 }
 
 .nav-link:hover {
@@ -783,7 +783,7 @@ h4 {
   padding: var(--space-s) var(--space-xxs);
   border-radius: var(--radius-m);
   cursor: default;
-  transition: background 150ms ease;
+  transition: background var(--transition-hover);
   color: var(--color-text);
 }
 

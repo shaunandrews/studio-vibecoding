@@ -21,7 +21,7 @@ const layoutName = computed(() => (route.meta.layout as string) || 'bare')
 
 <style>
 .fade-enter-active, .fade-leave-active {
-  transition: opacity 0.15s ease;
+  transition: opacity var(--transition-hover);
 }
 .fade-enter-from, .fade-leave-to {
   opacity: 0;

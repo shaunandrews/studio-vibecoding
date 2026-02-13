@@ -85,7 +85,7 @@ onUnmounted(() => {
   font-family: inherit;
   font-weight: var(--font-weight-medium);
   cursor: pointer;
-  transition: background 150ms ease, color 150ms ease, border-color 150ms ease;
+  transition: background var(--transition-hover), color var(--transition-hover), border-color var(--transition-hover);
   white-space: nowrap;
   flex-shrink: 0;
   outline: none;
