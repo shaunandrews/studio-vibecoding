@@ -45,6 +45,7 @@ const showPreview = ref(true)
 .frame {
   background: var(--color-surface);
   border-radius: var(--radius-m);
+  color: var(--color-text);
 }
 
 </style>
