@@ -16,8 +16,9 @@
   --color-light-maximize: #28c840;
 
   /* Status */
-  --color-status-running: #069e08;
+  --color-status-running: #4ab866;
   --color-status-stopped: #646970;
+  --color-status-stop-hover: #e65054;
 
   /* Surface (main content area) */
   --color-surface: #fff;

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import Button from './Button.vue'
+import StatusIndicator from './StatusIndicator.vue'
 </script>
 
 <template>
@@ -7,15 +8,15 @@ import Button from './Button.vue'
     <div class="sidebar-sites">
       <div class="site-item">
         <span class="site-name">Downstreet Cafe</span>
-        <span class="site-status running"></span>
+        <StatusIndicator status="running" />
       </div>
       <div class="site-item active">
         <span class="site-name">Shaun's Blog</span>
-        <span class="site-status running"></span>
+        <StatusIndicator status="running" />
       </div>
       <div class="site-item">
         <span class="site-name">UI Portfolio</span>
-        <span class="site-status running"></span>
+        <StatusIndicator status="stopped" />
       </div>
     </div>
     <div class="sidebar-footer">
@@ -70,15 +71,6 @@ import Button from './Button.vue'
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-
-.site-status {
-  width: var(--space-xs);
-  height: var(--space-xs);
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-.site-status.running { background: var(--color-status-running); }
-.site-status.stopped { background: var(--color-status-stopped); }
 
 .sidebar-footer {
   padding: var(--space-xs);

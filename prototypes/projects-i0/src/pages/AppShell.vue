@@ -39,7 +39,7 @@ import Sidebar from '../components/Sidebar.vue'
   flex: 1;
   background: var(--color-surface);
   border-radius: var(--radius-s);
-  margin: 0 var(--space-xxs) var(--space-xxs) 0;
+  margin: 0 var(--space-xs) var(--space-xs) 0;
   overflow: hidden;
   display: flex;
 }
