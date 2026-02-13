@@ -13,7 +13,7 @@ import SitePreview from '../components/SitePreview.vue'
       <Sidebar />
       <main class="frame vstack flex-1 overflow-hidden">
         <div class="panels hstack align-stretch flex-1 min-w-0">
-          <Panel title="Assistant">
+          <Panel>
             <div class="assistant-content vstack flex-1">
               <div class="messages flex-1 overflow-auto p-s">
                 <div class="message">Hello! I'm your site assistant. How can I help you today?</div>
@@ -21,7 +21,7 @@ import SitePreview from '../components/SitePreview.vue'
               <InputChat />
             </div>
           </Panel>
-          <Panel title="Preview" closable>
+          <Panel>
             <SitePreview />
           </Panel>
         </div>
