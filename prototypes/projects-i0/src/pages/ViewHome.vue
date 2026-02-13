@@ -102,8 +102,8 @@ const projects = ref<Project[]>([
 }
 
 .project-card {
-  background: var(--color-surface);
-  border: 1px solid var(--color-surface-border);
+  background: var(--color-chrome-secondary);
+  border: 1px solid var(--color-chrome-border);
   border-radius: var(--radius-m);
   padding: var(--space-s);
   cursor: pointer;
@@ -113,8 +113,8 @@ const projects = ref<Project[]>([
 }
 
 .project-card:hover {
-  border-color: var(--color-text-muted);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border-color: var(--color-chrome-text-muted);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .project-card-favicon {
@@ -131,7 +131,7 @@ const projects = ref<Project[]>([
 }
 
 .project-card-preview {
-  background: var(--color-surface-secondary);
+  background: var(--color-chrome-border);
   border-radius: var(--radius-s);
   height: 120px;
   display: flex;
