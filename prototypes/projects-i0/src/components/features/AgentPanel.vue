@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, reactive, watch } from 'vue'
+import { ref, computed, reactive, watch, nextTick } from 'vue'
 import { sidebar } from '@wordpress/icons'
 import Button from '@/components/primitives/Button.vue'
 import PanelToolbar from '@/components/composites/PanelToolbar.vue'
@@ -89,6 +89,7 @@ function handleAddTab() {
   state.openConvoIds.push(conv.id)
   state.activeConvoId = conv.id
   tabStateMap.value = { ...tabStateMap.value }
+  nextTick(() => inputChatRef.value?.focus())
 }
 
 function handleCloseTab(id: string) {
@@ -103,6 +104,7 @@ function handleCloseTab(id: string) {
 }
 
 const msgs = getMessages(activeConvoId)
+const inputChatRef = ref<InstanceType<typeof InputChat> | null>(null)
 
 // Per-conversation draft text
 const drafts = ref<Record<string, string>>({})
@@ -133,7 +135,7 @@ function handleSend(text: string) {
     <ChatMessageList :messages="msgs" />
 
     <div class="px-l pb-l shrink-0">
-      <InputChat v-model="currentDraft" @send="handleSend" />
+      <InputChat ref="inputChatRef" v-model="currentDraft" @send="handleSend" />
     </div>
   </div>
 </template>

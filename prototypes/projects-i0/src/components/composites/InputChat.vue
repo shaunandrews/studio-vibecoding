@@ -38,6 +38,12 @@ function send() {
 
 // Cmd+Enter handled via Button shortcut prop
 
+function focus() {
+  textareaRef.value?.focus()
+}
+
+defineExpose({ focus })
+
 function focusInput(e: MouseEvent) {
   // Don't steal focus from buttons inside the component
   const target = e.target as HTMLElement
