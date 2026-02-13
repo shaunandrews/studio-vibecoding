@@ -47,7 +47,6 @@ function focusInput(e: MouseEvent) {
       <Dropdown v-model="selectedModel" :groups="models" placement="above" />
       <Button
         variant="primary"
-        :icon="sendIcon"
         label="Send"
         size="small"
         shortcut="mod+enter"
