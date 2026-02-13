@@ -124,7 +124,7 @@ function handleSend(text: string) {
     <ChatMessageList :messages="msgs" />
 
     <div class="px-l pb-l shrink-0">
-      <InputChat @send="handleSend" />
+      <InputChat :key="activeConvoId" @send="handleSend" />
     </div>
   </div>
 </template>
