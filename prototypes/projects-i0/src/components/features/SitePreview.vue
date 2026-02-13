@@ -31,9 +31,9 @@ const viewportWidths: Record<string, string> = {
   <div class="site-preview vstack flex-1 overflow-hidden">
     <PanelToolbar>
       <template #start>
-        <Button variant="tertiary" :icon="chevronLeft" size="small" />
-        <Button variant="tertiary" :icon="chevronRight" size="small" />
-        <Button variant="tertiary" :icon="rotateRight" size="small" />
+        <Button variant="tertiary" :icon="chevronLeft" />
+        <Button variant="tertiary" :icon="chevronRight" />
+        <Button variant="tertiary" :icon="rotateRight" />
       </template>
       <template #center>
         <div class="preview-url-bar hstack flex-1 px-xs py-xxxs">
