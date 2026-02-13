@@ -22,7 +22,7 @@ defineProps<{
       { 'btn--icon-only': icon && !label }
     ]"
   >
-    <WPIcon v-if="icon" :icon="icon" :size="size === 'small' ? 16 : 18" />
+    <WPIcon v-if="icon" :icon="icon" :size="size === 'small' ? 18 : 18" />
     <span v-if="label" class="btn__label">{{ label }}</span>
     <slot v-if="!icon && !label" />
   </button>
