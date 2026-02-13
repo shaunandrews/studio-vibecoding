@@ -1,30 +1,12 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { chevronLeft, chevronRight, rotateRight, desktop, tablet, mobile } from '@wordpress/icons'
+import { chevronLeft, chevronRight, rotateRight } from '@wordpress/icons'
 import Button from '@/components/primitives/Button.vue'
-import Dropdown from '@/components/primitives/Dropdown.vue'
+import BrowserBar from '@/components/primitives/BrowserBar.vue'
 import PanelToolbar from '@/components/composites/PanelToolbar.vue'
 import Text from '@/components/primitives/Text.vue'
 
 const url = ref('https://downstreet-cafe.local')
-const viewport = ref('desktop')
-
-const viewportGroups = [
-  {
-    label: 'Viewport',
-    options: [
-      { value: 'desktop', label: 'Desktop', icon: desktop },
-      { value: 'tablet', label: 'Tablet', icon: tablet },
-      { value: 'mobile', label: 'Mobile', icon: mobile },
-    ],
-  },
-]
-
-const viewportWidths: Record<string, string> = {
-  desktop: '100%',
-  tablet: '768px',
-  mobile: '375px',
-}
 </script>
 
 <template>
@@ -36,24 +18,11 @@ const viewportWidths: Record<string, string> = {
         <Button variant="tertiary" :icon="rotateRight" />
       </template>
       <template #center>
-        <div class="preview-url-bar hstack flex-1 px-xs py-xxxs">
-          <Text variant="caption" color="muted" class="flex-1">{{ url }}</Text>
-        </div>
-      </template>
-      <template #end>
-        <Dropdown
-          v-model="viewport"
-          :groups="viewportGroups"
-          :trigger-icon="desktop"
-          placement="below"
-        />
+        <BrowserBar :url="url" class="flex-1" />
       </template>
     </PanelToolbar>
     <div class="preview-frame flex-1 overflow-auto">
-      <div
-        class="preview-viewport-container"
-        :style="{ width: viewportWidths[viewport], maxWidth: '100%' }"
-      >
+      <div class="preview-viewport-container">
         <div class="preview-placeholder vstack align-center justify-center flex-1">
           <Text variant="body" color="muted">Site preview</Text>
           <Text variant="caption" color="muted">{{ url }}</Text>
@@ -64,12 +33,6 @@ const viewportWidths: Record<string, string> = {
 </template>
 
 <style scoped>
-.preview-url-bar {
-  background: var(--color-surface-secondary);
-  border-radius: var(--radius-s);
-  min-width: 0;
-}
-
 .preview-frame {
   background: var(--color-surface-secondary);
   min-height: 0;
@@ -77,9 +40,7 @@ const viewportWidths: Record<string, string> = {
 
 .preview-viewport-container {
   height: 100%;
-  margin: 0 auto;
   background: var(--color-surface);
-  transition: width var(--transition-fade);
 }
 
 .preview-placeholder {

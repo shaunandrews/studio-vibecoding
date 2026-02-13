@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, watch, onBeforeUnmount, onMounted } from 'vue'
+import { ref, computed, watch, onBeforeUnmount } from 'vue'
 import { useRoute } from 'vue-router'
 import Panel from '@/components/composites/Panel.vue'
 import AgentPanel from '@/components/features/AgentPanel.vue'
@@ -54,10 +54,15 @@ function onPointerDown(e: PointerEvent) {
   document.addEventListener('pointerup', onPointerUp)
 }
 
+const MIN_CHAT_PX = 360
+const MIN_PREVIEW_PX = 400
+
 function onPointerMove(e: PointerEvent) {
   if (!dragging || !containerRef.value) return
   const rect = containerRef.value.getBoundingClientRect()
-  const fraction = Math.min(0.8, Math.max(0.2, (e.clientX - rect.left) / rect.width))
+  const minFraction = MIN_CHAT_PX / rect.width
+  const maxFraction = 1 - MIN_PREVIEW_PX / rect.width
+  const fraction = Math.min(maxFraction, Math.max(minFraction, (e.clientX - rect.left) / rect.width))
   chatFraction.value = fraction
 }
 
@@ -82,11 +87,11 @@ onBeforeUnmount(() => {
 
 <template>
   <div ref="containerRef" class="panels hstack align-stretch flex-1 min-w-0 min-h-0">
-    <Panel :style="showPreview ? { width: (chatFraction * 100) + '%', flex: 'none' } : undefined">
+    <Panel :style="showPreview ? { width: (chatFraction * 100) + '%', flex: 'none', minWidth: MIN_CHAT_PX + 'px' } : undefined">
       <AgentPanel :project-id="activeProjectId" :preview-visible="showPreview" @toggle-preview="showPreview = !showPreview" />
     </Panel>
     <div v-if="showPreview" class="resize-handle" @pointerdown="onPointerDown" />
-    <Panel v-if="showPreview" style="flex: 1; min-width: 0">
+    <Panel v-if="showPreview" :style="{ flex: 1, minWidth: MIN_PREVIEW_PX + 'px' }">
       <SitePreview />
     </Panel>
   </div>
