@@ -85,20 +85,17 @@ function copyMessage(content: string) {
 }
 
 .chat-message-actions {
-  display: grid;
-  grid-template-rows: 1fr;
-  overflow: hidden;
   animation: actions-in 150ms ease;
 }
 
 @keyframes actions-in {
   from {
-    grid-template-rows: 0fr;
     opacity: 0;
+    transform: translateY(-4px);
   }
   to {
-    grid-template-rows: 1fr;
     opacity: 1;
+    transform: translateY(0);
   }
 }
 
