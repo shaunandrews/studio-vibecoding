@@ -51,7 +51,7 @@ const emit = defineEmits<{
       </template>
     </PanelToolbar>
     <div class="messages flex-1 overflow-auto p-l">
-      <div class="messages-inner vstack gap-s">
+      <div class="messages-inner vstack gap-xs">
         <ChatMessage
           role="agent"
           content="Hello! I'm your site assistant. I can help you build, customize, and manage your WordPress site. What would you like to work on?"

@@ -54,6 +54,7 @@ function copyMessage(content: string) {
 <style scoped>
 .chat-message {
   max-width: 640px;
+  position: relative;
 }
 
 .chat-message--user .chat-message-content {
@@ -64,8 +65,12 @@ function copyMessage(content: string) {
 }
 
 .chat-message-actions {
+  position: absolute;
+  bottom: calc(-1 * var(--space-xs));
+  left: 0;
   opacity: 0;
   transition: opacity 150ms ease;
+  z-index: 1;
 }
 
 .chat-message:hover .chat-message-actions {
