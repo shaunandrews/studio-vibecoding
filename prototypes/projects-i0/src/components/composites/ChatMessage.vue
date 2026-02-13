@@ -82,11 +82,12 @@ function copyMessage(content: string) {
 
 .chat-message-content {
   padding: var(--space-xs) var(--space-s);
+}
 
-  .chat-message--user & {
-    background: var(--color-surface-secondary);
-    border-radius: var(--radius-m);
-  }
+.chat-message--user .chat-message-content {
+  background: var(--color-surface-secondary);
+  border-radius: var(--radius-m);
+  width: fit-content;
 }
 
 .chat-message-actions {
