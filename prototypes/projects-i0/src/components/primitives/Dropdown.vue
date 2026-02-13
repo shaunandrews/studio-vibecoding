@@ -303,8 +303,8 @@ onUnmounted(() => {
 }
 
 .dropdown.surface-dark .dropdown-menu {
-  background: var(--color-chrome-secondary);
-  border-color: var(--color-chrome-border);
+  background: var(--color-chrome);
+  border-color: var(--color-chrome-subtle);
 }
 
 .dropdown.surface-dark .dropdown-group + .dropdown-group {
