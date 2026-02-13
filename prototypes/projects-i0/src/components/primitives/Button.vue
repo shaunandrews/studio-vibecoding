@@ -13,9 +13,7 @@ const props = defineProps<{
   active?: boolean
 }>()
 
-const emit = defineEmits<{
-  click: [e: MouseEvent | KeyboardEvent]
-}>()
+// No custom click emit — native click falls through via inheritAttrs
 
 const btnRef = ref<HTMLButtonElement | null>(null)
 
