@@ -14,8 +14,6 @@ import Button from './Button.vue'
     </div>
     <div class="titlebar-center">
       <h1 class="titlebar-apptitle">WordPress Studio</h1>
-      <span class="titlebar-separator">•</span>
-      <h2 class="titlebar-pagetitle">Site Title</h2>
     </div>
     <div class="titlebar-end">
       <Button variant="tertiary" surface="dark" :icon="cog" size="small" />
@@ -46,17 +44,12 @@ import Button from './Button.vue'
   align-items: center;
 }
 
-.titlebar-apptitle,
-.titlebar-pagetitle {
+.titlebar-apptitle {
   font-size: 13px;
   color: var(--color-chrome-text-secondary);
   margin: 0;
   white-space: nowrap;
-  font-weight: 400;
-}
-
-.titlebar-pagetitle {
-  font-weight: 550;
+  font-weight: 500;
 }
 
 .titlebar-separator {
