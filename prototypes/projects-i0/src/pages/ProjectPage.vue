@@ -22,7 +22,7 @@ onBeforeUnmount(() => {
 <template>
   <div class="panels hstack align-stretch flex-1 min-w-0 min-h-0">
     <Panel>
-      <AgentPanel :preview-visible="showPreview" @toggle-preview="showPreview = !showPreview" />
+      <AgentPanel :project-id="activeProjectId" :preview-visible="showPreview" @toggle-preview="showPreview = !showPreview" />
     </Panel>
     <Panel v-if="showPreview">
       <SitePreview />
