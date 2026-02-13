@@ -10,7 +10,7 @@ import InputChat from '../components/InputChat.vue'
     <div class="app-body hstack align-stretch gap-xs flex-1 min-w-0 p-xs">
       <Sidebar />
       <main class="frame flex-1 overflow-hidden">
-        <div class="site-assistant vstack flex-1">
+        <div class="site-assistant vstack flex-1 p-s">
           <div class="messages flex-1 overflow-auto">
             <div class="message">Hello! I'm your site assistant. How can I help you today?</div>
           </div>
@@ -48,5 +48,11 @@ import InputChat from '../components/InputChat.vue'
   justify-content: center;
   color: var(--color-text-muted);
   font-size: 14px;
+}
+
+.messages {
+  max-width: 640px;
+  width: 100%;
+  margin: 0 auto;
 }
 </style>

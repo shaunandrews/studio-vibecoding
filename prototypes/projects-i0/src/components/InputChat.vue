@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { arrowUp } from '@wordpress/icons'
+import { send as sendIcon } from '@wordpress/icons'
 import Button from './Button.vue'
 import Dropdown from './Dropdown.vue'
 
@@ -53,7 +53,7 @@ function focusInput(e: MouseEvent) {
       <Dropdown v-model="selectedModel" :groups="models" placement="above" />
       <Button
         variant="primary"
-        :icon="arrowUp"
+        :icon="sendIcon"
         size="small"
         @click="send"
       />
@@ -63,9 +63,12 @@ function focusInput(e: MouseEvent) {
 
 <style scoped>
 .input-chat {
+  max-width: 640px;
+  width: 100%;
+  margin: 0 auto;
   background: var(--color-surface-secondary);
   border: 1px solid var(--color-surface-border);
-  border-radius: var(--radius-m);
+  border-radius: var(--radius-s);
   cursor: text;
   transition: border-color 150ms ease, box-shadow 150ms ease;
 }
