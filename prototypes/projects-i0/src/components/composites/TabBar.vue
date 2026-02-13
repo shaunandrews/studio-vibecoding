@@ -59,12 +59,17 @@ watch(() => props.tabs.length, () => {
           :class="{ active: tab.id === activeId }"
           @click="$emit('update:activeId', tab.id)"
         >
-          <Text variant="caption" :color="tab.id === activeId ? 'default' : 'muted'">{{ tab.label }}</Text>
-          <span
+          <Text variant="caption" :color="tab.id === activeId ? 'default' : 'secondary'">{{ tab.label }}</Text>
+          <button
             v-if="tab.id === activeId"
             class="tab-bar__close"
             @click.stop="$emit('close', tab.id)"
-          >×</span>
+            aria-label="Close tab"
+          >
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+              <path d="M3 3l6 6M9 3l-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+            </svg>
+          </button>
         </button>
       </div>
       <div class="tab-bar__fade-left" :class="{ visible: canScrollLeft }" />
@@ -77,7 +82,8 @@ watch(() => props.tabs.length, () => {
 <style scoped>
 .tab-bar__scroll-wrapper {
   position: relative;
-  overflow: hidden;
+  overflow: clip;
+  overflow-clip-margin: 3px; /* room for focus ring */
   min-width: 0;
   flex: 1;
 }
@@ -143,10 +149,12 @@ watch(() => props.tabs.length, () => {
   justify-content: center;
   width: 16px;
   height: 16px;
-  font-size: 14px;
-  line-height: 1;
+  padding: 0;
+  margin-left: var(--space-xxxs);
+  background: none;
+  border: none;
+  border-radius: var(--radius-s);
   color: var(--color-text-muted);
-  border-radius: var(--radius-xs);
   cursor: pointer;
   transition: color var(--duration-fast) var(--ease-default),
               background var(--duration-fast) var(--ease-default);
@@ -154,6 +162,6 @@ watch(() => props.tabs.length, () => {
 
 .tab-bar__close:hover {
   color: var(--color-text);
-  background: var(--color-surface-border);
+  background: rgba(0, 0, 0, 0.08);
 }
 </style>
