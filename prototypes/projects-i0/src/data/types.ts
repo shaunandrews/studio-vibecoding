@@ -71,6 +71,9 @@ export type CardBlock =
   | (BaseCardBlock & { card: 'colorPalette'; data: ColorPaletteData })
   | (BaseCardBlock & { card: 'settings'; data: SettingsCardData })
   | (BaseCardBlock & { card: 'progress'; data: ProgressCardData })
+  | (BaseCardBlock & { card: 'themePicker'; data: ThemePickerCardData })
+  | (BaseCardBlock & { card: 'page'; data: PageCardData })
+  | (BaseCardBlock & { card: 'postDraft'; data: PostDraftCardData })
 
 export type ContentBlock =
   | { type: 'text'; text: string }
@@ -103,4 +106,28 @@ export interface SettingsCardData {
 export interface ProgressCardData {
   label: string
   steps: { name: string; status: 'pending' | 'running' | 'done' | 'error' }[]
+}
+
+export interface ThemePickerCardData {
+  themes: { name: string; slug: string; thumbnail?: string; description: string }[]
+  actions?: ActionButton[]
+}
+
+export interface PageCardData {
+  title: string
+  slug: string
+  template?: string
+  status: 'draft' | 'published' | 'scheduled'
+  excerpt?: string
+  actions?: ActionButton[]
+}
+
+export interface PostDraftCardData {
+  title: string
+  excerpt: string
+  categories?: string[]
+  tags?: string[]
+  featuredImage?: string
+  status: 'draft' | 'pending' | 'published'
+  actions?: ActionButton[]
 }

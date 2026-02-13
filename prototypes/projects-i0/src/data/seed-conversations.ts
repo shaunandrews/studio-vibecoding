@@ -1,4 +1,4 @@
-import { plus } from '@wordpress/icons'
+import { check, plus } from '@wordpress/icons'
 import type { Conversation, ContentBlock, Message } from './types'
 
 interface SeedMessage extends Omit<Message, 'content'> {
@@ -31,6 +31,12 @@ export const seedConversations: Conversation[] = [
 
   // Flavor Records
   { id: 'records-design-1', projectId: 'flavor-records', agentId: 'design', title: 'Album grid layout', createdAt: '2026-02-05T13:00:00Z' },
+
+  // Phase 2: Theme Browsing (Shaun's Blog)
+  { id: 'blog-assistant-themes', projectId: 'shauns-blog', agentId: 'assistant', title: 'Theme browsing', createdAt: '2026-02-13T11:00:00Z' },
+
+  // Phase 2: Content Creation (Downstreet Cafe)
+  { id: 'cafe-assistant-content', projectId: 'downstreet-cafe', agentId: 'assistant', title: 'Content creation', createdAt: '2026-02-13T12:00:00Z' },
 ]
 
 const seedMessagesRaw: SeedMessage[] = [
@@ -158,6 +164,58 @@ const seedMessagesRaw: SeedMessage[] = [
   // UI Portfolio — assistant
   { id: 'pa1-1', conversationId: 'portfolio-assistant-1', role: 'agent', agentId: 'assistant', content: "Your portfolio project is set up. I've applied a minimal starter theme — perfect for showcasing design work. What's your first priority?", timestamp: '2026-01-20T09:30:00Z' },
   { id: 'pa1-2', conversationId: 'portfolio-assistant-1', role: 'user', content: 'I want a clean homepage with a brief intro and then a grid of case studies below.', timestamp: '2026-01-20T09:31:00Z', messageContext: { source: 'typed' } },
+
+  // Shaun's Blog — scripted theme browsing
+  {
+    id: 'bt-1',
+    conversationId: 'blog-assistant-themes',
+    role: 'agent',
+    agentId: 'assistant',
+    content: [
+      { type: 'text', text: "Here are some theme options that would work well for your blog. Take a look and let me know which one you'd like to try." },
+      {
+        type: 'card',
+        card: 'themePicker',
+        data: {
+          themes: [
+            { name: 'Twenty Twenty-Five', slug: 'twentytwentyfive', description: 'The latest default theme with flexible block patterns and clean typography.' },
+            { name: 'Flavor', slug: 'flavor', description: 'A warm editorial theme with rich color options and magazine-style layouts.' },
+            { name: 'Suspended', slug: 'suspended', description: 'A bold, modern theme with dramatic spacing and striking visual hierarchy.' },
+            { name: 'Suspended Dark', slug: 'suspended-dark', description: 'Dark variant of Suspended with inverted colors for a sleek nighttime feel.' },
+          ],
+        },
+      },
+      {
+        type: 'actions',
+        actions: [
+          { id: 'theme.apply.flavor', label: 'Apply Flavor', variant: 'primary', icon: check, action: { type: 'send-message', message: 'Apply the Flavor theme' } },
+          { id: 'theme.apply.twentytwentyfive', label: 'Apply Twenty Twenty-Five', variant: 'secondary', icon: check, action: { type: 'send-message', message: 'Apply Twenty Twenty-Five' } },
+          { id: 'theme.apply.suspended', label: 'Apply Suspended', variant: 'secondary', icon: check, action: { type: 'send-message', message: 'Apply Suspended' } },
+        ],
+      },
+    ],
+    timestamp: '2026-02-13T11:00:00Z',
+  },
+
+  // Downstreet Cafe — scripted content creation
+  {
+    id: 'cc-1',
+    conversationId: 'cafe-assistant-content',
+    role: 'agent',
+    agentId: 'assistant',
+    content: [
+      { type: 'text', text: "Hi! I can help you create pages and posts for the cafe site. What would you like to add?" },
+    ],
+    timestamp: '2026-02-13T12:00:00Z',
+  },
+  {
+    id: 'cc-2',
+    conversationId: 'cafe-assistant-content',
+    role: 'user',
+    content: 'I need an About page for the cafe.',
+    timestamp: '2026-02-13T12:01:00Z',
+    messageContext: { source: 'typed' },
+  },
 
   // Flavor Records — design
   { id: 'rd1-1', conversationId: 'records-design-1', role: 'agent', agentId: 'design', content: "Let's make this record label site look as good as the music sounds. What vibe are we going for?", timestamp: '2026-02-05T13:00:00Z' },

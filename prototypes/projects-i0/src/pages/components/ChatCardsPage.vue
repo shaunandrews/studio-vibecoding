@@ -5,9 +5,12 @@ import PluginCard from '@/components/composites/chat-cards/PluginCard.vue'
 import ColorPaletteCard from '@/components/composites/chat-cards/ColorPaletteCard.vue'
 import SettingsCard from '@/components/composites/chat-cards/SettingsCard.vue'
 import ProgressCard from '@/components/composites/chat-cards/ProgressCard.vue'
+import ThemePickerCard from '@/components/composites/chat-cards/ThemePickerCard.vue'
+import PageCard from '@/components/composites/chat-cards/PageCard.vue'
+import PostDraftCard from '@/components/composites/chat-cards/PostDraftCard.vue'
 import MarkdownText from '@/components/composites/renderers/MarkdownText.vue'
 import Text from '@/components/primitives/Text.vue'
-import type { PluginCardData, ColorPaletteData, SettingsCardData, ProgressCardData, CardUiState } from '@/data/types'
+import type { PluginCardData, ColorPaletteData, SettingsCardData, ProgressCardData, ThemePickerCardData, PageCardData, PostDraftCardData, CardUiState } from '@/data/types'
 import '@/pages/components/components-docs.css'
 
 const pluginAvailable: PluginCardData = {
@@ -71,6 +74,57 @@ const progressData: ProgressCardData = {
     { name: 'Verify permalinks', status: 'pending' },
     { name: 'Clear cache', status: 'pending' },
   ],
+}
+
+const themePickerData: ThemePickerCardData = {
+  themes: [
+    { name: 'Twenty Twenty-Five', slug: 'twentytwentyfive', description: 'The latest default theme with flexible block patterns.' },
+    { name: 'Flavor', slug: 'flavor', description: 'A warm editorial theme with rich color options.' },
+    { name: 'Suspended', slug: 'suspended', description: 'A bold, modern theme with dramatic spacing.' },
+  ],
+  actions: [
+    { id: 'apply-flavor', label: 'Apply Flavor', variant: 'primary', action: { type: 'send-message', message: 'Apply Flavor' } },
+  ],
+}
+
+const pageData: PageCardData = {
+  title: 'About Us',
+  slug: 'about',
+  template: 'Full Width',
+  status: 'draft',
+  excerpt: 'Learn about our story, our team, and our passion for great coffee and community.',
+  actions: [
+    { id: 'view-page', label: 'View', variant: 'secondary', action: { type: 'send-message', message: 'View About page' } },
+    { id: 'edit-page', label: 'Edit', variant: 'secondary', action: { type: 'send-message', message: 'Edit About page' } },
+    { id: 'delete-page', label: 'Delete', variant: 'destructive', action: { type: 'send-message', message: 'Delete About page' } },
+  ],
+}
+
+const pagePublished: PageCardData = {
+  title: 'Contact',
+  slug: 'contact',
+  template: 'Default',
+  status: 'published',
+}
+
+const postDraftData: PostDraftCardData = {
+  title: 'Welcome to Downstreet Cafe — We\'re Open!',
+  excerpt: 'After months of preparation, Downstreet Cafe is officially open for business. Stop by for handcrafted espresso drinks and fresh pastries.',
+  categories: ['Announcements', 'News'],
+  tags: ['grand opening', 'coffee', 'downtown'],
+  status: 'draft',
+  actions: [
+    { id: 'edit-post', label: 'Edit', variant: 'secondary', action: { type: 'send-message', message: 'Edit post' } },
+    { id: 'publish-post', label: 'Publish', variant: 'primary', action: { type: 'send-message', message: 'Publish post' } },
+  ],
+}
+
+const postPublishedData: PostDraftCardData = {
+  title: 'Our Favorite Summer Drinks',
+  excerpt: 'Beat the heat with our refreshing lineup of iced lattes, cold brews, and fruit smoothies.',
+  categories: ['Menu'],
+  tags: ['summer', 'drinks'],
+  status: 'published',
 }
 
 const cardStates: CardUiState[] = ['default', 'loading', 'complete', 'error', 'disabled']
@@ -250,6 +304,121 @@ const cardStates: CardUiState[] = ['default', 'loading', 'complete', 'error', 'd
     <h3>Loading state</h3>
     <div class="example-section">
       <ProgressCard :data="progressData" state="loading" />
+    </div>
+  </section>
+
+  <!-- ThemePickerCard -->
+  <section id="theme-picker-card">
+    <h2>ThemePickerCard</h2>
+    <p class="section-desc">Displays a grid of WordPress theme options with placeholder thumbnails, names, and descriptions. Supports action buttons for applying themes.</p>
+
+    <div class="props-table">
+      <h3>Props</h3>
+      <table>
+        <thead><tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>data</code></td><td><code>ThemePickerCardData</code></td><td>—</td><td>Theme list: <code>themes[]</code> (name, slug, description, thumbnail?), <code>actions?</code></td></tr>
+          <tr><td><code>compact</code></td><td><code>boolean</code></td><td><code>false</code></td><td>Single-column layout, hides descriptions</td></tr>
+          <tr><td><code>state</code></td><td><code>CardUiState</code></td><td><code>'default'</code></td><td>Visual state</td></tr>
+        </tbody>
+      </table>
+      <h3>Events</h3>
+      <table>
+        <thead><tr><th>Event</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>action</code></td><td>Emitted when an action button is clicked</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Theme grid with action</h3>
+    <div class="example-section">
+      <ThemePickerCard :data="themePickerData" />
+    </div>
+
+    <h3>Compact mode</h3>
+    <div class="example-section">
+      <ThemePickerCard :data="themePickerData" :compact="true" />
+    </div>
+  </section>
+
+  <!-- PageCard -->
+  <section id="page-card">
+    <h2>PageCard</h2>
+    <p class="section-desc">Displays a WordPress page with title, slug, template, status badge, optional excerpt, and action buttons for view/edit/delete.</p>
+
+    <div class="props-table">
+      <h3>Props</h3>
+      <table>
+        <thead><tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>data</code></td><td><code>PageCardData</code></td><td>—</td><td>Page info: <code>title</code>, <code>slug</code>, <code>template?</code>, <code>status</code>, <code>excerpt?</code>, <code>actions?</code></td></tr>
+          <tr><td><code>compact</code></td><td><code>boolean</code></td><td><code>false</code></td><td>Single line with title + status badge only</td></tr>
+          <tr><td><code>state</code></td><td><code>CardUiState</code></td><td><code>'default'</code></td><td>Visual state</td></tr>
+        </tbody>
+      </table>
+      <h3>Events</h3>
+      <table>
+        <thead><tr><th>Event</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>action</code></td><td>Emitted when an action button is clicked</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Draft page with actions</h3>
+    <div class="example-section">
+      <PageCard :data="pageData" />
+    </div>
+
+    <h3>Published page</h3>
+    <div class="example-section">
+      <PageCard :data="pagePublished" />
+    </div>
+
+    <h3>Compact mode</h3>
+    <div class="example-section">
+      <PageCard :data="pageData" :compact="true" />
+    </div>
+  </section>
+
+  <!-- PostDraftCard -->
+  <section id="post-draft-card">
+    <h2>PostDraftCard</h2>
+    <p class="section-desc">Displays a blog post draft with title, excerpt preview, category/tag pills, status badge, and action buttons for editing and publishing.</p>
+
+    <div class="props-table">
+      <h3>Props</h3>
+      <table>
+        <thead><tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>data</code></td><td><code>PostDraftCardData</code></td><td>—</td><td>Post info: <code>title</code>, <code>excerpt</code>, <code>categories?</code>, <code>tags?</code>, <code>status</code>, <code>actions?</code></td></tr>
+          <tr><td><code>compact</code></td><td><code>boolean</code></td><td><code>false</code></td><td>Title + status only</td></tr>
+          <tr><td><code>state</code></td><td><code>CardUiState</code></td><td><code>'default'</code></td><td>Visual state</td></tr>
+        </tbody>
+      </table>
+      <h3>Events</h3>
+      <table>
+        <thead><tr><th>Event</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>action</code></td><td>Emitted when an action button is clicked</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Draft post with actions</h3>
+    <div class="example-section">
+      <PostDraftCard :data="postDraftData" />
+    </div>
+
+    <h3>Published post</h3>
+    <div class="example-section">
+      <PostDraftCard :data="postPublishedData" state="complete" />
+    </div>
+
+    <h3>Compact mode</h3>
+    <div class="example-section">
+      <PostDraftCard :data="postDraftData" :compact="true" />
     </div>
   </section>
 
