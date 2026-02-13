@@ -40,6 +40,7 @@ function onSettingsSelect(value: string) {
         v-model="settingsValue"
         :groups="settingsOptions"
         :trigger-icon="cog"
+        :show-chevron="false"
         surface="dark"
         placement="below"
         @update:model-value="onSettingsSelect"

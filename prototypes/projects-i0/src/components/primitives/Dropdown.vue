@@ -20,8 +20,10 @@ const props = withDefaults(defineProps<{
   groups: DropdownGroup[]
   placement?: 'above' | 'below'
   triggerIcon?: any
+  showChevron?: boolean
   surface?: 'light' | 'dark'
 }>(), {
+  showChevron: true,
   surface: 'light',
 })
 
@@ -174,7 +176,7 @@ onUnmounted(() => {
     <button class="dropdown-trigger hstack gap-xxxs px-xxs py-xxxs" @click="toggle">
       <WPIcon v-if="triggerIcon" :icon="currentOption()?.icon || triggerIcon" :size="18" />
       <span v-else class="dropdown-label">{{ currentOption()?.label || modelValue }}</span>
-      <WPIcon :icon="chevronDown" :size="16" />
+      <WPIcon v-if="showChevron" :icon="chevronDown" :size="16" />
     </button>
     <Transition name="dropdown">
       <div
