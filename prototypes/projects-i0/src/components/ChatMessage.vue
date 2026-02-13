@@ -66,8 +66,6 @@ function copyMessage(content: string) {
   cursor: pointer;
   border-radius: var(--radius-m);
   border: 2px solid transparent;
-  padding: var(--space-xxs);
-  margin-inline: calc(-1 * var(--space-xxs));
   transition: border-color 150ms ease;
 }
 
@@ -76,11 +74,11 @@ function copyMessage(content: string) {
 }
 
 .chat-message-content {
-  padding: var(--space-xxs) var(--space-xs);
+  padding: var(--space-xs) var(--space-s);
 
   .chat-message--user & {
     background: var(--color-surface-secondary);
-    border-radius: var(--radius-s);
+    border-radius: var(--radius-m);
   }
 }
 
