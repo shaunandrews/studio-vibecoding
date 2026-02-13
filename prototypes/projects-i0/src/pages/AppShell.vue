@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import Titlebar from '../components/Titlebar.vue'
 import Sidebar from '../components/Sidebar.vue'
+import InputChat from '../components/InputChat.vue'
 </script>
 
 <template>
@@ -9,26 +10,11 @@ import Sidebar from '../components/Sidebar.vue'
     <div class="app-body hstack align-stretch gap-xs flex-1 min-w-0">
       <Sidebar />
       <main class="frame flex-1 overflow-hidden">
-        <div class="site-assistant">
-          <div class="messages">
+        <div class="site-assistant vstack flex-1">
+          <div class="messages flex-1 overflow-auto">
             <div class="message">Hello! I'm your site assistant. How can I help you today?</div>
           </div>
-          <div class="input">
-            <select>
-              <optgroup label="Anthropic">
-                <option>Opus 4.6</option>
-                <option>Sonnet 4.5</option>
-                <option>Hakiu 4.5</option>
-              </optgroup>
-              <optgroup label="OpenAI">
-                <option>GPT-4.5</option>
-                <option>GPT-4</option>
-                <option>GPT-3.5</option>
-              </optgroup>
-            </select>
-            <input type="text" placeholder="Type your message..." />
-            <button>Send</button>
-          </div>
+          <InputChat />
         </div>
       </main>
     </div>

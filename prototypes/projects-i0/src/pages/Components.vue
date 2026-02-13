@@ -5,10 +5,12 @@ import Button from '../components/Button.vue'
 import StatusIndicator from '../components/StatusIndicator.vue'
 import Titlebar from '../components/Titlebar.vue'
 import ProjectListItem from '../components/ProjectListItem.vue'
+import InputChat from '../components/InputChat.vue'
 import { cog, plus, upload, external, trash, pencil, chevronDown } from '@wordpress/icons'
 
 const componentNav = [
   { id: 'button', label: 'Button' },
+  { id: 'input-chat', label: 'InputChat' },
   { id: 'project-list-item', label: 'ProjectListItem' },
   { id: 'status-indicator', label: 'StatusIndicator' },
   { id: 'titlebar', label: 'Titlebar' },
@@ -138,6 +140,29 @@ const icons = Object.entries(wpIcons)
           <Button variant="tertiary" surface="dark" label="Small" size="small" :icon="trash" />
           <Button variant="tertiary" surface="dark" :icon="chevronDown" size="small" />
         </div>
+      </div>
+    </section>
+
+    <!-- InputChat -->
+    <section id="input-chat">
+      <h2>InputChat</h2>
+      <p class="section-desc">Chat input with auto-growing textarea, send button, and model picker dropdown.</p>
+
+      <div class="props-table">
+        <h3>Events</h3>
+        <table>
+          <thead>
+            <tr><th>Event</th><th>Payload</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>send</code></td><td><code>(message: string, model: string)</code></td><td>Emitted on send (click or Enter)</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Preview</h3>
+      <div class="example-section" style="max-width: 500px;">
+        <InputChat />
       </div>
     </section>
 
