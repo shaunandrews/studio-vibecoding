@@ -2,7 +2,7 @@
 import Titlebar from '../components/Titlebar.vue'
 import Sidebar from '../components/Sidebar.vue'
 import Panel from '../components/Panel.vue'
-import InputChat from '../components/InputChat.vue'
+import AgentPanel from '../components/AgentPanel.vue'
 import SitePreview from '../components/SitePreview.vue'
 </script>
 
@@ -14,12 +14,7 @@ import SitePreview from '../components/SitePreview.vue'
       <main class="frame vstack flex-1 overflow-hidden">
         <div class="panels hstack align-stretch flex-1 min-w-0">
           <Panel>
-            <div class="assistant-content vstack flex-1">
-              <div class="messages flex-1 overflow-auto p-s">
-                <div class="message">Hello! I'm your site assistant. How can I help you today?</div>
-              </div>
-              <InputChat />
-            </div>
+            <AgentPanel />
           </Panel>
           <Panel>
             <SitePreview />
@@ -49,13 +44,4 @@ import SitePreview from '../components/SitePreview.vue'
   border-radius: var(--radius-m);
 }
 
-.assistant-content {
-  height: 100%;
-}
-
-.messages {
-  max-width: 640px;
-  width: 100%;
-  margin: 0 auto;
-}
 </style>
