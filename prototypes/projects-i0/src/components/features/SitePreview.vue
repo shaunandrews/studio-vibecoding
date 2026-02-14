@@ -1,12 +1,27 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed } from 'vue'
 import { chevronLeft, chevronRight, rotateRight } from '@wordpress/icons'
 import Button from '@/components/primitives/Button.vue'
 import BrowserBar from '@/components/primitives/BrowserBar.vue'
 import PanelToolbar from '@/components/composites/PanelToolbar.vue'
 import Text from '@/components/primitives/Text.vue'
+import { mockSites } from '@/data/mock-sites'
+import { seedProjects } from '@/data/seed-projects'
 
-const url = ref('https://downstreet-cafe.local')
+const props = defineProps<{
+  projectId?: string | null
+}>()
+
+const project = computed(() =>
+  seedProjects.find((p) => p.id === props.projectId)
+)
+
+const url = computed(() => project.value?.url ?? '')
+
+const srcdoc = computed(() => {
+  if (!props.projectId) return undefined
+  return mockSites[props.projectId]?.homepage
+})
 </script>
 
 <template>
@@ -23,9 +38,13 @@ const url = ref('https://downstreet-cafe.local')
     </PanelToolbar>
     <div class="preview-frame flex-1 overflow-auto">
       <div class="preview-viewport-container">
-        <div class="preview-placeholder vstack align-center justify-center flex-1">
-          <Text variant="body" color="muted">Site preview</Text>
-          <Text variant="caption" color="muted">{{ url }}</Text>
+        <iframe
+          v-if="srcdoc"
+          :srcdoc="srcdoc"
+          class="preview-iframe"
+        />
+        <div v-else class="preview-placeholder vstack align-center justify-center flex-1">
+          <Text variant="body" color="muted">No preview available</Text>
         </div>
       </div>
     </div>
@@ -43,9 +62,15 @@ const url = ref('https://downstreet-cafe.local')
   background: var(--color-surface);
 }
 
+.preview-iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+}
+
 .preview-placeholder {
   height: 100%;
   gap: var(--space-xxxs);
 }
-
 </style>

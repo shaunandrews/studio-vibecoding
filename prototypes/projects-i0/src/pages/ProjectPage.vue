@@ -92,7 +92,7 @@ onBeforeUnmount(() => {
     </Panel>
     <div v-if="showPreview" class="resize-handle" @pointerdown="onPointerDown" />
     <Panel v-if="showPreview" :style="{ flex: 1, minWidth: MIN_PREVIEW_PX + 'px' }">
-      <SitePreview />
+      <SitePreview :project-id="activeProjectId" />
     </Panel>
   </div>
 </template>
