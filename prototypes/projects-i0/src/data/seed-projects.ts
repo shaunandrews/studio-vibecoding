@@ -37,4 +37,22 @@ export const seedProjects: Project[] = [
     createdAt: '2026-02-01T16:00:00Z',
     description: 'Independent record label and music blog.',
   },
+  {
+    id: 'mise-en-place',
+    name: 'Mise en Place',
+    favicon: 'https://api.dicebear.com/9.x/shapes/svg?seed=recipes',
+    status: 'running',
+    url: 'http://localhost:8885',
+    createdAt: '2026-02-08T11:00:00Z',
+    description: 'Recipe organizer and meal planner.',
+  },
+  {
+    id: 'ledger',
+    name: 'Ledger',
+    favicon: 'https://api.dicebear.com/9.x/shapes/svg?seed=invoice',
+    status: 'running',
+    url: 'http://localhost:8886',
+    createdAt: '2026-02-10T09:00:00Z',
+    description: 'Invoicing and payments app.',
+  },
 ]

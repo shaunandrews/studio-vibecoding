@@ -5,6 +5,8 @@ import downstreetCafeTheme from './downstreet-cafe'
 import shaunsBlogTheme from './shauns-blog'
 import uiPortfolioTheme from './ui-portfolio'
 import flavorRecordsTheme from './flavor-records'
+import miseEnPlaceTheme from './mise-en-place'
+import ledgerTheme from './ledger'
 
 const state = reactive<{ themes: Record<string, SiteTheme> }>({
   themes: {
@@ -12,6 +14,8 @@ const state = reactive<{ themes: Record<string, SiteTheme> }>({
     'shauns-blog': shaunsBlogTheme,
     'ui-portfolio': uiPortfolioTheme,
     'flavor-records': flavorRecordsTheme,
+    'mise-en-place': miseEnPlaceTheme,
+    'ledger': ledgerTheme,
   },
 })
 

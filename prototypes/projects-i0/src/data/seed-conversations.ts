@@ -17,6 +17,13 @@ export const seedConversations: Conversation[] = [
 
   // Flavor Records
   { id: 'records-design-1', projectId: 'flavor-records', agentId: 'design', title: 'Album grid layout', createdAt: '2026-02-05T13:00:00Z' },
+
+  // Mise en Place
+  { id: 'mise-assistant-1', projectId: 'mise-en-place', agentId: 'assistant', title: 'Recipe card layout', createdAt: '2026-02-08T11:30:00Z' },
+
+  // Ledger
+  { id: 'ledger-assistant-1', projectId: 'ledger', agentId: 'assistant', title: 'Invoice template', createdAt: '2026-02-10T09:30:00Z' },
+  { id: 'ledger-code-1', projectId: 'ledger', agentId: 'code', title: 'Payment status API', createdAt: '2026-02-11T10:00:00Z' },
 ]
 
 export const seedMessages: Message[] = [
@@ -86,4 +93,34 @@ export const seedMessages: Message[] = [
     ] } },
     { type: 'text', text: "The homepage leads with a featured release hero, then a grid of recent albums. Bold uppercase headings with weight 900 for that punchy label feel. Check the preview — want to tweak anything?" },
   ], timestamp: '2026-02-05T13:02:30Z' },
+
+  // Mise en Place — assistant
+  { id: 'ma1-1', conversationId: 'mise-assistant-1', role: 'agent', agentId: 'assistant', content: [{ type: 'text', text: "Welcome to Mise en Place! I can help you build out your recipe app — pages, layouts, features. What are we cooking up?" }], timestamp: '2026-02-08T11:30:00Z' },
+  { id: 'ma1-2', conversationId: 'mise-assistant-1', role: 'user', content: [{ type: 'text', text: 'The recipe cards on the dashboard need a better layout. I want to show the cook time and difficulty more prominently.' }], timestamp: '2026-02-08T11:31:00Z', messageContext: { source: 'typed' } },
+  { id: 'ma1-3', conversationId: 'mise-assistant-1', role: 'agent', agentId: 'assistant', content: [
+    { type: 'text', text: "I've redesigned the recipe cards. Cook time and difficulty now sit in a meta bar at the bottom of each card with subtle icons, and the cuisine tag is a pill badge overlaying the image. The cards also have a hover lift effect now." },
+    { type: 'text', text: "Take a look at the preview. Want me to adjust the spacing or try a different arrangement?" },
+  ], timestamp: '2026-02-08T11:32:00Z' },
+
+  // Ledger — assistant
+  { id: 'la1-1', conversationId: 'ledger-assistant-1', role: 'agent', agentId: 'assistant', content: [{ type: 'text', text: "Ledger is ready to go. I can help you set up invoice templates, client management, or the dashboard. Where should we start?" }], timestamp: '2026-02-10T09:30:00Z' },
+  { id: 'la1-2', conversationId: 'ledger-assistant-1', role: 'user', content: [{ type: 'text', text: 'I need an invoice detail page. Should show line items, totals, and have buttons to send reminders or mark as paid.' }], timestamp: '2026-02-10T09:31:00Z', messageContext: { source: 'typed' } },
+  { id: 'la1-3', conversationId: 'ledger-assistant-1', role: 'agent', agentId: 'assistant', content: [
+    { type: 'text', text: "Done. I've built the invoice detail page with a clean two-column header (from/to), a line items table with subtotal, tax, and total, plus action buttons for Send Reminder, Mark as Paid, and Download PDF." },
+    { type: 'card', card: 'page', data: { title: 'Invoice Detail', slug: '/invoice', template: 'app', status: 'published', excerpt: 'Full invoice view with line items, totals, payment details, and actions.' } },
+    { type: 'text', text: "Check the preview — the status badge updates based on payment state. Want to add anything else?" },
+  ], timestamp: '2026-02-10T09:32:00Z' },
+
+  // Ledger — code
+  { id: 'lc1-1', conversationId: 'ledger-code-1', role: 'agent', agentId: 'code', content: [{ type: 'text', text: "I'm the code agent for Ledger. I can wire up APIs, handle data models, or build custom components. What do you need?" }], timestamp: '2026-02-11T10:00:00Z' },
+  { id: 'lc1-2', conversationId: 'ledger-code-1', role: 'user', content: [{ type: 'text', text: 'I need a REST endpoint that returns invoice status — whether it\'s paid, pending, or overdue based on the due date.' }], timestamp: '2026-02-11T10:01:00Z', messageContext: { source: 'typed' } },
+  { id: 'lc1-3', conversationId: 'ledger-code-1', role: 'agent', agentId: 'code', content: [
+    { type: 'card', card: 'progress', data: { label: 'Building payment status endpoint', steps: [
+      { name: 'Created invoice status model', status: 'done' },
+      { name: 'Added GET /api/invoices/:id/status route', status: 'done' },
+      { name: 'Implemented overdue detection logic', status: 'done' },
+      { name: 'Added response schema validation', status: 'done' },
+    ] } },
+    { type: 'text', text: "The endpoint is live at `GET /api/invoices/:id/status`. It returns `{ status: 'paid' | 'pending' | 'overdue', daysUntilDue: number, amountDue: number }`. Overdue is calculated automatically from the due date. Want me to add webhook notifications for status changes?" },
+  ], timestamp: '2026-02-11T10:02:00Z' },
 ]

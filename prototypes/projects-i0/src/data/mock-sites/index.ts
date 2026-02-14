@@ -2,6 +2,8 @@ import { homepage as downstreetHomepage, menu as downstreetMenu, about as downst
 import { homepage as shaunsHomepage, post as shaunsPost, about as shaunsAbout } from './shauns-blog'
 import { homepage as uiHomepage, casestudy as uiCasestudy, contact as uiContact } from './ui-portfolio'
 import { homepage as flavorHomepage, artist as flavorArtist, releases as flavorReleases } from './flavor-records'
+import { homepage as miseHomepage, recipe as miseRecipe, mealplan as miseMealplan } from './mise-en-place'
+import { homepage as ledgerHomepage, invoice as ledgerInvoice, clients as ledgerClients } from './ledger'
 
 export interface MockSitePage {
   label: string
@@ -44,6 +46,22 @@ export const mockSites: Record<string, MockSite> = {
       homepage: { label: 'Home', html: flavorHomepage },
       artist: { label: 'Midnight Signal', html: flavorArtist },
       releases: { label: 'Releases', html: flavorReleases },
+    },
+  },
+  'mise-en-place': {
+    homepage: miseHomepage,
+    pages: {
+      homepage: { label: 'Dashboard', html: miseHomepage },
+      recipe: { label: 'Spicy Miso Ramen', html: miseRecipe },
+      mealplan: { label: 'Meal Plan', html: miseMealplan },
+    },
+  },
+  'ledger': {
+    homepage: ledgerHomepage,
+    pages: {
+      homepage: { label: 'Dashboard', html: ledgerHomepage },
+      invoice: { label: 'Invoice #INV-2024-0047', html: ledgerInvoice },
+      clients: { label: 'Clients', html: ledgerClients },
     },
   },
 }
