@@ -3,6 +3,7 @@ import { ref, watch, nextTick, onMounted, onUnmounted } from 'vue'
 import { chevronDown } from '@wordpress/icons'
 import WPIcon from '@/components/primitives/WPIcon.vue'
 import Text from '@/components/primitives/Text.vue'
+import Tooltip from '@/components/primitives/Tooltip.vue'
 
 export interface DropdownOption {
   value: string
@@ -22,6 +23,7 @@ const props = withDefaults(defineProps<{
   triggerIcon?: any
   showChevron?: boolean
   surface?: 'light' | 'dark'
+  tooltip?: string
 }>(), {
   showChevron: true,
   surface: 'light',
@@ -173,11 +175,13 @@ onUnmounted(() => {
 
 <template>
   <div class="dropdown" :class="{ 'surface-dark': surface === 'dark' }" ref="triggerRef">
-    <button class="dropdown-trigger hstack gap-xxxs px-xxs py-xxxs" @click="toggle">
-      <WPIcon v-if="triggerIcon" :icon="currentOption()?.icon || triggerIcon" :size="18" />
-      <span v-else class="dropdown-label">{{ currentOption()?.label || modelValue }}</span>
-      <WPIcon v-if="showChevron" :icon="chevronDown" :size="16" />
-    </button>
+    <Tooltip :text="open ? undefined : tooltip">
+      <button class="dropdown-trigger hstack gap-xxxs px-xxs py-xxxs" @click="toggle">
+        <WPIcon v-if="triggerIcon" :icon="currentOption()?.icon || triggerIcon" :size="18" />
+        <span v-else class="dropdown-label">{{ currentOption()?.label || modelValue }}</span>
+        <WPIcon v-if="showChevron" :icon="chevronDown" :size="16" />
+      </button>
+    </Tooltip>
     <Transition name="dropdown">
       <div
         v-if="open"

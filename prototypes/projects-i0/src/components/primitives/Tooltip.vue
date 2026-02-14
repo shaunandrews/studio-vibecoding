@@ -7,7 +7,7 @@ const props = withDefaults(defineProps<{
   placement?: 'top' | 'bottom' | 'left' | 'right'
   delay?: number
 }>(), {
-  placement: 'top',
+  placement: 'bottom',
   delay: 600,
 })
 

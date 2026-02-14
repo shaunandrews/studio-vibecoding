@@ -97,6 +97,7 @@ function onSettingsSelect(value: string) {
         :show-chevron="false"
         surface="dark"
         placement="below"
+        tooltip="Settings"
         @update:model-value="onSettingsSelect"
       />
       <Button variant="tertiary" surface="dark" :icon="help" size="small" tooltip="Help" />
