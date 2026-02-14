@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, nextTick } from 'vue'
 
+// Shared across all Tooltip instances for warm state
+let lastGlobalHide = 0
+const WARM_WINDOW = 500
+
 const props = withDefaults(defineProps<{
   text?: string
   placement?: 'top' | 'bottom' | 'left' | 'right'
@@ -15,10 +19,6 @@ const tooltipRef = ref<HTMLElement | null>(null)
 const visible = ref(false)
 const position = ref({ top: '0px', left: '0px' })
 let showTimeout: ReturnType<typeof setTimeout> | null = null
-
-// Shared warm state: if any tooltip was recently shown, skip the delay
-let lastGlobalHide = 0
-const WARM_WINDOW = 500
 
 function updatePosition() {
   if (!triggerRef.value || !tooltipRef.value) return
@@ -139,8 +139,8 @@ onUnmounted(() => {
   position: fixed;
   z-index: 9999;
   padding: var(--space-xxxs) var(--space-xxs);
-  background: var(--color-text);
-  color: var(--color-surface);
+  background: #1d2327;
+  color: #fff;
   font-family: var(--font-family);
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-medium);
