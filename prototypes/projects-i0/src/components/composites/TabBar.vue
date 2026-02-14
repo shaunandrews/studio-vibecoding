@@ -76,7 +76,7 @@ watch(() => props.tabs.length, () => {
       <div class="tab-bar__fade-left" :class="{ visible: canScrollLeft }" />
       <div class="tab-bar__fade-right" :class="{ visible: canScrollRight }" />
     </div>
-    <Button class="tab-bar__add" variant="tertiary" :icon="plus" @click="$emit('add')" />
+    <Button class="tab-bar__add" variant="tertiary" :icon="plus" tooltip="New chat" @click="$emit('add')" />
   </div>
 </template>
 

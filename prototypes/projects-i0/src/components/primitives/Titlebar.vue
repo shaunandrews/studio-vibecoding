@@ -99,7 +99,7 @@ function onSettingsSelect(value: string) {
         placement="below"
         @update:model-value="onSettingsSelect"
       />
-      <Button variant="tertiary" surface="dark" :icon="help" size="small" />
+      <Button variant="tertiary" surface="dark" :icon="help" size="small" tooltip="Help" />
     </div>
     <div v-if="showKeySettings" ref="keyPopoverRef" class="key-popover" @click.stop>
       <div class="key-popover__status">

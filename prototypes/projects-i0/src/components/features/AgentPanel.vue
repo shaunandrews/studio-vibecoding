@@ -147,7 +147,7 @@ function handleAction(action: ActionButton) {
       </template>
       <template #end>
         <Button variant="tertiary" :icon="drawerRight"
-          :active="previewVisible" @click="$emit('toggle-preview')" />
+          :active="previewVisible" :tooltip="previewVisible ? 'Hide preview' : 'Show preview'" @click="$emit('toggle-preview')" />
       </template>
     </PanelToolbar>
 
