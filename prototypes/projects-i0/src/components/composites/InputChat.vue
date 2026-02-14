@@ -62,7 +62,7 @@ function focusInput(e: MouseEvent) {
       rows="1"
     />
     <div class="input-toolbar hstack justify-between pt-xxs">
-      <Dropdown v-model="selectedModel" :groups="models" placement="above" :surface="props.surface" />
+      <Dropdown v-model="selectedModel" :groups="models" placement="above" :surface="props.surface" tooltip="Model" />
       <Button
         variant="primary"
         label="Send"
