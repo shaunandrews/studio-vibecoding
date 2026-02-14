@@ -26,8 +26,21 @@ const currentPage = ref('homepage')
 const history = ref<string[]>(['homepage'])
 const historyIndex = ref(0)
 
-// Color mode state
-const colorMode = ref<'light' | 'dark'>('light')
+// Color mode state (persisted per project)
+function storedColorMode(): 'light' | 'dark' {
+  if (!props.projectId) return 'light'
+  const stored = localStorage.getItem(`site-preview-mode:${props.projectId}`)
+  if (stored === 'dark' || stored === 'light') return stored
+  const theme = getTheme(props.projectId)
+  return theme?.settings.color.defaultMode ?? 'light'
+}
+const colorMode = ref<'light' | 'dark'>(storedColorMode())
+
+watch(colorMode, (mode) => {
+  if (props.projectId) {
+    localStorage.setItem(`site-preview-mode:${props.projectId}`, mode)
+  }
+})
 
 const canGoBack = computed(() => historyIndex.value > 0)
 const canGoForward = computed(() => historyIndex.value < history.value.length - 1)
@@ -59,8 +72,7 @@ function reload() {
 
 // Reset on project change
 watch(() => props.projectId, () => {
-  const theme = props.projectId ? getTheme(props.projectId) : undefined
-  colorMode.value = theme?.settings.color.defaultMode ?? 'light'
+  colorMode.value = storedColorMode()
   currentPage.value = 'homepage'
   history.value = ['homepage']
   historyIndex.value = 0

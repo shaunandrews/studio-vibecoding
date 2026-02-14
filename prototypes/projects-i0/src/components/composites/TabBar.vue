@@ -7,7 +7,7 @@ import Tooltip from '@/components/primitives/Tooltip.vue'
 export interface Tab {
   id: string
   label: string
-  lastMessage?: string
+  messageCount?: number
 }
 
 const props = defineProps<{
@@ -57,7 +57,7 @@ watch(() => props.tabs.length, () => {
         class="tab-bar__scroll hstack gap-xxxs"
         @scroll="updateScrollState"
       >
-        <Tooltip v-for="tab in tabs" :key="tab.id" :text="tab.lastMessage" :multiline="true">
+        <Tooltip v-for="tab in tabs" :key="tab.id" :text="tab.messageCount ? `${tab.messageCount} messages` : undefined">
           <button
             class="tab-bar__tab hstack gap-xxxs px-xs"
             :class="{ active: tab.id === activeId }"
