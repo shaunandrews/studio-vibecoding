@@ -11,6 +11,7 @@ const props = defineProps<{
   width?: 'hug' | 'full'
   shortcut?: string
   active?: boolean
+  disabled?: boolean
 }>()
 
 // No custom click emit — native click falls through via inheritAttrs
@@ -64,6 +65,7 @@ onUnmounted(() => {
       `btn--${width || 'hug'}`,
       { 'btn--icon-only': icon && !label, 'btn--active': active }
     ]"
+    :disabled="disabled"
   >
     <WPIcon v-if="icon" :icon="icon" :size="size === 'small' ? 18 : 18" />
     <span v-if="label" class="btn__label">{{ label }}</span>
@@ -205,5 +207,12 @@ onUnmounted(() => {
 
 .btn--tertiary.btn--on-dark:focus-visible {
   outline-color: var(--color-chrome-subtle);
+}
+
+/* Disabled */
+.btn:disabled {
+  opacity: 0.3;
+  cursor: default;
+  pointer-events: none;
 }
 </style>

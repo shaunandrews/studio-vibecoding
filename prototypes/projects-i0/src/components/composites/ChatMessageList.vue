@@ -29,7 +29,7 @@ watch(
 </script>
 
 <template>
-  <div ref="scrollerRef" class="messages flex-1 overflow-auto px-m py-l">
+  <div ref="scrollerRef" class="messages flex-1 overflow-auto px-s py-m">
     <div class="messages-inner vstack gap-m">
       <ChatMessage
         v-for="msg in messages"

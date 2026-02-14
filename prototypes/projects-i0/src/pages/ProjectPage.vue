@@ -43,11 +43,12 @@ const chatFraction = computed({
 })
 
 const containerRef = ref<HTMLElement | null>(null)
-let dragging = false
+const isDragging = ref(false)
 
 function onPointerDown(e: PointerEvent) {
   e.preventDefault()
-  dragging = true
+  ;(e.target as HTMLElement).setPointerCapture(e.pointerId)
+  isDragging.value = true
   document.body.style.cursor = 'col-resize'
   document.body.style.userSelect = 'none'
   document.addEventListener('pointermove', onPointerMove)
@@ -58,7 +59,7 @@ const MIN_CHAT_PX = 360
 const MIN_PREVIEW_PX = 400
 
 function onPointerMove(e: PointerEvent) {
-  if (!dragging || !containerRef.value) return
+  if (!isDragging.value || !containerRef.value) return
   const rect = containerRef.value.getBoundingClientRect()
   const minFraction = MIN_CHAT_PX / rect.width
   const maxFraction = 1 - MIN_PREVIEW_PX / rect.width
@@ -66,8 +67,8 @@ function onPointerMove(e: PointerEvent) {
   chatFraction.value = fraction
 }
 
-function onPointerUp() {
-  dragging = false
+function onPointerUp(e: PointerEvent) {
+  isDragging.value = false
   document.body.style.cursor = ''
   document.body.style.userSelect = ''
   document.removeEventListener('pointermove', onPointerMove)
@@ -86,7 +87,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div ref="containerRef" class="panels hstack align-stretch flex-1 min-w-0 min-h-0">
+  <div ref="containerRef" class="panels hstack align-stretch flex-1 min-w-0 min-h-0" :class="{ 'is-dragging': isDragging }">
     <Panel :style="showPreview ? { width: (chatFraction * 100) + '%', flex: 'none', minWidth: MIN_CHAT_PX + 'px' } : undefined">
       <AgentPanel :project-id="activeProjectId" :preview-visible="showPreview" @toggle-preview="showPreview = !showPreview" />
     </Panel>
@@ -118,9 +119,14 @@ onBeforeUnmount(() => {
   transition: background var(--duration-fast) var(--ease-default);
 }
 
-.resize-handle:hover::after {
+.resize-handle:hover::after,
+.is-dragging .resize-handle::after {
   width: 3px;
   margin-left: -1px;
   background: var(--color-accent);
+}
+
+.is-dragging :deep(iframe) {
+  pointer-events: none;
 }
 </style>

@@ -153,7 +153,7 @@ function handleAction(action: ActionButton) {
 
     <ChatMessageList :messages="msgs" @action="(_, action) => handleAction(action)" />
 
-    <div class="agent-panel__input shrink-0 px-l pb-l">
+    <div class="agent-panel__input shrink-0 px-s pb-s">
       <div class="agent-panel__input-inner">
         <InputChat ref="inputChatRef" v-model="currentDraft" @send="handleSend" />
       </div>
