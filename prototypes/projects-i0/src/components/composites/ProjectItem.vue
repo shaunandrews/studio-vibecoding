@@ -92,7 +92,7 @@ defineEmits<{
   text-overflow: ellipsis;
   white-space: nowrap;
   font-weight: 500;
-  font-size: var(--font-size-body);
+  font-size: var(--font-size-l);
   line-height: var(--line-height-body);
 }
 

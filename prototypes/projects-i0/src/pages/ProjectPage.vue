@@ -110,8 +110,7 @@ onBeforeUnmount(() => {
 
 <style scoped>
 .preview-panel {
-  flex: none;
-  width: 100%;
+  flex: 1;
   min-width: 0;
   overflow: hidden;
 }
