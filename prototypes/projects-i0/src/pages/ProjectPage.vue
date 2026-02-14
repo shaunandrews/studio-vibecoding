@@ -88,7 +88,7 @@ onBeforeUnmount(() => {
 
 <template>
   <div ref="containerRef" class="panels hstack align-stretch flex-1 min-w-0 min-h-0" :class="{ 'is-dragging': isDragging }">
-    <Panel class="chat-panel" :style="showPreview ? { width: (chatFraction * 100) + '%', flex: 'none', minWidth: MIN_CHAT_PX + 'px' } : undefined">
+    <Panel class="chat-panel" :style="{ width: showPreview ? (chatFraction * 100) + '%' : '100%', flex: 'none', minWidth: MIN_CHAT_PX + 'px' }">
       <AgentPanel :project-id="activeProjectId" :preview-visible="showPreview" @toggle-preview="showPreview = !showPreview" />
     </Panel>
     <div class="resize-handle" :class="{ 'resize-handle--hidden': !showPreview }" @pointerdown="onPointerDown" />
@@ -100,8 +100,7 @@ onBeforeUnmount(() => {
 
 <style scoped>
 .chat-panel {
-  transition: width var(--duration-slow) var(--ease-in-out),
-              flex var(--duration-slow) var(--ease-in-out);
+  transition: width var(--duration-slow) var(--ease-in-out);
 }
 
 .preview-panel {
