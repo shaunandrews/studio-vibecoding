@@ -3,6 +3,7 @@ import { ref, onMounted, onBeforeUnmount, nextTick, watch } from 'vue'
 import { plus, closeSmall } from '@wordpress/icons'
 import Text from '@/components/primitives/Text.vue'
 import Button from '@/components/primitives/Button.vue'
+import Tooltip from '@/components/primitives/Tooltip.vue'
 export interface Tab {
   id: string
   label: string
@@ -55,23 +56,23 @@ watch(() => props.tabs.length, () => {
         class="tab-bar__scroll hstack gap-xxxs"
         @scroll="updateScrollState"
       >
-        <button
-          v-for="tab in tabs"
-          :key="tab.id"
-          class="tab-bar__tab hstack gap-xxxs px-xs"
-          :class="{ active: tab.id === activeId }"
-          @click="$emit('update:activeId', tab.id)"
-        >
-          <Text :color="tab.id === activeId ? 'default' : 'secondary'">{{ tab.label }}</Text>
-          <Button
-            v-if="tab.id === activeId"
-            variant="tertiary"
-            size="small"
-            :icon="closeSmall"
-            aria-label="Close tab"
-            @click.stop="$emit('close', tab.id)"
-          />
-        </button>
+        <Tooltip v-for="tab in tabs" :key="tab.id" :text="tab.label">
+          <button
+            class="tab-bar__tab hstack gap-xxxs px-xs"
+            :class="{ active: tab.id === activeId }"
+            @click="$emit('update:activeId', tab.id)"
+          >
+            <Text :color="tab.id === activeId ? 'default' : 'secondary'">{{ tab.label }}</Text>
+            <Button
+              v-if="tab.id === activeId"
+              variant="tertiary"
+              size="small"
+              :icon="closeSmall"
+              aria-label="Close tab"
+              @click.stop="$emit('close', tab.id)"
+            />
+          </button>
+        </Tooltip>
       </div>
       <div class="tab-bar__fade-left" :class="{ visible: canScrollLeft }" />
       <div class="tab-bar__fade-right" :class="{ visible: canScrollRight }" />
