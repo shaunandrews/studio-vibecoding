@@ -75,6 +75,16 @@ function onPointerUp(e: PointerEvent) {
   document.removeEventListener('pointerup', onPointerUp)
 }
 
+const isAnimating = ref(false)
+let animationTimeout: ReturnType<typeof setTimeout> | null = null
+
+function togglePreview() {
+  isAnimating.value = true
+  showPreview.value = !showPreview.value
+  if (animationTimeout) clearTimeout(animationTimeout)
+  animationTimeout = setTimeout(() => { isAnimating.value = false }, 300)
+}
+
 const { activeProjectId } = useProjects()
 
 watch(() => route.params.id as string, (newId) => {
@@ -87,9 +97,9 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div ref="containerRef" class="panels hstack align-stretch flex-1 min-w-0 min-h-0" :class="{ 'is-dragging': isDragging }">
+  <div ref="containerRef" class="panels hstack align-stretch flex-1 min-w-0 min-h-0" :class="{ 'is-dragging': isDragging, 'is-animating': isAnimating }">
     <Panel class="chat-panel" :style="{ width: showPreview ? (chatFraction * 100) + '%' : '100%', flex: 'none', minWidth: MIN_CHAT_PX + 'px' }">
-      <AgentPanel :project-id="activeProjectId" :preview-visible="showPreview" @toggle-preview="showPreview = !showPreview" />
+      <AgentPanel :project-id="activeProjectId" :preview-visible="showPreview" @toggle-preview="togglePreview" />
     </Panel>
     <div class="resize-handle" :class="{ 'resize-handle--hidden': !showPreview }" @pointerdown="onPointerDown" />
     <Panel class="preview-panel" :class="{ 'preview-panel--hidden': !showPreview }">
@@ -99,22 +109,32 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
-.chat-panel {
-  transition: width var(--duration-slow) var(--ease-in-out);
-}
-
 .preview-panel {
   flex: 1;
   min-width: 0;
   overflow: hidden;
-  transition: flex var(--duration-slow) var(--ease-in-out),
-              opacity var(--duration-moderate) var(--ease-default);
 }
 
 .preview-panel--hidden {
   flex: 0;
   opacity: 0;
   pointer-events: none;
+}
+
+/* Only apply transitions during toggle animation, not during drag */
+.is-animating .chat-panel {
+  transition: width var(--duration-slow) var(--ease-in-out);
+}
+
+.is-animating .preview-panel {
+  transition: flex var(--duration-slow) var(--ease-in-out),
+              opacity var(--duration-moderate) var(--ease-default);
+}
+
+.is-animating .resize-handle {
+  transition: opacity var(--duration-moderate) var(--ease-default),
+              width var(--duration-moderate) var(--ease-default),
+              margin var(--duration-moderate) var(--ease-default);
 }
 
 .resize-handle {
@@ -124,7 +144,6 @@ onBeforeUnmount(() => {
   position: relative;
   z-index: 1;
   margin: 0 -2px;
-  transition: opacity var(--duration-moderate) var(--ease-default);
 }
 
 .resize-handle--hidden {
