@@ -24,6 +24,8 @@ withDefaults(defineProps<{
   border-radius: var(--radius-m);
   background: var(--color-surface);
   padding: var(--space-s);
+  margin: var(--space-m) 0;
+  margin-inline-start: calc(-1 * var(--space-s));
 }
 
 .chat-card--compact {

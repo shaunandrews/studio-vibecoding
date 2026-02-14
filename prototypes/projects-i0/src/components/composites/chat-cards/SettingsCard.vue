@@ -21,7 +21,7 @@ const emit = defineEmits<{
   <ChatCard :compact="compact" :state="state">
     <div class="vstack gap-xs">
       <strong>{{ data.label }}</strong>
-      <div class="vstack gap-xxxs">
+      <div class="settings-list vstack">
         <div
           v-for="setting in data.settings"
           :key="setting.key"
@@ -47,10 +47,19 @@ const emit = defineEmits<{
 </template>
 
 <style scoped>
-.setting-row {
-  padding: var(--space-xxxs) var(--space-xxs);
+.settings-list {
   border: 1px solid var(--color-surface-border);
   border-radius: var(--radius-s);
+  overflow: hidden;
+}
+
+.setting-row {
+  padding: var(--space-xxxs) var(--space-xxs);
+  border-block-end: 1px solid var(--color-surface-border);
+}
+
+.setting-row:last-child {
+  border-block-end: none;
 }
 
 .setting-key {

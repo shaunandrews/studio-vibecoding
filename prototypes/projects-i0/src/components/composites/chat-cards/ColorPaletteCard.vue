@@ -44,19 +44,24 @@ const emit = defineEmits<{
 <style scoped>
 .palette-grid {
   display: grid;
-  gap: var(--space-xxs);
+  border: 1px solid var(--color-surface-border);
+  border-radius: var(--radius-s);
+  overflow: hidden;
 }
 
 .swatch-item {
-  border: 1px solid var(--color-surface-border);
-  border-radius: var(--radius-s);
-  padding: var(--space-xxs);
+  padding: var(--space-s);
   min-width: 0;
+  border-block-end: 1px solid var(--color-surface-border);
+}
+
+.swatch-item:last-child {
+  border-block-end: none;
 }
 
 .swatch {
-  width: 14px;
-  height: 14px;
+  width: 26px;
+  height: 26px;
   border-radius: 50%;
   border: 1px solid rgba(0, 0, 0, 0.15);
   flex-shrink: 0;
