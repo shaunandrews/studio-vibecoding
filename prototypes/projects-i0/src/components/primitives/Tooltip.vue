@@ -1,9 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, nextTick } from 'vue'
-
-// Shared across all Tooltip instances for warm state
-let lastGlobalHide = 0
-const WARM_WINDOW = 500
+import { isWarm, markHide } from './tooltip-state'
 
 const props = withDefaults(defineProps<{
   text?: string
@@ -75,9 +72,7 @@ async function show() {
 
 function scheduleShow() {
   if (!props.text) return
-  const now = Date.now()
-  const isWarm = (now - lastGlobalHide) < WARM_WINDOW
-  const effectiveDelay = isWarm ? 0 : props.delay
+  const effectiveDelay = isWarm() ? 0 : props.delay
   showTimeout = setTimeout(show, effectiveDelay)
 }
 
@@ -88,7 +83,7 @@ function hide() {
   }
   if (visible.value) {
     visible.value = false
-    lastGlobalHide = Date.now()
+    markHide()
   }
 }
 
@@ -138,8 +133,8 @@ onUnmounted(() => {
 .tooltip {
   position: fixed;
   z-index: 9999;
-  padding: var(--space-xxxs) var(--space-xxs);
-  background: #1d2327;
+  padding: var(--space-xxs) var(--space-xs);
+  background: #000;
   color: #fff;
   font-family: var(--font-family);
   font-size: var(--font-size-xs);
