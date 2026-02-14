@@ -6,9 +6,11 @@ const props = withDefaults(defineProps<{
   text?: string
   placement?: 'top' | 'bottom' | 'left' | 'right'
   delay?: number
+  multiline?: boolean
 }>(), {
   placement: 'bottom',
   delay: 600,
+  multiline: false,
 })
 
 const triggerRef = ref<HTMLElement | null>(null)
@@ -115,6 +117,7 @@ onUnmounted(() => {
           v-if="visible && text"
           ref="tooltipRef"
           class="tooltip"
+          :class="{ 'tooltip--multiline': multiline }"
           role="tooltip"
           :style="position"
         >
@@ -144,6 +147,14 @@ onUnmounted(() => {
   white-space: nowrap;
   pointer-events: none;
   max-width: 240px;
+}
+
+.tooltip--multiline {
+  white-space: normal;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .tooltip-enter-active,

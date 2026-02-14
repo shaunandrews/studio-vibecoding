@@ -10,7 +10,7 @@ import { useConversations } from '@/data/useConversations'
 import type { ActionButton, Conversation } from '@/data/types'
 import type { Tab } from '@/components/composites/TabBar.vue'
 
-const { conversations, getMessages, ensureConversation, sendMessage } = useConversations()
+const { conversations, messages, getMessages, ensureConversation, sendMessage } = useConversations()
 
 const props = defineProps<{
   projectId?: string | null
@@ -59,9 +59,18 @@ const openTabs = computed<Tab[]>(() => {
     .map(id => {
       const convo = conversations.value.find(c => c.id === id)
       if (!convo) return null
+      const convoMessages = messages.value
+        .filter(m => m.conversationId === convo.id)
+        .sort((a, b) => a.timestamp.localeCompare(b.timestamp))
+      const lastMsg = convoMessages[convoMessages.length - 1]
+      const lastText = lastMsg?.content
+        .filter((b): b is { type: 'text'; text: string } => b.type === 'text')
+        .map(b => b.text)
+        .join(' ')
       return {
         id: convo.id,
         label: convo.title || 'New chat',
+        lastMessage: lastText || undefined,
       }
     })
     .filter((t): t is Tab => !!t)
