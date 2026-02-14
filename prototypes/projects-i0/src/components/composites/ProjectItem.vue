@@ -33,8 +33,9 @@ defineEmits<{
           <StatusIndicator :status="project.status" @toggle.stop="$emit('toggle-status', project.id)" />
         </Tooltip>
       </div>
-    <div class="item-preview">
-      <Text variant="caption" color="muted" class="preview-placeholder">Site preview</Text>
+      <div class="item-preview">
+        <Text variant="caption" color="muted" class="preview-placeholder">Site preview</Text>
+      </div>
     </div>
   </Tooltip>
 </template>
