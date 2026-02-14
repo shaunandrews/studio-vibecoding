@@ -1,11 +1,6 @@
 import { ref, computed, type Ref, unref } from 'vue'
 import { seedConversations, seedMessages } from './seed-conversations'
-import {
-  SCRIPTED_REPLY_DELAY_MS,
-  buildFallbackAgentMessage,
-  getInitialScriptState,
-  resolveScriptTransition,
-} from './scripted-flows'
+import { isAIConfigured, sendToAI } from './ai-service'
 import type { Conversation, Message, AgentId, ContentBlock, MessageContext } from './types'
 
 // Module-level state (singleton)
@@ -41,7 +36,6 @@ function cloneMessage(message: Message): Message {
 
 const conversations = ref<Conversation[]>(seedConversations.map(conversation => ({ ...conversation })))
 const messages = ref<Message[]>(seedMessages.map(cloneMessage))
-const scriptedState = ref<Record<string, string>>({})
 
 function textBlocks(text: string): ContentBlock[] {
   return [{ type: 'text', text }]
@@ -73,37 +67,59 @@ function getConversationAgent(conversationId: string): AgentId | undefined {
   return conversations.value.find(c => c.id === conversationId)?.agentId
 }
 
-function ensureScriptState(conversationId: string): string | null {
-  const existing = scriptedState.value[conversationId]
-  if (existing) return existing
-  const initial = getInitialScriptState(conversationId)
-  if (!initial) return null
-  scriptedState.value = { ...scriptedState.value, [conversationId]: initial }
-  return initial
-}
-
-function setScriptState(conversationId: string, state: string) {
-  scriptedState.value = { ...scriptedState.value, [conversationId]: state }
-}
-
-function maybeQueueScriptedResponse(conversationId: string, text: string, messageContext?: MessageContext) {
-  const state = ensureScriptState(conversationId)
-  if (!state) return
-
-  const transition = resolveScriptTransition(conversationId, state, text, messageContext)
-  const fallback = !transition ? buildFallbackAgentMessage(conversationId) : null
-  const replies = transition?.responses ?? (fallback ? [fallback] : [])
+function queueAgentResponse(conversationId: string, text: string) {
   const agentId = getConversationAgent(conversationId)
+  sendToAIWithIndicator(conversationId, text, agentId)
+}
 
-  if (replies.length === 0) return
+async function sendToAIWithIndicator(conversationId: string, text: string, agentId?: AgentId) {
+  if (!isAIConfigured()) {
+    window.setTimeout(() => {
+      appendMessage(
+        conversationId,
+        'agent',
+        "I'm not connected to an AI service yet. Add your Anthropic API key in settings to enable live responses.",
+        agentId,
+      )
+    }, 500)
+    return
+  }
 
-  if (transition) setScriptState(conversationId, transition.to)
+  // Add thinking indicator
+  const thinkingId = `msg-thinking-${Date.now()}`
+  messages.value.push({
+    id: thinkingId,
+    conversationId,
+    role: 'agent',
+    agentId,
+    content: [{ type: 'text', text: 'Thinking…' }],
+    timestamp: new Date().toISOString(),
+  })
 
-  window.setTimeout(() => {
-    for (const reply of replies) {
-      appendMessage(conversationId, reply.role, reply.content, agentId)
+  // Build message history
+  const history = messages.value
+    .filter(m => m.conversationId === conversationId && m.id !== thinkingId)
+    .sort((a, b) => a.timestamp.localeCompare(b.timestamp))
+    .map(m => ({
+      role: (m.role === 'user' ? 'user' : 'assistant') as 'user' | 'assistant',
+      content: m.content
+        .filter((b): b is { type: 'text'; text: string } => b.type === 'text')
+        .map(b => b.text)
+        .join('\n') || '(card response)',
+    }))
+
+  const aiBlocks = await sendToAI(history)
+
+  // Replace thinking message with AI response
+  const idx = messages.value.findIndex(m => m.id === thinkingId)
+  if (idx !== -1) {
+    messages.value[idx] = {
+      ...messages.value[idx]!,
+      id: `msg-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+      content: aiBlocks,
+      timestamp: new Date().toISOString(),
     }
-  }, SCRIPTED_REPLY_DELAY_MS)
+  }
 }
 
 export function useConversations() {
@@ -158,7 +174,7 @@ export function useConversations() {
           .filter(block => block.type === 'text')
           .map(block => block.text)
           .join('\n')
-      maybeQueueScriptedResponse(conversationId, text, messageContext)
+      queueAgentResponse(conversationId, text)
     }
   }
 
