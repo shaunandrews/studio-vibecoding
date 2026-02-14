@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref } from 'vue'
 import WPIcon from '@/components/primitives/WPIcon.vue'
+import Tooltip from '@/components/primitives/Tooltip.vue'
 
 const props = defineProps<{
   icon?: any
@@ -12,6 +13,7 @@ const props = defineProps<{
   shortcut?: string
   active?: boolean
   disabled?: boolean
+  tooltip?: string
 }>()
 
 // No custom click emit — native click falls through via inheritAttrs
@@ -55,23 +57,25 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <button
-    ref="btnRef"
-    class="btn"
-    :class="[
-      `btn--${variant || 'secondary'}`,
-      `btn--${size || 'default'}`,
-      `btn--on-${surface || 'light'}`,
-      `btn--${width || 'hug'}`,
-      { 'btn--icon-only': icon && !label, 'btn--active': active }
-    ]"
-    :disabled="disabled"
-  >
-    <WPIcon v-if="icon" :icon="icon" :size="size === 'small' ? 18 : 18" />
-    <span v-if="label" class="btn__label">{{ label }}</span>
-    <span v-if="shortcut" class="btn__shortcut">{{ formatShortcut(shortcut) }}</span>
-    <slot v-if="!icon && !label && !shortcut" />
-  </button>
+  <Tooltip :text="tooltip">
+    <button
+      ref="btnRef"
+      class="btn"
+      :class="[
+        `btn--${variant || 'secondary'}`,
+        `btn--${size || 'default'}`,
+        `btn--on-${surface || 'light'}`,
+        `btn--${width || 'hug'}`,
+        { 'btn--icon-only': icon && !label, 'btn--active': active }
+      ]"
+      :disabled="disabled"
+    >
+      <WPIcon v-if="icon" :icon="icon" :size="size === 'small' ? 18 : 18" />
+      <span v-if="label" class="btn__label">{{ label }}</span>
+      <span v-if="shortcut" class="btn__shortcut">{{ formatShortcut(shortcut) }}</span>
+      <slot v-if="!icon && !label && !shortcut" />
+    </button>
+  </Tooltip>
 </template>
 
 <style scoped>

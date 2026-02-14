@@ -33,7 +33,8 @@ src/
 
 ## Components
 
-- **Button** — `variant` (primary/secondary/tertiary), `surface` (light/dark), `size` (default/small), `width` (hug/full), `icon`, `label`
+- **Button** — `variant` (primary/secondary/tertiary), `surface` (light/dark), `size` (default/small), `width` (hug/full), `icon`, `label`, `tooltip`, `disabled`
+- **Tooltip** — `text`, `placement` (top/bottom/left/right), `delay` (ms, default 600). Smart viewport flipping. Warm state skips delay between consecutive tooltips.
 - **WPIcon** — Vue wrapper for `@wordpress/icons`. Props: `icon`, `size`
 - **StatusIndicator** — `status` (stopped/loading/running). Emits `toggle`. Clip-path morph animation on hover.
 - **Titlebar** — App titlebar with traffic lights, sidebar toggle, greeting, settings/help

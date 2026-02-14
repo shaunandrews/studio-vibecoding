@@ -9,6 +9,7 @@ import Dropdown from '@/components/primitives/Dropdown.vue'
 import Avatar from '@/components/primitives/Avatar.vue'
 import Badge from '@/components/primitives/Badge.vue'
 import BrowserBar from '@/components/primitives/BrowserBar.vue'
+import Tooltip from '@/components/primitives/Tooltip.vue'
 import { cog, plus, upload, external, trash, pencil, chevronDown } from '@wordpress/icons'
 import '@/pages/components/components-docs.css'
 
@@ -329,6 +330,56 @@ const icons = Object.entries(wpIcons)
         <Text variant="caption" tag="small">Rendered as small</Text>
       </div>
     </div>
+  </section>
+
+  <!-- Tooltip -->
+  <section id="tooltip">
+    <h2>Tooltip</h2>
+    <p class="section-desc">Small contextual label that appears on hover after a short delay. Smart positioning avoids viewport edges. Warm state skips delay when moving between tooltipped elements.</p>
+
+    <div class="props-table">
+      <h3>Props</h3>
+      <table>
+        <thead><tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>text</code></td><td><code>string</code></td><td>—</td><td>Tooltip content. No tooltip if empty.</td></tr>
+          <tr><td><code>placement</code></td><td><code>'top' | 'bottom' | 'left' | 'right'</code></td><td><code>'top'</code></td><td>Preferred position (auto-flips if clipped)</td></tr>
+          <tr><td><code>delay</code></td><td><code>number</code></td><td><code>600</code></td><td>Delay in ms before showing</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Placements</h3>
+    <div class="example-section">
+      <div class="hstack gap-m justify-center" style="padding: 40px 0;">
+        <Tooltip text="I'm on top" placement="top">
+          <Button variant="secondary" label="Top" />
+        </Tooltip>
+        <Tooltip text="I'm on the bottom" placement="bottom">
+          <Button variant="secondary" label="Bottom" />
+        </Tooltip>
+        <Tooltip text="I'm on the left" placement="left">
+          <Button variant="secondary" label="Left" />
+        </Tooltip>
+        <Tooltip text="I'm on the right" placement="right">
+          <Button variant="secondary" label="Right" />
+        </Tooltip>
+      </div>
+    </div>
+
+    <h3>Button tooltip prop</h3>
+    <p class="section-desc">Buttons accept a <code>tooltip</code> prop directly — useful for icon-only buttons.</p>
+    <div class="example-section">
+      <div class="hstack gap-xxs" style="padding: 20px 0;">
+        <Button variant="tertiary" :icon="cog" tooltip="Settings" />
+        <Button variant="tertiary" :icon="pencil" tooltip="Edit" />
+        <Button variant="tertiary" :icon="trash" tooltip="Delete" />
+        <Button variant="tertiary" :icon="external" tooltip="Open in browser" />
+      </div>
+    </div>
+
+    <h3>Warm state</h3>
+    <p class="section-desc">After dismissing one tooltip, hovering another shows instantly (no delay). Try moving between the buttons above quickly.</p>
   </section>
 
   <!-- Titlebar -->
