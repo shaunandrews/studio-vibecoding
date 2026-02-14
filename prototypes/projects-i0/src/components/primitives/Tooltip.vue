@@ -151,10 +151,13 @@ onUnmounted(() => {
 
 .tooltip--multiline {
   white-space: normal;
+  max-width: 280px;
+  padding: var(--space-xxs) var(--space-xs);
   display: -webkit-box;
-  -webkit-line-clamp: 3;
+  -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  line-height: var(--line-height-normal);
 }
 
 .tooltip-enter-active,
