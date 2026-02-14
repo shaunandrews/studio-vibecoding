@@ -97,7 +97,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div ref="containerRef" class="panels hstack align-stretch flex-1 min-w-0 min-h-0" :class="{ 'is-dragging': isDragging, 'is-animating': isAnimating }">
+  <div ref="containerRef" class="panels hstack align-stretch flex-1 min-w-0 min-h-0 overflow-hidden" :class="{ 'is-dragging': isDragging, 'is-animating': isAnimating }">
     <Panel class="chat-panel" :style="{ width: showPreview ? (chatFraction * 100) + '%' : '100%', flex: 'none', minWidth: MIN_CHAT_PX + 'px' }">
       <AgentPanel :project-id="activeProjectId" :preview-visible="showPreview" @toggle-preview="togglePreview" />
     </Panel>
@@ -110,31 +110,19 @@ onBeforeUnmount(() => {
 
 <style scoped>
 .preview-panel {
-  flex: 1;
+  flex: none;
+  width: 100%;
   min-width: 0;
   overflow: hidden;
 }
 
 .preview-panel--hidden {
-  flex: 0;
-  opacity: 0;
   pointer-events: none;
 }
 
 /* Only apply transitions during toggle animation, not during drag */
 .is-animating .chat-panel {
   transition: width var(--duration-slow) var(--ease-in-out);
-}
-
-.is-animating .preview-panel {
-  transition: flex var(--duration-slow) var(--ease-in-out),
-              opacity var(--duration-moderate) var(--ease-default);
-}
-
-.is-animating .resize-handle {
-  transition: opacity var(--duration-moderate) var(--ease-default),
-              width var(--duration-moderate) var(--ease-default),
-              margin var(--duration-moderate) var(--ease-default);
 }
 
 .resize-handle {

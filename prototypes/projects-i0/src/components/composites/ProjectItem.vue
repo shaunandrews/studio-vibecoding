@@ -57,7 +57,7 @@ defineEmits<{
 .project-item.mode-row {
   background: transparent;
   border-radius: var(--radius-s);
-  padding: var(--space-xxs);
+  padding: var(--space-xs);
   color: var(--color-chrome-text-secondary);
 }
 
