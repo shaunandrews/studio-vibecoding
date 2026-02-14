@@ -18,8 +18,8 @@ withDefaults(defineProps<{
 
 <style scoped>
 .chat-card {
-  width: min(100%, 520px);
-  min-width: min(100%, 360px);
+  width: calc(100% + var(--space-s) * 2);
+  min-width: 360px;
   border: 1px solid var(--color-surface-border);
   border-radius: var(--radius-m);
   background: var(--color-surface);

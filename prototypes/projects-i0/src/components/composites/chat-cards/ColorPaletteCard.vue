@@ -21,12 +21,10 @@ const emit = defineEmits<{
   <ChatCard :compact="compact" :state="state">
     <div class="vstack gap-xs">
       <strong>{{ data.label }}</strong>
-      <div class="palette-grid" :class="{ 'palette-grid--compact': compact }">
-        <div v-for="color in data.colors" :key="`${color.name}-${color.hex}`" class="swatch-item hstack gap-xs">
+      <div class="palette-row hstack gap-xs">
+        <div v-for="color in data.colors" :key="color.hex" class="swatch-item vstack gap-xxxs">
           <span class="swatch" :style="{ backgroundColor: color.hex }" />
-          <span class="swatch-label">{{ color.name }}</span>
-          <span v-if="!compact" class="swatch-hex">{{ color.hex }}</span>
-          <span v-if="!compact" class="swatch-usage">{{ color.usage }}</span>
+          <span class="swatch-name">{{ color.name }}</span>
         </div>
       </div>
       <Button
@@ -42,42 +40,30 @@ const emit = defineEmits<{
 </template>
 
 <style scoped>
-.palette-grid {
-  display: grid;
-  border: 1px solid var(--color-surface-border);
-  border-radius: var(--radius-s);
-  overflow: hidden;
+.palette-row {
+  flex-wrap: wrap;
 }
 
 .swatch-item {
-  padding: var(--space-s);
+  align-items: center;
   min-width: 0;
-  border-block-end: 1px solid var(--color-surface-border);
-}
-
-.swatch-item:last-child {
-  border-block-end: none;
 }
 
 .swatch {
-  width: 26px;
-  height: 26px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
-  border: 1px solid rgba(0, 0, 0, 0.15);
+  border: 1px solid var(--color-surface-border);
   flex-shrink: 0;
 }
 
-.swatch-label {
-  font-weight: var(--font-weight-medium);
-}
-
-.swatch-hex,
-.swatch-usage {
-  color: var(--color-text-muted);
+.swatch-name {
   font-size: var(--font-size-xs);
-}
-
-.palette-grid--compact .swatch-item {
-  padding: var(--space-xxxs) var(--space-xxs);
+  color: var(--color-text-secondary);
+  text-align: center;
+  max-width: 60px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 </style>

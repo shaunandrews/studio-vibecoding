@@ -85,11 +85,12 @@ export const seedMessages: Message[] = [
   { id: 'rd1-3', conversationId: 'records-design-1', role: 'agent', agentId: 'design', content: [{ type: 'text', text: 'Love it. I\'ll set up a dark theme with off-black (#1A1A1A), warm white (#F5F0EB) text, and a large album grid as the centerpiece of the homepage. Typography will be a heavy sans-serif for headings. Let me draft the layout.' }], timestamp: '2026-02-05T13:01:30Z' },
   { id: 'rd1-4', conversationId: 'records-design-1', role: 'agent', agentId: 'design', content: [
     { type: 'text', text: "Here's the palette I've put together:" },
-    { type: 'card', card: 'colorPalette', data: { label: 'Flavor Records', colors: [
-      { name: 'Background', hex: '#1A1A1A', usage: 'Page background' },
-      { name: 'Text', hex: '#F5F0EB', usage: 'Primary text, headings' },
-      { name: 'Muted', hex: '#999999', usage: 'Secondary text, metadata' },
-      { name: 'Surface', hex: '#2A2A2A', usage: 'Cards, borders, dividers' },
+    { type: 'card', card: 'colorPalette', data: { label: 'Color Palette', colors: [
+      { name: 'Charcoal', hex: '#1A1A1A' },
+      { name: 'Parchment', hex: '#F5F0EB' },
+      { name: 'Electric Red', hex: '#E63946' },
+      { name: 'Slate', hex: '#2A2A2A' },
+      { name: 'Muted', hex: '#999999' },
     ] } },
     { type: 'text', text: "The homepage leads with a featured release hero, then a grid of recent albums. Bold uppercase headings with weight 900 for that punchy label feel. Check the preview — want to tweak anything?" },
   ], timestamp: '2026-02-05T13:02:30Z' },

@@ -93,7 +93,7 @@ export interface PluginCardData {
 
 export interface ColorPaletteData {
   label: string
-  colors: { name: string; hex: string; usage: string }[]
+  colors: { name: string; hex: string }[]
   action?: ActionButton
 }
 
@@ -109,7 +109,7 @@ export interface ProgressCardData {
 }
 
 export interface ThemePickerCardData {
-  themes: { name: string; slug: string; thumbnail?: string; description: string }[]
+  themes: { name: string; slug: string; description?: string; colors?: string[] }[]
   actions?: ActionButton[]
 }
 

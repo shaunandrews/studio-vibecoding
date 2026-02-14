@@ -17,7 +17,6 @@ defineEmits<{
 </script>
 
 <template>
-  <Tooltip :text="project.name" placement="right">
     <div
       class="project-item"
       :class="[`mode-${mode}`, { active }]"
@@ -37,7 +36,6 @@ defineEmits<{
         <Text variant="caption" color="muted" class="preview-placeholder">Site preview</Text>
       </div>
     </div>
-  </Tooltip>
 </template>
 
 <style scoped>

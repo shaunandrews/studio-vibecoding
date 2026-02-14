@@ -3,7 +3,7 @@ import Button from '@/components/primitives/Button.vue'
 import ChatCard from './ChatCard.vue'
 import type { ActionButton, CardUiState, ThemePickerCardData } from '@/data/types'
 
-const props = withDefaults(defineProps<{
+withDefaults(defineProps<{
   data: ThemePickerCardData
   compact?: boolean
   state?: CardUiState
@@ -15,24 +15,25 @@ const props = withDefaults(defineProps<{
 const emit = defineEmits<{
   action: [action: ActionButton]
 }>()
-
-const thumbnailColors = ['#8B5CF6', '#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#EC4899']
-
-function colorForTheme(index: number): string {
-  return thumbnailColors[index % thumbnailColors.length]
-}
 </script>
 
 <template>
   <ChatCard :compact="compact" :state="state">
     <div class="theme-picker vstack gap-xs">
       <div class="theme-grid" :class="{ 'theme-grid--compact': compact }">
-        <div v-for="(theme, idx) in data.themes" :key="theme.slug" class="theme-item vstack gap-xxxs">
-          <div class="theme-thumbnail" :style="{ backgroundColor: colorForTheme(idx) }">
-            <span class="theme-thumbnail-label">{{ theme.name }}</span>
+        <div v-for="theme in data.themes" :key="theme.slug" class="theme-item vstack gap-xxxs">
+          <div class="theme-thumbnail" :style="{ backgroundColor: theme.colors?.[0] || '#e0e0e0' }">
+            <div class="theme-thumbnail-swatches hstack">
+              <span
+                v-for="(color, i) in (theme.colors || []).slice(0, 5)"
+                :key="i"
+                class="theme-swatch"
+                :style="{ backgroundColor: color }"
+              />
+            </div>
           </div>
           <strong class="theme-name">{{ theme.name }}</strong>
-          <p v-if="!compact" class="theme-description">{{ theme.description }}</p>
+          <p v-if="!compact && theme.description" class="theme-description">{{ theme.description }}</p>
         </div>
       </div>
       <div v-if="data.actions?.length" class="hstack gap-xxs flex-wrap">
@@ -65,15 +66,19 @@ function colorForTheme(index: number): string {
   aspect-ratio: 16 / 10;
   border-radius: var(--radius-s);
   display: flex;
-  align-items: center;
-  justify-content: center;
+  align-items: flex-end;
+  overflow: hidden;
+  border: 1px solid var(--color-surface-border);
 }
 
-.theme-thumbnail-label {
-  color: white;
-  font-size: var(--font-size-xs);
-  font-weight: 600;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+.theme-thumbnail-swatches {
+  width: 100%;
+  gap: 0;
+}
+
+.theme-swatch {
+  flex: 1;
+  height: 20px;
 }
 
 .theme-name {

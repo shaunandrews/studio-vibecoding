@@ -186,16 +186,16 @@ onUnmounted(() => {
       <div
         v-if="open"
         ref="menuRef"
-        class="dropdown-menu vstack p-xxxs"
+        class="dropdown-menu vstack"
         :class="resolvedPlacement === 'below' ? 'dropdown-menu--below' : 'dropdown-menu--above'"
         :style="menuStyle"
       >
         <div v-for="group in groups" :key="group.label" class="dropdown-group">
-          <Text variant="label" color="muted" class="dropdown-group-label px-xs py-xxxs">{{ group.label }}</Text>
+          <Text variant="label" color="muted" class="dropdown-group-label p-xs">{{ group.label }}</Text>
           <button
             v-for="option in group.options"
             :key="normalize(option).value"
-            class="dropdown-option hstack gap-xxs px-xs py-xxxs"
+            class="dropdown-option hstack gap-xxs p-xs"
             :class="{ active: normalize(option).value === modelValue }"
             @click="select(normalize(option).value)"
           >
@@ -239,17 +239,9 @@ onUnmounted(() => {
   z-index: 10;
 }
 
-.dropdown-menu--above {
-  /* positioned via inline styles */
-}
-
-.dropdown-menu--below {
-  /* positioned via inline styles */
-}
-
 .dropdown-group + .dropdown-group {
   border-top: 1px solid var(--color-surface-border);
-  margin-top: var(--space-xxxs); /* separator spacing between groups */
+  margin-top: var(--space-xxxs);
   padding-top: var(--space-xxxs);
 }
 
