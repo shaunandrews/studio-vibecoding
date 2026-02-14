@@ -104,7 +104,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div
+  <span
     ref="triggerRef"
     class="tooltip-trigger"
     @pointerenter="scheduleShow"
@@ -127,12 +127,12 @@ onUnmounted(() => {
         </div>
       </Transition>
     </Teleport>
-  </div>
+  </span>
 </template>
 
 <style scoped>
 .tooltip-trigger {
-  display: contents;
+  display: inline-flex;
 }
 
 .tooltip {
