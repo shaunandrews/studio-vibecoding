@@ -134,6 +134,10 @@ function buttonVariant(variant?: ActionButton['variant']): 'primary' | 'secondar
   width: 100%;
 }
 
+.chat-message--user {
+  align-items: flex-end;
+}
+
 .chat-message--user .chat-message-body {
   width: fit-content;
   max-width: min(100%, 620px);
