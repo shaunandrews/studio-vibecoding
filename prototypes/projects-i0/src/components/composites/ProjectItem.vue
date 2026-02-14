@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import Text from '@/components/primitives/Text.vue'
 import StatusIndicator from '@/components/primitives/StatusIndicator.vue'
+import Tooltip from '@/components/primitives/Tooltip.vue'
 import type { Project } from '@/data/types'
 
 defineProps<{
@@ -16,23 +17,26 @@ defineEmits<{
 </script>
 
 <template>
-  <div
-    class="project-item"
-    :class="[`mode-${mode}`, { active }]"
-    @click="$emit('select', project.id)"
-  >
-    <div class="item-header hstack gap-xs">
-      <img class="item-favicon shrink-0" :src="project.favicon" alt="" />
-      <div class="flex-1 min-w-0">
-        <div class="item-name">{{ project.name }}</div>
-        <div class="item-url"><Text variant="caption" color="muted">{{ project.url }}</Text></div>
+  <Tooltip :text="project.name" placement="right">
+    <div
+      class="project-item"
+      :class="[`mode-${mode}`, { active }]"
+      @click="$emit('select', project.id)"
+    >
+      <div class="item-header hstack gap-xs">
+        <img class="item-favicon shrink-0" :src="project.favicon" alt="" />
+        <div class="flex-1 min-w-0">
+          <div class="item-name">{{ project.name }}</div>
+          <div class="item-url"><Text variant="caption" color="muted">{{ project.url }}</Text></div>
+        </div>
+        <Tooltip :text="project.status === 'running' ? 'Running — click to stop' : project.status === 'loading' ? 'Starting…' : 'Stopped — click to start'">
+          <StatusIndicator :status="project.status" @toggle.stop="$emit('toggle-status', project.id)" />
+        </Tooltip>
       </div>
-      <StatusIndicator :status="project.status" @toggle="$emit('toggle-status', project.id)" />
-    </div>
     <div class="item-preview">
       <Text variant="caption" color="muted" class="preview-placeholder">Site preview</Text>
     </div>
-  </div>
+  </Tooltip>
 </template>
 
 <style scoped>
