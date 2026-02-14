@@ -118,9 +118,9 @@ function toggleColorMode() {
   <div class="site-preview vstack flex-1 overflow-hidden">
     <PanelToolbar>
       <template #start>
-        <Button variant="tertiary" :icon="chevronLeft" :disabled="!canGoBack" @click="goBack" />
-        <Button variant="tertiary" :icon="chevronRight" :disabled="!canGoForward" @click="goForward" />
-        <Button variant="tertiary" :icon="rotateRight" @click="reload" />
+        <Button variant="tertiary" :icon="chevronLeft" :disabled="!canGoBack" tooltip="Back" @click="goBack" />
+        <Button variant="tertiary" :icon="chevronRight" :disabled="!canGoForward" tooltip="Forward" @click="goForward" />
+        <Button variant="tertiary" :icon="rotateRight" tooltip="Reload" @click="reload" />
       </template>
       <template #center>
         <BrowserBar
@@ -136,9 +136,10 @@ function toggleColorMode() {
           variant="tertiary"
           :icon="styles"
           :disabled="!hasDarkMode"
+          :tooltip="hasDarkMode ? (colorMode === 'light' ? 'Dark mode' : 'Light mode') : undefined"
           @click="toggleColorMode"
         />
-        <Button variant="tertiary" :icon="external" @click="openInBrowser" />
+        <Button variant="tertiary" :icon="external" tooltip="Open in browser" @click="openInBrowser" />
       </template>
     </PanelToolbar>
     <div class="preview-frame flex-1 overflow-auto">

@@ -15,6 +15,7 @@ const categories = [
       { id: 'status-indicator', label: 'StatusIndicator' },
       { id: 'text', label: 'Text' },
       { id: 'titlebar', label: 'Titlebar' },
+      { id: 'tooltip', label: 'Tooltip' },
       { id: 'wpicon', label: 'WPIcon' },
     ],
   },
