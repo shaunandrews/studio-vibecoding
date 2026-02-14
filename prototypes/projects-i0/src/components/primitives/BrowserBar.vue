@@ -130,7 +130,7 @@ onUnmounted(() => document.removeEventListener('pointerdown', onClickOutside))
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  padding: var(--space-xxxs) var(--space-xs);
+  padding: var(--space-xs) var(--space-xs);
   border: none;
   background: none;
   cursor: pointer;
@@ -143,12 +143,13 @@ onUnmounted(() => document.removeEventListener('pointerdown', onClickOutside))
 }
 
 .browser-bar__page.is-active {
-  background: var(--color-primary);
+  color: var(--color-primary);
 }
 
 .browser-bar__page.is-active .browser-bar__page-label,
 .browser-bar__page.is-active .browser-bar__page-path {
-  color: var(--color-primary-text);
+  /* color: var(--color-primary-text); */
+  color: var(--color-primary);
 }
 
 .browser-bar__page-label {
