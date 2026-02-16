@@ -192,14 +192,18 @@ onUnmounted(() => {
   color: var(--color-text-secondary);
 }
 
-.btn--tertiary.btn--on-light:hover,
-.btn--tertiary.btn--on-light.btn--active {
+.btn--tertiary.btn--on-light:hover {
   background: var(--color-surface-secondary);
   color: var(--color-text);
 }
 
 .btn--tertiary.btn--on-light.btn--active {
-  box-shadow: inset 0 0 0 1px var(--color-surface-border);
+  background: var(--color-text);
+  color: var(--color-surface);
+}
+
+.btn--tertiary.btn--on-light.btn--active:hover {
+  background: var(--color-text-secondary);
 }
 
 .btn--tertiary.btn--on-dark {
@@ -207,24 +211,44 @@ onUnmounted(() => {
   color: var(--color-chrome-text-muted);
 }
 
-.btn--tertiary.btn--on-dark:hover,
-.btn--tertiary.btn--on-dark.btn--active {
+.btn--tertiary.btn--on-dark:hover {
   background: var(--color-chrome-hover);
   color: var(--color-chrome-text);
 }
 
 .btn--tertiary.btn--on-dark.btn--active {
-  box-shadow: inset 0 0 0 1px var(--color-chrome-subtle);
+  background: var(--color-chrome-text);
+  color: var(--color-chrome);
+}
+
+.btn--tertiary.btn--on-dark.btn--active:hover {
+  background: var(--color-chrome-text-secondary);
 }
 
 .btn--tertiary.btn--on-dark:focus-visible {
   outline-color: var(--color-chrome-subtle);
 }
 
+/* Icon rotation for active state */
+.btn :deep(svg) {
+  transition: transform var(--duration-fast) var(--ease-default);
+}
+
+.btn--active :deep(svg) {
+  transform: rotate(180deg);
+}
+
 /* Disabled */
 .btn:disabled {
   opacity: 0.3;
   cursor: default;
+  pointer-events: none;
+}
+
+.btn:disabled.btn--active {
+  background: transparent;
+  color: inherit;
+  opacity: 0.3;
   pointer-events: none;
 }
 </style>

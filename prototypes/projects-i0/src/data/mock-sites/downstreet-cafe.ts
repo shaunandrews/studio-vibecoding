@@ -213,62 +213,83 @@ export function menu(themeCSS: string): string {
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Menu – Downstreet Cafe</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
 <style>${themeCSS}</style>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body { font-family: var(--theme-font-body); color: var(--theme-text); background: var(--theme-bg); line-height: var(--theme-line-height-normal); }
-h1, h2, h3 { font-family: var(--theme-font-heading); }
+h1, h2, h3 { font-family: var(--theme-font-heading); font-weight: 400; }
 
-.hero {
-  background: linear-gradient(135deg, var(--theme-color-primary) 0%, var(--theme-color-primary-dark) 100%);
-  color: var(--theme-color-surface);
-  text-align: center;
-  padding: var(--theme-space-10) var(--theme-space-3) var(--theme-space-8);
+.site-nav {
+  display: flex; justify-content: center; gap: var(--theme-space-4);
+  padding: var(--theme-space-2) var(--theme-space-3);
+  border-bottom: 1px solid var(--theme-color-muted);
 }
-.hero h1 { font-size: var(--theme-font-size-hero); margin-bottom: var(--theme-space-1); }
-.hero p { font-size: var(--theme-font-size-large); opacity: 0.9; }
-.hero nav { margin-top: var(--theme-space-3); display: flex; justify-content: center; gap: var(--theme-space-3); }
-.hero nav a { color: var(--theme-color-surface); text-decoration: none; font-size: var(--theme-font-size-medium); font-weight: 600; padding: var(--theme-space-1) var(--theme-space-2); border-radius: 6px; transition: background 0.2s; }
-.hero nav a:hover { background: rgba(255,255,255,0.15); }
-.hero nav a.active { background: rgba(255,255,255,0.2); border-bottom: 2px solid var(--theme-color-surface); }
+.site-nav a {
+  color: var(--theme-color-primary); text-decoration: none;
+  font-size: var(--theme-font-size-small); font-weight: 500;
+  text-transform: uppercase; letter-spacing: 0.08em;
+  padding: var(--theme-space-1) 0; transition: color 0.2s;
+}
+.site-nav a:hover { color: var(--theme-color-accent); }
+.site-nav a.active { color: var(--theme-color-accent); border-bottom: 1px solid var(--theme-color-accent); }
 
-section { max-width: var(--theme-content-width); margin: 0 auto; padding: var(--theme-space-8) var(--theme-space-3); }
-section h2 { text-align: center; font-size: var(--theme-font-size-xlarge); color: var(--theme-color-primary); margin-bottom: var(--theme-space-4); }
+.hero-image { width: 100%; height: 300px; object-fit: cover; display: block; }
+
+.page-header {
+  text-align: center; padding: var(--theme-space-6) var(--theme-space-3) var(--theme-space-4);
+}
+.page-header h1 {
+  font-size: var(--theme-font-size-hero); color: var(--theme-color-primary-dark);
+  margin-bottom: var(--theme-space-1);
+}
+.page-header p {
+  font-size: var(--theme-font-size-large); color: var(--theme-color-secondary); font-style: italic;
+}
+
+section { max-width: var(--theme-content-width); margin: 0 auto; padding: var(--theme-space-4) var(--theme-space-3) var(--theme-space-8); }
+
+.note { text-align: center; max-width: 600px; margin: 0 auto var(--theme-space-5); color: var(--theme-color-muted); font-style: italic; }
 
 .menu-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: var(--theme-space-4); }
-.menu-card { background: var(--theme-color-card); border-radius: 12px; padding: 28px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
-.menu-card h3 { font-size: var(--theme-font-size-large); color: var(--theme-text); margin-bottom: var(--theme-space-2); padding-bottom: var(--theme-space-1); border-bottom: 2px solid var(--theme-color-secondary); }
+.menu-card { background: var(--theme-color-card); border-radius: 8px; padding: 28px; }
+.menu-card h3 {
+  font-size: var(--theme-font-size-large); color: var(--theme-color-primary-dark);
+  margin-bottom: var(--theme-space-2); padding-bottom: var(--theme-space-1);
+  border-bottom: 1px solid var(--theme-color-muted);
+  text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600;
+}
 .menu-item { display: flex; justify-content: space-between; padding: 6px 0; }
-.menu-item .price { color: var(--theme-color-primary); font-weight: 600; white-space: nowrap; margin-left: 12px; }
-.menu-item .desc { font-size: 0.85rem; color: var(--theme-color-muted); }
-
-.note { text-align: center; max-width: 600px; margin: -20px auto var(--theme-space-5); color: var(--theme-color-muted); font-style: italic; }
+.menu-item .price { color: var(--theme-color-secondary); font-weight: 500; white-space: nowrap; margin-left: 12px; }
 
 footer {
-  background: var(--theme-color-accent); color: var(--theme-color-surface); text-align: center; padding: var(--theme-space-5) var(--theme-space-3);
-  font-size: var(--theme-font-size-small); line-height: 1.8;
+  text-align: center; padding: var(--theme-space-5) var(--theme-space-3);
+  font-size: var(--theme-font-size-small); color: var(--theme-color-muted);
+  line-height: 1.8; border-top: 1px solid var(--theme-color-muted);
 }
-footer a { color: var(--theme-color-secondary); text-decoration: none; }
-footer .wp { opacity: 0.5; margin-top: var(--theme-space-2); }
+footer a { color: var(--theme-color-accent); text-decoration: none; }
+footer .wp { opacity: 0.5; margin-top: var(--theme-space-1); }
 </style>
 </head>
 <body>
 
-<div class="hero">
+<nav class="site-nav">
+  <a href="#" onclick="window.parent.postMessage({type:'navigate',page:'homepage'},'*');return false">Home</a>
+  <a href="#" class="active" onclick="window.parent.postMessage({type:'navigate',page:'menu'},'*');return false">Menu</a>
+  <a href="#" onclick="window.parent.postMessage({type:'navigate',page:'about'},'*');return false">About</a>
+  <a href="#" onclick="window.parent.postMessage({type:'navigate',page:'events'},'*');return false">Events</a>
+  <a href="#" onclick="window.parent.postMessage({type:'navigate',page:'gallery'},'*');return false">Gallery</a>
+  <a href="#" onclick="window.parent.postMessage({type:'navigate',page:'order'},'*');return false">Order</a>
+</nav>
+
+<img class="hero-image" src="/images/downstreet/food-breakfast.png" alt="Overhead breakfast spread">
+
+<div class="page-header">
   <h1>Our Menu</h1>
   <p>Crafted with care, served with love</p>
-  <nav>
-    <a href="#" onclick="window.parent.postMessage({type:'navigate',page:'homepage'},'*');return false">Home</a>
-    <a href="#" class="active" onclick="window.parent.postMessage({type:'navigate',page:'menu'},'*');return false">Menu</a>
-    <a href="#" onclick="window.parent.postMessage({type:'navigate',page:'about'},'*');return false">About</a>
-    <a href="#" onclick="window.parent.postMessage({type:'navigate',page:'events'},'*');return false">Events</a>
-    <a href="#" onclick="window.parent.postMessage({type:'navigate',page:'gallery'},'*');return false">Gallery</a>
-    <a href="#" onclick="window.parent.postMessage({type:'navigate',page:'order'},'*');return false">Order</a>
-  </nav>
 </div>
 
 <section>
-  <h2>Food &amp; Drinks</h2>
   <p class="note">All coffee is roasted locally by Timber Ridge Roasters. Milk alternatives available for +$0.75.</p>
   <div class="menu-grid">
 
