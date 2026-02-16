@@ -1,4 +1,4 @@
-import { reactive, toRefs } from 'vue'
+import { reactive } from 'vue'
 import type { SiteTheme } from './types'
 import { themeHasDarkMode as _themeHasDarkMode } from './theme-utils'
 import downstreetCafeTheme from './downstreet-cafe'

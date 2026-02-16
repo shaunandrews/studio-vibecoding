@@ -1,0 +1,174 @@
+{
+  "colors": {
+    "primary": {
+      "50": "#f7f3e9",
+      "100": "#ede4d3",
+      "200": "#ddc798",
+      "300": "#d4af37",
+      "400": "#b8941f",
+      "500": "#8B4513",
+      "600": "#654321",
+      "700": "#5d4e42",
+      "800": "#2d1810",
+      "900": "#1a0f0a"
+    },
+    "neutral": {
+      "50": "#fafafa",
+      "100": "#f8fafc",
+      "200": "#f7f3e9",
+      "300": "#e5e7eb",
+      "400": "#a0a0a0",
+      "500": "#666666",
+      "600": "#5d4e42",
+      "700": "#2d1810",
+      "800": "#1f2937",
+      "900": "#111827"
+    },
+    "semantic": {
+      "success": {
+        "light": "#dcfce7",
+        "DEFAULT": "#22c55e",
+        "dark": "#15803d"
+      },
+      "error": {
+        "light": "#fef2f2",
+        "DEFAULT": "#ef4444",
+        "dark": "#dc2626"
+      },
+      "warning": {
+        "light": "#fffbeb",
+        "DEFAULT": "#d4af37",
+        "dark": "#b8941f"
+      }
+    }
+  },
+  "typography": {
+    "fontFamilies": {
+      "serif": ["Georgia", "Times New Roman", "serif"],
+      "sans": ["system-ui", "-apple-system", "sans-serif"]
+    },
+    "fontSizes": {
+      "sm": "0.875rem",
+      "base": "1rem",
+      "lg": "1.125rem",
+      "xl": "1.25rem",
+      "2xl": "1.5rem",
+      "3xl": "1.875rem",
+      "4xl": "2.25rem",
+      "5xl": "3rem",
+      "6xl": "4rem"
+    },
+    "fontWeights": {
+      "normal": "400",
+      "medium": "500",
+      "semibold": "600",
+      "bold": "700",
+      "extrabold": "800",
+      "black": "900"
+    },
+    "lineHeights": {
+      "tight": "1.1",
+      "normal": "1.5",
+      "relaxed": "1.6",
+      "loose": "1.7"
+    }
+  },
+  "spacing": {
+    "xs": "0.25rem",
+    "sm": "0.5rem",
+    "md": "1rem",
+    "lg": "1.5rem",
+    "xl": "2rem",
+    "2xl": "3rem",
+    "3xl": "4rem",
+    "4xl": "5rem",
+    "5xl": "6rem"
+  },
+  "sizing": {
+    "container": {
+      "sm": "640px",
+      "md": "768px",
+      "lg": "1024px",
+      "xl": "1200px",
+      "2xl": "1400px"
+    }
+  },
+  "borderRadius": {
+    "none": "0",
+    "sm": "0.25rem",
+    "md": "0.375rem",
+    "lg": "0.5rem",
+    "xl": "0.75rem",
+    "2xl": "1rem",
+    "full": "50%"
+  },
+  "shadows": {
+    "sm": "0 2px 4px rgba(0, 0, 0, 0.1)",
+    "md": "0 4px 6px rgba(0, 0, 0, 0.1)",
+    "lg": "0 8px 25px rgba(139, 69, 19, 0.2)",
+    "xl": "0 10px 25px rgba(0, 0, 0, 0.2)",
+    "text": "2px 2px 4px rgba(0, 0, 0, 0.5)"
+  },
+  "components": {
+    "buttons": {
+      "primary": {
+        "base": "inline-block px-6 py-3 bg-primary-300 text-primary-800 font-semibold rounded-md transition-all duration-300 cursor-pointer",
+        "hover": "hover:bg-primary-400 hover:transform hover:translateY(-2px)",
+        "variations": ["solid", "outline"]
+      },
+      "secondary": {
+        "base": "inline-block px-6 py-3 bg-transparent border-2 border-primary-300 text-primary-300 font-semibold rounded-md transition-all duration-300 cursor-pointer",
+        "hover": "hover:bg-primary-300 hover:text-primary-800"
+      }
+    },
+    "cards": {
+      "base": "bg-neutral-50 rounded-xl p-6 shadow-md transition-all duration-300",
+      "hover": "hover:shadow-lg hover:transform hover:translateY(-2px)",
+      "variations": {
+        "menu": "border-l-4 border-primary-500",
+        "event": "bg-opacity-5 border border-primary-300/20"
+      }
+    },
+    "navigation": {
+      "base": "fixed top-0 w-full bg-primary-800/95 backdrop-blur-md z-50 px-8 py-4",
+      "links": "text-neutral-50 font-medium transition-colors duration-300 hover:text-primary-300"
+    }
+  },
+  "analysis": {
+    "extractedPatterns": [
+      "Found 3 button variations (primary CTA, secondary, data-attribute)",
+      "Identified consistent card component pattern with hover effects",
+      "Detected warm café theme with browns, golds, and creams",
+      "Navigation pattern: fixed header with backdrop blur",
+      "Consistent section padding of 4-5rem vertical"
+    ],
+    "consolidations": [
+      "Merged #8B4513, var(--primary-color), rgb(139, 69, 19) into primary-500",
+      "Combined #d4af37, #b8941f, rgb(212, 175, 55) into primary scale",
+      "Normalized 15px, 16px, 18px padding to consistent rem scale",
+      "Combined similar border-radius values (5px, 6px, 8px → md: 0.375rem)",
+      "Unified transition durations to 0.3s standard"
+    ],
+    "recommendations": [
+      "Replace all hardcoded colors with CSS custom properties",
+      "Standardize button padding across all variations (currently mix of 15px, 14px, 12px)",
+      "Implement consistent focus states for keyboard accessibility",
+      "Use semantic color names for better maintainability",
+      "Consider adding disabled button states"
+    ],
+    "issues": [
+      "Low contrast: #666 text on white background (4.54:1, barely meets WCAG AA)",
+      "Inconsistent units: mix of px, em, rem for similar contexts",
+      "Missing focus states on interactive elements",
+      "Hardcoded font sizes instead of systematic scale",
+      "Some magic numbers in spacing (20px, 30px, 25px)"
+    ],
+    "gaps": [
+      "No error/success states for forms or notifications",
+      "Missing mobile-first responsive strategy",
+      "No consistent icon sizing system",
+      "No loading or disabled component states",
+      "Could benefit from more spacing scale granularity"
+    ]
+  }
+}

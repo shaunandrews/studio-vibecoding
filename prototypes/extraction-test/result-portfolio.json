@@ -1,0 +1,188 @@
+{
+  "colors": {
+    "primary": {
+      "50": "#eff6ff",
+      "100": "#dbeafe",
+      "200": "#bfdbfe",
+      "300": "#93c5fd",
+      "400": "#60a5fa",
+      "500": "#2563eb",
+      "600": "#1d4ed8",
+      "700": "#1e40af",
+      "800": "#1e3a8a",
+      "900": "#1e293b"
+    },
+    "neutral": {
+      "50": "#f8fafc",
+      "100": "#f1f5f9",
+      "200": "#e2e8f0",
+      "300": "#cbd5e1",
+      "400": "#94a3b8",
+      "500": "#64748b",
+      "600": "#475569",
+      "700": "#334155",
+      "800": "#1e293b",
+      "900": "#0f172a"
+    },
+    "gradient": {
+      "primary": "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+      "hero": "linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)",
+      "card": "linear-gradient(135deg, #2563eb, #1d4ed8)"
+    },
+    "semantic": {
+      "success": {
+        "light": "#dcfce7",
+        "DEFAULT": "#22c55e",
+        "dark": "#15803d"
+      },
+      "error": {
+        "light": "#fef2f2",
+        "DEFAULT": "#ef4444",
+        "dark": "#dc2626"
+      },
+      "warning": {
+        "light": "#fffbeb",
+        "DEFAULT": "#f59e0b",
+        "dark": "#d97706"
+      }
+    }
+  },
+  "typography": {
+    "fontFamilies": {
+      "sans": ["-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "sans-serif"],
+      "mono": ["Monaco", "Consolas", "monospace"]
+    },
+    "fontSizes": {
+      "xs": "0.75rem",
+      "sm": "0.875rem",
+      "base": "1rem",
+      "lg": "1.125rem",
+      "xl": "1.25rem",
+      "2xl": "1.5rem",
+      "3xl": "1.875rem",
+      "4xl": "2.25rem",
+      "5xl": "3rem",
+      "6xl": "4.5rem"
+    },
+    "fontWeights": {
+      "normal": "400",
+      "medium": "500",
+      "semibold": "600",
+      "bold": "700",
+      "extrabold": "800",
+      "black": "900"
+    },
+    "lineHeights": {
+      "tight": "1.1",
+      "normal": "1.5",
+      "relaxed": "1.6"
+    }
+  },
+  "spacing": {
+    "xs": "0.25rem",
+    "sm": "0.5rem",
+    "md": "1rem",
+    "lg": "1.5rem",
+    "xl": "2rem",
+    "2xl": "2.5rem",
+    "3xl": "3rem",
+    "4xl": "4rem",
+    "5xl": "5rem",
+    "6xl": "6rem",
+    "7xl": "7.5rem"
+  },
+  "sizing": {
+    "container": {
+      "sm": "640px",
+      "md": "768px",
+      "lg": "1024px",
+      "xl": "1200px",
+      "2xl": "1400px"
+    },
+    "icons": {
+      "sm": "1.5rem",
+      "md": "2rem", 
+      "lg": "2.5rem",
+      "xl": "3.75rem"
+    }
+  },
+  "borderRadius": {
+    "none": "0",
+    "sm": "0.125rem",
+    "md": "0.5rem",
+    "lg": "0.75rem",
+    "xl": "1rem",
+    "2xl": "1.25rem",
+    "full": "50%"
+  },
+  "shadows": {
+    "sm": "0 4px 6px rgba(0, 0, 0, 0.05)",
+    "md": "0 8px 30px rgba(0, 0, 0, 0.1)",
+    "lg": "0 10px 25px rgba(37, 99, 235, 0.1)",
+    "xl": "0 20px 40px rgba(37, 99, 235, 0.1)",
+    "2xl": "0 10px 30px rgba(37, 99, 235, 0.2)"
+  },
+  "components": {
+    "buttons": {
+      "primary": {
+        "base": "inline-block px-8 py-4 bg-white text-primary-600 font-semibold rounded-lg transition-all duration-300 cursor-pointer",
+        "hover": "hover:transform hover:translateY(-2px) hover:shadow-xl",
+        "variations": ["solid", "outline", "ghost"]
+      },
+      "secondary": {
+        "base": "inline-block px-8 py-4 bg-transparent border-2 border-white/30 text-white font-semibold rounded-lg transition-all duration-300",
+        "hover": "hover:bg-white/10"
+      }
+    },
+    "cards": {
+      "base": "bg-white rounded-2xl p-10 shadow-sm border border-neutral-200 transition-all duration-300",
+      "hover": "hover:transform hover:translateY(-8px) hover:shadow-xl",
+      "variations": {
+        "service": "hover:shadow-primary-lg",
+        "portfolio": "rounded-xl overflow-hidden",
+        "team": "text-center max-w-280px shadow-primary-md"
+      }
+    },
+    "navigation": {
+      "base": "fixed top-0 w-full bg-white/95 backdrop-blur-xl z-100 border-b border-neutral-200 px-8 py-4",
+      "links": "text-neutral-600 font-medium transition-colors duration-200 hover:text-primary-500"
+    }
+  },
+  "analysis": {
+    "extractedPatterns": [
+      "Found modern card-based layout with consistent hover animations",
+      "Identified blue gradient theme with professional aesthetic", 
+      "Navigation pattern: fixed header with backdrop blur and border",
+      "Consistent transform animations (translateY, scale)",
+      "Grid-based responsive layouts throughout"
+    ],
+    "consolidations": [
+      "Merged #2563eb, #1d4ed8, rgb(37, 99, 235) into primary scale",
+      "Combined similar grays (#6b7280, #111827, rgb(55, 65, 81)) into neutral scale", 
+      "Normalized padding values (15px, 16px, 20px → consistent rem)",
+      "Unified border-radius (8px, 12px, 15px, 16px, 20px → systematic scale)",
+      "Standardized transition durations to 300ms"
+    ],
+    "recommendations": [
+      "Implement CSS custom properties for all colors",
+      "Create systematic spacing scale (currently has gaps)",
+      "Add consistent focus states with ring utility",
+      "Consider dark mode color variants",
+      "Standardize container max-widths across sections"
+    ],
+    "issues": [
+      "Inconsistent container widths (1200px, 1400px, 900px)",
+      "Missing accessible focus indicators", 
+      "No reduced motion preferences handling",
+      "Some magic numbers in spacing and sizing",
+      "Gradient backgrounds make text contrast variable"
+    ],
+    "gaps": [
+      "No form input styling system",
+      "Missing loading states for interactive elements",
+      "No consistent icon sizing or style guide", 
+      "Could use more semantic spacing names",
+      "No print stylesheet considerations"
+    ]
+  }
+}

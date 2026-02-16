@@ -5,37 +5,18 @@ import Button from '@/components/primitives/Button.vue'
 import BrowserBar from '@/components/primitives/BrowserBar.vue'
 import PanelToolbar from '@/components/composites/PanelToolbar.vue'
 import Text from '@/components/primitives/Text.vue'
-import { mockSites } from '@/data/mock-sites'
-import { seedProjects } from '@/data/seed-projects'
-import { useSiteThemes } from '@/data/themes'
-import { themeToCSS } from '@/data/themes/theme-utils'
-import type { PipelineState, SkeletonSlot } from '@/data/ai-pipeline-types'
-import { renderProgressivePage, sendSectionUpdate, sendThemeUpdate } from '@/data/progressive-renderer'
-import { generatedSites } from '@/data/generated-sites'
-import { useBuildProgress } from '@/data/useBuildProgress'
+import { renderSite } from '@/data/site-renderer'
+import { useSiteStore } from '@/data/useSiteStore'
 
 const props = defineProps<{
   projectId?: string | null
-  /** When set, the preview renders progressive output instead of mock site data */
-  pipelineState?: PipelineState | null
-  /** Skeleton slots for the current page during progressive rendering */
-  skeletonSlots?: SkeletonSlot[]
 }>()
 
-const { getTheme, themeHasDarkMode: checkDarkMode } = useSiteThemes()
-const { getBuildState, isBuilding } = useBuildProgress()
-
-// Build state for current project
-const buildState = computed(() => props.projectId ? getBuildState(props.projectId) : undefined)
-const isBuildMode = computed(() => !!props.projectId && isBuilding(props.projectId))
-
-const project = computed(() =>
-  seedProjects.find((p) => p.id === props.projectId)
-)
+const siteStore = useSiteStore()
 
 // Navigation state
-const currentPage = ref('homepage')
-const history = ref<string[]>(['homepage'])
+const currentPage = ref('/')
+const history = ref<string[]>(['/'])
 const historyIndex = ref(0)
 
 // Color mode state (persisted per project)
@@ -43,8 +24,7 @@ function storedColorMode(): 'light' | 'dark' {
   if (!props.projectId) return 'light'
   const stored = localStorage.getItem(`site-preview-mode:${props.projectId}`)
   if (stored === 'dark' || stored === 'light') return stored
-  const theme = getTheme(props.projectId)
-  return theme?.settings.color.defaultMode ?? 'light'
+  return 'light'
 }
 const colorMode = ref<'light' | 'dark'>(storedColorMode())
 
@@ -67,13 +47,13 @@ function navigateTo(page: string) {
 function goBack() {
   if (!canGoBack.value) return
   historyIndex.value--
-  currentPage.value = history.value[historyIndex.value] ?? 'homepage'
+  currentPage.value = history.value[historyIndex.value] ?? '/'
 }
 
 function goForward() {
   if (!canGoForward.value) return
   historyIndex.value++
-  currentPage.value = history.value[historyIndex.value] ?? 'homepage'
+  currentPage.value = history.value[historyIndex.value] ?? '/'
 }
 
 function reload() {
@@ -85,8 +65,8 @@ function reload() {
 // Reset on project change
 watch(() => props.projectId, () => {
   colorMode.value = storedColorMode()
-  currentPage.value = 'homepage'
-  history.value = ['homepage']
+  currentPage.value = '/'
+  history.value = ['/']
   historyIndex.value = 0
 })
 
@@ -104,151 +84,46 @@ function openInBrowser() {
   if (url.value) window.open(url.value, '_blank')
 }
 
+// Get the current site from the store
+const site = computed(() => props.projectId ? siteStore.getSite(props.projectId) : undefined)
+
+// Compute the browser URL
 const url = computed(() => {
-  const base = project.value?.url ?? ''
-  if (!base || currentPage.value === 'homepage') return base
-  return `${base}/${currentPage.value}`
+  if (!props.projectId) return ''
+  const baseUrl = `https://${props.projectId}.example.com`
+  if (currentPage.value === '/') return baseUrl
+  return `${baseUrl}${currentPage.value}`
 })
 
-const site = computed(() => props.projectId ? mockSites[props.projectId] : undefined)
-
+// Compute available pages from the site
 const pages = computed(() => {
-  // Build mode: show all planned pages from BuildState
-  const bs = buildState.value
-  if (bs) {
-    const result: Record<string, { label: string; dimmed?: boolean }> = {}
-    for (const page of Object.values(bs.pages)) {
-      const pageKey = page.slug === '/' ? 'homepage' : page.slug.replace(/^\//, '')
-      result[pageKey] = { label: page.title, dimmed: !page.complete }
-    }
-    return result
-  }
-
   if (!site.value) return {}
   const result: Record<string, { label: string }> = {}
-  for (const page of site.value.siteData.pages) {
-    result[page.slug] = { label: page.title }
+  for (const page of site.value.pages) {
+    const pageKey = page.slug === '/' ? 'homepage' : page.slug.replace(/^\//, '')
+    result[pageKey] = { label: page.title }
   }
   return result
 })
 
-const currentThemeCSS = computed(() => {
-  if (!props.projectId) return ''
-  const theme = getTheme(props.projectId)
-  if (!theme) return ''
-  return themeToCSS(theme, colorMode.value)
-})
-
-/** Whether the preview is in progressive (pipeline) mode — only while actively building */
-const isProgressiveMode = computed(() =>
-  props.pipelineState &&
-  props.pipelineState.status !== 'idle' &&
-  props.pipelineState.status !== 'complete' &&
-  props.pipelineState.status !== 'error'
-)
-
-// Ref to the iframe element for postMessage updates
-const iframeRef = ref<HTMLIFrameElement | null>(null)
-
-// Track whether we've rendered the initial srcdoc for progressive mode
-const progressiveSrcdocRendered = ref(false)
-
-// Track completed slot ids to detect new arrivals
-const completedSlotIds = ref(new Set<string>())
-
-// Watch for slot changes and send incremental updates via postMessage
-watch(() => props.skeletonSlots, (newSlots) => {
-  if (!isProgressiveMode.value || !iframeRef.value || !progressiveSrcdocRendered.value || !newSlots) return
-
-  for (const slot of newSlots) {
-    if (slot.status === 'complete' && slot.section && !completedSlotIds.value.has(slot.id)) {
-      completedSlotIds.value.add(slot.id)
-      sendSectionUpdate(iframeRef.value!, slot.id, slot.section)
-    }
-  }
-}, { deep: true })
-
-// Watch for theme changes and send via postMessage
-watch(() => props.pipelineState?.theme, (newTheme, oldTheme) => {
-  if (!isProgressiveMode.value || !iframeRef.value || !progressiveSrcdocRendered.value || !newTheme) return
-  if (oldTheme) {
-    sendThemeUpdate(iframeRef.value, newTheme)
-  }
-}, { deep: true })
-
-// Reset tracking when pipeline starts
-watch(() => props.pipelineState?.status, (status) => {
-  if (status === 'running') {
-    progressiveSrcdocRendered.value = false
-    completedSlotIds.value = new Set()
-  }
-})
-
-// Cached initial srcdoc — only rebuilt on structural changes, not every slot update
-const initialProgressiveSrcdoc = ref<string | null>(null)
-
-// Watch for structural changes that need a full srcdoc rebuild
-watch([
-  () => props.pipelineState?.templateParts,
-  () => props.pipelineState?.theme,
-  () => isProgressiveMode.value,
-], () => {
-  if (isProgressiveMode.value && props.pipelineState && !progressiveSrcdocRendered.value) {
-    initialProgressiveSrcdoc.value = renderProgressivePage(
-      props.pipelineState.theme ?? null,
-      props.pipelineState.templateParts,
-      props.skeletonSlots ?? [],
-    )
-  }
-}, { deep: true, immediate: true })
-
-const srcdoc = computed(() => {
-  // Progressive rendering mode — pipeline is active
-  if (isProgressiveMode.value && props.pipelineState) {
-    if (!progressiveSrcdocRendered.value) {
-      return initialProgressiveSrcdoc.value
-    }
-    // After initial render, don't rebuild srcdoc — use postMessage
-    return undefined
-  }
-
-  // Normal mode — check generated sites first (persisted pipeline output)
-  if (props.projectId && generatedSites[props.projectId]) {
-    const genSite = generatedSites[props.projectId]!
-    const pageSlug = currentPage.value === 'homepage' ? '/' : currentPage.value
-    const page = genSite.pages.find(p => p.slug === pageSlug) ?? genSite.pages[0]
-    if (page) {
-      const slots = page.sections.map((section, i) => ({
-        id: `${page.slug.replace(/\//g, '') || 'home'}-slot-${i}`,
-        expectedType: section.type,
-        status: 'complete' as const,
-        section,
-      }))
-      const templateParts: Record<string, Record<string, unknown>> = {}
-      templateParts.header = { navItems: genSite.pages.map(p => ({ label: p.title, page: p.slug })) }
-      templateParts.footer = { tagline: `© ${genSite.name}` }
-      return renderProgressivePage(genSite.theme, templateParts, slots)
-    }
-  }
-
-  if (!site.value) return undefined
-  const css = currentThemeCSS.value
-  return site.value.renderSitePage(currentPage.value, css)
-})
-
-function onIframeLoad() {
-  if (isProgressiveMode.value) {
-    progressiveSrcdocRendered.value = true
-  }
-}
-
+// Check if theme has dark mode (simplified - just check if theme has dark mode variables)
 const hasDarkMode = computed(() => {
-  if (!props.projectId) return false
-  return checkDarkMode(props.projectId)
+  if (!site.value) return false
+  const themeVars = site.value.theme.variables
+  return Object.keys(themeVars).some(key => key.includes('dark') || key.includes('night'))
 })
+
+// Generate the iframe srcdoc
+const srcdoc = computed(() => {
+  if (!site.value) return undefined
+  return renderSite(site.value, currentPage.value)
+})
+
+// TODO: Re-add iframe ref when implementing live editing features
 
 function toggleColorMode() {
   colorMode.value = colorMode.value === 'light' ? 'dark' : 'light'
+  // TODO: Send theme update via postMessage when we support color mode switching
 }
 </script>
 
@@ -264,9 +139,9 @@ function toggleColorMode() {
         <BrowserBar
           :url="url"
           :pages="pages"
-          :current-page="currentPage"
+          :current-page="currentPage === '/' ? 'homepage' : currentPage.replace(/^\//, '')"
           class="flex-1"
-          @navigate="navigateTo"
+          @navigate="(page) => navigateTo(page === 'homepage' ? '/' : `/${page}`)"
         />
       </template>
       <template #end>
@@ -285,17 +160,11 @@ function toggleColorMode() {
     <div class="preview-frame flex-1 overflow-auto">
       <div class="preview-viewport-container">
         <iframe
-          v-if="srcdoc != null || (isProgressiveMode && progressiveSrcdocRendered)"
-          ref="iframeRef"
-          v-bind="srcdoc != null ? { srcdoc } : {}"
+          v-if="srcdoc != null"
+          :srcdoc="srcdoc"
           sandbox="allow-scripts"
           class="preview-iframe"
-          @load="onIframeLoad"
         />
-        <div v-else-if="isBuildMode && !srcdoc" class="preview-building vstack align-center justify-center flex-1">
-          <div class="building-spinner"></div>
-          <Text variant="body" color="secondary">Building your site...</Text>
-        </div>
         <div v-else class="preview-placeholder vstack align-center justify-center flex-1">
           <Text variant="body" color="muted">No preview available</Text>
         </div>
@@ -325,24 +194,5 @@ function toggleColorMode() {
 .preview-placeholder {
   height: 100%;
   gap: var(--space-xxxs);
-}
-
-.preview-building {
-  height: 100%;
-  gap: var(--space-xs);
-}
-
-.building-spinner {
-  width: var(--space-l);
-  height: var(--space-l);
-  border: 2px solid var(--color-border-muted);
-  border-top: 2px solid var(--color-border-primary);
-  border-radius: 50%;
-  animation: building-spin 1s linear infinite;
-}
-
-@keyframes building-spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
 }
 </style>

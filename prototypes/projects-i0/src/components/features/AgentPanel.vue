@@ -68,11 +68,14 @@ const openTabs = computed<Tab[]>(() => {
       const convoMessages = messages.value
         .filter(m => m.conversationId === convo.id)
         .sort((a, b) => a.timestamp.localeCompare(b.timestamp))
-      return {
+      const tab: Tab = {
         id: convo.id,
         label: convo.title || 'New chat',
-        messageCount: convoMessages.length || undefined,
       }
+      if (convoMessages.length > 0) {
+        tab.messageCount = convoMessages.length
+      }
+      return tab
     })
     .filter((t): t is Tab => !!t)
 })

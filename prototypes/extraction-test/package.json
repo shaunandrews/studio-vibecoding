@@ -1,0 +1,16 @@
+{
+  "name": "ai-design-extraction-test",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Testing AI design system extraction from messy CSS",
+  "scripts": {
+    "test": "npx tsx test-extraction.ts"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.30.1"
+  },
+  "devDependencies": {
+    "tsx": "^4.7.0",
+    "@types/node": "^20.11.5"
+  }
+}

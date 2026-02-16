@@ -1,12 +1,8 @@
 <script setup lang="ts">
-import { computed } from 'vue'
 import Text from '@/components/primitives/Text.vue'
 import StatusIndicator from '@/components/primitives/StatusIndicator.vue'
 import Tooltip from '@/components/primitives/Tooltip.vue'
 import type { Project } from '@/data/types'
-import { mockSites } from '@/data/mock-sites'
-import { useSiteThemes } from '@/data/themes'
-import { themeToCSS } from '@/data/themes/theme-utils'
 
 const props = defineProps<{
   project: Project
@@ -18,18 +14,6 @@ defineEmits<{
   select: [id: string]
   'toggle-status': [id: string]
 }>()
-
-const { getTheme } = useSiteThemes()
-
-const previewHtml = computed(() => {
-  if (props.mode !== 'card') return ''
-  const siteModule = mockSites[props.project.id]
-  const theme = getTheme(props.project.id)
-  if (!siteModule || !theme) return ''
-  const css = themeToCSS(theme, 'light')
-  // Strip scripts — thumbnails are non-interactive, sandbox blocks them anyway
-  return siteModule.renderSitePage('homepage', css).replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
-})
 </script>
 
 <template>
@@ -38,15 +22,6 @@ const previewHtml = computed(() => {
       :class="[`mode-${mode}`, { active }]"
       @click="$emit('select', project.id)"
     >
-      <div class="item-preview" v-if="mode === 'card' && previewHtml">
-        <iframe
-          :srcdoc="previewHtml"
-          class="preview-iframe"
-          tabindex="-1"
-          sandbox="allow-same-origin"
-          loading="lazy"
-        />
-      </div>
       <div class="item-header hstack gap-xs">
         <img class="item-favicon shrink-0" :src="project.favicon" alt="" />
         <div class="flex-1 min-w-0">
