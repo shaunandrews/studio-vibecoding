@@ -49,10 +49,13 @@
 - [x] Generated site persistence — survives navigation via generated-sites store
 - [x] Incremental streaming — sections appear as they arrive, not batch-per-page
 
-## Next: Phase 3 — New Project Flow
-- [ ] Onboarding modal (conversational mini-chat)
-- [ ] Project creation + build-time chat
-- [ ] Progressive preview during build
+## Phase 3 — New Project Flow (Complete ✅)
+- [x] Onboarding modal (conversational mini-chat) — NewProjectModal, OnboardingChat, QuickReplyChips
+- [x] Project creation — slug ID generation, DiceBear favicons, sidebar integration
+- [x] Build-time chat — first message, progress updates, completion summary, error handling
+- [x] Progressive preview during build — skeleton → theme → header → sections → complete
+- [x] Pipeline integration — useBuildProgress composable wires modal → pipeline → preview
+- [x] BrowserBar shows planned pages with dimmed unbuilt indicators
 
 ## Next: Phase 4 — Section Editing
 - [ ] Edit taxonomy (9 edit types)
