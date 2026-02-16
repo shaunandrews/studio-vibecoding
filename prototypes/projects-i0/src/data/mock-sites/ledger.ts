@@ -145,6 +145,7 @@ export const siteData: SiteData = {
       title: 'Invoice #INV-2024-0047 — Ledger',
       slug: 'invoice',
       sections: [
+        topbarSection('inv-topbar'),
         {
           id: 'inv-back',
           type: 'ledger-back-link',
