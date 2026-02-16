@@ -2,9 +2,6 @@
 // App-style UI with app bar, recipe cards, meal planner, grocery list, settings
 
 export const miseCSS = `
-/* Hide default site-nav and footer from renderPage */
-.site-nav, footer { display: none !important; }
-
 /* ---- App Bar ---- */
 .app-bar {
   background: var(--theme-color-surface);

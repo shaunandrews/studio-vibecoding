@@ -30,21 +30,6 @@ export const siteData: SiteData = {
   name: 'Fuego Collective',
   theme: fuegoCollectiveTheme,
   fonts: [],
-  header: {
-    id: 'header',
-    type: 'header',
-    data: { navItems: [] },
-  },
-  footer: {
-    id: 'footer',
-    type: 'footer',
-    data: {
-      address: '',
-      phone: '',
-      email: 'hello@fuegocollective.com',
-      tagline: 'Made with WordPress',
-    },
-  },
   pages: [
     // ---- Homepage ----
     {
@@ -54,12 +39,12 @@ export const siteData: SiteData = {
       sections: [
         {
           id: 'home-header',
-          type: 'fuego-header' as any,
-          data: { navItems } as any,
+          type: 'fuego-header',
+          data: { navItems },
         },
         {
           id: 'home-hero',
-          type: 'fuego-hero' as any,
+          type: 'fuego-hero',
           data: {
             heading: 'Small Batch.<br/><span class="red">Big Heat.</span>',
             description: 'Handcrafted hot sauces made with fire-roasted peppers, real ingredients, and zero compromises.',
@@ -68,11 +53,11 @@ export const siteData: SiteData = {
               { label: 'Shop Sauces', page: 'shop', variant: 'primary' },
               { label: 'Our #1 Seller', page: 'product', variant: 'outline' },
             ],
-          } as any,
+          },
         },
         {
           id: 'home-lineup',
-          type: 'fuego-product-lineup' as any,
+          type: 'fuego-product-lineup',
           data: {
             heading: 'The Lineup',
             subtitle: 'Every bottle. Every batch. Made by hand.',
@@ -81,11 +66,11 @@ export const siteData: SiteData = {
               { name: 'Chipotle Negro', image: { src: '/images/fuego/product-chipotle.png', alt: 'Chipotle Negro hot sauce' }, heat: '🌶️🌶️', price: '$12' },
               { name: 'Verde Fresco', image: { src: '/images/fuego/product-verde.png', alt: 'Verde Fresco hot sauce' }, heat: '🌶️🌶️', price: '$12' },
             ],
-          } as any,
+          },
         },
         {
           id: 'home-lifestyle',
-          type: 'fuego-lifestyle' as any,
+          type: 'fuego-lifestyle',
           data: {
             heading: 'Made for Real Food',
             paragraphs: [
@@ -94,11 +79,11 @@ export const siteData: SiteData = {
             ],
             image: { src: '/images/fuego/lifestyle-tacos.png', alt: 'Tacos drizzled with Fuego Collective hot sauce' },
             cta: { label: 'Explore All Sauces', page: 'shop' },
-          } as any,
+          },
         },
         {
           id: 'home-testimonials',
-          type: 'fuego-testimonials' as any,
+          type: 'fuego-testimonials',
           data: {
             heading: 'What the People Say',
             testimonials: [
@@ -106,22 +91,22 @@ export const siteData: SiteData = {
               { stars: 5, quote: 'Finally, a hot sauce that tastes like actual peppers and not just vinegar. The Mango Habanero on fish tacos is *chef\'s kiss*.', author: 'Priya K., Portland OR' },
               { stars: 5, quote: 'Bought the 4-pack sampler. Now I\'m on a monthly subscription. The Verde Fresco is my everyday sauce. Can\'t go back to store-bought.', author: 'Jake R., Brooklyn NY' },
             ],
-          } as any,
+          },
         },
         {
           id: 'home-newsletter',
-          type: 'fuego-newsletter' as any,
+          type: 'fuego-newsletter',
           data: {
             heading: 'Join the Burn List',
             description: 'New drops, limited batches, and recipes. No spam — just heat.',
             placeholder: 'your@email.com',
             buttonLabel: 'Subscribe',
-          } as any,
+          },
         },
         {
           id: 'home-footer',
-          type: 'fuego-footer' as any,
-          data: footerData as any,
+          type: 'fuego-footer',
+          data: footerData,
         },
       ],
     },
@@ -134,28 +119,28 @@ export const siteData: SiteData = {
       sections: [
         {
           id: 'shop-header',
-          type: 'fuego-header' as any,
-          data: { navItems } as any,
+          type: 'fuego-header',
+          data: { navItems },
         },
         {
           id: 'shop-page-header',
-          type: 'fuego-page-header' as any,
+          type: 'fuego-page-header',
           data: {
             heading: 'Shop All Sauces',
             subtitle: 'Small batch. Handmade. Shipped to your door.',
-          } as any,
+          },
         },
         {
           id: 'shop-filters',
-          type: 'fuego-filters' as any,
+          type: 'fuego-filters',
           data: {
             label: 'Heat Level:',
             options: ['All', '🌶️ Mild', '🌶️🌶️ Medium', '🌶️🌶️🌶️ Hot', '🌶️🌶️🌶️🌶️ Extra Hot', '🌶️🌶️🌶️🌶️🌶️ Extreme'],
-          } as any,
+          },
         },
         {
           id: 'shop-grid',
-          type: 'fuego-product-grid' as any,
+          type: 'fuego-product-grid',
           data: {
             products: [
               { name: 'Smoky Habanero', image: { src: '/images/fuego/hero-bottle.png', alt: 'Smoky Habanero' }, heat: '🌶️🌶️🌶️🌶️', size: '5 oz', price: '$14', linkPage: 'product' },
@@ -168,12 +153,12 @@ export const siteData: SiteData = {
               { name: 'Smoked Serrano', placeholder: 'linear-gradient(135deg,#8B4513,#CD853F)', heat: '🌶️🌶️🌶️', size: '5 oz', price: '$13' },
               { name: 'Everyday Jalapeño', placeholder: 'linear-gradient(135deg,#228B22,#90EE90)', heat: '🌶️', size: '5 oz', price: '$12' },
             ],
-          } as any,
+          },
         },
         {
           id: 'shop-footer',
-          type: 'fuego-footer' as any,
-          data: footerData as any,
+          type: 'fuego-footer',
+          data: footerData,
         },
       ],
     },
@@ -186,23 +171,23 @@ export const siteData: SiteData = {
       sections: [
         {
           id: 'product-header',
-          type: 'fuego-header' as any,
-          data: { navItems } as any,
+          type: 'fuego-header',
+          data: { navItems },
         },
         {
           id: 'product-breadcrumb',
-          type: 'fuego-breadcrumb' as any,
+          type: 'fuego-breadcrumb',
           data: {
             items: [
               { label: 'Home', page: 'homepage' },
               { label: 'Shop', page: 'shop' },
               { label: 'Smoky Habanero' },
             ],
-          } as any,
+          },
         },
         {
           id: 'product-detail',
-          type: 'fuego-product-detail' as any,
+          type: 'fuego-product-detail',
           data: {
             name: 'Smoky Habanero',
             image: { src: '/images/fuego/hero-bottle.png', alt: 'Smoky Habanero hot sauce bottle' },
@@ -215,11 +200,11 @@ export const siteData: SiteData = {
             ],
             ingredients: ['Habanero peppers', 'Tomato', 'Garlic', 'Apple cider vinegar', 'Brown sugar', 'Sea salt', 'Oak smoke'],
             pairings: ['🌮 Tacos & burritos', '🍗 Wings & grilled chicken', '🍳 Scrambled eggs', '🍕 Pizza (trust us)', '🥑 Avocado toast'],
-          } as any,
+          },
         },
         {
           id: 'product-related',
-          type: 'fuego-related-products' as any,
+          type: 'fuego-related-products',
           data: {
             heading: 'You Might Also Like',
             products: [
@@ -227,11 +212,11 @@ export const siteData: SiteData = {
               { name: 'Chipotle Negro', image: { src: '/images/fuego/product-chipotle.png', alt: 'Chipotle Negro' }, price: '$12' },
               { name: 'Verde Fresco', image: { src: '/images/fuego/product-verde.png', alt: 'Verde Fresco' }, price: '$12' },
             ],
-          } as any,
+          },
         },
         {
           id: 'product-reviews',
-          type: 'fuego-reviews' as any,
+          type: 'fuego-reviews',
           data: {
             heading: 'Reviews',
             reviews: [
@@ -239,12 +224,12 @@ export const siteData: SiteData = {
               { stars: 5, body: 'I\'m a habanero purist and I was skeptical about the "smoky" angle. But wow — the oak-roasting really transforms the pepper. You get the fruity habanero flavor up front, then the smoke kicks in mid-palate, and the heat lingers beautifully. Restaurant-quality sauce in a bottle.', author: 'SauceBoss_Maria · Verified Purchase' },
               { stars: 4, body: 'Great flavor, amazing on eggs and tacos. Only reason for 4 stars is I wish the bottle was bigger — 5oz goes FAST when you\'re putting it on everything. Already ordered the 3-pack. Heat level is perfect: noticeable but you can still taste your food.', author: 'ChileHead_PDX · Verified Purchase' },
             ],
-          } as any,
+          },
         },
         {
           id: 'product-footer',
-          type: 'fuego-footer' as any,
-          data: footerData as any,
+          type: 'fuego-footer',
+          data: footerData,
         },
       ],
     },
@@ -255,7 +240,7 @@ export const siteData: SiteData = {
 
 function render(pageIndex: number, activePage: string) {
   return (themeCSS: string): string =>
-    renderPage(siteData.pages[pageIndex], siteData, activePage, themeCSS, fuegoCSS, renderFuegoSection as (s: Section) => string | null)
+    renderPage(siteData.pages[pageIndex], siteData, activePage, themeCSS, fuegoCSS, renderFuegoSection)
 }
 
 export function homepage(themeCSS: string): string {

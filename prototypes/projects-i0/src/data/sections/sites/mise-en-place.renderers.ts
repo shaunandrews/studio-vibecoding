@@ -15,20 +15,20 @@ import type {
   MiseSettingItem,
 } from './mise-en-place.types'
 
-export function renderMiseSection(section: Section): string | null {
+export function renderMiseSection(section: Section, activePage: string): string | null {
   const d = section.data as Record<string, unknown>
   switch (section.type) {
-    case 'mise-app-bar': return renderAppBar(d as unknown as MiseAppBarData)
-    case 'mise-search-bar': return renderSearchBar(d as unknown as MiseSearchBarData)
-    case 'mise-recipe-grid': return renderRecipeGrid(d as unknown as MiseRecipeGridData)
-    case 'mise-recipe-detail': return renderRecipeDetail(d as unknown as MiseRecipeDetailData)
-    case 'mise-meal-plan-preview': return renderMealPlanPreview(d as unknown as MiseMealPlanPreviewData)
-    case 'mise-meal-plan-full': return renderMealPlanFull(d as unknown as MiseMealPlanFullData)
-    case 'mise-grocery-list': return renderGroceryList(d as unknown as MiseGroceryListData)
-    case 'mise-browse-header': return renderBrowseHeader(d as unknown as MiseBrowseHeaderData)
-    case 'mise-filter-bar': return renderFilterBar(d as unknown as MiseFilterBarData)
-    case 'mise-browse-recipe-grid': return renderBrowseRecipeGrid(d as unknown as MiseBrowseRecipeGridData)
-    case 'mise-settings': return renderSettings(d as unknown as MiseSettingsData)
+    case 'mise-app-bar': return renderAppBarWithActive(d as MiseAppBarData, activePage)
+    case 'mise-search-bar': return renderSearchBar(d as MiseSearchBarData)
+    case 'mise-recipe-grid': return renderRecipeGrid(d as MiseRecipeGridData)
+    case 'mise-recipe-detail': return renderRecipeDetail(d as MiseRecipeDetailData)
+    case 'mise-meal-plan-preview': return renderMealPlanPreview(d as MiseMealPlanPreviewData)
+    case 'mise-meal-plan-full': return renderMealPlanFull(d as MiseMealPlanFullData)
+    case 'mise-grocery-list': return renderGroceryList(d as MiseGroceryListData)
+    case 'mise-browse-header': return renderBrowseHeader(d as MiseBrowseHeaderData)
+    case 'mise-filter-bar': return renderFilterBar(d as MiseFilterBarData)
+    case 'mise-browse-recipe-grid': return renderBrowseRecipeGrid(d as MiseBrowseRecipeGridData)
+    case 'mise-settings': return renderSettings(d as MiseSettingsData)
     default: return null
   }
 }

@@ -2,10 +2,6 @@
 // All values use var(--theme-*) tokens
 
 export const fuegoCSS = `
-/* ---- Hide default site-nav and footer (Fuego uses custom header/footer sections) ---- */
-.site-nav { display: none; }
-body > footer { display: none; }
-
 /* ---- Reset & Base ---- */
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body {

@@ -1,8 +1,7 @@
 import type { SiteData, Section } from '../sections/types'
 import { renderPage } from '../sections/renderer'
-import { renderMiseSection, renderAppBarWithActive } from '../sections/sites/mise-en-place.renderers'
+import { renderMiseSection } from '../sections/sites/mise-en-place.renderers'
 import { miseCSS } from '../sections/sites/mise-en-place.css'
-import type { MiseAppBarData } from '../sections/sites/mise-en-place.types'
 import miseEnPlaceTheme from '../themes/mise-en-place'
 
 // ---- Shared app bar data ----
@@ -22,18 +21,7 @@ const appBarData: MiseAppBarData = {
 }
 
 function appBarSection(id: string): Section {
-  return { id, type: 'mise-app-bar' as string, data: appBarData as never }
-}
-
-// ---- Custom renderer that injects active page into app bar ----
-
-function makeMiseRenderer(activePage: string) {
-  return (section: Section): string | null => {
-    if (section.type === 'mise-app-bar') {
-      return renderAppBarWithActive(section.data as unknown as MiseAppBarData, activePage)
-    }
-    return renderMiseSection(section)
-  }
+  return { id, type: 'mise-app-bar', data: appBarData }
 }
 
 // ---- Site Data ----
@@ -42,16 +30,6 @@ export const siteData: SiteData = {
   name: 'Mise en Place',
   theme: miseEnPlaceTheme,
   fonts: [],
-  header: {
-    id: 'header',
-    type: 'header',
-    data: { navItems: [] },
-  },
-  footer: {
-    id: 'footer',
-    type: 'footer',
-    data: { address: '', phone: '', email: '' },
-  },
   pages: [
     // ---- Homepage (Dashboard) ----
     {
@@ -62,17 +40,17 @@ export const siteData: SiteData = {
         appBarSection('home-app-bar'),
         {
           id: 'home-body-open',
-          type: 'mise-search-bar' as string,
+          type: 'mise-search-bar',
           data: {
             placeholder: 'Search recipes, ingredients, tags...',
             icon: '🔍',
-          } as never,
+          },
         },
         // Homepage uses a custom 2-column layout rendered as raw HTML via a wrapper section.
         // We encode the main content + sidebar together.
         {
           id: 'home-main',
-          type: 'mise-recipe-grid' as string,
+          type: 'mise-recipe-grid',
           data: {
             heading: 'Recent Recipes',
             recipes: [
@@ -83,11 +61,11 @@ export const siteData: SiteData = {
               { title: 'Butter Chicken', tag: 'Indian', time: '50 min', thumbClass: 'purple', linkPage: 'recipe' },
               { title: 'Shakshuka', tag: 'Middle Eastern', time: '30 min', thumbClass: 'golden', linkPage: 'recipe' },
             ],
-          } as never,
+          },
         },
         {
           id: 'home-meal-preview',
-          type: 'mise-meal-plan-preview' as string,
+          type: 'mise-meal-plan-preview',
           data: {
             heading: "This Week's Meal Plan",
             days: [
@@ -99,7 +77,7 @@ export const siteData: SiteData = {
               { label: 'Sat', meal: 'Margherita Pizza' },
               { label: 'Sun', meal: null },
             ],
-          } as never,
+          },
         },
       ],
     },
@@ -113,7 +91,7 @@ export const siteData: SiteData = {
         appBarSection('recipe-app-bar'),
         {
           id: 'recipe-detail',
-          type: 'mise-recipe-detail' as string,
+          type: 'mise-recipe-detail',
           data: {
             title: 'Spicy Miso Ramen',
             prepTime: '45 min',
@@ -144,7 +122,7 @@ export const siteData: SiteData = {
             tags: ['Japanese', 'Soup', 'Comfort Food'],
             notes: "For extra heat, add a tablespoon of gochugaru to the broth. You can substitute chicken stock if dashi isn't available — add a splash of soy sauce to compensate.",
             backLink: { label: '← Back to Recipes', page: 'homepage' },
-          } as never,
+          },
         },
       ],
     },
@@ -158,7 +136,7 @@ export const siteData: SiteData = {
         appBarSection('mealplan-app-bar'),
         {
           id: 'mealplan-full',
-          type: 'mise-meal-plan-full' as string,
+          type: 'mise-meal-plan-full',
           data: {
             weekLabel: 'Week of Feb 10',
             days: [
@@ -237,7 +215,7 @@ export const siteData: SiteData = {
               { name: 'Pizza dough' },
             ],
             shoppingLinkLabel: 'View full list (14 items) →',
-          } as never,
+          },
         },
       ],
     },
@@ -251,15 +229,15 @@ export const siteData: SiteData = {
         appBarSection('browse-app-bar'),
         {
           id: 'browse-wrapper-open',
-          type: 'mise-browse-header' as string,
+          type: 'mise-browse-header',
           data: {
             title: 'Browse Recipes',
             count: '14 recipes',
-          } as never,
+          },
         },
         {
           id: 'browse-filters',
-          type: 'mise-filter-bar' as string,
+          type: 'mise-filter-bar',
           data: {
             groups: [
               {
@@ -282,11 +260,11 @@ export const siteData: SiteData = {
                 ],
               },
             ],
-          } as never,
+          },
         },
         {
           id: 'browse-grid',
-          type: 'mise-browse-recipe-grid' as string,
+          type: 'mise-browse-recipe-grid',
           data: {
             recipes: [
               { title: 'Spicy Miso Ramen', tag: 'Japanese', time: '45 min', difficulty: 'Medium', thumbClass: 'g3', linkPage: 'recipe' },
@@ -304,7 +282,7 @@ export const siteData: SiteData = {
               { title: 'Green Curry', tag: 'Thai', time: '40 min', difficulty: 'Medium', thumbClass: 'g13', linkPage: 'recipe' },
               { title: 'Smash Burger', tag: 'American', time: '15 min', difficulty: 'Easy', thumbClass: 'g14', linkPage: 'recipe' },
             ],
-          } as never,
+          },
         },
       ],
     },
@@ -318,7 +296,7 @@ export const siteData: SiteData = {
         appBarSection('groceries-app-bar'),
         {
           id: 'grocery-list',
-          type: 'mise-grocery-list' as string,
+          type: 'mise-grocery-list',
           data: {
             title: '🛒 Grocery List',
             subtitle: "Based on this week's meal plan · Feb 10 – 16",
@@ -375,7 +353,7 @@ export const siteData: SiteData = {
                 ],
               },
             ],
-          } as never,
+          },
         },
       ],
     },
@@ -389,7 +367,7 @@ export const siteData: SiteData = {
         appBarSection('settings-app-bar'),
         {
           id: 'settings-page',
-          type: 'mise-settings' as string,
+          type: 'mise-settings',
           data: {
             title: '⚙️ Settings',
             sections: [
@@ -445,7 +423,7 @@ export const siteData: SiteData = {
                 }],
               },
             ],
-          } as never,
+          },
         },
       ],
     },
@@ -457,11 +435,11 @@ export const siteData: SiteData = {
 export function homepage(themeCSS: string): string {
   // Homepage has a special 2-col layout with sidebar that doesn't fit cleanly into sections.
   // We render the app bar + search via sections, then inject the 2-col body manually.
-  const renderer = makeMiseRenderer('homepage')
-  const appBar = renderer(siteData.pages[0].sections[0])
-  const searchBar = renderer(siteData.pages[0].sections[1])
-  const recipeGrid = renderer(siteData.pages[0].sections[2])
-  const mealPreview = renderer(siteData.pages[0].sections[3])
+  const render = (s: Section) => renderMiseSection(s, 'homepage')
+  const appBar = render(siteData.pages[0].sections[0])
+  const searchBar = render(siteData.pages[0].sections[1])
+  const recipeGrid = render(siteData.pages[0].sections[2])
+  const mealPreview = render(siteData.pages[0].sections[3])
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -520,9 +498,7 @@ ${appBar}
 
 function renderSimplePage(pageIndex: number, activePage: string, themeCSS: string): string {
   const page = siteData.pages[pageIndex]
-  const renderer = makeMiseRenderer(activePage)
-
-  const sectionsHTML = page.sections.map(s => renderer(s) || '').join('\n\n')
+  const sectionsHTML = page.sections.map(s => renderMiseSection(s, activePage) || '').join('\n\n')
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -554,11 +530,11 @@ export function mealplan(themeCSS: string): string {
 
 export function browse(themeCSS: string): string {
   const page = siteData.pages[3]
-  const renderer = makeMiseRenderer('browse')
-  const appBar = renderer(page.sections[0])
-  const browseHeader = renderer(page.sections[1])
-  const filterBar = renderer(page.sections[2])
-  const recipeGrid = renderer(page.sections[3])
+  const render = (s: Section) => renderMiseSection(s, 'browse')
+  const appBar = render(page.sections[0])
+  const browseHeader = render(page.sections[1])
+  const filterBar = render(page.sections[2])
+  const recipeGrid = render(page.sections[3])
 
   return `<!DOCTYPE html>
 <html lang="en">

@@ -40,8 +40,6 @@ footer {
   border-top: 1px solid var(--theme-color-border);
   line-height: 1.6;
 }
-footer p:nth-child(2) { display: none; }
-
 /* ---- Main content area ---- */
 main {
   max-width: var(--theme-content-width);

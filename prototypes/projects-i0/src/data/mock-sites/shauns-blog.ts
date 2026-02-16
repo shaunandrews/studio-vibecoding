@@ -1,34 +1,34 @@
-import type { SiteData, Section } from '../sections/types'
+import type { SiteData } from '../sections/types'
 import { renderPage } from '../sections/renderer'
 import { renderBlogSection } from '../sections/sites/shauns-blog.renderers'
 import { blogCSS } from '../sections/sites/shauns-blog.css'
 import shaunsBlogTheme from '../themes/shauns-blog'
 
+const blogHeader = {
+  id: 'nav',
+  type: 'blog-header',
+  data: {
+    navItems: [
+      { label: 'Home', page: 'homepage' },
+      { label: 'About', page: 'about' },
+      { label: 'Archive', page: 'archive' },
+      { label: 'Projects', page: 'projects' },
+    ],
+  },
+}
+
+const blogFooter = {
+  id: 'footer',
+  type: 'blog-footer',
+  data: {
+    address: '© 2026 Shaun Andrews. Powered by WordPress.',
+  },
+}
+
 export const siteData: SiteData = {
   name: "Shaun's Blog",
   theme: shaunsBlogTheme,
   fonts: [],
-  header: {
-    id: 'header',
-    type: 'header',
-    data: {
-      navItems: [
-        { label: 'Home', page: 'homepage' },
-        { label: 'About', page: 'about' },
-        { label: 'Archive', page: 'archive' },
-        { label: 'Projects', page: 'projects' },
-      ],
-    },
-  },
-  footer: {
-    id: 'footer',
-    type: 'footer',
-    data: {
-      address: '© 2026 Shaun Andrews. Powered by WordPress.',
-      phone: '',
-      email: '',
-    },
-  },
   pages: [
     // ---- Homepage ----
     {
@@ -36,20 +36,21 @@ export const siteData: SiteData = {
       title: "Shaun's Blog",
       slug: 'homepage',
       sections: [
+        blogHeader,
         {
           id: 'home-featured',
-          type: 'blog-featured' as any,
+          type: 'blog-featured',
           data: {
             label: 'Featured',
             title: 'The Future of Design Engineering',
             titlePage: 'post',
             date: 'February 10, 2026',
             excerpt: 'The line between design and engineering continues to blur. As tools become more capable and AI accelerates prototyping, the designers who thrive will be the ones who think in systems and ship real code. Here\u2019s what I\u2019ve learned building at that intersection.',
-          } as any,
+          },
         },
         {
           id: 'home-posts',
-          type: 'blog-post-list' as any,
+          type: 'blog-post-list',
           data: {
             heading: 'Recent Posts',
             posts: [
@@ -69,8 +70,9 @@ export const siteData: SiteData = {
                 excerpt: 'Reflections on a decade of distributed work, open source, and the evolution of the web.',
               },
             ],
-          } as any,
+          },
         },
+        blogFooter,
       ],
     },
 
@@ -80,9 +82,10 @@ export const siteData: SiteData = {
       title: "The Future of Design Engineering \u2014 Shaun's Blog",
       slug: 'post',
       sections: [
+        blogHeader,
         {
           id: 'post-content',
-          type: 'blog-post' as any,
+          type: 'blog-post',
           data: {
             backLabel: '\u2190 Back to home',
             backPage: 'homepage',
@@ -99,8 +102,9 @@ export const siteData: SiteData = {
     <p>But tools alone don\u2019t make a design engineer. What matters is the mindset: a willingness to think in systems, to care about the user\u2019s experience <em>and</em> the developer\u2019s experience, to understand that the best design decisions often happen in code. It means being comfortable with ambiguity \u2014 knowing that the first implementation will teach you things the mockup never could. It means shipping, learning, and iterating instead of polishing pixels that nobody\u2019s interacted with yet.</p>
 
     <p>After ten-plus years building products at Automattic \u2014 across WordPress, Tumblr, and Gravatar \u2014 I keep coming back to the same conviction: the best work happens when you collapse the distance between imagining something and making it real. That\u2019s what design engineering is about. Not replacing designers or developers, but recognizing that the most impactful work lives at their intersection. The future belongs to the people who can think across that boundary.</p>`,
-          } as any,
+          },
         },
+        blogFooter,
       ],
     },
 
@@ -110,6 +114,7 @@ export const siteData: SiteData = {
       title: "About \u2014 Shaun's Blog",
       slug: 'about',
       sections: [
+        blogHeader,
         {
           id: 'about-heading',
           type: 'hero-simple',
@@ -128,7 +133,7 @@ export const siteData: SiteData = {
         },
         {
           id: 'about-currently',
-          type: 'blog-info-list' as any,
+          type: 'blog-info-list',
           data: {
             heading: 'Currently',
             items: [
@@ -137,11 +142,11 @@ export const siteData: SiteData = {
               { label: 'Reading', value: '\u201CA Philosophy of Software Design\u201D by John Ousterhout' },
               { label: 'Listening to', value: 'A lot of ambient and lo-fi while I work' },
             ],
-          } as any,
+          },
         },
         {
           id: 'about-uses',
-          type: 'blog-info-list' as any,
+          type: 'blog-info-list',
           data: {
             heading: 'What I Use',
             items: [
@@ -151,8 +156,9 @@ export const siteData: SiteData = {
               { label: 'Hardware', value: 'MacBook Pro, Studio Display' },
               { label: 'Notes', value: 'Obsidian for everything' },
             ],
-          } as any,
+          },
         },
+        blogFooter,
       ],
     },
 
@@ -162,9 +168,10 @@ export const siteData: SiteData = {
       title: "Archive \u2014 Shaun's Blog",
       slug: 'archive',
       sections: [
+        blogHeader,
         {
           id: 'archive-list',
-          type: 'blog-archive' as any,
+          type: 'blog-archive',
           data: {
             heading: 'Archive',
             months: [
@@ -268,8 +275,9 @@ export const siteData: SiteData = {
                 ],
               },
             ],
-          } as any,
+          },
         },
+        blogFooter,
       ],
     },
 
@@ -279,9 +287,10 @@ export const siteData: SiteData = {
       title: "The Case for Design Engineers \u2014 Shaun's Blog",
       slug: 'post2',
       sections: [
+        blogHeader,
         {
           id: 'post2-content',
-          type: 'blog-post' as any,
+          type: 'blog-post',
           data: {
             backLabel: '\u2190 Back to home',
             backPage: 'homepage',
@@ -350,8 +359,9 @@ const Card = ({ title, excerpt, image, tags }) =&gt; (
 
     <p>The best products I\u2019ve worked on \u2014 the ones that felt <em>right</em>, that users actually enjoyed using \u2014 were built by people who refused to stay in their lane. They sketched in code, questioned the mockup, pushed back on technical constraints that didn\u2019t need to exist, and celebrated the details that nobody asked for but everybody noticed. That\u2019s design engineering. That\u2019s the work worth doing.</p>`,
             tags: ['design engineering', 'roles', 'hiring', 'design systems', 'career'],
-          } as any,
+          },
         },
+        blogFooter,
       ],
     },
 
@@ -361,9 +371,10 @@ const Card = ({ title, excerpt, image, tags }) =&gt; (
       title: "Projects \u2014 Shaun's Blog",
       slug: 'projects',
       sections: [
+        blogHeader,
         {
           id: 'projects-grid',
-          type: 'blog-project-grid' as any,
+          type: 'blog-project-grid',
           data: {
             heading: 'Projects',
             subtitle: 'Open source work, side projects, and things I\u2019ve built over the years.',
@@ -425,8 +436,9 @@ const Card = ({ title, excerpt, image, tags }) =&gt; (
                 linkLabel: 'Live \u2192',
               },
             ],
-          } as any,
+          },
         },
+        blogFooter,
       ],
     },
   ],
@@ -434,7 +446,7 @@ const Card = ({ title, excerpt, image, tags }) =&gt; (
 
 // ---- Backward-compatible exports ----
 
-const customRenderer = (section: Section) => renderBlogSection(section)
+const customRenderer = renderBlogSection
 
 export function homepage(themeCSS: string): string {
   return renderPage(siteData.pages[0], siteData, 'homepage', themeCSS, blogCSS, customRenderer)

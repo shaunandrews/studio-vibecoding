@@ -1,8 +1,56 @@
-import type { SiteData } from '../sections/types'
+import type { SiteData, Section } from '../sections/types'
 import { renderPage } from '../sections/renderer'
+import { renderSection } from '../sections/section-renderers'
+import { downstreetCSS } from '../sections/sites/downstreet-cafe.css'
 import downstreetCafeTheme from '../themes/downstreet-cafe'
 
 // TODO: renderPage doesn't support color mode yet — dark mode preview will default to light
+
+const navItems = [
+  { label: 'Home', page: 'homepage' },
+  { label: 'Menu', page: 'menu' },
+  { label: 'About', page: 'about' },
+  { label: 'Events', page: 'events' },
+  { label: 'Gallery', page: 'gallery' },
+  { label: 'Order', page: 'order' },
+]
+
+const headerSection: Section = {
+  id: 'site-header',
+  type: 'site-header',
+  data: { navItems },
+}
+
+const footerSection: Section = {
+  id: 'site-footer',
+  type: 'site-footer',
+  data: {
+    address: '42 Maple Street, Riverside, OR 97201',
+    phone: '(503) 555-0142',
+    email: 'hello@downstreetcafe.com',
+    tagline: 'Made with WordPress',
+  },
+}
+
+function customRenderer(section: Section, activePage: string): string | null {
+  if (section.type === 'site-header') {
+    const items = section.data.navItems as Array<{ label: string; page: string }>
+    const links = items.map(item => {
+      const activeClass = item.page === activePage ? ' class="active"' : ''
+      return `<a href="#"${activeClass} onclick="window.parent.postMessage({type:'navigate',page:'${item.page}'},'*');return false">${item.label}</a>`
+    }).join('\n  ')
+    return `<nav class="site-nav">\n  ${links}\n</nav>`
+  }
+  if (section.type === 'site-footer') {
+    const d = section.data
+    return `<footer>
+  <p>${d.address}</p>
+  <p>${d.phone} · <a href="#">${d.email}</a></p>
+  <p class="wp">${d.tagline}</p>
+</footer>`
+  }
+  return null
+}
 
 export const siteData: SiteData = {
   name: 'Downstreet Cafe',
@@ -10,30 +58,6 @@ export const siteData: SiteData = {
   fonts: [
     { url: 'https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap' },
   ],
-  header: {
-    id: 'header',
-    type: 'header',
-    data: {
-      navItems: [
-        { label: 'Home', page: 'homepage' },
-        { label: 'Menu', page: 'menu' },
-        { label: 'About', page: 'about' },
-        { label: 'Events', page: 'events' },
-        { label: 'Gallery', page: 'gallery' },
-        { label: 'Order', page: 'order' },
-      ],
-    },
-  },
-  footer: {
-    id: 'footer',
-    type: 'footer',
-    data: {
-      address: '42 Maple Street, Riverside, OR 97201',
-      phone: '(503) 555-0142',
-      email: 'hello@downstreetcafe.com',
-      tagline: 'Made with WordPress',
-    },
-  },
   pages: [
     // ---- Homepage ----
     {
@@ -41,6 +65,7 @@ export const siteData: SiteData = {
       title: 'Downstreet Cafe',
       slug: 'homepage',
       sections: [
+        headerSection,
         {
           id: 'home-hero',
           type: 'hero-split',
@@ -99,6 +124,7 @@ export const siteData: SiteData = {
             linkPage: 'events',
           },
         },
+        footerSection,
       ],
     },
 
@@ -108,6 +134,7 @@ export const siteData: SiteData = {
       title: 'Menu – Downstreet Cafe',
       slug: 'menu',
       sections: [
+        headerSection,
         {
           id: 'menu-hero-img',
           type: 'hero-fullwidth',
@@ -208,6 +235,7 @@ export const siteData: SiteData = {
             ],
           },
         },
+        footerSection,
       ],
     },
 
@@ -217,6 +245,7 @@ export const siteData: SiteData = {
       title: 'About – Downstreet Cafe',
       slug: 'about',
       sections: [
+        headerSection,
         {
           id: 'about-hero-img',
           type: 'hero-fullwidth',
@@ -307,6 +336,7 @@ export const siteData: SiteData = {
 </ul>`,
           },
         },
+        footerSection,
       ],
     },
 
@@ -316,6 +346,7 @@ export const siteData: SiteData = {
       title: 'Events – Downstreet Cafe',
       slug: 'events',
       sections: [
+        headerSection,
         {
           id: 'events-header',
           type: 'hero-simple',
@@ -401,6 +432,7 @@ export const siteData: SiteData = {
             ],
           },
         },
+        footerSection,
       ],
     },
 
@@ -410,6 +442,7 @@ export const siteData: SiteData = {
       title: 'Gallery – Downstreet Cafe',
       slug: 'gallery',
       sections: [
+        headerSection,
         {
           id: 'gallery-header',
           type: 'hero-simple',
@@ -461,6 +494,7 @@ export const siteData: SiteData = {
             ],
           },
         },
+        footerSection,
       ],
     },
 
@@ -470,6 +504,7 @@ export const siteData: SiteData = {
       title: 'Order Online – Downstreet Cafe',
       slug: 'order',
       sections: [
+        headerSection,
         {
           id: 'order-menu',
           type: 'order-menu',
@@ -535,6 +570,7 @@ export const siteData: SiteData = {
             },
           },
         },
+        footerSection,
       ],
     },
   ],
@@ -543,27 +579,27 @@ export const siteData: SiteData = {
 // ---- Backward-compatible exports ----
 
 export function homepage(themeCSS: string): string {
-  return renderPage(siteData.pages[0], siteData, 'homepage', themeCSS)
+  return renderPage(siteData.pages[0], siteData, 'homepage', themeCSS, downstreetCSS, customRenderer)
 }
 
 export function menu(themeCSS: string): string {
-  return renderPage(siteData.pages[1], siteData, 'menu', themeCSS)
+  return renderPage(siteData.pages[1], siteData, 'menu', themeCSS, downstreetCSS, customRenderer)
 }
 
 export function about(themeCSS: string): string {
-  return renderPage(siteData.pages[2], siteData, 'about', themeCSS)
+  return renderPage(siteData.pages[2], siteData, 'about', themeCSS, downstreetCSS, customRenderer)
 }
 
 export function events(themeCSS: string): string {
-  return renderPage(siteData.pages[3], siteData, 'events', themeCSS)
+  return renderPage(siteData.pages[3], siteData, 'events', themeCSS, downstreetCSS, customRenderer)
 }
 
 export function gallery(themeCSS: string): string {
-  return renderPage(siteData.pages[4], siteData, 'gallery', themeCSS)
+  return renderPage(siteData.pages[4], siteData, 'gallery', themeCSS, downstreetCSS, customRenderer)
 }
 
 export function order(themeCSS: string): string {
-  return renderPage(siteData.pages[5], siteData, 'order', themeCSS)
+  return renderPage(siteData.pages[5], siteData, 'order', themeCSS, downstreetCSS, customRenderer)
 }
 
 export const pages: Record<string, { label: string; html: (css: string) => string }> = {

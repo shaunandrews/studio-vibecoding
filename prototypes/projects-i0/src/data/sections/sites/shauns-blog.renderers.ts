@@ -8,8 +8,10 @@ import type {
   BlogProjectGridData,
 } from './shauns-blog.types'
 
-export function renderBlogSection(section: Section): string | null {
-  switch (section.type as string) {
+export function renderBlogSection(section: Section, activePage: string): string | null {
+  switch (section.type) {
+    case 'blog-header': return renderBlogHeader(section.data, activePage)
+    case 'blog-footer': return renderBlogFooter(section.data)
     case 'blog-featured': return renderBlogFeatured(section.data as unknown as BlogFeaturedData)
     case 'blog-post-list': return renderBlogPostList(section.data as unknown as BlogPostListData)
     case 'blog-post': return renderBlogPost(section.data as unknown as BlogPostData)
@@ -18,6 +20,22 @@ export function renderBlogSection(section: Section): string | null {
     case 'blog-project-grid': return renderBlogProjectGrid(section.data as unknown as BlogProjectGridData)
     default: return null
   }
+}
+
+function renderBlogHeader(data: Record<string, any>, activePage: string): string {
+  const links = data.navItems.map((item: { label: string; page: string }) => {
+    const active = item.page === activePage ? ' class="active"' : ''
+    return `  <a href="#"${active} onclick="window.parent.postMessage({type:'navigate',page:'${item.page}'},'*');return false">${item.label}</a>`
+  }).join('\n')
+  return `<nav class="site-nav">
+${links}
+</nav>`
+}
+
+function renderBlogFooter(data: Record<string, any>): string {
+  return `<footer>
+  <p>${data.address}</p>
+</footer>`
 }
 
 function renderBlogFeatured(data: BlogFeaturedData): string {

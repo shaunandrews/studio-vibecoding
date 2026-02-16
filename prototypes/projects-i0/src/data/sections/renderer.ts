@@ -1,25 +1,7 @@
-import type { PageTemplate, SiteData, Section, TemplatePart, HeaderData, FooterData } from './types'
+import type { PageTemplate, SiteData, Section } from './types'
 import { themeToCSS } from '../themes/theme-utils'
 import { componentCSS } from './components'
 import { renderSection } from './section-renderers'
-
-function renderHeader(header: TemplatePart, activePage: string): string {
-  const data = header.data as HeaderData
-  const links = data.navItems.map(item => {
-    const activeClass = item.page === activePage ? ' class="active"' : ''
-    return `  <a href="#"${activeClass} onclick="window.parent.postMessage({type:'navigate',page:'${item.page}'},'*');return false">${item.label}</a>`
-  }).join('\n')
-  return `<nav class="site-nav">\n${links}\n</nav>`
-}
-
-function renderFooter(footer: TemplatePart): string {
-  const data = footer.data as FooterData
-  return `<footer>
-  <p>${data.address}</p>
-  <p>${data.phone} · <a href="#">${data.email}</a></p>
-  ${data.tagline ? `<p class="wp">${data.tagline}</p>` : ''}
-</footer>`
-}
 
 export function renderPage(
   page: PageTemplate,
@@ -27,7 +9,7 @@ export function renderPage(
   activePage: string,
   themeCSSOverride?: string,
   customCSS?: string,
-  customRenderer?: (section: Section) => string | null
+  customRenderer?: (section: Section, activePage: string) => string | null
 ): string {
   const themeCSS = themeCSSOverride || themeToCSS(site.theme)
   const fontLinks = site.fonts.map(f => `<link href="${f.url}" rel="stylesheet">`).join('\n')
@@ -35,7 +17,7 @@ export function renderPage(
   const sectionsHTML = page.sections
     .map(section => {
       if (customRenderer) {
-        const custom = customRenderer(section)
+        const custom = customRenderer(section, activePage)
         if (custom !== null) return custom
       }
       return renderSection(section)
@@ -55,11 +37,7 @@ ${customCSS ? `<style>${customCSS}</style>` : ''}
 </head>
 <body>
 
-${renderHeader(site.header, activePage)}
-
 ${sectionsHTML}
-
-${renderFooter(site.footer)}
 
 </body>
 </html>`

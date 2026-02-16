@@ -4,32 +4,36 @@ import { renderLedgerSection } from '../sections/sites/ledger.renderers'
 import { ledgerCSS } from '../sections/sites/ledger.css'
 import ledgerTheme from '../themes/ledger'
 
+const topbarData = {
+  logo: 'Ledger',
+  navItems: [
+    { label: 'Dashboard', page: 'homepage' },
+    { label: 'Invoices', page: 'invoice' },
+    { label: 'Clients', page: 'clients' },
+    { label: 'Reports', page: 'reports' },
+    { label: 'Settings', page: 'settings' },
+  ],
+  avatarInitial: 'L',
+}
+
+const footerData = {
+  address: '123 Commerce Street, Suite 400, Portland, OR 97201',
+  phone: '(503) 555-0142',
+  email: 'billing@ledgerdesign.co',
+}
+
+function topbarSection(id: string): Section {
+  return { id, type: 'ledger-topbar', data: topbarData }
+}
+
+function footerSection(id: string): Section {
+  return { id, type: 'ledger-footer', data: footerData }
+}
+
 export const siteData: SiteData = {
   name: 'Ledger',
   theme: ledgerTheme,
   fonts: [],
-  header: {
-    id: 'header',
-    type: 'header',
-    data: {
-      navItems: [
-        { label: 'Dashboard', page: 'homepage' },
-        { label: 'Invoices', page: 'invoice' },
-        { label: 'Clients', page: 'clients' },
-        { label: 'Reports', page: 'reports' },
-        { label: 'Settings', page: 'settings' },
-      ],
-    },
-  },
-  footer: {
-    id: 'footer',
-    type: 'footer',
-    data: {
-      address: '123 Commerce Street, Suite 400, Portland, OR 97201',
-      phone: '(503) 555-0142',
-      email: 'billing@ledgerdesign.co',
-    },
-  },
   pages: [
     // ---- Dashboard (homepage) ----
     {
@@ -37,9 +41,10 @@ export const siteData: SiteData = {
       title: 'Ledger — Dashboard',
       slug: 'homepage',
       sections: [
+        topbarSection('dash-topbar'),
         {
           id: 'dash-stats',
-          type: 'ledger-dashboard-stats' as any,
+          type: 'ledger-dashboard-stats',
           data: {
             cards: [
               { label: 'Total Revenue', value: '$24,580', indicator: 'blue' },
@@ -51,7 +56,7 @@ export const siteData: SiteData = {
         },
         {
           id: 'dash-recent-invoices',
-          type: 'ledger-data-table' as any,
+          type: 'ledger-data-table',
           data: {
             heading: 'Recent Invoices',
             headingLink: { text: 'View all →', page: 'invoice' },
@@ -117,7 +122,7 @@ export const siteData: SiteData = {
         },
         {
           id: 'dash-revenue-chart',
-          type: 'ledger-bar-chart' as any,
+          type: 'ledger-bar-chart',
           data: {
             heading: 'Revenue',
             bars: [
@@ -130,6 +135,7 @@ export const siteData: SiteData = {
             ],
           },
         },
+        footerSection('dash-footer'),
       ],
     },
 
@@ -141,12 +147,12 @@ export const siteData: SiteData = {
       sections: [
         {
           id: 'inv-back',
-          type: 'ledger-back-link' as any,
+          type: 'ledger-back-link',
           data: { text: '← Back to Dashboard', page: 'homepage' },
         },
         {
           id: 'inv-detail',
-          type: 'ledger-invoice-detail' as any,
+          type: 'ledger-invoice-detail',
           data: {
             invoiceNumber: 'INV-2024-0047',
             status: 'pending',
@@ -200,7 +206,7 @@ export const siteData: SiteData = {
       sections: [
         {
           id: 'clients-header',
-          type: 'ledger-page-header' as any,
+          type: 'ledger-page-header',
           data: {
             title: 'Clients',
             action: { label: '+ Add Client', variant: 'primary' },
@@ -208,7 +214,7 @@ export const siteData: SiteData = {
         },
         {
           id: 'clients-search',
-          type: 'ledger-search-bar' as any,
+          type: 'ledger-search-bar',
           data: {
             placeholder: 'Search clients…',
             filters: [
@@ -218,7 +224,7 @@ export const siteData: SiteData = {
         },
         {
           id: 'clients-list',
-          type: 'ledger-client-list' as any,
+          type: 'ledger-client-list',
           data: {
             clients: [
               {
@@ -295,7 +301,7 @@ export const siteData: SiteData = {
       sections: [
         {
           id: 'reports-header',
-          type: 'ledger-page-header' as any,
+          type: 'ledger-page-header',
           data: {
             title: 'Reports',
             dateRange: {
@@ -308,7 +314,7 @@ export const siteData: SiteData = {
         },
         {
           id: 'reports-summary',
-          type: 'ledger-report-summary' as any,
+          type: 'ledger-report-summary',
           data: {
             cards: [
               { label: 'Total Revenue', value: '$142,680', change: '18.3% vs prior year', direction: 'up' },
@@ -320,7 +326,7 @@ export const siteData: SiteData = {
         },
         {
           id: 'reports-yoy-chart',
-          type: 'ledger-yoy-bar-chart' as any,
+          type: 'ledger-yoy-bar-chart',
           data: {
             heading: 'Monthly Revenue — Year-over-Year',
             bars: [
@@ -345,7 +351,7 @@ export const siteData: SiteData = {
         },
         {
           id: 'reports-two-col',
-          type: 'ledger-two-column' as any,
+          type: 'ledger-two-column',
           data: {
             ratio: '1-1',
             left: [
@@ -414,7 +420,7 @@ export const siteData: SiteData = {
       sections: [
         {
           id: 'settings-form',
-          type: 'ledger-settings' as any,
+          type: 'ledger-settings',
           data: {
             heading: 'Settings',
             description: 'Manage your business profile, invoicing defaults, and integrations.',
@@ -488,12 +494,12 @@ export const siteData: SiteData = {
       sections: [
         {
           id: 'cd-back',
-          type: 'ledger-back-link' as any,
+          type: 'ledger-back-link',
           data: { text: '← Back to Clients', page: 'clients' },
         },
         {
           id: 'cd-detail',
-          type: 'ledger-client-detail' as any,
+          type: 'ledger-client-detail',
           data: {
             name: 'Meridian Studios',
             initials: 'M',
@@ -538,7 +544,7 @@ function renderLedgerPage(pageIndex: number, activePage: string, themeCSS: strin
   // Ledger has its own topbar instead of standard header/footer.
   // We use renderPage with customCSS and customRenderer, but override header/footer rendering
   // by generating the full HTML ourselves.
-  return renderPage(page, siteData, activePage, themeCSS, ledgerCSS, renderLedgerSection as (section: Section) => string | null)
+  return renderPage(page, siteData, activePage, themeCSS, ledgerCSS, renderLedgerSection)
 }
 
 // ---- Backward-compatible exports ----

@@ -27,9 +27,11 @@ import type {
   ContactSocialData,
 } from './ui-portfolio.types'
 
-export function renderPortfolioSection(section: Section): string | null {
+export function renderPortfolioSection(section: Section, activePage: string): string | null {
   const s = section as { id: string; type: string; data: unknown }
   switch (s.type) {
+    case 'portfolio-header': return renderPortfolioHeader(s.data as Record<string, any>, activePage)
+    case 'portfolio-footer': return renderPortfolioFooter(s.data as Record<string, any>)
     case 'portfolio-intro': return renderPortfolioIntro(s.data as PortfolioIntroData)
     case 'project-grid': return renderProjectGrid(s.data as ProjectGridData)
     case 'project-grid-full': return renderProjectGridFull(s.data as ProjectGridFullData)
@@ -57,6 +59,26 @@ export function renderPortfolioSection(section: Section): string | null {
     case 'contact-social': return renderContactSocial(s.data as ContactSocialData)
     default: return null
   }
+}
+
+function renderPortfolioHeader(data: Record<string, any>, activePage: string): string {
+  const links = data.navItems.map((item: { label: string; page: string }) => {
+    const active = item.page === activePage ? ' class="active"' : ''
+    return `    <a href="#"${active} onclick="window.parent.postMessage({type:'navigate',page:'${item.page}'},'*');return false">${item.label}</a>`
+  }).join('\n')
+  return `<nav class="site-nav">
+  <a class="site-name" href="#" onclick="window.parent.postMessage({type:'navigate',page:'${data.brandPage}'},'*');return false">${data.brand}</a>
+  <div class="nav-links">
+${links}
+  </div>
+</nav>`
+}
+
+function renderPortfolioFooter(data: Record<string, any>): string {
+  return `<footer>
+  <span>${data.copyright}</span>
+  <span>${data.email}</span>
+</footer>`
 }
 
 function renderPortfolioIntro(data: PortfolioIntroData): string {

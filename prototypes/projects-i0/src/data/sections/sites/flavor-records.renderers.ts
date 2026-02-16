@@ -16,9 +16,11 @@ import type {
   FlavorContactData,
 } from './flavor-records.types'
 
-export function renderFlavorSection(section: Section): string | null {
-  const d = section.data as any
-  switch (section.type as string) {
+export function renderFlavorSection(section: Section, activePage: string): string | null {
+  const d = section.data
+  switch (section.type) {
+    case 'flavor-header': return renderFlavorHeader(d, activePage)
+    case 'flavor-footer': return renderFlavorFooter(d)
     case 'flavor-hero': return renderFlavorHero(d)
     case 'flavor-featured-release': return renderFeaturedRelease(d)
     case 'flavor-release-grid': return renderReleaseGrid(d)
@@ -35,6 +37,26 @@ export function renderFlavorSection(section: Section): string | null {
     case 'flavor-contact': return renderFlavorContact(d)
     default: return null
   }
+}
+
+function renderFlavorHeader(data: Record<string, any>, activePage: string): string {
+  const links = data.navItems.map((item: { label: string; page: string }) => {
+    const active = item.page === activePage ? ' class="active"' : ''
+    return `    <a href="#"${active} onclick="${nav(item.page)}">${item.label}</a>`
+  }).join('\n')
+  return `<nav class="site-nav">
+  <a href="#" class="brand" onclick="${nav(data.brandPage)}">${data.brand}</a>
+  <div class="links">
+${links}
+  </div>
+</nav>`
+}
+
+function renderFlavorFooter(data: Record<string, any>): string {
+  return `<footer>
+  <p>${data.copyright}</p>
+  <p>${data.address}</p>
+</footer>`
 }
 
 function nav(page: string): string {

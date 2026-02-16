@@ -4,31 +4,33 @@ import { renderPortfolioSection } from '../sections/sites/ui-portfolio.renderers
 import { portfolioCSS } from '../sections/sites/ui-portfolio.css'
 import uiPortfolioTheme from '../themes/ui-portfolio'
 
+const portfolioHeader = {
+  id: 'nav',
+  type: 'portfolio-header',
+  data: {
+    brand: 'Alex Chen',
+    brandPage: 'homepage',
+    navItems: [
+      { label: 'Work', page: 'work' },
+      { label: 'Process', page: 'process' },
+      { label: 'Contact', page: 'contact' },
+    ],
+  },
+}
+
+const portfolioFooter = {
+  id: 'footer',
+  type: 'portfolio-footer',
+  data: {
+    copyright: '© 2026 Alex Chen',
+    email: 'alex@alexchen.design',
+  },
+}
+
 export const siteData: SiteData = {
   name: 'Alex Chen — UI/UX Designer',
   theme: uiPortfolioTheme,
   fonts: [],
-  header: {
-    id: 'header',
-    type: 'header',
-    data: {
-      navItems: [
-        { label: 'Work', page: 'work' },
-        { label: 'Process', page: 'process' },
-        { label: 'Contact', page: 'contact' },
-      ],
-    },
-  },
-  footer: {
-    id: 'footer',
-    type: 'footer',
-    data: {
-      address: 'alex@alexchen.design',
-      phone: '',
-      email: 'alex@alexchen.design',
-      tagline: '',
-    },
-  },
   pages: [
     // ---- Homepage ----
     {
@@ -36,9 +38,10 @@ export const siteData: SiteData = {
       title: 'Alex Chen — UI/UX Designer',
       slug: 'homepage',
       sections: [
+        portfolioHeader,
         {
           id: 'home-intro',
-          type: 'portfolio-intro' as any,
+          type: 'portfolio-intro',
           data: {
             greeting: 'Hello —',
             heading: "Hi, I'm Alex Chen",
@@ -47,7 +50,7 @@ export const siteData: SiteData = {
         },
         {
           id: 'home-work',
-          type: 'project-grid' as any,
+          type: 'project-grid',
           data: {
             heading: 'Selected Work',
             projects: [
@@ -77,12 +80,13 @@ export const siteData: SiteData = {
         },
         {
           id: 'home-about',
-          type: 'about-brief' as any,
+          type: 'about-brief',
           data: {
             heading: 'About',
             text: "I'm a product designer based in San Francisco with 8 years of experience building interfaces for startups and established brands. I believe great design disappears — it just feels right.",
           },
         },
+        portfolioFooter,
       ],
     },
 
@@ -92,9 +96,10 @@ export const siteData: SiteData = {
       title: 'Work — Alex Chen',
       slug: 'work',
       sections: [
+        portfolioHeader,
         {
           id: 'work-grid',
-          type: 'project-grid-full' as any,
+          type: 'project-grid-full',
           data: {
             heading: 'Work',
             subtitle: 'A curated selection of projects spanning mobile apps, web platforms, and design systems. Each one a story of turning complexity into clarity.',
@@ -156,12 +161,13 @@ export const siteData: SiteData = {
         },
         {
           id: 'work-filters',
-          type: 'work-filters' as any,
+          type: 'work-filters',
           data: {
             filters: ['All', 'Mobile App', 'Web Platform', 'Design System', 'Dashboard'],
             activeFilter: 'All',
           },
         },
+        portfolioFooter,
       ],
     },
 
@@ -171,9 +177,10 @@ export const siteData: SiteData = {
       title: 'Meridian Banking App — Alex Chen',
       slug: 'casestudy',
       sections: [
+        portfolioHeader,
         {
           id: 'cs1-hero',
-          type: 'case-study-hero' as any,
+          type: 'case-study-hero',
           data: {
             label: 'Case Study',
             title: 'Meridian Banking App',
@@ -182,7 +189,7 @@ export const siteData: SiteData = {
         },
         {
           id: 'cs1-hero-image',
-          type: 'case-study-image' as any,
+          type: 'case-study-image',
           data: {
             label: 'Hero — App Overview',
             gradient: 'linear-gradient(135deg, #c7d2cb 0%, #a8b9ad 100%)',
@@ -191,7 +198,7 @@ export const siteData: SiteData = {
         },
         {
           id: 'cs1-meta',
-          type: 'case-study-meta' as any,
+          type: 'case-study-meta',
           data: {
             items: [
               { label: 'Role', value: 'Lead Product Designer' },
@@ -202,7 +209,7 @@ export const siteData: SiteData = {
         },
         {
           id: 'cs1-challenge',
-          type: 'case-study-section' as any,
+          type: 'case-study-section',
           data: {
             heading: 'The Challenge',
             content: `<p>Meridian, a digital-first bank targeting millennials and Gen Z, was struggling with user retention. Their existing app felt like a spreadsheet — functional but lifeless. Users opened it to check balances and left immediately.</p>
@@ -211,7 +218,7 @@ export const siteData: SiteData = {
         },
         {
           id: 'cs1-research',
-          type: 'case-study-section' as any,
+          type: 'case-study-section',
           data: {
             heading: 'Discovery & Research',
             content: `<p>I started by interviewing 24 users across three segments — students, early-career professionals, and freelancers. Key findings:</p>
@@ -225,7 +232,7 @@ export const siteData: SiteData = {
         },
         {
           id: 'cs1-research-images',
-          type: 'case-study-image-row' as any,
+          type: 'case-study-image-row',
           data: {
             images: [
               { label: 'Research Synthesis', gradient: 'linear-gradient(135deg, #e8ede9 0%, #c7d2cb 100%)' },
@@ -235,7 +242,7 @@ export const siteData: SiteData = {
         },
         {
           id: 'cs1-design',
-          type: 'case-study-section' as any,
+          type: 'case-study-section',
           data: {
             heading: 'Design Process',
             content: `<h3>Information Architecture</h3>
@@ -250,7 +257,7 @@ export const siteData: SiteData = {
         },
         {
           id: 'cs1-final-image',
-          type: 'case-study-image' as any,
+          type: 'case-study-image',
           data: {
             label: 'Final UI — Dashboard & Activity Views',
             gradient: 'linear-gradient(135deg, #c7d2cb 0%, #9bb0a3 100%)',
@@ -258,7 +265,7 @@ export const siteData: SiteData = {
         },
         {
           id: 'cs1-detail-images',
-          type: 'case-study-image-row' as any,
+          type: 'case-study-image-row',
           data: {
             images: [
               { label: 'Goals Screen', gradient: 'linear-gradient(135deg, #b8c9be 0%, #8fa899 100%)' },
@@ -268,7 +275,7 @@ export const siteData: SiteData = {
         },
         {
           id: 'cs1-solution',
-          type: 'case-study-section' as any,
+          type: 'case-study-section',
           data: {
             heading: 'The Solution',
             content: `<p>The redesigned Meridian app centers around a personalized dashboard that greets users with a clear financial snapshot — not a wall of numbers, but a curated summary of what matters today. Spending insights are woven throughout, surfacing patterns in plain language rather than charts.</p>
@@ -277,7 +284,7 @@ export const siteData: SiteData = {
         },
         {
           id: 'cs1-results',
-          type: 'case-study-results' as any,
+          type: 'case-study-results',
           data: {
             heading: 'Results',
             introText: 'After launch, the numbers told a compelling story:',
@@ -292,12 +299,13 @@ export const siteData: SiteData = {
         },
         {
           id: 'cs1-reflection',
-          type: 'case-study-section' as any,
+          type: 'case-study-section',
           data: {
             heading: 'Reflection',
             content: `<p>This project reinforced something I deeply believe: in fintech, empathy is a feature. Users don't just need to see their money — they need to feel okay about it. The biggest design wins weren't visual; they were emotional.</p>`,
           },
         },
+        portfolioFooter,
       ],
     },
 
@@ -307,9 +315,10 @@ export const siteData: SiteData = {
       title: 'Verdant — Sustainable Shopping Platform — Alex Chen',
       slug: 'casestudy2',
       sections: [
+        portfolioHeader,
         {
           id: 'cs2-hero',
-          type: 'case-study-hero' as any,
+          type: 'case-study-hero',
           data: {
             label: 'Case Study',
             title: 'Verdant — Sustainable Shopping Platform',
@@ -318,7 +327,7 @@ export const siteData: SiteData = {
         },
         {
           id: 'cs2-hero-image',
-          type: 'case-study-image' as any,
+          type: 'case-study-image',
           data: {
             label: 'Hero — Platform Overview',
             gradient: 'linear-gradient(135deg, #a8d5ba 0%, #5b9279 100%)',
@@ -327,7 +336,7 @@ export const siteData: SiteData = {
         },
         {
           id: 'cs2-meta',
-          type: 'case-study-meta' as any,
+          type: 'case-study-meta',
           data: {
             items: [
               { label: 'Role', value: 'Lead Designer' },
@@ -339,7 +348,7 @@ export const siteData: SiteData = {
         },
         {
           id: 'cs2-challenge',
-          type: 'case-study-section' as any,
+          type: 'case-study-section',
           data: {
             heading: 'The Challenge',
             content: `<p>Verdant wanted to build an e-commerce platform for sustainable products — but the space was full of greenwashing, confusing eco-labels, and guilt-driven marketing. Shoppers didn't trust sustainability claims, and ethical brands struggled to stand out in a sea of vague "eco-friendly" tags.</p>
@@ -348,7 +357,7 @@ export const siteData: SiteData = {
         },
         {
           id: 'cs2-research',
-          type: 'case-study-section' as any,
+          type: 'case-study-section',
           data: {
             heading: 'Research &amp; Discovery',
             content: `<h3>Understanding the Landscape</h3>
@@ -365,7 +374,7 @@ export const siteData: SiteData = {
         },
         {
           id: 'cs2-research-images',
-          type: 'case-study-image-row' as any,
+          type: 'case-study-image-row',
           data: {
             images: [
               { label: 'Affinity Mapping', gradient: 'linear-gradient(135deg, #d4edda 0%, #a8d5ba 100%)' },
@@ -375,7 +384,7 @@ export const siteData: SiteData = {
         },
         {
           id: 'cs2-timeline',
-          type: 'case-study-timeline' as any,
+          type: 'case-study-timeline',
           data: {
             heading: 'Project Timeline',
             phases: [
@@ -388,7 +397,7 @@ export const siteData: SiteData = {
         },
         {
           id: 'cs2-design',
-          type: 'case-study-section' as any,
+          type: 'case-study-section',
           data: {
             heading: 'Design Approach',
             content: `<h3>The Sustainability Score</h3>
@@ -404,7 +413,7 @@ export const siteData: SiteData = {
         },
         {
           id: 'cs2-detail-image',
-          type: 'case-study-image' as any,
+          type: 'case-study-image',
           data: {
             label: 'Product Detail Page — Impact Score Breakdown',
             gradient: 'linear-gradient(135deg, #a8d5ba 0%, #5b9279 100%)',
@@ -412,7 +421,7 @@ export const siteData: SiteData = {
         },
         {
           id: 'cs2-ui-images',
-          type: 'case-study-image-row' as any,
+          type: 'case-study-image-row',
           data: {
             images: [
               { label: 'Smart Filters UI', gradient: 'linear-gradient(135deg, #b8e6c8 0%, #7ab893 100%)' },
@@ -422,7 +431,7 @@ export const siteData: SiteData = {
         },
         {
           id: 'cs2-compare',
-          type: 'case-study-compare' as any,
+          type: 'case-study-compare',
           data: {
             heading: 'Before &amp; After',
             before: {
@@ -455,7 +464,7 @@ export const siteData: SiteData = {
         },
         {
           id: 'cs2-solution',
-          type: 'case-study-section' as any,
+          type: 'case-study-section',
           data: {
             heading: 'The Solution',
             content: `<p>The final platform launched with three core experiences:</p>
@@ -469,7 +478,7 @@ export const siteData: SiteData = {
         },
         {
           id: 'cs2-dashboard-image',
-          type: 'case-study-image' as any,
+          type: 'case-study-image',
           data: {
             label: 'Personal Impact Dashboard',
             gradient: 'linear-gradient(135deg, #7ab893 0%, #3d7a57 100%)',
@@ -477,7 +486,7 @@ export const siteData: SiteData = {
         },
         {
           id: 'cs2-results',
-          type: 'case-study-results' as any,
+          type: 'case-study-results',
           data: {
             heading: 'Results',
             introText: 'Verdant launched in beta with 200 brands and 3,400 products. Within 8 weeks:',
@@ -494,7 +503,7 @@ export const siteData: SiteData = {
         },
         {
           id: 'cs2-testimonial',
-          type: 'case-study-testimonial' as any,
+          type: 'case-study-testimonial',
           data: {
             quote: '"Alex didn\'t just redesign our platform — he reframed how we think about trust in sustainable commerce. The Impact Score alone changed our entire business model."',
             cite: '— Maya Torres, CEO, Verdant Inc.',
@@ -502,13 +511,14 @@ export const siteData: SiteData = {
         },
         {
           id: 'cs2-reflection',
-          type: 'case-study-section' as any,
+          type: 'case-study-section',
           data: {
             heading: 'Reflection',
             content: `<p>This project taught me that transparency is a design material. The hardest challenge wasn't visual — it was deciding how much information to surface and when. Too little feels evasive; too much feels like a data dump. The sweet spot is progressive disclosure: give people a clear signal upfront, and let curiosity drive deeper exploration.</p>
   <p>Sustainability shouldn't require a PhD. Good design can bridge that gap.</p>`,
           },
         },
+        portfolioFooter,
       ],
     },
 
@@ -518,9 +528,10 @@ export const siteData: SiteData = {
       title: 'Process — Alex Chen',
       slug: 'process',
       sections: [
+        portfolioHeader,
         {
           id: 'process-hero',
-          type: 'process-hero' as any,
+          type: 'process-hero',
           data: {
             label: 'How I Work',
             heading: 'Design Process',
@@ -529,7 +540,7 @@ export const siteData: SiteData = {
         },
         {
           id: 'process-phases',
-          type: 'process-phases' as any,
+          type: 'process-phases',
           data: {
             phases: [
               {
@@ -615,7 +626,7 @@ export const siteData: SiteData = {
         },
         {
           id: 'process-principles',
-          type: 'process-principles' as any,
+          type: 'process-principles',
           data: {
             heading: 'Guiding Principles',
             principles: [
@@ -639,7 +650,7 @@ export const siteData: SiteData = {
         },
         {
           id: 'process-cta',
-          type: 'process-cta' as any,
+          type: 'process-cta',
           data: {
             badge: '● Currently available for freelance',
             heading: "Let's work together",
@@ -648,6 +659,7 @@ export const siteData: SiteData = {
             buttonPage: 'contact',
           },
         },
+        portfolioFooter,
       ],
     },
 
@@ -657,9 +669,10 @@ export const siteData: SiteData = {
       title: 'About & Contact — Alex Chen',
       slug: 'contact',
       sections: [
+        portfolioHeader,
         {
           id: 'contact-avatar',
-          type: 'contact-avatar' as any,
+          type: 'contact-avatar',
           data: {
             initials: 'AC',
             name: 'Alex Chen',
@@ -668,14 +681,14 @@ export const siteData: SiteData = {
         },
         {
           id: 'contact-quote',
-          type: 'contact-philosophy' as any,
+          type: 'contact-philosophy',
           data: {
             quote: '"Design should feel like a conversation — intuitive, respectful, and genuinely helpful."',
           },
         },
         {
           id: 'contact-philosophy-section',
-          type: 'case-study-section' as any,
+          type: 'case-study-section',
           data: {
             heading: 'Design Philosophy',
             content: `<p>I approach every project with three principles: clarity over cleverness, empathy over assumption, and craft over speed. I believe the best interfaces are invisible — they get out of the way and let people accomplish what they came to do.</p>
@@ -684,7 +697,7 @@ export const siteData: SiteData = {
         },
         {
           id: 'contact-tools',
-          type: 'contact-tools' as any,
+          type: 'contact-tools',
           data: {
             heading: 'Tools & Skills',
             tools: ['Figma', 'Framer', 'Protopie', 'HTML / CSS', 'React (basic)', 'Design Systems', 'User Research', 'Accessibility'],
@@ -692,7 +705,7 @@ export const siteData: SiteData = {
         },
         {
           id: 'contact-experience',
-          type: 'contact-experience' as any,
+          type: 'contact-experience',
           data: {
             heading: 'Experience',
             items: [
@@ -705,7 +718,7 @@ export const siteData: SiteData = {
         },
         {
           id: 'contact-availability',
-          type: 'contact-availability' as any,
+          type: 'contact-availability',
           data: {
             heading: 'Availability',
             badge: '● Available for freelance',
@@ -714,7 +727,7 @@ export const siteData: SiteData = {
         },
         {
           id: 'contact-form',
-          type: 'contact-form' as any,
+          type: 'contact-form',
           data: {
             heading: 'Get in Touch',
             fields: [
@@ -728,7 +741,7 @@ export const siteData: SiteData = {
         },
         {
           id: 'contact-social',
-          type: 'contact-social' as any,
+          type: 'contact-social',
           data: {
             heading: 'Elsewhere',
             links: [
@@ -739,6 +752,7 @@ export const siteData: SiteData = {
             ],
           },
         },
+        portfolioFooter,
       ],
     },
   ],

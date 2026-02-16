@@ -37,8 +37,8 @@ export interface SectionDataMap {
 
 export interface Section {
   id: string
-  type: SectionType
-  data: SectionDataMap[SectionType]
+  type: string
+  data: Record<string, any>
 }
 
 // ---- Section Data Interfaces ----
@@ -179,30 +179,6 @@ export interface OrderMenuData {
   }
 }
 
-// ---- Template Parts ----
-
-export interface TemplatePart {
-  id: string
-  type: 'header' | 'footer'
-  data: HeaderData | FooterData
-}
-
-export interface HeaderData {
-  navItems: Array<{
-    label: string
-    page: string
-  }>
-}
-
-export interface FooterData {
-  address: string
-  phone: string
-  email: string
-  tagline?: string
-  social?: Array<{ platform: string; url: string }>
-  copyright?: string
-}
-
 // ---- Page Template ----
 
 export interface PageTemplate {
@@ -222,7 +198,5 @@ export interface SiteData {
   name: string
   theme: SiteTheme
   fonts: FontImport[]
-  header: TemplatePart
-  footer: TemplatePart
   pages: PageTemplate[]
 }

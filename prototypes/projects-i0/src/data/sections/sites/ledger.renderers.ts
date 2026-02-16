@@ -460,8 +460,8 @@ function renderLedgerSectionInner(type: string, data: unknown): string {
   }
 }
 
-export function renderLedgerSection(section: Section): string | null {
-  const type = section.type as string
+export function renderLedgerSection(section: Section, activePage: string): string | null {
+  const type = section.type
   if (!type.startsWith('ledger-')) return null
   const html = renderLedgerSectionInner(type, section.data)
   return html || null

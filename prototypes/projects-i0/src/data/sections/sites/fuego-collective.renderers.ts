@@ -18,22 +18,22 @@ import type {
   FuegoReviewsData,
 } from './fuego-collective.types'
 
-export function renderFuegoSection(section: Section): string | null {
-  switch (section.type as string) {
-    case 'fuego-header': return renderFuegoHeader(section.data as unknown as FuegoHeaderData)
-    case 'fuego-footer': return renderFuegoFooter(section.data as unknown as FuegoFooterData)
-    case 'fuego-hero': return renderFuegoHero(section.data as unknown as FuegoHeroData)
-    case 'fuego-product-lineup': return renderFuegoProductLineup(section.data as unknown as FuegoProductLineupData)
-    case 'fuego-lifestyle': return renderFuegoLifestyle(section.data as unknown as FuegoLifestyleData)
-    case 'fuego-testimonials': return renderFuegoTestimonials(section.data as unknown as FuegoTestimonialsData)
-    case 'fuego-newsletter': return renderFuegoNewsletter(section.data as unknown as FuegoNewsletterData)
-    case 'fuego-page-header': return renderFuegoPageHeader(section.data as unknown as FuegoPageHeaderData)
-    case 'fuego-filters': return renderFuegoFilters(section.data as unknown as FuegoFiltersData)
-    case 'fuego-product-grid': return renderFuegoProductGrid(section.data as unknown as FuegoProductGridData)
-    case 'fuego-breadcrumb': return renderFuegoBreadcrumb(section.data as unknown as FuegoBreadcrumbData)
-    case 'fuego-product-detail': return renderFuegoProductDetail(section.data as unknown as FuegoProductDetailData)
-    case 'fuego-related-products': return renderFuegoRelatedProducts(section.data as unknown as FuegoRelatedProductsData)
-    case 'fuego-reviews': return renderFuegoReviews(section.data as unknown as FuegoReviewsData)
+export function renderFuegoSection(section: Section, activePage: string): string | null {
+  switch (section.type) {
+    case 'fuego-header': return renderFuegoHeader(section.data as FuegoHeaderData, activePage)
+    case 'fuego-footer': return renderFuegoFooter(section.data as FuegoFooterData)
+    case 'fuego-hero': return renderFuegoHero(section.data as FuegoHeroData)
+    case 'fuego-product-lineup': return renderFuegoProductLineup(section.data as FuegoProductLineupData)
+    case 'fuego-lifestyle': return renderFuegoLifestyle(section.data as FuegoLifestyleData)
+    case 'fuego-testimonials': return renderFuegoTestimonials(section.data as FuegoTestimonialsData)
+    case 'fuego-newsletter': return renderFuegoNewsletter(section.data as FuegoNewsletterData)
+    case 'fuego-page-header': return renderFuegoPageHeader(section.data as FuegoPageHeaderData)
+    case 'fuego-filters': return renderFuegoFilters(section.data as FuegoFiltersData)
+    case 'fuego-product-grid': return renderFuegoProductGrid(section.data as FuegoProductGridData)
+    case 'fuego-breadcrumb': return renderFuegoBreadcrumb(section.data as FuegoBreadcrumbData)
+    case 'fuego-product-detail': return renderFuegoProductDetail(section.data as FuegoProductDetailData)
+    case 'fuego-related-products': return renderFuegoRelatedProducts(section.data as FuegoRelatedProductsData)
+    case 'fuego-reviews': return renderFuegoReviews(section.data as FuegoReviewsData)
     default: return null
   }
 }
@@ -42,9 +42,9 @@ function nav(page: string) {
   return `onclick="window.parent.postMessage({type:'navigate',page:'${page}'},'*');return false"`
 }
 
-function renderFuegoHeader(data: FuegoHeaderData): string {
+function renderFuegoHeader(data: FuegoHeaderData, activePage: string): string {
   const links = data.navItems.map(item =>
-    `    <a href="#" ${nav(item.page)}>${item.label}</a>`
+    `    <a href="#"${item.page === activePage ? ' class="active"' : ''} ${nav(item.page)}>${item.label}</a>`
   ).join('\n')
   return `<div class="topnav">
   <div class="logo">Fuego <span>Collective</span></div>

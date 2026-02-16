@@ -4,33 +4,35 @@ import { renderFlavorSection } from '../sections/sites/flavor-records.renderers'
 import { flavorCSS } from '../sections/sites/flavor-records.css'
 import flavorRecordsTheme from '../themes/flavor-records'
 
+const flavorHeader = {
+  id: 'nav',
+  type: 'flavor-header',
+  data: {
+    brand: 'Flavor Records',
+    brandPage: 'homepage',
+    navItems: [
+      { label: 'Releases', page: 'releases' },
+      { label: 'Catalog', page: 'catalog' },
+      { label: 'Artists', page: 'artist' },
+      { label: 'Shows', page: 'shows' },
+      { label: 'About', page: 'labelAbout' },
+    ],
+  },
+}
+
+const flavorFooter = {
+  id: 'footer',
+  type: 'flavor-footer',
+  data: {
+    address: 'Flavor Records · Portland, OR · info@flavorrecords.com',
+    copyright: '© 2026 Flavor Records. All rights reserved.',
+  },
+}
+
 export const siteData: SiteData = {
   name: 'Flavor Records',
   theme: flavorRecordsTheme,
   fonts: [],
-  header: {
-    id: 'header',
-    type: 'header',
-    data: {
-      navItems: [
-        { label: 'Releases', page: 'releases' },
-        { label: 'Catalog', page: 'catalog' },
-        { label: 'Artists', page: 'artist' },
-        { label: 'Shows', page: 'shows' },
-        { label: 'About', page: 'labelAbout' },
-      ],
-    },
-  },
-  footer: {
-    id: 'footer',
-    type: 'footer',
-    data: {
-      address: 'Flavor Records · Portland, OR · info@flavorrecords.com',
-      phone: '',
-      email: 'info@flavorrecords.com',
-      copyright: '© 2026 Flavor Records. All rights reserved.',
-    },
-  },
   pages: [
     // ---- Homepage ----
     {
@@ -38,9 +40,10 @@ export const siteData: SiteData = {
       title: 'Flavor Records',
       slug: 'homepage',
       sections: [
+        flavorHeader,
         {
           id: 'home-hero',
-          type: 'flavor-hero' as any,
+          type: 'flavor-hero',
           data: {
             heading: 'Flavor Records',
             tagline: 'Independent music since 2019',
@@ -48,7 +51,7 @@ export const siteData: SiteData = {
         },
         {
           id: 'home-featured',
-          type: 'flavor-featured-release' as any,
+          type: 'flavor-featured-release',
           data: {
             label: 'Featured Release',
             artist: 'Midnight Signal',
@@ -61,7 +64,7 @@ export const siteData: SiteData = {
         },
         {
           id: 'home-recent',
-          type: 'flavor-release-grid' as any,
+          type: 'flavor-release-grid',
           data: {
             label: 'Recent Releases',
             releases: [
@@ -72,6 +75,7 @@ export const siteData: SiteData = {
             ],
           },
         },
+        flavorFooter,
       ],
     },
 
@@ -81,9 +85,10 @@ export const siteData: SiteData = {
       title: 'Midnight Signal — Flavor Records',
       slug: 'artist',
       sections: [
+        flavorHeader,
         {
           id: 'artist-profile',
-          type: 'flavor-artist-profile' as any,
+          type: 'flavor-artist-profile',
           data: {
             name: 'Midnight Signal',
             location: 'Portland, OR',
@@ -103,7 +108,7 @@ export const siteData: SiteData = {
         },
         {
           id: 'artist-discography',
-          type: 'flavor-artist-discography' as any,
+          type: 'flavor-artist-discography',
           data: {
             label: 'Discography',
             items: [
@@ -116,7 +121,7 @@ export const siteData: SiteData = {
         },
         {
           id: 'artist-shows',
-          type: 'flavor-artist-shows' as any,
+          type: 'flavor-artist-shows',
           data: {
             label: 'Upcoming Shows',
             shows: [
@@ -128,6 +133,7 @@ export const siteData: SiteData = {
             ],
           },
         },
+        flavorFooter,
       ],
     },
 
@@ -137,6 +143,7 @@ export const siteData: SiteData = {
       title: 'Releases — Flavor Records',
       slug: 'releases',
       sections: [
+        flavorHeader,
         {
           id: 'releases-header',
           type: 'hero-simple',
@@ -147,7 +154,7 @@ export const siteData: SiteData = {
         },
         {
           id: 'releases-2026',
-          type: 'flavor-release-year-group' as any,
+          type: 'flavor-release-year-group',
           data: {
             year: '2026',
             releases: [
@@ -158,7 +165,7 @@ export const siteData: SiteData = {
         },
         {
           id: 'releases-2025',
-          type: 'flavor-release-year-group' as any,
+          type: 'flavor-release-year-group',
           data: {
             year: '2025',
             releases: [
@@ -171,7 +178,7 @@ export const siteData: SiteData = {
         },
         {
           id: 'releases-2024',
-          type: 'flavor-release-year-group' as any,
+          type: 'flavor-release-year-group',
           data: {
             year: '2024',
             releases: [
@@ -182,6 +189,7 @@ export const siteData: SiteData = {
             ],
           },
         },
+        flavorFooter,
       ],
     },
 
@@ -191,6 +199,7 @@ export const siteData: SiteData = {
       title: 'Catalog — Flavor Records',
       slug: 'catalog',
       sections: [
+        flavorHeader,
         {
           id: 'catalog-header',
           type: 'hero-simple',
@@ -201,7 +210,7 @@ export const siteData: SiteData = {
         },
         {
           id: 'catalog-grid',
-          type: 'flavor-catalog' as any,
+          type: 'flavor-catalog',
           data: {
             filters: ['All', 'Electronic', 'Indie Rock', 'Jazz', 'Ambient'],
             items: [
@@ -224,6 +233,7 @@ export const siteData: SiteData = {
             ],
           },
         },
+        flavorFooter,
       ],
     },
 
@@ -233,6 +243,7 @@ export const siteData: SiteData = {
       title: 'Shows — Flavor Records',
       slug: 'shows',
       sections: [
+        flavorHeader,
         {
           id: 'shows-header',
           type: 'hero-simple',
@@ -243,7 +254,7 @@ export const siteData: SiteData = {
         },
         {
           id: 'shows-upcoming',
-          type: 'flavor-shows-list' as any,
+          type: 'flavor-shows-list',
           data: {
             label: 'Upcoming Shows',
             shows: [
@@ -261,7 +272,7 @@ export const siteData: SiteData = {
         },
         {
           id: 'shows-past',
-          type: 'flavor-shows-list' as any,
+          type: 'flavor-shows-list',
           data: {
             label: 'Past Shows',
             isPast: true,
@@ -273,6 +284,7 @@ export const siteData: SiteData = {
             ],
           },
         },
+        flavorFooter,
       ],
     },
 
@@ -282,6 +294,7 @@ export const siteData: SiteData = {
       title: 'About — Flavor Records',
       slug: 'labelAbout',
       sections: [
+        flavorHeader,
         {
           id: 'about-header',
           type: 'hero-simple',
@@ -292,7 +305,7 @@ export const siteData: SiteData = {
         },
         {
           id: 'about-story',
-          type: 'flavor-label-story' as any,
+          type: 'flavor-label-story',
           data: {
             label: 'Our Story',
             paragraphs: [
@@ -304,14 +317,14 @@ export const siteData: SiteData = {
         },
         {
           id: 'about-quote',
-          type: 'flavor-pull-quote' as any,
+          type: 'flavor-pull-quote',
           data: {
             text: '"We don\'t sign genres. We sign people who make music we can\'t stop listening to."',
           },
         },
         {
           id: 'about-philosophy',
-          type: 'flavor-label-story' as any,
+          type: 'flavor-label-story',
           data: {
             label: '',
             paragraphs: [
@@ -322,7 +335,7 @@ export const siteData: SiteData = {
         },
         {
           id: 'about-team',
-          type: 'flavor-team-grid' as any,
+          type: 'flavor-team-grid',
           data: {
             label: 'The Team',
             members: [
@@ -335,7 +348,7 @@ export const siteData: SiteData = {
         },
         {
           id: 'about-submit',
-          type: 'flavor-submit-music' as any,
+          type: 'flavor-submit-music',
           data: {
             label: 'Submit Your Music',
             intro: 'We\'re always listening. Flavor Records accepts unsolicited demos from artists working in any genre — if the music has a point of view, we want to hear it.',
@@ -351,7 +364,7 @@ export const siteData: SiteData = {
         },
         {
           id: 'about-contact',
-          type: 'flavor-contact' as any,
+          type: 'flavor-contact',
           data: {
             label: 'Get In Touch',
             contacts: [
@@ -364,6 +377,7 @@ export const siteData: SiteData = {
             socialLinks: ['Instagram', 'Bandcamp', 'Spotify', 'Twitter', 'Discogs'],
           },
         },
+        flavorFooter,
       ],
     },
   ],
