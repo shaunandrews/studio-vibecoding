@@ -1,4 +1,5 @@
-# Logs - development session logs, not for version control
+# Internal docs and session logs (not for public repo)
+docs/
 logs/
 
 # Studio app clone (separate repo)

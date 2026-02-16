@@ -1,58 +1,33 @@
 # Studio Vibecoding
 
-Transforming WordPress Studio into a vibe coding workbench with AI agent integration.
+Design exploration for integrating AI coding agents into [WordPress Studio](https://developer.wordpress.com/studio/).
 
-## Overview
+## What's here
 
-James LePage's initiative to bring AI-powered development workflows directly into Studio. The vision: developers can use their preferred AI coding agents (Claude Code, OpenCode, Codex) within Studio, with artifact generation and sync to WordPress.com.
+Interactive prototypes exploring how AI-powered development workflows could work inside Studio — project management, chat interfaces, site previews, and agent interactions.
 
-## Key Features (Proposed)
+### projects-i0
 
-- **ACP Integration** — Third-party agent support (Claude Code, OpenCode, Codex CLI)
-- **Native Local Agent** — Built-in AI assistance
-- **Agents.md + Skills** — Standard agent configuration support
-- **Telex CLI** — Artifact generation tooling
-- **wpcom Sync** — Monetization via sync to WordPress.com (AI features not gated)
+Vue 3 + Vite + TypeScript prototype of Studio's project management + AI chat interface.
 
-## Team
+```bash
+cd prototypes/projects-i0
+npm install
+npm run dev  # http://localhost:3600
+```
 
-- **James LePage** — Project lead
-- **Eduardo** — Looped in for UI experimentation
-- **Shaun** — UI experimentation
-- **Riad** — Stakeholder (prioritizes CLI over app)
-
-## References
-
-- **Draft PR:** [Automattic/studio#2511](https://github.com/Automattic/studio/pull/2511)
-- **James's P2:** (internal)
-
-## Documentation
-
-| Doc | Description |
-|-----|-------------|
-| [summary.md](docs/summary.md) | Executive summary of the initiative |
-| [action-items.md](docs/action-items.md) | Prioritized action items and roadmap |
-| [pr-2511-analysis.md](docs/pr-2511-analysis.md) | Deep dive into PR #2511 architecture |
-| [ux-observations.md](docs/ux-observations.md) | Hands-on UX testing observations |
-| [james-p2-post.md](docs/james-p2-post.md) | James LePage's original P2 post |
-| [pablo-p2-post.md](docs/pablo-p2-post.md) | Pablo Postigo's Claude Cowork + Studio experiment |
-| [comments.md](docs/comments.md) | Community feedback compilation |
+Includes 7 sample projects with mock sites, themes (with dark mode), and seed conversations demonstrating realistic AI assistant interactions.
 
 ## Structure
 
 ```
 studio-vibecoding/
-├── docs/          # Documentation
-├── logs/          # Development logs (git-ignored)
-└── README.md      # This file
+├── prototypes/        # Interactive UI prototypes
+│   └── projects-i0/   # Project management + AI chat
+└── README.md
 ```
 
-## Status
+## References
 
-Early exploration phase. Shaun's involvement: UI experimentation.
-
-## Open Questions
-
-- CLI vs app priority (Riad leans CLI)
-- Overlap with WP Cowork Plugin project
-- UI patterns for agent integration
+- **Studio:** [Automattic/studio](https://github.com/Automattic/studio)
+- **Draft PR:** [Automattic/studio#2511](https://github.com/Automattic/studio/pull/2511)
