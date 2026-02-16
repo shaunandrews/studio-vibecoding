@@ -18,52 +18,37 @@ const emit = defineEmits<{
 </script>
 
 <template>
-  <ChatCard :compact="compact" :state="state">
-    <div class="vstack gap-xs">
-      <strong>{{ data.label }}</strong>
-      <div class="palette-row hstack gap-xs">
-        <div v-for="color in data.colors" :key="color.hex" class="swatch-item vstack gap-xxxs">
-          <span class="swatch" :style="{ backgroundColor: color.hex }" />
-          <span class="swatch-name">{{ color.name }}</span>
-        </div>
-      </div>
+  <ChatCard :compact="compact" :state="state" :title="data.label">
+    <div class="palette-bar hstack">
+      <span
+        v-for="color in data.colors"
+        :key="color.hex"
+        class="palette-swatch"
+        :style="{ backgroundColor: color.hex }"
+      />
+    </div>
+    <template v-if="data.action" #footer>
       <Button
-        v-if="data.action"
         :label="data.action.label"
         :variant="data.action.variant === 'destructive' ? 'tertiary' : (data.action.variant || 'secondary')"
         :icon="data.action.icon"
         size="small"
         @click.stop="emit('action', data.action)"
       />
-    </div>
+    </template>
   </ChatCard>
 </template>
 
 <style scoped>
-.palette-row {
-  flex-wrap: wrap;
-}
-
-.swatch-item {
-  align-items: center;
-  min-width: 0;
-}
-
-.swatch {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  border: 1px solid var(--color-surface-border);
-  flex-shrink: 0;
-}
-
-.swatch-name {
-  font-size: var(--font-size-xs);
-  color: var(--color-text-secondary);
-  text-align: center;
-  max-width: 60px;
+.palette-bar {
+  height: 58px;
+  border-radius: var(--radius-s);
   overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  gap: 0;
+}
+
+.palette-swatch {
+  flex: 1;
+  height: 100%;
 }
 </style>

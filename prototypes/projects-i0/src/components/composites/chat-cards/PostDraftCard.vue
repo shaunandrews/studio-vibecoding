@@ -36,22 +36,23 @@ const statusLabel = computed(() => {
 
 <template>
   <ChatCard :compact="compact" :state="state">
-    <div class="post-draft-card vstack gap-xxs">
+    <template #header>
       <div class="hstack justify-between gap-xs">
         <strong class="post-title">{{ data.title }}</strong>
         <Badge :label="statusLabel" :variant="statusVariant" />
       </div>
+    </template>
 
-      <template v-if="!compact">
-        <p class="post-excerpt">{{ data.excerpt }}</p>
+    <div v-if="!compact" class="vstack gap-xxs">
+      <p class="post-excerpt">{{ data.excerpt }}</p>
+      <div v-if="data.categories?.length || data.tags?.length" class="post-taxonomy hstack gap-xxs flex-wrap">
+        <span v-for="cat in data.categories" :key="cat" class="taxonomy-pill taxonomy-pill--category">{{ cat }}</span>
+        <span v-for="tag in data.tags" :key="tag" class="taxonomy-pill taxonomy-pill--tag">{{ tag }}</span>
+      </div>
+    </div>
 
-        <div v-if="data.categories?.length || data.tags?.length" class="post-taxonomy hstack gap-xxs flex-wrap">
-          <span v-for="cat in data.categories" :key="cat" class="taxonomy-pill taxonomy-pill--category">{{ cat }}</span>
-          <span v-for="tag in data.tags" :key="tag" class="taxonomy-pill taxonomy-pill--tag">{{ tag }}</span>
-        </div>
-      </template>
-
-      <div v-if="data.actions?.length" class="hstack gap-xxs pt-xxxs">
+    <template v-if="data.actions?.length" #footer>
+      <div class="hstack gap-xxs">
         <Button
           v-for="action in data.actions"
           :key="action.id"
@@ -62,7 +63,7 @@ const statusLabel = computed(() => {
           @click.stop="emit('action', action)"
         />
       </div>
-    </div>
+    </template>
   </ChatCard>
 </template>
 

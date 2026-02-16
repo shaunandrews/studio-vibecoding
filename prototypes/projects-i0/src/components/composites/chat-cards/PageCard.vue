@@ -36,7 +36,7 @@ const statusLabel = computed(() => {
 
 <template>
   <ChatCard :compact="compact" :state="state">
-    <div class="page-card vstack gap-xxs">
+    <template #header>
       <div class="hstack justify-between gap-xs">
         <div class="vstack gap-xxxs min-w-0">
           <strong class="page-title">{{ data.title }}</strong>
@@ -44,13 +44,15 @@ const statusLabel = computed(() => {
         </div>
         <Badge :label="statusLabel" :variant="statusVariant" />
       </div>
+    </template>
 
-      <template v-if="!compact">
-        <span v-if="data.template" class="page-meta">Template: {{ data.template }}</span>
-        <p v-if="data.excerpt" class="page-excerpt">{{ data.excerpt }}</p>
-      </template>
+    <div v-if="!compact" class="vstack gap-xxs">
+      <span v-if="data.template" class="page-meta">Template: {{ data.template }}</span>
+      <p v-if="data.excerpt" class="page-excerpt">{{ data.excerpt }}</p>
+    </div>
 
-      <div v-if="data.actions?.length" class="hstack gap-xxs pt-xxxs">
+    <template v-if="data.actions?.length" #footer>
+      <div class="hstack gap-xxs">
         <Button
           v-for="action in data.actions"
           :key="action.id"
@@ -61,7 +63,7 @@ const statusLabel = computed(() => {
           @click.stop="emit('action', action)"
         />
       </div>
-    </div>
+    </template>
   </ChatCard>
 </template>
 

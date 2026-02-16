@@ -39,7 +39,7 @@ const statusVariant = computed(() => {
 
 <template>
   <ChatCard :compact="compact" :state="state">
-    <div class="plugin-card vstack gap-xxs">
+    <template #header>
       <div class="hstack justify-between gap-xs">
         <div class="vstack gap-xxxs min-w-0">
           <strong class="plugin-name">{{ data.name }}</strong>
@@ -47,24 +47,25 @@ const statusVariant = computed(() => {
         </div>
         <Badge :label="statusLabel" :variant="statusVariant" />
       </div>
+    </template>
 
+    <div class="vstack gap-xxs">
       <p v-if="!compact" class="plugin-description">{{ data.description }}</p>
-
       <div v-if="data.rating || data.activeInstalls" class="plugin-meta hstack gap-xs">
         <span v-if="data.rating">{{ data.rating.toFixed(1) }}★</span>
         <span v-if="data.activeInstalls">{{ data.activeInstalls }} installs</span>
       </div>
-
-      <div v-if="data.action" class="pt-xxxs">
-        <Button
-          :label="data.action.label"
-          :variant="data.action.variant === 'destructive' ? 'tertiary' : (data.action.variant || 'secondary')"
-          :icon="data.action.icon"
-          size="small"
-          @click.stop="emit('action', data.action)"
-        />
-      </div>
     </div>
+
+    <template v-if="data.action" #footer>
+      <Button
+        :label="data.action.label"
+        :variant="data.action.variant === 'destructive' ? 'tertiary' : (data.action.variant || 'secondary')"
+        :icon="data.action.icon"
+        size="small"
+        @click.stop="emit('action', data.action)"
+      />
+    </template>
   </ChatCard>
 </template>
 

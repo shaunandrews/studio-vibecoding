@@ -18,25 +18,25 @@ const emit = defineEmits<{
 </script>
 
 <template>
-  <ChatCard :compact="compact" :state="state">
-    <div class="theme-picker vstack gap-xs">
-      <div class="theme-grid" :class="{ 'theme-grid--compact': compact }">
-        <div v-for="theme in data.themes" :key="theme.slug" class="theme-item vstack gap-xxxs">
-          <div class="theme-thumbnail" :style="{ backgroundColor: theme.colors?.[0] || '#e0e0e0' }">
-            <div class="theme-thumbnail-swatches hstack">
-              <span
-                v-for="(color, i) in (theme.colors || []).slice(0, 5)"
-                :key="i"
-                class="theme-swatch"
-                :style="{ backgroundColor: color }"
-              />
-            </div>
+  <ChatCard :compact="compact" :state="state" title="Themes">
+    <div class="theme-grid" :class="{ 'theme-grid--compact': compact }">
+      <div v-for="theme in data.themes" :key="theme.slug" class="theme-item vstack gap-xxxs">
+        <div class="theme-thumbnail" :style="{ backgroundColor: theme.colors?.[0] || '#e0e0e0' }">
+          <div class="theme-thumbnail-swatches hstack">
+            <span
+              v-for="(color, i) in (theme.colors || []).slice(0, 5)"
+              :key="i"
+              class="theme-swatch"
+              :style="{ backgroundColor: color }"
+            />
           </div>
-          <strong class="theme-name">{{ theme.name }}</strong>
-          <p v-if="!compact && theme.description" class="theme-description">{{ theme.description }}</p>
         </div>
+        <strong class="theme-name">{{ theme.name }}</strong>
+        <p v-if="!compact && theme.description" class="theme-description">{{ theme.description }}</p>
       </div>
-      <div v-if="data.actions?.length" class="hstack gap-xxs flex-wrap">
+    </div>
+    <template v-if="data.actions?.length" #footer>
+      <div class="hstack gap-xxs flex-wrap">
         <Button
           v-for="action in data.actions"
           :key="action.id"
@@ -47,7 +47,7 @@ const emit = defineEmits<{
           @click.stop="emit('action', action)"
         />
       </div>
-    </div>
+    </template>
   </ChatCard>
 </template>
 

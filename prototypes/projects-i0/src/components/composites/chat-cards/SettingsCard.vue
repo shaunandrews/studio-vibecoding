@@ -18,20 +18,19 @@ const emit = defineEmits<{
 </script>
 
 <template>
-  <ChatCard :compact="compact" :state="state">
-    <div class="vstack gap-xs">
-      <strong>{{ data.label }}</strong>
-      <div class="settings-list vstack">
-        <div
-          v-for="setting in data.settings"
-          :key="setting.key"
-          class="setting-row hstack justify-between gap-xs"
-        >
-          <span class="setting-key">{{ setting.key }}</span>
-          <span class="setting-arrow">{{ setting.current }} → {{ setting.proposed }}</span>
-        </div>
+  <ChatCard :compact="compact" :state="state" :title="data.label">
+    <div class="settings-list vstack">
+      <div
+        v-for="setting in data.settings"
+        :key="setting.key"
+        class="setting-row hstack justify-between gap-xs"
+      >
+        <span class="setting-key">{{ setting.key }}</span>
+        <span class="setting-arrow">{{ setting.current }} → {{ setting.proposed }}</span>
       </div>
-      <div v-if="data.actions?.length" class="hstack gap-xxs">
+    </div>
+    <template v-if="data.actions?.length" #footer>
+      <div class="hstack gap-xxs">
         <Button
           v-for="action in data.actions"
           :key="action.id"
@@ -42,19 +41,17 @@ const emit = defineEmits<{
           @click.stop="emit('action', action)"
         />
       </div>
-    </div>
+    </template>
   </ChatCard>
 </template>
 
 <style scoped>
 .settings-list {
-  border: 1px solid var(--color-surface-border);
-  border-radius: var(--radius-s);
-  overflow: hidden;
+  /* No outer border — card body provides the frame */
 }
 
 .setting-row {
-  padding: var(--space-xxxs) var(--space-xxs);
+  padding: var(--space-xxxs) 0;
   border-block-end: 1px solid var(--color-surface-border);
 }
 
