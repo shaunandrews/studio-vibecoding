@@ -40,11 +40,14 @@
 - [x] Update AI system prompt with theme.json schema and themeUpdate card format
 - [x] Wire "Apply" action to call updateTheme() → reactive preview update
 
-## Next: Phase 2 — AI Generation Pipeline
-- [ ] AI output format (fenced section blocks)
-- [ ] Generation pipeline orchestration
-- [ ] Progressive rendering (skeleton → sections stream in)
-- [ ] System prompt for section generation
+## Phase 2 — AI Generation Pipeline (Complete ✅)
+- [x] AI output format (fenced section blocks) — parser handles section:TYPE, theme, templatePart:TYPE, card:context
+- [x] Generation pipeline orchestration — PipelineOrchestrator with theme→parts→parallel pages, retry, abort
+- [x] Progressive rendering (skeleton → sections stream in) — renderProgressivePage, postMessage incremental updates
+- [x] System prompt for section generation — auto-generated schemas from Phase 1 types, page presets
+- [x] Vue composable (usePipeline) — reactive state, skeleton slots, progress card, mock mode
+- [x] Generated site persistence — survives navigation via generated-sites store
+- [x] Incremental streaming — sections appear as they arrive, not batch-per-page
 
 ## Next: Phase 3 — New Project Flow
 - [ ] Onboarding modal (conversational mini-chat)
