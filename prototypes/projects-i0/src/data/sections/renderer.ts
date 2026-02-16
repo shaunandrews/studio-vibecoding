@@ -1,4 +1,4 @@
-import type { PageTemplate, SiteData, TemplatePart, HeaderData, FooterData } from './types'
+import type { PageTemplate, SiteData, Section, TemplatePart, HeaderData, FooterData } from './types'
 import { themeToCSS } from '../themes/theme-utils'
 import { componentCSS } from './components'
 import { renderSection } from './section-renderers'
@@ -21,12 +21,25 @@ function renderFooter(footer: TemplatePart): string {
 </footer>`
 }
 
-export function renderPage(page: PageTemplate, site: SiteData, activePage: string, themeCSSOverride?: string): string {
+export function renderPage(
+  page: PageTemplate,
+  site: SiteData,
+  activePage: string,
+  themeCSSOverride?: string,
+  customCSS?: string,
+  customRenderer?: (section: Section) => string | null
+): string {
   const themeCSS = themeCSSOverride || themeToCSS(site.theme)
   const fontLinks = site.fonts.map(f => `<link href="${f.url}" rel="stylesheet">`).join('\n')
 
   const sectionsHTML = page.sections
-    .map(section => renderSection(section))
+    .map(section => {
+      if (customRenderer) {
+        const custom = customRenderer(section)
+        if (custom !== null) return custom
+      }
+      return renderSection(section)
+    })
     .join('\n\n')
 
   return `<!DOCTYPE html>
@@ -38,6 +51,7 @@ export function renderPage(page: PageTemplate, site: SiteData, activePage: strin
 ${fontLinks}
 <style>${themeCSS}</style>
 <style>${componentCSS}</style>
+${customCSS ? `<style>${customCSS}</style>` : ''}
 </head>
 <body>
 
