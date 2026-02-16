@@ -1,6 +1,6 @@
 import { ref, computed, type Ref, unref } from 'vue'
 import { seedConversations, seedMessages } from './seed-conversations'
-import { isAIConfigured, sendToAI } from './ai-service'
+import { isAIConfigured, streamAI } from './ai-service'
 import type { Conversation, Message, AgentId, ContentBlock, MessageContext } from './types'
 
 // Module-level state (singleton)
@@ -85,20 +85,21 @@ async function sendToAIWithIndicator(conversationId: string, text: string, agent
     return
   }
 
-  // Add thinking indicator
-  const thinkingId = `msg-thinking-${Date.now()}`
-  messages.value.push({
-    id: thinkingId,
+  // Add streaming message placeholder
+  const streamingId = `msg-streaming-${Date.now()}`
+  const streamingMsg: Message = {
+    id: streamingId,
     conversationId,
     role: 'agent',
     agentId,
-    content: [{ type: 'text', text: 'Thinking…' }],
+    content: [{ type: 'text', text: '' }],
     timestamp: new Date().toISOString(),
-  })
+  }
+  messages.value.push(streamingMsg)
 
   // Build message history
   const history = messages.value
-    .filter(m => m.conversationId === conversationId && m.id !== thinkingId)
+    .filter(m => m.conversationId === conversationId && m.id !== streamingId)
     .sort((a, b) => a.timestamp.localeCompare(b.timestamp))
     .map(m => ({
       role: (m.role === 'user' ? 'user' : 'assistant') as 'user' | 'assistant',
@@ -108,18 +109,13 @@ async function sendToAIWithIndicator(conversationId: string, text: string, agent
         .join('\n') || '(card response)',
     }))
 
-  const aiBlocks = await sendToAI(history)
-
-  // Replace thinking message with AI response
-  const idx = messages.value.findIndex(m => m.id === thinkingId)
-  if (idx !== -1) {
-    messages.value[idx] = {
-      ...messages.value[idx]!,
-      id: `msg-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
-      content: aiBlocks,
-      timestamp: new Date().toISOString(),
+  await streamAI(history, (blocks) => {
+    // Update the message content in place — Vue reactivity handles re-render
+    const idx = messages.value.findIndex(m => m.id === streamingId)
+    if (idx !== -1) {
+      messages.value[idx]!.content = blocks
     }
-  }
+  })
 }
 
 export function useConversations() {

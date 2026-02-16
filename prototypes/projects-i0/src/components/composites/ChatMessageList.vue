@@ -19,7 +19,11 @@ function scrollToBottom() {
 }
 
 watch(
-  () => props.messages.length,
+  () => {
+    // Track both message count and content of the last message for streaming updates
+    const last = props.messages[props.messages.length - 1]
+    return `${props.messages.length}:${last?.content.length ?? 0}`
+  },
   async () => {
     await nextTick()
     scrollToBottom()
