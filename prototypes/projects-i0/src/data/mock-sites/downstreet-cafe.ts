@@ -5,106 +5,196 @@ export function homepage(themeCSS: string): string {
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Downstreet Cafe</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
 <style>${themeCSS}</style>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body { font-family: var(--theme-font-body); color: var(--theme-text); background: var(--theme-bg); line-height: var(--theme-line-height-normal); }
-h1, h2, h3 { font-family: var(--theme-font-heading); }
+h1, h2, h3 { font-family: var(--theme-font-heading); font-weight: 400; }
 
-.hero {
-  background: linear-gradient(135deg, var(--theme-color-primary) 0%, var(--theme-color-primary-dark) 100%);
-  color: var(--theme-color-surface);
+/* ---- Nav ---- */
+.site-nav {
+  display: flex; justify-content: center; gap: var(--theme-space-4);
+  padding: var(--theme-space-2) var(--theme-space-3);
+  border-bottom: 1px solid var(--theme-color-muted);
+}
+.site-nav a {
+  color: var(--theme-color-primary); text-decoration: none;
+  font-size: var(--theme-font-size-small); font-weight: 500;
+  text-transform: uppercase; letter-spacing: 0.08em;
+  padding: var(--theme-space-1) 0; transition: color 0.2s;
+}
+.site-nav a:hover { color: var(--theme-color-accent); }
+.site-nav a.active { color: var(--theme-color-accent); border-bottom: 1px solid var(--theme-color-accent); }
+
+/* ---- Split Hero ---- */
+.split-hero {
+  display: grid; grid-template-columns: 1.15fr 0.85fr;
+  min-height: 420px; /* optical minimum */
+}
+.split-hero-img {
+  overflow: hidden;
+}
+.split-hero-img img {
+  width: 100%; height: 100%; object-fit: cover; display: block;
+}
+.split-hero-text {
+  display: flex; flex-direction: column; justify-content: center;
+  padding: var(--theme-space-8) var(--theme-space-6);
+}
+.split-hero-text h1 {
+  font-size: var(--theme-font-size-hero); line-height: var(--theme-line-height-tight);
+  color: var(--theme-color-primary-dark); margin-bottom: var(--theme-space-2);
+}
+.split-hero-text .tagline {
+  font-size: var(--theme-font-size-large); color: var(--theme-color-secondary);
+  font-style: italic; margin-bottom: var(--theme-space-4);
+}
+.split-hero-text .hours-brief {
+  font-size: var(--theme-font-size-small); color: var(--theme-color-muted);
+  line-height: 1.8;
+}
+
+/* ---- Image Strip ---- */
+.image-strip {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--theme-space-2);
+  max-width: var(--theme-wide-width); margin: 0 auto;
+  padding: var(--theme-space-6) var(--theme-space-3);
+}
+.image-strip figure { margin: 0; }
+.image-strip img { width: 100%; height: 220px; object-fit: cover; display: block; }
+.image-strip figcaption {
+  font-size: var(--theme-font-size-small); color: var(--theme-color-muted);
+  margin-top: var(--theme-space-1); text-align: center;
+}
+
+/* ---- Menu Highlights ---- */
+.menu-highlights {
+  max-width: var(--theme-content-width); margin: 0 auto;
+  padding: var(--theme-space-6) var(--theme-space-3) var(--theme-space-8);
+}
+.menu-highlights > h2 {
+  text-align: center; font-size: var(--theme-font-size-xlarge);
+  color: var(--theme-color-primary-dark); margin-bottom: var(--theme-space-1);
+}
+.menu-highlights > .rule {
+  width: 40px; height: 1px; background: var(--theme-color-muted);
+  margin: 0 auto var(--theme-space-5);
+}
+.menu-columns {
+  display: grid; grid-template-columns: 1fr 1fr; gap: var(--theme-space-6);
+}
+.menu-col h3 {
+  font-size: var(--theme-font-size-large); color: var(--theme-color-primary);
+  text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600;
+  margin-bottom: var(--theme-space-2); padding-bottom: var(--theme-space-1);
+  border-bottom: 1px solid var(--theme-color-muted);
+}
+.menu-line {
+  display: flex; align-items: baseline; padding: 6px 0;
+}
+.menu-line .name { white-space: nowrap; }
+.menu-line .dots {
+  flex: 1; border-bottom: 1px dotted var(--theme-color-muted);
+  margin: 0 var(--theme-space-1); position: relative; top: -3px; /* optical alignment for dotted leader */
+}
+.menu-line .price {
+  white-space: nowrap; color: var(--theme-color-secondary); font-weight: 500;
+}
+
+/* ---- Community Callout ---- */
+.community {
   text-align: center;
-  padding: var(--theme-space-10) var(--theme-space-3) var(--theme-space-8);
+  padding: var(--theme-space-6) var(--theme-space-3);
+  background: var(--theme-color-card);
 }
-.hero h1 { font-size: var(--theme-font-size-hero); margin-bottom: var(--theme-space-1); }
-.hero p { font-size: var(--theme-font-size-large); opacity: 0.9; }
-.hero nav { margin-top: var(--theme-space-3); display: flex; justify-content: center; gap: var(--theme-space-3); }
-.hero nav a { color: var(--theme-color-surface); text-decoration: none; font-size: var(--theme-font-size-medium); font-weight: 600; padding: var(--theme-space-1) var(--theme-space-2); border-radius: 6px; transition: background 0.2s; }
-.hero nav a:hover { background: rgba(255,255,255,0.15); }
-.hero nav a.active { background: rgba(255,255,255,0.2); border-bottom: 2px solid var(--theme-color-surface); }
-
-section { max-width: var(--theme-content-width); margin: 0 auto; padding: var(--theme-space-8) var(--theme-space-3); }
-
-.hours-location {
-  display: flex; flex-wrap: wrap; gap: var(--theme-space-5);
-  background: var(--theme-color-card); border-radius: 12px; padding: var(--theme-space-5);
-  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+.community p {
+  font-size: var(--theme-font-size-large); color: var(--theme-color-secondary);
+  letter-spacing: 0.02em;
 }
-.hours-location > div { flex: 1; min-width: 220px; }
-.hours-location h2 { font-size: 1.5rem; color: var(--theme-color-primary); margin-bottom: 12px; }
-.hours-location p { margin-bottom: 4px; }
+.community a {
+  display: inline-block; margin-top: var(--theme-space-2);
+  color: var(--theme-color-accent); text-decoration: none;
+  font-size: var(--theme-font-size-medium); font-weight: 500;
+  transition: opacity 0.2s;
+}
+.community a:hover { opacity: 0.7; }
 
-.menu-section h2 { text-align: center; font-size: var(--theme-font-size-xlarge); color: var(--theme-color-primary); margin-bottom: var(--theme-space-4); }
-.menu-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: var(--theme-space-4); }
-.menu-card { background: var(--theme-color-card); border-radius: 12px; padding: 28px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
-.menu-card h3 { font-size: var(--theme-font-size-large); color: var(--theme-text); margin-bottom: var(--theme-space-2); padding-bottom: var(--theme-space-1); border-bottom: 2px solid var(--theme-color-secondary); }
-.menu-item { display: flex; justify-content: space-between; padding: 6px 0; }
-.menu-item .price { color: var(--theme-color-primary); font-weight: 600; }
-
+/* ---- Footer ---- */
 footer {
-  background: var(--theme-color-accent); color: var(--theme-color-surface); text-align: center; padding: var(--theme-space-5) var(--theme-space-3);
-  font-size: var(--theme-font-size-small); line-height: 1.8;
+  text-align: center; padding: var(--theme-space-5) var(--theme-space-3);
+  font-size: var(--theme-font-size-small); color: var(--theme-color-muted);
+  line-height: 1.8; border-top: 1px solid var(--theme-color-muted);
 }
-footer a { color: var(--theme-color-secondary); text-decoration: none; }
-footer .wp { opacity: 0.5; margin-top: var(--theme-space-2); }
+footer a { color: var(--theme-color-accent); text-decoration: none; }
+footer .wp { opacity: 0.5; margin-top: var(--theme-space-1); }
 </style>
 </head>
 <body>
 
-<div class="hero">
-  <h1>Downstreet Cafe</h1>
-  <p>Your neighborhood coffee spot</p>
-  <nav>
-    <a href="#" class="active" onclick="window.parent.postMessage({type:'navigate',page:'homepage'},'*');return false">Home</a>
-    <a href="#" onclick="window.parent.postMessage({type:'navigate',page:'menu'},'*');return false">Menu</a>
-    <a href="#" onclick="window.parent.postMessage({type:'navigate',page:'about'},'*');return false">About</a>
-    <a href="#" onclick="window.parent.postMessage({type:'navigate',page:'events'},'*');return false">Events</a>
-    <a href="#" onclick="window.parent.postMessage({type:'navigate',page:'gallery'},'*');return false">Gallery</a>
-    <a href="#" onclick="window.parent.postMessage({type:'navigate',page:'order'},'*');return false">Order</a>
-  </nav>
+<nav class="site-nav">
+  <a href="#" class="active" onclick="window.parent.postMessage({type:'navigate',page:'homepage'},'*');return false">Home</a>
+  <a href="#" onclick="window.parent.postMessage({type:'navigate',page:'menu'},'*');return false">Menu</a>
+  <a href="#" onclick="window.parent.postMessage({type:'navigate',page:'about'},'*');return false">About</a>
+  <a href="#" onclick="window.parent.postMessage({type:'navigate',page:'events'},'*');return false">Events</a>
+  <a href="#" onclick="window.parent.postMessage({type:'navigate',page:'gallery'},'*');return false">Gallery</a>
+  <a href="#" onclick="window.parent.postMessage({type:'navigate',page:'order'},'*');return false">Order</a>
+</nav>
+
+<div class="split-hero">
+  <div class="split-hero-img">
+    <img src="/images/downstreet/hero-interior.png" alt="Downstreet Cafe interior with morning light">
+  </div>
+  <div class="split-hero-text">
+    <h1>Downstreet<br>Cafe</h1>
+    <p class="tagline">Your neighborhood coffee spot</p>
+    <div class="hours-brief">
+      Mon – Fri: 7 AM – 6 PM<br>
+      Sat – Sun: 8 AM – 4 PM
+    </div>
+  </div>
 </div>
 
-<section>
-  <div class="hours-location">
-    <div>
-      <h2>Hours</h2>
-      <p><strong>Monday – Friday:</strong> 7:00 AM – 6:00 PM</p>
-      <p><strong>Saturday – Sunday:</strong> 8:00 AM – 4:00 PM</p>
-    </div>
-    <div>
-      <h2>Location</h2>
-      <p>42 Maple Street</p>
-      <p>Riverside, OR 97201</p>
-      <p>(503) 555-0142</p>
-    </div>
-  </div>
-</section>
+<div class="image-strip">
+  <figure>
+    <img src="/images/downstreet/latte-art.png" alt="Latte art close-up">
+    <figcaption>Latte art by Sophie</figcaption>
+  </figure>
+  <figure>
+    <img src="/images/downstreet/pastries.png" alt="Fresh pastries on wooden board">
+    <figcaption>Baked fresh daily</figcaption>
+  </figure>
+  <figure>
+    <img src="/images/downstreet/barista-counter.png" alt="Barista behind espresso machine">
+    <figcaption>The espresso bar</figcaption>
+  </figure>
+</div>
 
-<section class="menu-section">
+<div class="menu-highlights">
   <h2>Menu Highlights</h2>
-  <div class="menu-grid">
-    <div class="menu-card">
+  <div class="rule"></div>
+  <div class="menu-columns">
+    <div class="menu-col">
       <h3>Coffee</h3>
-      <div class="menu-item"><span>Espresso</span><span class="price">$3.50</span></div>
-      <div class="menu-item"><span>Cappuccino</span><span class="price">$4.75</span></div>
-      <div class="menu-item"><span>Pour Over</span><span class="price">$5.00</span></div>
-      <div class="menu-item"><span>Cold Brew</span><span class="price">$4.50</span></div>
+      <div class="menu-line"><span class="name">Espresso</span><span class="dots"></span><span class="price">$3.50</span></div>
+      <div class="menu-line"><span class="name">Cappuccino</span><span class="dots"></span><span class="price">$4.75</span></div>
+      <div class="menu-line"><span class="name">Pour Over</span><span class="dots"></span><span class="price">$5.00</span></div>
+      <div class="menu-line"><span class="name">Cold Brew</span><span class="dots"></span><span class="price">$4.50</span></div>
     </div>
-    <div class="menu-card">
+    <div class="menu-col">
       <h3>Pastries</h3>
-      <div class="menu-item"><span>Croissant</span><span class="price">$3.25</span></div>
-      <div class="menu-item"><span>Banana Bread</span><span class="price">$3.50</span></div>
-      <div class="menu-item"><span>Blueberry Muffin</span><span class="price">$3.00</span></div>
-    </div>
-    <div class="menu-card">
-      <h3>Lunch</h3>
-      <div class="menu-item"><span>Grilled Cheese</span><span class="price">$8.50</span></div>
-      <div class="menu-item"><span>Soup of the Day</span><span class="price">$6.00</span></div>
-      <div class="menu-item"><span>Garden Salad</span><span class="price">$7.50</span></div>
+      <div class="menu-line"><span class="name">Butter Croissant</span><span class="dots"></span><span class="price">$3.25</span></div>
+      <div class="menu-line"><span class="name">Banana Bread</span><span class="dots"></span><span class="price">$3.50</span></div>
+      <div class="menu-line"><span class="name">Blueberry Muffin</span><span class="dots"></span><span class="price">$3.00</span></div>
+      <div class="menu-line"><span class="name">Cinnamon Roll</span><span class="dots"></span><span class="price">$4.25</span></div>
     </div>
   </div>
-</section>
+</div>
+
+<div class="community">
+  <p>Open Mic Fridays · Latte Art Workshops · Neighborhood Book Swaps</p>
+  <a href="#" onclick="window.parent.postMessage({type:'navigate',page:'events'},'*');return false">See what's happening →</a>
+</div>
 
 <footer>
   <p>42 Maple Street, Riverside, OR 97201</p>
