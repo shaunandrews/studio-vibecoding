@@ -244,14 +244,25 @@ Theme structure:
 \`\`\`json
 {
   "color": {
-    "palette": [{ "slug": "primary|secondary|base|contrast", "name": "string", "hex": "#RRGGBB" }],
+    "palette": [
+      { "slug": "primary", "name": "Main brand color", "hex": "#RRGGBB" },
+      { "slug": "primary-dark", "name": "Darker variant of primary", "hex": "#RRGGBB" },
+      { "slug": "secondary", "name": "Secondary brand color", "hex": "#RRGGBB" },
+      { "slug": "accent", "name": "Accent/highlight color for CTAs", "hex": "#RRGGBB" },
+      { "slug": "muted", "name": "Subdued text color", "hex": "#RRGGBB" },
+      { "slug": "card", "name": "Card/elevated surface background", "hex": "#RRGGBB" },
+      { "slug": "surface", "name": "Alternate section background", "hex": "#RRGGBB" }
+    ],
     "background": "#RRGGBB",
     "text": "#RRGGBB"
   },
   "typography": {
     "fontFamily": { "heading": "string (Google Font name)", "body": "string (Google Font name)" },
-    "fontSize": { "hero": "rem", "xlarge": "rem", "large": "rem", "medium": "rem", "small": "rem" }
-  }
+    "fontSize": { "hero": "rem", "xlarge": "rem", "large": "rem", "medium": "rem", "small": "rem" },
+    "lineHeight": { "tight": "1.2", "normal": "1.6" }
+  },
+  "spacing": { "unit": "0.5rem", "scale": [1,2,3,4,5,6,7,8] },
+  "layout": { "contentWidth": "800px", "wideWidth": "1200px" }
 }
 \`\`\`
 
@@ -302,7 +313,7 @@ export function buildThemePrompt(brief: CreativeBrief): string {
 
 Choose colors, fonts, and sizing that match the vibe of: "${brief.description}"
 
-For a ${brief.siteType} called "${brief.siteName}", consider what feeling the visitor should have. Pick a cohesive palette — usually 4 colors (primary, secondary, base/background, contrast/text). Choose complementary Google Fonts for headings and body.
+For a ${brief.siteType} called "${brief.siteName}", consider what feeling the visitor should have. Pick a cohesive palette with all 7 required colors: primary (main brand), primary-dark (darker variant), secondary (secondary brand), accent (highlight/CTA), muted (subdued text), card (elevated surfaces), surface (alternate sections). Choose complementary Google Fonts for headings and body.
 
 Use reasonable font sizes: hero ~3-4rem, xlarge ~2-2.5rem, large ~1.25-1.5rem, medium ~1-1.125rem, small ~0.875rem.`
 }

@@ -160,7 +160,7 @@ export interface SectionUpdateCardData {
 }
 ```
 
-**UI:** Shows the section name, a list of changed fields (before → after), and an "Apply" button. For style changes, shows "hero-split → hero-fullwidth" as the primary change. A "Try it" button temporarily applies the change in the preview (see §4).
+**UI:** Shows the section name, a list of changed fields (before → after), and "Try it" (secondary) / "Apply" (primary) buttons. For style changes, shows "hero-split → hero-fullwidth" as the primary change. The card manages its own lifecycle — Apply does not send a chat message.
 
 **Card fence format:**
 ```
@@ -172,8 +172,7 @@ export interface SectionUpdateCardData {
   "changeType": "content",
   "before": { "type": "hero-split", "data": { "heading": "Downstreet Cafe", ... } },
   "after": { "type": "hero-split", "data": { "heading": "Welcome to Downstreet", ... } },
-  "changeSummary": ["heading: \"Downstreet Cafe\" → \"Welcome to Downstreet\""],
-  "action": { "id": "apply-hero-1", "label": "Apply", "variant": "primary", "action": { "type": "send-message", "message": "Applied hero update" } }
+  "changeSummary": ["heading: \"Downstreet Cafe\" → \"Welcome to Downstreet\""]
 }
 ```​
 ```
@@ -300,54 +299,125 @@ Each edit card carries the `EditOperation` directly in its action payload. The `
 
 The card's `action` button handler extracts the `EditOperation` and passes it to `applyEditOperation()`.
 
-### Action Handling
+### Self-Contained Card Lifecycle
 
-When a user clicks "Apply" on a card:
+**Key principle:** The card owns the entire edit lifecycle. Clicking "Apply" does NOT send a new message into the chat or trigger an AI response. The card handles everything internally — progress, mutation, preview update, completion — and the chat stream stays clean.
 
-1. The card emits `action` with the `ActionButton`.
-2. The conversation handler intercepts it (via `messageContext.cardRef`).
-3. A dispatcher applies the operation to the site store:
+Each edit card manages its own state machine:
 
 ```ts
-function applyEditOperation(op: EditOperation): SiteSnapshot {
-  const snapshot = captureSnapshot() // for undo
+type CardState =
+  | 'proposed'    // Card just appeared. Shows summary + action buttons.
+  | 'trying'      // "Try it" active — preview shows temporary change.
+  | 'applying'    // User clicked Apply. Card shows progress internally.
+  | 'complete'    // Done. Checkmark, buttons disabled.
+  | 'error'       // Something failed. Shows retry option.
+  | 'dismissed'   // User dismissed the proposal.
+```
+
+#### Simple edits (instant)
+
+For operations where the data is already in the card (section-content, section-reorder, section-remove, template-part):
+
+```
+User clicks "Apply"
+  → Card state: 'proposed' → 'applying'
+  → Card shows subtle progress indicator (spinner replaces button)
+  → captureSnapshot() for undo
+  → Mutation applied to site store (synchronous)
+  → Preview updated via postMessage (instant)
+  → Card state: 'applying' → 'complete'
+  → Card shows ✓, buttons disabled
+```
+
+Total time: <100ms. The "applying" state is barely visible but exists for consistency.
+
+#### Complex edits (AI-powered)
+
+For operations that need AI generation (section-add with new content, image generation, page-add):
+
+```
+User clicks "Apply"
+  → Card state: 'proposed' → 'applying'
+  → Card shows progress: "Generating testimonials section..."
+  → Card internally spawns AI generation (its own API call, not through the chat)
+  → As data arrives, card updates its progress display
+  → On completion: mutation applied, preview updated
+  → Card state: 'applying' → 'complete'
+```
+
+The card acts as a **self-contained subagent** — it owns its own AI call, manages its own progress UI, and reports completion by updating itself. The chat conversation is not involved. No new messages appear.
+
+#### Implementation
+
+```ts
+interface EditCardController {
+  /** Current card state */
+  state: Ref<CardState>
   
-  switch (op.type) {
-    case 'section-content':
-      updateSectionData(op.pageId, op.sectionId, op.data)
-      break
-    case 'section-style':
-      updateSectionType(op.pageId, op.sectionId, op.newType, op.data)
-      break
-    case 'section-reorder':
-      reorderSections(op.pageId, op.order)
-      break
-    case 'section-add':
-      insertSection(op.pageId, op.section, op.position)
-      break
-    case 'section-remove':
-      removeSection(op.pageId, op.sectionId)
-      break
-    case 'page-add':
-      addPage(op.page)
-      break
-    case 'page-remove':
-      removePage(op.pageId)
-      break
-    case 'template-part':
-      updateTemplatePart(op.partId, op.data)
-      break
-    case 'theme':
-      updateTheme(op.patch) // each site has one theme
-      break
+  /** Progress message shown during 'applying' state */
+  progressMessage: Ref<string>
+  
+  /** Try-it: temporarily apply the change in preview */
+  tryIt(): void
+  
+  /** Revert try-it preview */
+  dismiss(): void
+  
+  /** Commit the edit — handles the full lifecycle internally */
+  apply(): Promise<void>
+}
+
+/**
+ * Each card component creates its own controller.
+ * The controller calls applyEditOperation() directly — 
+ * no event emission, no conversation handler, no new messages.
+ */
+function useEditCard(operation: EditOperation): EditCardController {
+  const state = ref<CardState>('proposed')
+  const progressMessage = ref('')
+
+  async function apply() {
+    state.value = 'applying'
+    progressMessage.value = 'Applying...'
+    
+    try {
+      const snapshot = captureSnapshot()
+      
+      // For operations needing AI generation, do it here
+      if (needsGeneration(operation)) {
+        progressMessage.value = getProgressLabel(operation)
+        const generated = await generateContent(operation) // card's own API call
+        operation = { ...operation, ...generated }
+      }
+      
+      // Apply mutation to store
+      applyEditOperation(operation)
+      
+      // Update preview via postMessage
+      updatePreview(operation)
+      
+      state.value = 'complete'
+    } catch (err) {
+      state.value = 'error'
+      progressMessage.value = 'Failed — try again?'
+    }
   }
-  
-  return snapshot
+
+  return { state, progressMessage, tryIt, dismiss, apply }
 }
 ```
 
-4. The card transitions to `state: 'complete'` (shows a checkmark, buttons disabled).
-5. The preview re-renders the affected section(s).
+#### Why this matters
+
+The old model (card click → new chat message → AI response → new card) has several problems:
+
+1. **Chat pollution.** Every edit creates 2+ new messages. After 5 edits, the chat is a wall of "Applied hero update" / "Sure, I've updated..." noise.
+2. **Broken mental model.** The user clicked a button to do a thing. They don't expect a conversation about it — they expect the thing to happen.
+3. **Unnecessary latency.** Simple edits (reorder, remove, content swap) don't need AI involvement at all. The data is already in the card.
+4. **Lost context.** The chat scrolls past the original card. The user loses the before/after context that was right there.
+
+The self-contained model keeps the chat as a conversation layer and the cards as an action layer. They don't bleed into each other.
 
 ---
 
@@ -513,7 +583,8 @@ interface MessageQueue {
 
 If the user applies multiple changes in quick succession (clicking "Apply" on several cards):
 
-- Each apply is independent and synchronous — it patches the site state and pushes to the undo stack immediately. No batching needed because applying a pre-computed card is instant (no AI call).
+- For instant edits (content, reorder, remove): each apply is independent and synchronous. Patches the site state and pushes to the undo stack immediately.
+- For AI-powered edits (section-add, image): each card manages its own API call. Multiple cards can be in 'applying' state simultaneously — they don't block each other. Each resolves independently.
 - If the user *sends multiple chat messages* requesting changes, they queue and process sequentially. Each AI response sees the state after all previously applied changes.
 
 ### Conflicting Edits
@@ -626,51 +697,57 @@ For single-section content edits, target response time is **2–4 seconds**. For
 
 ## Interaction Flow Summary
 
-### Happy Path: Content Edit
+### Happy Path: Content Edit (instant — no AI needed)
 
 ```
 User: "Change the hero headline to Welcome Home"
   → AI classifies: section-content edit
-  → AI returns: text + SectionUpdateCard
-  → Card appears in chat with before/after
+  → AI returns: text + SectionUpdateCard (with before/after data already populated)
+  → Card appears in chat with before/after summary
   → User clicks "Try it"
-    → Preview temporarily shows new headline
-    → Section highlighted in preview
+    → Card state: 'trying'. Preview temporarily shows new headline.
   → User clicks "Apply"
-    → Snapshot captured
-    → Section data updated in store
-    → Preview updates in-place (postMessage)
-    → Card transitions to 'complete' state
-    → Undo button becomes available
+    → Card state: 'applying' → 'complete' (~instant)
+    → Card shows ✓. No new chat messages.
+    → Preview updated in-place via postMessage.
+    → Undo button becomes available.
 ```
 
-### Happy Path: Section Addition
+### Happy Path: Section Addition (AI-powered — card owns the generation)
 
 ```
 User: "Add a testimonials section after the about section"
   → AI classifies: section-add
-  → AI generates section data for a testimonials section type
-  → AI returns: text + SectionAddCard
-  → Card shows proposed section with position context
-  → User clicks "Try it"
-    → Preview inserts the section temporarily
+  → AI returns: text + SectionAddCard (with section type + position, but data may be a stub)
+  → Card appears in chat showing proposed section type and position
   → User clicks "Add"
-    → Snapshot captured
-    → Section inserted into page template
-    → Preview updates
-    → Card transitions to 'complete'
+    → Card state: 'applying'. Card shows "Generating testimonials..."
+    → Card internally calls AI to generate section data (its own API call)
+    → On completion: section inserted, preview updates
+    → Card state: 'complete'. Card shows ✓ with final section summary.
+    → No new chat messages. Chat stays clean.
 ```
 
-### Happy Path: Click-to-Edit
+### Happy Path: Click-to-Edit (preview → chat)
 
 ```
 User clicks the menu section in the preview
   → Preview sends 'section-clicked' postMessage
-  → Chat shows: "What would you like to change about the menu?"
+  → Chat input focuses with section context pre-loaded
   → User types: "Add a new category for desserts"
-  → AI knows the focused section, generates section-content update
-  → SectionUpdateCard with the new menu data
-  → User applies
+  → AI generates SectionUpdateCard scoped to that section
+  → User clicks "Apply" on card → card handles it internally
+```
+
+### Compound Edit: "Rebrand to a modern look"
+
+```
+User: "Rebrand to a modern look"
+  → AI returns: text + ThemeUpdateCard + SectionUpdateCard × N
+  → Multiple cards appear in chat, each self-contained
+  → User can Apply/Dismiss each independently
+  → Each card manages its own lifecycle
+  → No cascading messages — just cards resolving one by one
 ```
 
 ---
@@ -680,18 +757,18 @@ User clicks the menu section in the preview
 Files to create or modify for Phase 4:
 
 **New files:**
-- `src/data/types.ts` — Add `SectionUpdateCardData`, `SectionAddCardData`, `SectionRemoveCardData`, `SectionReorderCardData`, `PageUpdateCardData`, `EditOperation`, `SiteSnapshot`, `EditHistory`
+- `src/data/types.ts` — Add `SectionUpdateCardData`, `SectionAddCardData`, `SectionRemoveCardData`, `SectionReorderCardData`, `PageUpdateCardData`, `EditOperation`, `SiteSnapshot`, `EditHistory`, `CardState`
+- `src/composables/useEditCard.ts` — Self-contained card lifecycle controller (state machine, try-it, apply, progress)
+- `src/composables/useEditHistory.ts` — Undo/redo stack management
+- `src/composables/usePreviewBridge.ts` — `postMessage` communication with preview iframe
 - `src/components/composites/chat-cards/SectionUpdateCard.vue`
 - `src/components/composites/chat-cards/SectionAddCard.vue`
 - `src/components/composites/chat-cards/SectionRemoveCard.vue`
 - `src/components/composites/chat-cards/SectionReorderCard.vue`
 - `src/components/composites/chat-cards/PageUpdateCard.vue`
-- `src/composables/useEditHistory.ts` — Undo/redo stack management
-- `src/composables/usePreviewBridge.ts` — `postMessage` communication with preview iframe
 
 **Modified files:**
 - `src/data/ai-service.ts` — Add new card types to `CARD_TYPES`, editing context generation
 - `src/data/ai-system-prompt.ts` — Editing mode prompt additions
 - `src/data/types.ts` — Extended `CardBlock` union
-- `src/components/composites/chat-cards/ChatCard.vue` — "Try it" button support if needed
 - Preview iframe template — Section `data-section-id` attributes, message listeners for highlight/update/theme

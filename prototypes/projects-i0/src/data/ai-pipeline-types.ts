@@ -7,6 +7,7 @@
 
 import type { SiteTheme } from './themes/types'
 import type { Section } from './sections/types'
+import { applyThemeDefaults } from './themes/theme-defaults'
 
 // ---- AI Output Types ----
 
@@ -20,7 +21,10 @@ export interface AIThemeOutput {
   typography: {
     fontFamily: { heading: string; body: string }
     fontSize: { hero: string; xlarge: string; large: string; medium: string; small: string }
+    lineHeight?: { tight: string; normal: string }
   }
+  spacing?: { unit: string; scale: number[] }
+  layout?: { contentWidth: string; wideWidth: string }
 }
 
 /** Fence types the parser recognizes */
@@ -95,26 +99,10 @@ export function validateSection(type: string, data: Record<string, unknown>): Va
 
 /**
  * Converts AI's minimal theme output into a full SiteTheme with sensible defaults.
- * Handles the flat → nested `settings` wrapper mismatch.
+ * Uses applyThemeDefaults to fill in missing fields and derive missing palette colors.
  */
 export function normalizeTheme(raw: AIThemeOutput): SiteTheme {
-  return {
-    name: 'custom',
-    settings: {
-      color: {
-        palette: raw.color.palette,
-        background: raw.color.background,
-        text: raw.color.text,
-      },
-      typography: {
-        fontFamily: raw.typography.fontFamily,
-        fontSize: raw.typography.fontSize,
-        lineHeight: { tight: '1.2', normal: '1.5' },
-      },
-      spacing: { unit: 'rem', scale: [0.25, 0.5, 1, 1.5, 2, 3, 4, 6, 8] },
-      layout: { contentWidth: '800px', wideWidth: '1200px' },
-    },
-  }
+  return applyThemeDefaults(raw)
 }
 
 // ---- Pipeline Types ----

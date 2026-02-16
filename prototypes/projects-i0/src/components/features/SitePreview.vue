@@ -292,6 +292,10 @@ function toggleColorMode() {
           class="preview-iframe"
           @load="onIframeLoad"
         />
+        <div v-else-if="isBuildMode && !srcdoc" class="preview-building vstack align-center justify-center flex-1">
+          <div class="building-spinner"></div>
+          <Text variant="body" color="secondary">Building your site...</Text>
+        </div>
         <div v-else class="preview-placeholder vstack align-center justify-center flex-1">
           <Text variant="body" color="muted">No preview available</Text>
         </div>
@@ -321,5 +325,24 @@ function toggleColorMode() {
 .preview-placeholder {
   height: 100%;
   gap: var(--space-xxxs);
+}
+
+.preview-building {
+  height: 100%;
+  gap: var(--space-xs);
+}
+
+.building-spinner {
+  width: var(--space-l);
+  height: var(--space-l);
+  border: 2px solid var(--color-border-muted);
+  border-top: 2px solid var(--color-border-primary);
+  border-radius: 50%;
+  animation: building-spin 1s linear infinite;
+}
+
+@keyframes building-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 </style>

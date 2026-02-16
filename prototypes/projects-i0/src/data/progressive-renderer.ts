@@ -17,6 +17,60 @@ import { themeToCSS } from './themes/theme-utils'
 import { componentCSS } from './sections/components'
 import { renderSection } from './sections/section-renderers'
 
+// ---- Fallback Theme CSS ----
+
+const FALLBACK_THEME_CSS = `
+/* System font stacks */
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+  margin: 0;
+  line-height: 1.6;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+  line-height: 1.2;
+  margin-top: 0;
+}
+
+/* Basic spacing variables */
+:root {
+  --theme-space-1: 0.5rem;
+  --theme-space-2: 1rem;
+  --theme-space-3: 1.5rem;
+  --theme-space-4: 2rem;
+  --theme-space-5: 2.5rem;
+  --theme-space-6: 3rem;
+  --theme-space-7: 3.5rem;
+  --theme-space-8: 4rem;
+  
+  /* Neutral colors */
+  --theme-color-background: #ffffff;
+  --theme-color-foreground: #1a1a1a;
+  --theme-color-muted: #6b7280;
+  
+  /* Font sizes */
+  --theme-font-size-hero: 2.5rem;
+  --theme-font-size-xlarge: 2rem;
+  --theme-font-size-large: 1.25rem;
+  --theme-font-size-medium: 1rem;
+  --theme-font-size-small: 0.875rem;
+  
+  /* Line heights */
+  --theme-line-height-tight: 1.2;
+  --theme-line-height-normal: 1.6;
+  
+  /* Layout widths */
+  --theme-width-content: 800px;
+  --theme-width-wide: 1200px;
+}
+
+body {
+  background-color: var(--theme-color-background);
+  color: var(--theme-color-foreground);
+}
+`
+
 // ---- Skeleton CSS ----
 
 const SKELETON_CSS = `
@@ -186,7 +240,6 @@ export function renderProgressivePage(
   // Theme CSS
   if (theme) {
     parts.push(`<style id="theme-css">${themeToCSS(theme)}</style>`)
-    parts.push(`<style>${componentCSS}</style>`)
 
     // Google Fonts
     const fonts = [
@@ -198,8 +251,11 @@ export function renderProgressivePage(
       parts.push(`<link rel="stylesheet" href="https://fonts.googleapis.com/css2?${fontParams}&display=swap">`)
     }
   } else {
-    parts.push('<style id="theme-css"></style>')
+    parts.push(`<style id="theme-css">${FALLBACK_THEME_CSS}</style>`)
   }
+
+  // Component CSS (always include, even when theme is null)
+  parts.push(`<style>${componentCSS}</style>`)
 
   // Skeleton CSS (always included during progressive rendering)
   parts.push(`<style>${SKELETON_CSS}</style>`)
