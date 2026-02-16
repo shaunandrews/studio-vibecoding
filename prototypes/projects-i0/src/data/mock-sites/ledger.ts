@@ -549,45 +549,7 @@ export const siteData: SiteData = {
 
 // ---- Ledger uses a custom app chrome (topbar) instead of the standard site-nav/footer ----
 
-function renderLedgerPage(pageIndex: number, activePage: string, themeCSS: string): string {
-  const page = siteData.pages[pageIndex]
-  // Ledger has its own topbar instead of standard header/footer.
-  // We use renderPage with customCSS and customRenderer, but override header/footer rendering
-  // by generating the full HTML ourselves.
-  return renderPage(page, siteData, activePage, themeCSS, ledgerCSS, renderLedgerSection)
-}
-
-// ---- Backward-compatible exports ----
-
-export function homepage(themeCSS: string): string {
-  return renderLedgerPage(0, 'homepage', themeCSS)
-}
-
-export function invoice(themeCSS: string): string {
-  return renderLedgerPage(1, 'invoice', themeCSS)
-}
-
-export function clients(themeCSS: string): string {
-  return renderLedgerPage(2, 'clients', themeCSS)
-}
-
-export function reports(themeCSS: string): string {
-  return renderLedgerPage(3, 'reports', themeCSS)
-}
-
-export function settings(themeCSS: string): string {
-  return renderLedgerPage(4, 'settings', themeCSS)
-}
-
-export function clientDetail(themeCSS: string): string {
-  return renderLedgerPage(5, 'clientDetail', themeCSS)
-}
-
-export const pages: Record<string, { label: string; html: (css: string) => string }> = {
-  homepage: { label: 'Dashboard', html: homepage },
-  invoice: { label: 'Invoice', html: invoice },
-  clients: { label: 'Clients', html: clients },
-  reports: { label: 'Reports', html: reports },
-  settings: { label: 'Settings', html: settings },
-  clientDetail: { label: 'Client Detail', html: clientDetail },
+export function renderSitePage(pageSlug: string, themeCSSOverride?: string): string {
+  const page = siteData.pages.find(p => p.slug === pageSlug) ?? siteData.pages[0]
+  return renderPage(page, siteData, pageSlug, themeCSSOverride, ledgerCSS, renderLedgerSection)
 }

@@ -758,37 +758,7 @@ export const siteData: SiteData = {
   ],
 }
 
-// ---- Backward-compatible exports ----
-
-export function homepage(themeCSS: string): string {
-  return renderPage(siteData.pages[0], siteData, 'homepage', themeCSS, portfolioCSS, renderPortfolioSection)
-}
-
-export function work(themeCSS: string): string {
-  return renderPage(siteData.pages[1], siteData, 'work', themeCSS, portfolioCSS, renderPortfolioSection)
-}
-
-export function casestudy(themeCSS: string): string {
-  return renderPage(siteData.pages[2], siteData, 'casestudy', themeCSS, portfolioCSS, renderPortfolioSection)
-}
-
-export function casestudy2(themeCSS: string): string {
-  return renderPage(siteData.pages[3], siteData, 'casestudy2', themeCSS, portfolioCSS, renderPortfolioSection)
-}
-
-export function process(themeCSS: string): string {
-  return renderPage(siteData.pages[4], siteData, 'process', themeCSS, portfolioCSS, renderPortfolioSection)
-}
-
-export function contact(themeCSS: string): string {
-  return renderPage(siteData.pages[5], siteData, 'contact', themeCSS, portfolioCSS, renderPortfolioSection)
-}
-
-export const pages: Record<string, { label: string; html: (css: string) => string }> = {
-  homepage: { label: 'Home', html: homepage },
-  work: { label: 'Work', html: work },
-  casestudy: { label: 'Meridian Case Study', html: casestudy },
-  casestudy2: { label: 'Verdant Case Study', html: casestudy2 },
-  process: { label: 'Process', html: process },
-  contact: { label: 'Contact', html: contact },
+export function renderSitePage(pageSlug: string, themeCSSOverride?: string): string {
+  const page = siteData.pages.find(p => p.slug === pageSlug) ?? siteData.pages[0]
+  return renderPage(page, siteData, pageSlug, themeCSSOverride, portfolioCSS, renderPortfolioSection)
 }

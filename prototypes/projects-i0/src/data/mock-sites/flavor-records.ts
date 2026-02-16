@@ -383,37 +383,7 @@ export const siteData: SiteData = {
   ],
 }
 
-// ---- Backward-compatible exports ----
-
-export function homepage(themeCSS: string): string {
-  return renderPage(siteData.pages[0], siteData, 'homepage', themeCSS, flavorCSS, renderFlavorSection)
-}
-
-export function artist(themeCSS: string): string {
-  return renderPage(siteData.pages[1], siteData, 'artist', themeCSS, flavorCSS, renderFlavorSection)
-}
-
-export function releases(themeCSS: string): string {
-  return renderPage(siteData.pages[2], siteData, 'releases', themeCSS, flavorCSS, renderFlavorSection)
-}
-
-export function catalog(themeCSS: string): string {
-  return renderPage(siteData.pages[3], siteData, 'catalog', themeCSS, flavorCSS, renderFlavorSection)
-}
-
-export function shows(themeCSS: string): string {
-  return renderPage(siteData.pages[4], siteData, 'shows', themeCSS, flavorCSS, renderFlavorSection)
-}
-
-export function labelAbout(themeCSS: string): string {
-  return renderPage(siteData.pages[5], siteData, 'labelAbout', themeCSS, flavorCSS, renderFlavorSection)
-}
-
-export const pages: Record<string, { label: string; html: (css: string) => string }> = {
-  homepage: { label: 'Home', html: homepage },
-  artist: { label: 'Artists', html: artist },
-  releases: { label: 'Releases', html: releases },
-  catalog: { label: 'Catalog', html: catalog },
-  shows: { label: 'Shows', html: shows },
-  labelAbout: { label: 'About', html: labelAbout },
+export function renderSitePage(pageSlug: string, themeCSSOverride?: string): string {
+  const page = siteData.pages.find(p => p.slug === pageSlug) ?? siteData.pages[0]
+  return renderPage(page, siteData, pageSlug, themeCSSOverride, flavorCSS, renderFlavorSection)
 }

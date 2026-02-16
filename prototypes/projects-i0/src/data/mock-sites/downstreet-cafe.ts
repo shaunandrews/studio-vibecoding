@@ -576,37 +576,7 @@ export const siteData: SiteData = {
   ],
 }
 
-// ---- Backward-compatible exports ----
-
-export function homepage(themeCSS: string): string {
-  return renderPage(siteData.pages[0], siteData, 'homepage', themeCSS, downstreetCSS, customRenderer)
-}
-
-export function menu(themeCSS: string): string {
-  return renderPage(siteData.pages[1], siteData, 'menu', themeCSS, downstreetCSS, customRenderer)
-}
-
-export function about(themeCSS: string): string {
-  return renderPage(siteData.pages[2], siteData, 'about', themeCSS, downstreetCSS, customRenderer)
-}
-
-export function events(themeCSS: string): string {
-  return renderPage(siteData.pages[3], siteData, 'events', themeCSS, downstreetCSS, customRenderer)
-}
-
-export function gallery(themeCSS: string): string {
-  return renderPage(siteData.pages[4], siteData, 'gallery', themeCSS, downstreetCSS, customRenderer)
-}
-
-export function order(themeCSS: string): string {
-  return renderPage(siteData.pages[5], siteData, 'order', themeCSS, downstreetCSS, customRenderer)
-}
-
-export const pages: Record<string, { label: string; html: (css: string) => string }> = {
-  homepage: { label: 'Home', html: homepage },
-  menu: { label: 'Menu', html: menu },
-  about: { label: 'About', html: about },
-  events: { label: 'Events', html: events },
-  gallery: { label: 'Gallery', html: gallery },
-  order: { label: 'Order Online', html: order },
+export function renderSitePage(pageSlug: string, themeCSSOverride?: string): string {
+  const page = siteData.pages.find(p => p.slug === pageSlug) ?? siteData.pages[0]
+  return renderPage(page, siteData, pageSlug, themeCSSOverride, downstreetCSS, customRenderer)
 }

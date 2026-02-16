@@ -430,18 +430,19 @@ export const siteData: SiteData = {
   ],
 }
 
-// ---- Backward-compatible wrapper exports ----
+export function renderSitePage(pageSlug: string, themeCSSOverride?: string): string {
+  const page = siteData.pages.find(p => p.slug === pageSlug) ?? siteData.pages[0]
+  const themeCSS = themeCSSOverride ?? ''
+  
+  // Homepage has special 2-col layout with sidebar
+  if (pageSlug === 'homepage') {
+    const render = (s: Section) => renderMiseSection(s, 'homepage')
+    const appBar = render(page.sections[0])
+    const searchBar = render(page.sections[1])
+    const recipeGrid = render(page.sections[2])
+    const mealPreview = render(page.sections[3])
 
-export function homepage(themeCSS: string): string {
-  // Homepage has a special 2-col layout with sidebar that doesn't fit cleanly into sections.
-  // We render the app bar + search via sections, then inject the 2-col body manually.
-  const render = (s: Section) => renderMiseSection(s, 'homepage')
-  const appBar = render(siteData.pages[0].sections[0])
-  const searchBar = render(siteData.pages[0].sections[1])
-  const recipeGrid = render(siteData.pages[0].sections[2])
-  const mealPreview = render(siteData.pages[0].sections[3])
-
-  return `<!DOCTYPE html>
+    return `<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -494,49 +495,17 @@ ${appBar}
 
 </body>
 </html>`
-}
+  }
+  
+  // Browse page has special layout
+  if (pageSlug === 'browse') {
+    const render = (s: Section) => renderMiseSection(s, 'browse')
+    const appBar = render(page.sections[0])
+    const browseHeader = render(page.sections[1])
+    const filterBar = render(page.sections[2])
+    const recipeGrid = render(page.sections[3])
 
-function renderSimplePage(pageIndex: number, activePage: string, themeCSS: string): string {
-  const page = siteData.pages[pageIndex]
-  const sectionsHTML = page.sections.map(s => renderMiseSection(s, activePage) || '').join('\n\n')
-
-  return `<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>${page.title}</title>
-<style>${themeCSS}</style>
-<style>* { margin: 0; padding: 0; box-sizing: border-box; }
-body { font-family: var(--theme-font-body); color: var(--theme-text); background: var(--theme-bg); line-height: var(--theme-line-height-normal); }
-h1, h2, h3, h4 { font-family: var(--theme-font-heading); }</style>
-<style>${miseCSS}</style>
-</head>
-<body>
-
-${sectionsHTML}
-
-</body>
-</html>`
-}
-
-export function recipe(themeCSS: string): string {
-  return renderSimplePage(1, 'homepage', themeCSS)
-}
-
-export function mealplan(themeCSS: string): string {
-  return renderSimplePage(2, 'mealplan', themeCSS)
-}
-
-export function browse(themeCSS: string): string {
-  const page = siteData.pages[3]
-  const render = (s: Section) => renderMiseSection(s, 'browse')
-  const appBar = render(page.sections[0])
-  const browseHeader = render(page.sections[1])
-  const filterBar = render(page.sections[2])
-  const recipeGrid = render(page.sections[3])
-
-  return `<!DOCTYPE html>
+    return `<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -560,12 +529,27 @@ ${appBar}
 
 </body>
 </html>`
-}
+  }
+  
+  // Standard page layout for other pages
+  const sectionsHTML = page.sections.map(s => renderMiseSection(s, pageSlug) || '').join('\n\n')
 
-export function groceries(themeCSS: string): string {
-  return renderSimplePage(4, 'groceries', themeCSS)
-}
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>${page.title}</title>
+<style>${themeCSS}</style>
+<style>* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: var(--theme-font-body); color: var(--theme-text); background: var(--theme-bg); line-height: var(--theme-line-height-normal); }
+h1, h2, h3, h4 { font-family: var(--theme-font-heading); }</style>
+<style>${miseCSS}</style>
+</head>
+<body>
 
-export function settings(themeCSS: string): string {
-  return renderSimplePage(5, 'settings', themeCSS)
+${sectionsHTML}
+
+</body>
+</html>`
 }

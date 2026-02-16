@@ -444,39 +444,7 @@ const Card = ({ title, excerpt, image, tags }) =&gt; (
   ],
 }
 
-// ---- Backward-compatible exports ----
-
-const customRenderer = renderBlogSection
-
-export function homepage(themeCSS: string): string {
-  return renderPage(siteData.pages[0], siteData, 'homepage', themeCSS, blogCSS, customRenderer)
-}
-
-export function post(themeCSS: string): string {
-  return renderPage(siteData.pages[1], siteData, 'post', themeCSS, blogCSS, customRenderer)
-}
-
-export function about(themeCSS: string): string {
-  return renderPage(siteData.pages[2], siteData, 'about', themeCSS, blogCSS, customRenderer)
-}
-
-export function archive(themeCSS: string): string {
-  return renderPage(siteData.pages[3], siteData, 'archive', themeCSS, blogCSS, customRenderer)
-}
-
-export function post2(themeCSS: string): string {
-  return renderPage(siteData.pages[4], siteData, 'post2', themeCSS, blogCSS, customRenderer)
-}
-
-export function projects(themeCSS: string): string {
-  return renderPage(siteData.pages[5], siteData, 'projects', themeCSS, blogCSS, customRenderer)
-}
-
-export const pages: Record<string, { label: string; html: (css: string) => string }> = {
-  homepage: { label: 'Home', html: homepage },
-  post: { label: 'Featured Post', html: post },
-  about: { label: 'About', html: about },
-  archive: { label: 'Archive', html: archive },
-  post2: { label: 'Design Engineers', html: post2 },
-  projects: { label: 'Projects', html: projects },
+export function renderSitePage(pageSlug: string, themeCSSOverride?: string): string {
+  const page = siteData.pages.find(p => p.slug === pageSlug) ?? siteData.pages[0]
+  return renderPage(page, siteData, pageSlug, themeCSSOverride, blogCSS, renderBlogSection)
 }

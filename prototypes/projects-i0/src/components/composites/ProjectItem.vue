@@ -23,11 +23,11 @@ const { getTheme } = useSiteThemes()
 
 const previewHtml = computed(() => {
   if (props.mode !== 'card') return ''
-  const site = mockSites[props.project.id]
+  const siteModule = mockSites[props.project.id]
   const theme = getTheme(props.project.id)
-  if (!site || !theme) return ''
+  if (!siteModule || !theme) return ''
   const css = themeToCSS(theme, 'light')
-  return site.homepage(css)
+  return siteModule.renderSitePage('homepage', css)
 })
 </script>
 

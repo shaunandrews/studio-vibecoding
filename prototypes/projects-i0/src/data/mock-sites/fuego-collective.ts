@@ -236,27 +236,7 @@ export const siteData: SiteData = {
   ],
 }
 
-// ---- Backward-compatible exports ----
-
-function render(pageIndex: number, activePage: string) {
-  return (themeCSS: string): string =>
-    renderPage(siteData.pages[pageIndex], siteData, activePage, themeCSS, fuegoCSS, renderFuegoSection)
-}
-
-export function homepage(themeCSS: string): string {
-  return render(0, 'homepage')(themeCSS)
-}
-
-export function shop(themeCSS: string): string {
-  return render(1, 'shop')(themeCSS)
-}
-
-export function product(themeCSS: string): string {
-  return render(2, 'product')(themeCSS)
-}
-
-export const pages: Record<string, { label: string; html: (css: string) => string }> = {
-  homepage: { label: 'Home', html: homepage },
-  shop: { label: 'Shop', html: shop },
-  product: { label: 'Smoky Habanero', html: product },
+export function renderSitePage(pageSlug: string, themeCSSOverride?: string): string {
+  const page = siteData.pages.find(p => p.slug === pageSlug) ?? siteData.pages[0]
+  return renderPage(page, siteData, pageSlug, themeCSSOverride, fuegoCSS, renderFuegoSection)
 }

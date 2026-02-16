@@ -6,7 +6,6 @@ import BrowserBar from '@/components/primitives/BrowserBar.vue'
 import PanelToolbar from '@/components/composites/PanelToolbar.vue'
 import Text from '@/components/primitives/Text.vue'
 import { mockSites } from '@/data/mock-sites'
-import type { MockSitePage } from '@/data/mock-sites'
 import { seedProjects } from '@/data/seed-projects'
 import { useSiteThemes } from '@/data/themes'
 import { themeToCSS } from '@/data/themes/theme-utils'
@@ -100,7 +99,14 @@ const url = computed(() => {
 
 const site = computed(() => props.projectId ? mockSites[props.projectId] : undefined)
 
-const pages = computed(() => site.value?.pages ?? {})
+const pages = computed(() => {
+  if (!site.value) return {}
+  const result: Record<string, { label: string }> = {}
+  for (const page of site.value.siteData.pages) {
+    result[page.slug] = { label: page.title }
+  }
+  return result
+})
 
 const currentThemeCSS = computed(() => {
   if (!props.projectId) return ''
@@ -112,8 +118,7 @@ const currentThemeCSS = computed(() => {
 const srcdoc = computed(() => {
   if (!site.value) return undefined
   const css = currentThemeCSS.value
-  if (currentPage.value === 'homepage') return site.value.homepage(css)
-  return site.value.pages[currentPage.value]?.html(css) ?? site.value.homepage(css)
+  return site.value.renderSitePage(currentPage.value, css)
 })
 
 const hasDarkMode = computed(() => {
