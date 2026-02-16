@@ -9,6 +9,7 @@ import ProgressCard from '@/components/composites/chat-cards/ProgressCard.vue'
 import ThemePickerCard from '@/components/composites/chat-cards/ThemePickerCard.vue'
 import PageCard from '@/components/composites/chat-cards/PageCard.vue'
 import PostDraftCard from '@/components/composites/chat-cards/PostDraftCard.vue'
+import ThemeUpdateCard from '@/components/composites/chat-cards/ThemeUpdateCard.vue'
 import type { ActionButton, ContentBlock, AgentId } from '@/data/types'
 
 const props = defineProps<{
@@ -103,6 +104,14 @@ function buttonVariant(variant?: ActionButton['variant']): 'primary' | 'secondar
 
         <PostDraftCard
           v-else-if="block.type === 'card' && block.card === 'postDraft'"
+          :data="block.data"
+          :compact="block.compact"
+          :state="block.state"
+          @action="onAction"
+        />
+
+        <ThemeUpdateCard
+          v-else-if="block.type === 'card' && block.card === 'themeUpdate'"
           :data="block.data"
           :compact="block.compact"
           :state="block.state"

@@ -74,6 +74,7 @@ export type CardBlock =
   | (BaseCardBlock & { card: 'themePicker'; data: ThemePickerCardData })
   | (BaseCardBlock & { card: 'page'; data: PageCardData })
   | (BaseCardBlock & { card: 'postDraft'; data: PostDraftCardData })
+  | (BaseCardBlock & { card: 'themeUpdate'; data: ThemeUpdateCardData })
 
 export type ContentBlock =
   | { type: 'text'; text: string }
@@ -120,6 +121,22 @@ export interface PageCardData {
   status: 'draft' | 'published' | 'scheduled'
   excerpt?: string
   actions?: ActionButton[]
+}
+
+export interface ThemeUpdateCardData {
+  label: string
+  changes: {
+    color?: {
+      palette?: { slug: string; name: string; hex: string }[]
+      background?: string
+      text?: string
+    }
+    typography?: {
+      fontFamily?: { heading?: string; body?: string }
+      fontSize?: Partial<Record<'small' | 'medium' | 'large' | 'xlarge' | 'hero', string>>
+    }
+  }
+  action?: ActionButton
 }
 
 export interface PostDraftCardData {

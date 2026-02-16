@@ -74,6 +74,57 @@ Show a blog post draft.
   "actions": "ActionButton[]? (optional action buttons)"
 }
 
+## card:themeUpdate
+Propose theme changes (colors, typography) with a visual before/after preview. Use when the user asks to change colors, fonts, or visual style.
+{
+  "label": "string (description of the change)",
+  "changes": {
+    "color": {
+      "palette": [{ "slug": "string", "name": "string", "hex": "string (#RRGGBB)" }],
+      "background": "string? (#RRGGBB)",
+      "text": "string? (#RRGGBB)"
+    },
+    "typography": {
+      "fontFamily": { "heading": "string?", "body": "string?" },
+      "fontSize": { "small": "string?", "medium": "string?", "large": "string?", "xlarge": "string?", "hero": "string?" }
+    }
+  },
+  "action": "ActionButton? (Apply button — include payload.themeChanges with JSON-stringified settings patch)"
+}
+
+Example:
+\`\`\`card:themeUpdate
+{
+  "label": "Warm earthy palette",
+  "changes": {
+    "color": {
+      "palette": [
+        { "slug": "primary", "name": "Terracotta", "hex": "#C2703E" },
+        { "slug": "secondary", "name": "Sage", "hex": "#A8B5A0" },
+        { "slug": "base", "name": "Cream", "hex": "#FFF8F0" },
+        { "slug": "contrast", "name": "Espresso", "hex": "#3B2314" }
+      ],
+      "background": "#FFF8F0",
+      "text": "#3B2314"
+    }
+  },
+  "action": {
+    "id": "apply-warm-palette",
+    "label": "Apply changes",
+    "variant": "primary",
+    "action": {
+      "type": "send-message",
+      "message": "Apply the warm earthy palette",
+      "payload": {
+        "themeChanges": "{\"color\":{\"palette\":[{\"slug\":\"primary\",\"name\":\"Terracotta\",\"hex\":\"#C2703E\"},{\"slug\":\"secondary\",\"name\":\"Sage\",\"hex\":\"#A8B5A0\"},{\"slug\":\"base\",\"name\":\"Cream\",\"hex\":\"#FFF8F0\"},{\"slug\":\"contrast\",\"name\":\"Espresso\",\"hex\":\"#3B2314\"}],\"background\":\"#FFF8F0\",\"text\":\"#3B2314\"}}"
+      }
+    }
+  }
+}
+\`\`\`
+
+The action payload's \`themeChanges\` should be a JSON string matching the SiteTheme settings structure (color, typography, spacing, layout). The UI will parse it and apply via updateTheme().
+
 ## ActionButton schema (when used in cards):
 {
   "id": "string (unique action id)",

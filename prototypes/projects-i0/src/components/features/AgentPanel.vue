@@ -7,10 +7,12 @@ import TabBar from '@/components/composites/TabBar.vue'
 import ChatMessageList from '@/components/composites/ChatMessageList.vue'
 import InputChat from '@/components/composites/InputChat.vue'
 import { useConversations } from '@/data/useConversations'
+import { useSiteThemes } from '@/data/themes/useSiteThemes'
 import type { ActionButton, Conversation } from '@/data/types'
 import type { Tab } from '@/components/composites/TabBar.vue'
 
 const { conversations, messages, getMessages, ensureConversation, sendMessage } = useConversations()
+const { updateTheme } = useSiteThemes()
 
 const props = defineProps<{
   projectId?: string | null
@@ -128,6 +130,12 @@ function handleSend(text: string) {
 }
 
 function handleAction(action: ActionButton) {
+  if (action.action.payload?.themeChanges && props.projectId) {
+    try {
+      const changes = JSON.parse(action.action.payload.themeChanges)
+      updateTheme(props.projectId, changes)
+    } catch { /* ignore parse errors */ }
+  }
   sendMessage(
     activeConvoId.value,
     'user',

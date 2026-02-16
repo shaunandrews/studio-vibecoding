@@ -16,7 +16,7 @@ export function setAPIKey(key: string): void {
   localStorage.setItem(STORAGE_KEY, key.trim())
 }
 
-const CARD_TYPES = ['plugin', 'colorPalette', 'settings', 'progress', 'themePicker', 'page', 'postDraft'] as const
+const CARD_TYPES = ['plugin', 'colorPalette', 'settings', 'progress', 'themePicker', 'page', 'postDraft', 'themeUpdate'] as const
 type CardType = typeof CARD_TYPES[number]
 
 function parseAIResponse(text: string): ContentBlock[] {

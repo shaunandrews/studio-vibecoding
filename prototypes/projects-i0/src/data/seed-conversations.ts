@@ -72,7 +72,48 @@ export const seedMessages: Message[] = [
   // Downstreet Cafe — design
   { id: 'cd1-1', conversationId: 'cafe-design-1', role: 'agent', agentId: 'design', content: [{ type: 'text', text: "I'm the design agent — I focus on visual styling, layout, and typography. What are we refining?" }], timestamp: '2026-02-10T15:00:00Z' },
   { id: 'cd1-2', conversationId: 'cafe-design-1', role: 'user', content: [{ type: 'text', text: 'The color palette feels too corporate. I want something warmer — earthy tones, maybe terracotta and cream.' }], timestamp: '2026-02-10T15:01:00Z', messageContext: { source: 'typed' } },
-  { id: 'cd1-3', conversationId: 'cafe-design-1', role: 'agent', agentId: 'design', content: [{ type: 'text', text: "Great instinct. I'll swap the palette to: Terracotta (#C2703E) for accents, Cream (#FFF8F0) for backgrounds, Espresso (#3B2314) for text, and Sage (#A8B5A0) as a secondary. Updating your theme.json now." }], timestamp: '2026-02-10T15:01:30Z' },
+  { id: 'cd1-3', conversationId: 'cafe-design-1', role: 'agent', agentId: 'design', content: [
+    { type: 'text', text: "Great instinct — here's a warm earthy palette that would suit a cafe perfectly:" },
+    { type: 'card', card: 'themeUpdate', data: {
+      label: 'Warm earthy palette',
+      changes: {
+        color: {
+          palette: [
+            { slug: 'primary', name: 'Terracotta', hex: '#C2703E' },
+            { slug: 'secondary', name: 'Sage', hex: '#A8B5A0' },
+            { slug: 'base', name: 'Cream', hex: '#FFF8F0' },
+            { slug: 'contrast', name: 'Espresso', hex: '#3B2314' },
+          ],
+          background: '#FFF8F0',
+          text: '#3B2314',
+        },
+      },
+      action: {
+        id: 'apply-cafe-palette',
+        label: 'Apply changes',
+        variant: 'primary',
+        action: {
+          type: 'send-message',
+          message: 'Apply the warm earthy palette',
+          payload: {
+            themeChanges: JSON.stringify({
+              color: {
+                palette: [
+                  { slug: 'primary', name: 'Terracotta', hex: '#C2703E' },
+                  { slug: 'secondary', name: 'Sage', hex: '#A8B5A0' },
+                  { slug: 'base', name: 'Cream', hex: '#FFF8F0' },
+                  { slug: 'contrast', name: 'Espresso', hex: '#3B2314' },
+                ],
+                background: '#FFF8F0',
+                text: '#3B2314',
+              },
+            }),
+          },
+        },
+      },
+    } },
+    { type: 'text', text: "Click Apply to update the live preview, or tell me what you'd like to tweak." },
+  ], timestamp: '2026-02-10T15:01:30Z' },
 
   // UI Portfolio — assistant
   { id: 'pa1-1', conversationId: 'portfolio-assistant-1', role: 'agent', agentId: 'assistant', content: [{ type: 'text', text: "Your portfolio project is set up. I've applied a minimal starter theme — perfect for showcasing design work. What's your first priority?" }], timestamp: '2026-01-20T09:30:00Z' },
