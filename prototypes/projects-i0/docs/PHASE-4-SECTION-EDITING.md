@@ -28,7 +28,7 @@ Every user request maps to one of these edit operations. The AI classifies the r
 
 ```ts
 type EditOperation =
-  | { type: 'theme'; themeId: string; patch: Partial<SiteTheme['settings']> }
+  | { type: 'theme'; patch: Partial<SiteTheme['settings']> }
   | { type: 'section-content'; pageId: string; sectionId: string; data: Record<string, any> }
   | { type: 'section-style'; pageId: string; sectionId: string; newType: string; data: Record<string, any> }
   | { type: 'section-reorder'; pageId: string; order: string[] } // array of section IDs in new order
@@ -64,7 +64,6 @@ interface EditingContext {
       id: string
       type: string
       data: Record<string, any>
-      order: number
     }[]
   }[]
   availableSectionTypes: {
@@ -285,6 +284,22 @@ export type CardBlock =
   | (BaseCardBlock & { card: 'pageUpdate'; data: PageUpdateCardData })
 ```
 
+### Card → EditOperation Mapping
+
+Each edit card carries the `EditOperation` directly in its action payload. The `before`/`after` fields on cards like `SectionUpdateCard` are **display-only** — they exist so the card UI can show a human-readable diff. The actual mutation comes from constructing an `EditOperation` from the card data:
+
+| Card Type | EditOperation Type | Mapping |
+|---|---|---|
+| `sectionUpdate` (content) | `section-content` | `{ pageId, sectionId, data: card.after.data }` |
+| `sectionUpdate` (style) | `section-style` | `{ pageId, sectionId, newType: card.after.type, data: card.after.data }` |
+| `sectionAdd` | `section-add` | `{ pageId, section: card.section, position: card.position }` |
+| `sectionRemove` | `section-remove` | `{ pageId, sectionId }` |
+| `sectionReorder` | `section-reorder` | `{ pageId, order: card.proposedOrder.map(s => s.id) }` |
+| `pageUpdate` (add) | `page-add` | `{ page: card.page }` |
+| `pageUpdate` (remove) | `page-remove` | `{ pageId: card.pageId }` |
+
+The card's `action` button handler extracts the `EditOperation` and passes it to `applyEditOperation()`.
+
 ### Action Handling
 
 When a user clicks "Apply" on a card:
@@ -323,7 +338,7 @@ function applyEditOperation(op: EditOperation): SiteSnapshot {
       updateTemplatePart(op.partId, op.data)
       break
     case 'theme':
-      updateTheme(op.themeId, op.patch) // already exists
+      updateTheme(op.patch) // each site has one theme
       break
   }
   

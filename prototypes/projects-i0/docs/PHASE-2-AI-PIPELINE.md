@@ -957,7 +957,7 @@ function parseGenerationStream(raw: string): ParsedAIBlock[] {
         blocks.push({ type: 'templatePart', partType, data })
       } else if (fenceType.startsWith('section:')) {
         const sectionType = fenceType.split(':')[1]
-        const validation = validateSectionData(sectionType, data)
+        const validation = validateSection(sectionType, data)
         blocks.push({ type: 'section', sectionType, data, valid: validation.valid })
       }
     } catch {
