@@ -440,6 +440,42 @@ function renderTwoColumn(data: TwoColumnData): string {
   </div>`
 }
 
+interface TopbarData {
+  logo: string
+  navItems: Array<{ label: string; page: string }>
+  avatarInitial: string
+}
+
+interface FooterData {
+  address: string
+  phone: string
+  email: string
+}
+
+function renderTopbar(data: TopbarData, activePage: string): string {
+  const links = data.navItems.map(n =>
+    `<a href="#"${n.page === activePage ? ' class="active"' : ''} onclick="window.parent.postMessage({type:'navigate',page:'${n.page}'},'*');return false">${n.label}</a>`
+  ).join('\n    ')
+  return `<div class="topbar">
+  <div class="logo">${data.logo}</div>
+  <nav>
+    ${links}
+  </nav>
+  <div class="spacer"></div>
+  <div class="avatar">${data.avatarInitial}</div>
+</div>`
+}
+
+function renderFooter(data: FooterData): string {
+  return `<footer class="ledger-footer">
+  <div class="footer-inner">
+    <span>${data.address}</span>
+    <span>${data.phone}</span>
+    <span>${data.email}</span>
+  </div>
+</footer>`
+}
+
 function renderLedgerSectionInner(type: string, data: unknown): string {
   switch (type) {
     case 'ledger-dashboard-stats': return renderDashboardStats(data as DashboardStatsData)
@@ -463,6 +499,8 @@ function renderLedgerSectionInner(type: string, data: unknown): string {
 export function renderLedgerSection(section: Section, activePage: string): string | null {
   const type = section.type
   if (!type.startsWith('ledger-')) return null
+  if (type === 'ledger-topbar') return renderTopbar(section.data as TopbarData, activePage)
+  if (type === 'ledger-footer') return renderFooter(section.data as FooterData)
   const html = renderLedgerSectionInner(type, section.data)
   return html || null
 }

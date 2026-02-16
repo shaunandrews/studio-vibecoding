@@ -470,4 +470,22 @@ th.align-right, td.align-right { text-align: right; }
 .danger-item:last-child { border-bottom: none; }
 .danger-item .di-text h3 { font-size: var(--theme-font-size-small); font-weight: 600; }
 .danger-item .di-text p { font-size: 0.75rem; color: var(--theme-color-secondary); }
+
+/* Footer */
+.ledger-footer {
+  border-top: 1px solid var(--theme-color-border);
+  padding: var(--theme-space-3) var(--theme-space-4);
+  text-align: center;
+  font-size: var(--theme-font-size-small);
+  color: var(--theme-color-secondary);
+  margin-top: var(--theme-space-5);
+}
+.ledger-footer .footer-inner {
+  max-width: var(--theme-content-width);
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+  gap: var(--theme-space-3);
+  flex-wrap: wrap;
+}
 `

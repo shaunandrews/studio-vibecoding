@@ -70,7 +70,6 @@ function renderAppBarWithActive(data: MiseAppBarData, activePage: string): strin
 </div>`
 }
 
-export { renderAppBarWithActive }
 
 function renderSearchBar(data: MiseSearchBarData): string {
   return `<div class="search-bar">

@@ -196,6 +196,7 @@ export const siteData: SiteData = {
             notes: 'Payment is due within 30 days of invoice date. Late payments may be subject to a 1.5% monthly interest charge. Please include the invoice number as a reference when making payment. Thank you for your business!',
           },
         },
+        footerSection('inv-footer'),
       ],
     },
 
@@ -205,6 +206,7 @@ export const siteData: SiteData = {
       title: 'Clients — Ledger',
       slug: 'clients',
       sections: [
+        topbarSection('clients-topbar'),
         {
           id: 'clients-header',
           type: 'ledger-page-header',
@@ -291,6 +293,7 @@ export const siteData: SiteData = {
             ],
           },
         },
+        footerSection('clients-footer'),
       ],
     },
 
@@ -300,6 +303,7 @@ export const siteData: SiteData = {
       title: 'Reports — Ledger',
       slug: 'reports',
       sections: [
+        topbarSection('reports-topbar'),
         {
           id: 'reports-header',
           type: 'ledger-page-header',
@@ -410,6 +414,7 @@ export const siteData: SiteData = {
             ],
           },
         },
+        footerSection('reports-footer'),
       ],
     },
 
@@ -419,6 +424,7 @@ export const siteData: SiteData = {
       title: 'Settings — Ledger',
       slug: 'settings',
       sections: [
+        topbarSection('settings-topbar'),
         {
           id: 'settings-form',
           type: 'ledger-settings',
@@ -484,6 +490,7 @@ export const siteData: SiteData = {
             ],
           },
         },
+        footerSection('settings-footer'),
       ],
     },
 
@@ -493,6 +500,7 @@ export const siteData: SiteData = {
       title: 'Meridian Studios — Ledger',
       slug: 'clientDetail',
       sections: [
+        topbarSection('cd-topbar'),
         {
           id: 'cd-back',
           type: 'ledger-back-link',
@@ -533,6 +541,7 @@ export const siteData: SiteData = {
             notes: 'Preferred payment method: bank transfer. Sarah prefers email communication. They typically approve invoices within 3 business days.\n\nUpsell opportunity: discussed potential rebrand project for Q2 2026. Follow up in March.\n\nPrevious point of contact was David Kim (left company Oct 2025).',
           },
         },
+        footerSection('cd-footer'),
       ],
     },
   ],
