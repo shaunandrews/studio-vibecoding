@@ -9,9 +9,15 @@ import { mockSites } from '@/data/mock-sites'
 import { seedProjects } from '@/data/seed-projects'
 import { useSiteThemes } from '@/data/themes'
 import { themeToCSS } from '@/data/themes/theme-utils'
+import type { PipelineState, SkeletonSlot } from '@/data/ai-pipeline-types'
+import { renderProgressivePage } from '@/data/progressive-renderer'
 
 const props = defineProps<{
   projectId?: string | null
+  /** When set, the preview renders progressive output instead of mock site data */
+  pipelineState?: PipelineState | null
+  /** Skeleton slots for the current page during progressive rendering */
+  skeletonSlots?: SkeletonSlot[]
 }>()
 
 const { getTheme, themeHasDarkMode: checkDarkMode } = useSiteThemes()
@@ -115,7 +121,22 @@ const currentThemeCSS = computed(() => {
   return themeToCSS(theme, colorMode.value)
 })
 
+/** Whether the preview is in progressive (pipeline) mode */
+const isProgressiveMode = computed(() =>
+  props.pipelineState && props.pipelineState.status !== 'idle'
+)
+
 const srcdoc = computed(() => {
+  // Progressive rendering mode — pipeline is active
+  if (isProgressiveMode.value && props.pipelineState) {
+    return renderProgressivePage(
+      props.pipelineState.theme ?? null,
+      props.pipelineState.templateParts,
+      props.skeletonSlots ?? [],
+    )
+  }
+
+  // Normal mode — render from mock site data
   if (!site.value) return undefined
   const css = currentThemeCSS.value
   return site.value.renderSitePage(currentPage.value, css)
