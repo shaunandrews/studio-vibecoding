@@ -100,23 +100,18 @@ interface PageTemplate {
   id: string               // "homepage", "menu", "about", etc.
   title: string
   slug: string
-  parts: {
-    header: string         // template part ID (e.g., "main-nav")
-    footer: string         // template part ID (e.g., "site-footer")
-  }
-  sections: Section[]      // ordered list of content sections
+  sections: Section[]      // ordered list — includes header, content, and footer sections
 }
 ```
 
 The page renderer:
 1. Outputs the HTML document shell (doctype, head, meta, font imports)
 2. Injects theme CSS (`themeToCSS()`)
-3. Injects the component library CSS
-4. Renders the header template part
-5. Renders each section in order
-6. Renders the footer template part
+3. Injects the shared component library CSS
+4. Injects site-specific custom CSS (if any)
+5. Renders each section in order (header, content sections, footer)
 
-**Template parts** (header, footer) are shared across all pages of a site. Change the nav once, it updates everywhere.
+**No default chrome.** Every site defines its own header and footer as sections. This means each site fully owns its page structure — a hot sauce e-commerce site and a recipe app can have completely different navigation patterns without fighting a "default" header.
 
 ---
 
@@ -127,11 +122,10 @@ The page renderer:
 The AI receives a creative brief (from the onboarding chat) and produces:
 
 1. **Theme choices** — Color palette, fonts, spacing. Stored as `SiteTheme`.
-2. **Template parts** — Nav items, footer content.
-3. **Page definitions** — Which pages to create, what section types each uses.
-4. **Section data** — The actual content for each section on each page.
+2. **Page definitions** — Which pages to create, what section types each uses, including header/footer sections.
+3. **Section data** — The actual content for each section on each page.
 
-Each of these can be generated independently and incrementally. The theme comes first (sets the visual foundation), then template parts (shared chrome), then sections (page content) — potentially in parallel across pages.
+Each of these can be generated independently and incrementally. The theme comes first (sets the visual foundation), then sections (page content) — potentially in parallel across pages.
 
 ### Editing a site
 
@@ -141,7 +135,7 @@ The AI receives a user request and determines what to change:
 - **"Update the hero image"** → Generate new data for the `hero-split` section. Only that section re-renders.
 - **"Add a testimonials section"** → Generate a new section, insert it at the right position in the template.
 - **"Remove the events page"** → Delete the page template. Nav updates automatically.
-- **"Change the nav to include a Shop link"** → Update the header template part. All pages reflect the change.
+- **"Change the nav to include a Shop link"** → Update the header section data. All pages using that header reflect the change.
 
 The scope of each change is clear and minimal. No full-page regeneration.
 
@@ -160,9 +154,9 @@ The AI's system prompt defines:
 When building a new site, the preview shows the page growing:
 
 1. **Skeleton state** — Page loads with the document shell, theme CSS, and component CSS. Placeholder regions indicate where sections will appear.
-2. **Header appears** — Nav renders as soon as template parts are generated.
+2. **Header appears** — Nav renders as the first section streams in.
 3. **Sections stream in** — Each section appears as its data arrives. The hero loads first (it's the most visually impactful), then content sections top-to-bottom.
-4. **Footer appears** — Last, after all content sections.
+4. **Footer appears** — Renders as the last section.
 
 Between steps, the preview is functional — it's a real page that happens to be incomplete, not a loading screen. Sections could fade in or slide in as they arrive.
 

@@ -27,9 +27,13 @@
 ## Section System (Phase 1 — Complete ✅)
 - [x] Define section types and data model
 - [x] Extract component CSS library
-- [x] Build 14 section renderers + page renderer
+- [x] Build 14 shared section renderers + page renderer
 - [x] Refactor Downstreet Cafe to use section system
 - [x] Dark mode support via themeCSSOverride
+- [x] Migrate all 7 mock sites to section system (site-specific types, renderers, CSS)
+- [x] Remove default header/footer — every site owns its full structure
+- [x] Remove backward-compat wrappers — clean SiteData + renderSitePage() API
+- [x] Remove all `as any` casts and `display: none` CSS hacks
 
 ## AI Theme Integration (Complete ✅)
 - [x] Add ThemeUpdateCard type — before/after comparison, "Apply" action
@@ -55,5 +59,3 @@
 
 ## Future
 - [ ] Test live AI card rendering end-to-end — verify Claude returns well-formed cards consistently
-- [ ] Generalize component library for non-café site types
-- [ ] Migrate other mock sites to section system
