@@ -285,6 +285,7 @@ function toggleColorMode() {
           v-if="srcdoc != null || (isProgressiveMode && progressiveSrcdocRendered)"
           ref="iframeRef"
           v-bind="srcdoc != null ? { srcdoc } : {}"
+          sandbox="allow-scripts"
           class="preview-iframe"
           @load="onIframeLoad"
         />
