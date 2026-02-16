@@ -20,7 +20,6 @@ import { usePipeline } from './usePipeline'
 import { useConversations } from './useConversations'
 import { useProjects } from './useProjects'
 import { getPagesForSiteType } from './generation-prompts'
-import { isAIConfigured } from './ai-service'
 
 // ---- Types ----
 
@@ -287,11 +286,7 @@ export function useBuildProgress() {
 
     // Start the pipeline
     buildState.status = 'generating-theme'
-    if (isAIConfigured()) {
-      await pipeline.startBuild(creativeBrief, projectId)
-    } else {
-      await pipeline.startMockBuild(creativeBrief, projectId)
-    }
+    await pipeline.startBuild(creativeBrief, projectId)
   }
 
   // ---- Sync pipeline state → BuildState ----
