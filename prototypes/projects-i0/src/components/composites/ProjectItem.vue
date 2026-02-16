@@ -27,7 +27,8 @@ const previewHtml = computed(() => {
   const theme = getTheme(props.project.id)
   if (!siteModule || !theme) return ''
   const css = themeToCSS(theme, 'light')
-  return siteModule.renderSitePage('homepage', css)
+  // Strip scripts — thumbnails are non-interactive, sandbox blocks them anyway
+  return siteModule.renderSitePage('homepage', css).replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
 })
 </script>
 
