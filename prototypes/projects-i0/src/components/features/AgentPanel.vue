@@ -199,7 +199,7 @@ function handleAction(action: ActionButton) {
       </template>
     </PanelToolbar>
 
-    <ChatMessageList :messages="msgs" @action="(_, action) => handleAction(action)" />
+    <ChatMessageList :messages="msgs" :project-id="projectId" @action="(_, action) => handleAction(action)" />
 
     <div class="agent-panel__input shrink-0 px-s pb-s">
       <div class="agent-panel__input-inner">

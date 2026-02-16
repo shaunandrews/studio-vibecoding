@@ -84,6 +84,8 @@ export type CardBlock =
   | (BaseCardBlock & { card: 'page'; data: PageCardData })
   | (BaseCardBlock & { card: 'postDraft'; data: PostDraftCardData })
   | (BaseCardBlock & { card: 'themeUpdate'; data: ThemeUpdateCardData })
+  | (BaseCardBlock & { card: 'sectionEdit'; data: SectionEditCardData })
+  | (BaseCardBlock & { card: 'themeEdit'; data: ThemeEditCardData })
 
 export type ContentBlock =
   | { type: 'text'; text: string }
@@ -156,4 +158,19 @@ export interface PostDraftCardData {
   featuredImage?: string
   status: 'draft' | 'pending' | 'published'
   actions?: ActionButton[]
+}
+
+export interface SectionEditCardData {
+  label: string
+  sectionId: string
+  changeSummary: string
+  before: { html: string; css: string }
+  after: { html: string; css: string }
+}
+
+export interface ThemeEditCardData {
+  label: string
+  changeSummary: string
+  before: Record<string, string>  // old variables
+  after: Record<string, string>   // new variables
 }

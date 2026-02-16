@@ -5,6 +5,7 @@ import type { ActionButton, Message } from '@/data/types'
 
 const props = defineProps<{
   messages: Message[]
+  projectId?: string
 }>()
 
 defineEmits<{
@@ -41,6 +42,7 @@ watch(
         :role="msg.role"
         :content="msg.content"
         :agent-id="msg.agentId"
+        :project-id="projectId"
         @action="$emit('action', msg.id, $event)"
       />
     </div>
