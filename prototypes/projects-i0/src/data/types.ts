@@ -1,5 +1,14 @@
 export type ProjectStatus = 'running' | 'stopped' | 'loading'
 
+export type ProjectType = 'restaurant' | 'portfolio' | 'store' | 'blog' | 'custom'
+
+export interface ProjectBrief {
+  type: ProjectType
+  name: string
+  description: string
+  freeTextType?: string
+}
+
 export interface Project {
   id: string
   name: string

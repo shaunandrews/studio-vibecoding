@@ -11,6 +11,10 @@ const props = defineProps<{
   mode: 'grid' | 'list'
 }>()
 
+const emit = defineEmits<{
+  'new-project': []
+}>()
+
 const { projects, activeProjectId, setStatus } = useProjects()
 const router = useRouter()
 
@@ -39,7 +43,7 @@ function toggleStatus(id: string) {
     <!-- Header (grid mode only) -->
     <div v-if="mode === 'grid'" class="list-header hstack justify-between">
       <Text variant="label" color="muted" tag="h2">Projects</Text>
-      <Button variant="secondary" label="New project" size="small" surface="dark" />
+      <Button variant="secondary" label="New project" size="small" surface="dark" @click="emit('new-project')" />
     </div>
 
     <!-- Items -->
@@ -63,6 +67,7 @@ function toggleStatus(id: string) {
         surface="dark"
         label="Add project"
         width="full"
+        @click="emit('new-project')"
       />
     </div>
   </div>
