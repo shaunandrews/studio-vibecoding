@@ -21,8 +21,8 @@ function renderFooter(footer: TemplatePart): string {
 </footer>`
 }
 
-export function renderPage(page: PageTemplate, site: SiteData, activePage: string): string {
-  const themeCSS = themeToCSS(site.theme)
+export function renderPage(page: PageTemplate, site: SiteData, activePage: string, themeCSSOverride?: string): string {
+  const themeCSS = themeCSSOverride || themeToCSS(site.theme)
   const fontLinks = site.fonts.map(f => `<link href="${f.url}" rel="stylesheet">`).join('\n')
 
   const sectionsHTML = page.sections

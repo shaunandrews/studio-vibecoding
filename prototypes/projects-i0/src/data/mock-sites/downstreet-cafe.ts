@@ -543,27 +543,27 @@ export const siteData: SiteData = {
 // ---- Backward-compatible exports ----
 
 export function homepage(themeCSS: string): string {
-  return renderPage(siteData.pages[0], siteData, 'homepage')
+  return renderPage(siteData.pages[0], siteData, 'homepage', themeCSS)
 }
 
 export function menu(themeCSS: string): string {
-  return renderPage(siteData.pages[1], siteData, 'menu')
+  return renderPage(siteData.pages[1], siteData, 'menu', themeCSS)
 }
 
 export function about(themeCSS: string): string {
-  return renderPage(siteData.pages[2], siteData, 'about')
+  return renderPage(siteData.pages[2], siteData, 'about', themeCSS)
 }
 
 export function events(themeCSS: string): string {
-  return renderPage(siteData.pages[3], siteData, 'events')
+  return renderPage(siteData.pages[3], siteData, 'events', themeCSS)
 }
 
 export function gallery(themeCSS: string): string {
-  return renderPage(siteData.pages[4], siteData, 'gallery')
+  return renderPage(siteData.pages[4], siteData, 'gallery', themeCSS)
 }
 
 export function order(themeCSS: string): string {
-  return renderPage(siteData.pages[5], siteData, 'order')
+  return renderPage(siteData.pages[5], siteData, 'order', themeCSS)
 }
 
 export const pages: Record<string, { label: string; html: (css: string) => string }> = {
