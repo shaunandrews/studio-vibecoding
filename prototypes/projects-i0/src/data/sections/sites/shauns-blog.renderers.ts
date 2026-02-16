@@ -25,10 +25,13 @@ export function renderBlogSection(section: Section, activePage: string): string 
 function renderBlogHeader(data: Record<string, any>, activePage: string): string {
   const links = data.navItems.map((item: { label: string; page: string }) => {
     const active = item.page === activePage ? ' class="active"' : ''
-    return `  <a href="#"${active} onclick="window.parent.postMessage({type:'navigate',page:'${item.page}'},'*');return false">${item.label}</a>`
+    return `    <a href="#"${active} onclick="window.parent.postMessage({type:'navigate',page:'${item.page}'},'*');return false">${item.label}</a>`
   }).join('\n')
   return `<nav class="site-nav">
+  <a href="#" class="site-name" onclick="window.parent.postMessage({type:'navigate',page:'homepage'},'*');return false">${data.siteName || "Shaun's Blog"}</a>
+  <div class="nav-links">
 ${links}
+  </div>
 </nav>`
 }
 
