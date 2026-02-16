@@ -24,10 +24,36 @@
 - [ ] ProgressCard `done` color should use a design token (currently hardcoded `#00a32a`)
 - [ ] `ChatCard` wrapper border doesn't adapt on dark surfaces
 
-## AI Theme Integration
-- [ ] Add ThemeUpdateCard type — before/after comparison, "Apply" action
-- [ ] Update AI system prompt with theme.json schema and themeUpdate card format
-- [ ] Wire "Apply" action to call updateTheme() → reactive preview update
+## Section System (Phase 1 — Complete ✅)
+- [x] Define section types and data model
+- [x] Extract component CSS library
+- [x] Build 14 section renderers + page renderer
+- [x] Refactor Downstreet Cafe to use section system
+- [x] Dark mode support via themeCSSOverride
+
+## AI Theme Integration (Complete ✅)
+- [x] Add ThemeUpdateCard type — before/after comparison, "Apply" action
+- [x] Update AI system prompt with theme.json schema and themeUpdate card format
+- [x] Wire "Apply" action to call updateTheme() → reactive preview update
+
+## Next: Phase 2 — AI Generation Pipeline
+- [ ] AI output format (fenced section blocks)
+- [ ] Generation pipeline orchestration
+- [ ] Progressive rendering (skeleton → sections stream in)
+- [ ] System prompt for section generation
+
+## Next: Phase 3 — New Project Flow
+- [ ] Onboarding modal (conversational mini-chat)
+- [ ] Project creation + build-time chat
+- [ ] Progressive preview during build
+
+## Next: Phase 4 — Section Editing
+- [ ] Edit taxonomy (9 edit types)
+- [ ] New card types (SectionUpdate, SectionAdd, etc.)
+- [ ] Try-it preview mode
+- [ ] Undo/history
 
 ## Future
 - [ ] Test live AI card rendering end-to-end — verify Claude returns well-formed cards consistently
+- [ ] Generalize component library for non-café site types
+- [ ] Migrate other mock sites to section system

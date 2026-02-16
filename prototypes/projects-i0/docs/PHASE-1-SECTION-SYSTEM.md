@@ -951,8 +951,8 @@ function renderFooter(footer: TemplatePart): string {
 </footer>`
 }
 
-export function renderPage(page: PageTemplate, site: SiteData, activePage: string): string {
-  const themeCSS = themeToCSS(site.theme)
+export function renderPage(page: PageTemplate, site: SiteData, activePage: string, themeCSSOverride?: string): string {
+  const themeCSS = themeCSSOverride || themeToCSS(site.theme)
   const fontLinks = site.fonts.map(f => `<link href="${f.url}" rel="stylesheet">`).join('\n')
 
   const sectionsHTML = page.sections
@@ -1096,15 +1096,15 @@ export const siteData: SiteData = {
 
 // Backward-compatible exports for the existing SitePreview component
 export function homepage(themeCSS: string): string {
-  return renderPage(siteData.pages[0], siteData, 'homepage')
+  return renderPage(siteData.pages[0], siteData, 'homepage', themeCSS)
 }
 export function menu(themeCSS: string): string {
-  return renderPage(siteData.pages[1], siteData, 'menu')
+  return renderPage(siteData.pages[1], siteData, 'menu', themeCSS)
 }
 // etc.
 ```
 
-Note: the `themeCSS` parameter becomes unused in the wrapper functions — the renderer calls `themeToCSS()` itself using `siteData.theme`. The wrappers exist purely for backward compatibility during the transition.
+The wrappers pass their `themeCSS` parameter through to `renderPage()` as an override, so the preview's dark/light mode toggle works correctly. The renderer accepts an optional `themeCSSOverride` — when provided, it uses that instead of calling `themeToCSS()` internally.
 
 ---
 
@@ -1190,6 +1190,6 @@ Alternatively: keep both code paths during development. Add a toggle (query para
 
 **HTML entity encoding.** The current templates use `&amp;` in content. The section data stores plain text (`&`). Renderers must handle HTML escaping where content is interpolated into HTML. For Phase 1 (static data, not user input), this is manageable — just ensure the data matches what's currently rendered.
 
-**`themeCSS` parameter goes unused.** The backward-compatible wrappers accept `themeCSS` but ignore it (the renderer uses the theme from `SiteData`). This is fine for the transition but should be cleaned up when the SitePreview component is updated to work with `SiteData` directly.
+**`themeCSS` parameter is passed through.** The backward-compatible wrappers pass their `themeCSS` argument to `renderPage()` as an override, preserving dark/light mode support. When the SitePreview component is updated to work with `SiteData` directly, these wrappers can be removed.
 
 **Order page interactivity.** The current order page has no real JS — the cart is hardcoded HTML. The section system preserves this. True interactivity is out of scope for Phase 1.
