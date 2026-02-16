@@ -148,6 +148,7 @@ function toggleColorMode() {
           variant="tertiary"
           :icon="styles"
           :disabled="!hasDarkMode"
+          :active="colorMode === 'dark'"
           :tooltip="hasDarkMode ? (colorMode === 'light' ? 'Dark mode' : 'Light mode') : undefined"
           @click="toggleColorMode"
         />

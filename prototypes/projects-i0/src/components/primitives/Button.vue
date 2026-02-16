@@ -198,6 +198,10 @@ onUnmounted(() => {
   color: var(--color-text);
 }
 
+.btn--tertiary.btn--on-light.btn--active {
+  box-shadow: inset 0 0 0 1px var(--color-surface-border);
+}
+
 .btn--tertiary.btn--on-dark {
   background: transparent;
   color: var(--color-chrome-text-muted);
@@ -207,6 +211,10 @@ onUnmounted(() => {
 .btn--tertiary.btn--on-dark.btn--active {
   background: var(--color-chrome-hover);
   color: var(--color-chrome-text);
+}
+
+.btn--tertiary.btn--on-dark.btn--active {
+  box-shadow: inset 0 0 0 1px var(--color-chrome-subtle);
 }
 
 .btn--tertiary.btn--on-dark:focus-visible {
