@@ -1,30 +1,4 @@
-// TODO: import from site-types when available
-interface Section {
-  id: string
-  html: string
-  css: string
-  role?: string
-}
-
-interface Page {
-  slug: string
-  title: string
-  sections: string[]  // ordered section IDs
-}
-
-interface Theme {
-  name: string
-  variables: Record<string, string>  // flat CSS custom properties
-  fonts: string[]                     // Google Font names
-}
-
-interface Site {
-  name: string
-  description: string
-  theme: Theme
-  sections: Record<string, Section>
-  pages: Page[]
-}
+import type { Site } from '../site-types'
 
 export const portfolio: Site = {
   name: "Studio Meridian",

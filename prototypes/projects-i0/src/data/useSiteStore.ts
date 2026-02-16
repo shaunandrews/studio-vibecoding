@@ -7,10 +7,11 @@
 
 import { reactive } from 'vue'
 import type { Site, Section, Theme } from './site-types'
+import { seedSites } from './seed-sites'
 
 // ---- Reactive Store ----
 
-const sites: Record<string, Site> = reactive({})
+const sites: Record<string, Site> = reactive({ ...seedSites })
 
 // ---- Store Interface ----
 
