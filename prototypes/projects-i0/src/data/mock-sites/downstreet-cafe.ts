@@ -381,72 +381,100 @@ export function about(themeCSS: string): string {
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>About – Downstreet Cafe</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
 <style>${themeCSS}</style>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body { font-family: var(--theme-font-body); color: var(--theme-text); background: var(--theme-bg); line-height: var(--theme-line-height-normal); }
-h1, h2, h3 { font-family: var(--theme-font-heading); }
+h1, h2, h3 { font-family: var(--theme-font-heading); font-weight: 400; }
 
-.hero {
-  background: linear-gradient(135deg, var(--theme-color-primary) 0%, var(--theme-color-primary-dark) 100%);
-  color: var(--theme-color-surface);
-  text-align: center;
-  padding: var(--theme-space-10) var(--theme-space-3) var(--theme-space-8);
+.site-nav {
+  display: flex; justify-content: center; gap: var(--theme-space-4);
+  padding: var(--theme-space-2) var(--theme-space-3);
+  border-bottom: 1px solid var(--theme-color-muted);
 }
-.hero h1 { font-size: var(--theme-font-size-hero); margin-bottom: var(--theme-space-1); }
-.hero p { font-size: var(--theme-font-size-large); opacity: 0.9; }
-.hero nav { margin-top: var(--theme-space-3); display: flex; justify-content: center; gap: var(--theme-space-3); }
-.hero nav a { color: var(--theme-color-surface); text-decoration: none; font-size: var(--theme-font-size-medium); font-weight: 600; padding: var(--theme-space-1) var(--theme-space-2); border-radius: 6px; transition: background 0.2s; }
-.hero nav a:hover { background: rgba(255,255,255,0.15); }
-.hero nav a.active { background: rgba(255,255,255,0.2); border-bottom: 2px solid var(--theme-color-surface); }
+.site-nav a {
+  color: var(--theme-color-primary); text-decoration: none;
+  font-size: var(--theme-font-size-small); font-weight: 500;
+  text-transform: uppercase; letter-spacing: 0.08em;
+  padding: var(--theme-space-1) 0; transition: color 0.2s;
+}
+.site-nav a:hover { color: var(--theme-color-accent); }
+.site-nav a.active { color: var(--theme-color-accent); border-bottom: 1px solid var(--theme-color-accent); }
 
-section { max-width: var(--theme-content-width); margin: 0 auto; padding: var(--theme-space-8) var(--theme-space-3); }
+.hero-image { width: 100%; height: 340px; object-fit: cover; display: block; }
+
+.page-header {
+  text-align: center; padding: var(--theme-space-6) var(--theme-space-3) var(--theme-space-2);
+}
+.page-header h1 {
+  font-size: var(--theme-font-size-hero); color: var(--theme-color-primary-dark);
+  margin-bottom: var(--theme-space-1);
+}
+.page-header p {
+  font-size: var(--theme-font-size-large); color: var(--theme-color-secondary); font-style: italic;
+}
+
+section { max-width: var(--theme-content-width); margin: 0 auto; padding: var(--theme-space-6) var(--theme-space-3); }
 
 .story { max-width: 700px; margin: 0 auto; }
-.story h2 { font-size: var(--theme-font-size-xlarge); color: var(--theme-color-primary); margin-bottom: var(--theme-space-2); }
+.story h2 { font-size: var(--theme-font-size-xlarge); color: var(--theme-color-primary-dark); margin-bottom: var(--theme-space-2); }
 .story p { margin-bottom: var(--theme-space-2); font-size: 1.05rem; }
 
 .values-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: var(--theme-space-4); margin-top: var(--theme-space-5); }
-.value-card { background: var(--theme-color-card); border-radius: 12px; padding: 28px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
-.value-card h3 { font-size: var(--theme-font-size-large); color: var(--theme-text); margin-bottom: 12px; padding-bottom: var(--theme-space-1); border-bottom: 2px solid var(--theme-color-secondary); }
-.value-card p { font-size: 0.95rem; color: #5a4a3a; }
+.value-card { background: var(--theme-color-card); border-radius: 8px; padding: 28px; }
+.value-card h3 {
+  font-size: var(--theme-font-size-large); color: var(--theme-color-primary-dark);
+  margin-bottom: 12px; padding-bottom: var(--theme-space-1);
+  border-bottom: 1px solid var(--theme-color-muted); font-weight: 600;
+}
+.value-card p { font-size: 0.95rem; color: var(--theme-color-secondary); }
 
 .team-section { text-align: center; }
-.team-section h2 { font-size: var(--theme-font-size-xlarge); color: var(--theme-color-primary); margin-bottom: var(--theme-space-4); }
+.team-section h2 { font-size: var(--theme-font-size-xlarge); color: var(--theme-color-primary-dark); margin-bottom: var(--theme-space-4); }
 .team-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--theme-space-4); }
-.team-member { background: var(--theme-color-card); border-radius: 12px; padding: 28px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); text-align: center; }
-.team-avatar { width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, var(--theme-color-secondary), var(--theme-color-primary)); margin: 0 auto var(--theme-space-2); display: flex; align-items: center; justify-content: center; font-size: var(--theme-font-size-xlarge); color: var(--theme-color-surface); font-family: var(--theme-font-heading); }
+.team-member { background: var(--theme-color-card); border-radius: 8px; padding: 28px; text-align: center; }
+.team-avatar {
+  width: 80px; height: 80px; border-radius: 50%;
+  background: var(--theme-color-accent); margin: 0 auto var(--theme-space-2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: var(--theme-font-size-xlarge); color: var(--theme-color-surface); font-family: var(--theme-font-heading);
+}
 .team-member h3 { font-size: 1.1rem; margin-bottom: 4px; }
-.team-member .role { color: var(--theme-color-primary); font-size: 0.9rem; font-weight: 600; margin-bottom: var(--theme-space-1); }
-.team-member p { font-size: 0.9rem; color: #5a4a3a; }
+.team-member .role { color: var(--theme-color-accent); font-size: 0.9rem; font-weight: 600; margin-bottom: var(--theme-space-1); }
+.team-member p { font-size: 0.9rem; color: var(--theme-color-secondary); }
 
-.community { background: var(--theme-color-card); border-radius: 12px; padding: var(--theme-space-5); box-shadow: 0 1px 3px rgba(0,0,0,0.06); max-width: 700px; margin: 0 auto; }
-.community h2 { font-size: 1.75rem; color: var(--theme-color-primary); margin-bottom: var(--theme-space-2); }
+.community { background: var(--theme-color-card); border-radius: 8px; padding: var(--theme-space-5); max-width: 700px; margin: 0 auto; }
+.community h2 { font-size: 1.75rem; color: var(--theme-color-primary-dark); margin-bottom: var(--theme-space-2); }
 .community p { margin-bottom: 12px; }
 .community ul { margin: 12px 0 0 20px; }
 .community li { margin-bottom: var(--theme-space-1); }
 
 footer {
-  background: var(--theme-color-accent); color: var(--theme-color-surface); text-align: center; padding: var(--theme-space-5) var(--theme-space-3);
-  font-size: var(--theme-font-size-small); line-height: 1.8;
+  text-align: center; padding: var(--theme-space-5) var(--theme-space-3);
+  font-size: var(--theme-font-size-small); color: var(--theme-color-muted);
+  line-height: 1.8; border-top: 1px solid var(--theme-color-muted);
 }
-footer a { color: var(--theme-color-secondary); text-decoration: none; }
-footer .wp { opacity: 0.5; margin-top: var(--theme-space-2); }
+footer a { color: var(--theme-color-accent); text-decoration: none; }
+footer .wp { opacity: 0.5; margin-top: var(--theme-space-1); }
 </style>
 </head>
 <body>
 
-<div class="hero">
+<nav class="site-nav">
+  <a href="#" onclick="window.parent.postMessage({type:'navigate',page:'homepage'},'*');return false">Home</a>
+  <a href="#" onclick="window.parent.postMessage({type:'navigate',page:'menu'},'*');return false">Menu</a>
+  <a href="#" class="active" onclick="window.parent.postMessage({type:'navigate',page:'about'},'*');return false">About</a>
+  <a href="#" onclick="window.parent.postMessage({type:'navigate',page:'events'},'*');return false">Events</a>
+  <a href="#" onclick="window.parent.postMessage({type:'navigate',page:'gallery'},'*');return false">Gallery</a>
+  <a href="#" onclick="window.parent.postMessage({type:'navigate',page:'order'},'*');return false">Order</a>
+</nav>
+
+<img class="hero-image" src="/images/downstreet/space-storefront.png" alt="View through café storefront window">
+
+<div class="page-header">
   <h1>Our Story</h1>
   <p>More than coffee — it's community</p>
-  <nav>
-    <a href="#" onclick="window.parent.postMessage({type:'navigate',page:'homepage'},'*');return false">Home</a>
-    <a href="#" onclick="window.parent.postMessage({type:'navigate',page:'menu'},'*');return false">Menu</a>
-    <a href="#" class="active" onclick="window.parent.postMessage({type:'navigate',page:'about'},'*');return false">About</a>
-    <a href="#" onclick="window.parent.postMessage({type:'navigate',page:'events'},'*');return false">Events</a>
-    <a href="#" onclick="window.parent.postMessage({type:'navigate',page:'gallery'},'*');return false">Gallery</a>
-    <a href="#" onclick="window.parent.postMessage({type:'navigate',page:'order'},'*');return false">Order</a>
-  </nav>
 </div>
 
 <section>

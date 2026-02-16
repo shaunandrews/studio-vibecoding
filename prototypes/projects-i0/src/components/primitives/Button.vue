@@ -12,6 +12,7 @@ const props = defineProps<{
   width?: 'hug' | 'full'
   shortcut?: string
   active?: boolean
+  activeRotate?: boolean
   disabled?: boolean
   tooltip?: string
 }>()
@@ -66,7 +67,7 @@ onUnmounted(() => {
         `btn--${size || 'default'}`,
         `btn--on-${surface || 'light'}`,
         `btn--${width || 'hug'}`,
-        { 'btn--icon-only': icon && !label, 'btn--active': active }
+        { 'btn--icon-only': icon && !label, 'btn--active': active, 'btn--active-rotate': active && activeRotate }
       ]"
       :disabled="disabled"
     >
@@ -234,7 +235,7 @@ onUnmounted(() => {
   transition: transform var(--duration-fast) var(--ease-default);
 }
 
-.btn--active :deep(svg) {
+.btn--active-rotate :deep(svg) {
   transform: rotate(180deg);
 }
 

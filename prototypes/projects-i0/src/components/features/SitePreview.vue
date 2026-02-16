@@ -149,6 +149,7 @@ function toggleColorMode() {
           :icon="styles"
           :disabled="!hasDarkMode"
           :active="colorMode === 'dark'"
+          :active-rotate="true"
           :tooltip="hasDarkMode ? (colorMode === 'light' ? 'Dark mode' : 'Light mode') : undefined"
           @click="toggleColorMode"
         />
