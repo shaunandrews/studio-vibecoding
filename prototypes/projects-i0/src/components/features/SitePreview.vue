@@ -12,6 +12,7 @@ import { themeToCSS } from '@/data/themes/theme-utils'
 import type { PipelineState, SkeletonSlot } from '@/data/ai-pipeline-types'
 import { renderProgressivePage, sendSectionUpdate, sendThemeUpdate } from '@/data/progressive-renderer'
 import { generatedSites } from '@/data/generated-sites'
+import { useBuildProgress } from '@/data/useBuildProgress'
 
 const props = defineProps<{
   projectId?: string | null
@@ -22,6 +23,11 @@ const props = defineProps<{
 }>()
 
 const { getTheme, themeHasDarkMode: checkDarkMode } = useSiteThemes()
+const { getBuildState, isBuilding } = useBuildProgress()
+
+// Build state for current project
+const buildState = computed(() => props.projectId ? getBuildState(props.projectId) : undefined)
+const isBuildMode = computed(() => !!props.projectId && isBuilding(props.projectId))
 
 const project = computed(() =>
   seedProjects.find((p) => p.id === props.projectId)
@@ -107,6 +113,17 @@ const url = computed(() => {
 const site = computed(() => props.projectId ? mockSites[props.projectId] : undefined)
 
 const pages = computed(() => {
+  // Build mode: show all planned pages from BuildState
+  const bs = buildState.value
+  if (bs) {
+    const result: Record<string, { label: string; dimmed?: boolean }> = {}
+    for (const page of Object.values(bs.pages)) {
+      const pageKey = page.slug === '/' ? 'homepage' : page.slug.replace(/^\//, '')
+      result[pageKey] = { label: page.title, dimmed: !page.complete }
+    }
+    return result
+  }
+
   if (!site.value) return {}
   const result: Record<string, { label: string }> = {}
   for (const page of site.value.siteData.pages) {

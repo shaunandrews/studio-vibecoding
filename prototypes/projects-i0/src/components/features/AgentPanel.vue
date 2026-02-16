@@ -8,11 +8,13 @@ import ChatMessageList from '@/components/composites/ChatMessageList.vue'
 import InputChat from '@/components/composites/InputChat.vue'
 import { useConversations } from '@/data/useConversations'
 import { useSiteThemes } from '@/data/themes/useSiteThemes'
+import { useBuildProgress } from '@/data/useBuildProgress'
 import type { ActionButton, Conversation } from '@/data/types'
 import type { Tab } from '@/components/composites/TabBar.vue'
 
 const { conversations, messages, getMessages, ensureConversation, sendMessage } = useConversations()
 const { updateTheme } = useSiteThemes()
+const { isBuilding, queueEdit } = useBuildProgress()
 
 const props = defineProps<{
   projectId?: string | null
@@ -119,6 +121,23 @@ const currentDraft = computed({
 })
 
 function handleSend(text: string) {
+  // During build, store user message but handle as edit/answer instead of AI chat
+  if (props.projectId && isBuilding(props.projectId)) {
+    // Add user message to chat (without triggering AI response)
+    messages.value.push({
+      id: `msg-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+      conversationId: activeConvoId.value,
+      role: 'user',
+      content: [{ type: 'text', text }],
+      messageContext: { source: 'typed' },
+      timestamp: new Date().toISOString(),
+    })
+    // Queue as edit instruction
+    queueEdit(props.projectId, text)
+    drafts.value[activeConvoId.value] = ''
+    return
+  }
+
   sendMessage(
     activeConvoId.value,
     'user',

@@ -1,10 +1,13 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
-import type { MockSitePage } from '@/data/mock-sites'
+export interface BrowserBarPage {
+  label: string
+  dimmed?: boolean
+}
 
 const props = defineProps<{
   url: string
-  pages?: Record<string, MockSitePage>
+  pages?: Record<string, BrowserBarPage>
   currentPage?: string
 }>()
 
@@ -51,7 +54,7 @@ onUnmounted(() => document.removeEventListener('pointerdown', onClickOutside))
           v-for="(page, key) in pages"
           :key="key"
           class="browser-bar__page"
-          :class="{ 'is-active': key === currentPage }"
+          :class="{ 'is-active': key === currentPage, 'is-dimmed': page.dimmed }"
           @click.stop="selectPage(key as string)"
         >
           <span class="browser-bar__page-label">{{ page.label }}</span>
@@ -168,6 +171,16 @@ onUnmounted(() => document.removeEventListener('pointerdown', onClickOutside))
   white-space: nowrap;
   flex-shrink: 0;
   margin-inline-start: var(--space-xs);
+}
+
+.browser-bar__page.is-dimmed {
+  opacity: 0.5;
+}
+
+.browser-bar__page.is-dimmed .browser-bar__page-label::after {
+  content: ' ⋯';
+  font-size: var(--font-size-xs);
+  opacity: 0.6;
 }
 
 /* Dropdown transition */
