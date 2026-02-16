@@ -24,6 +24,9 @@ export const seedConversations: Conversation[] = [
   // Ledger
   { id: 'ledger-assistant-1', projectId: 'ledger', agentId: 'assistant', title: 'Invoice template', createdAt: '2026-02-10T09:30:00Z' },
   { id: 'ledger-code-1', projectId: 'ledger', agentId: 'code', title: 'Payment status API', createdAt: '2026-02-11T10:00:00Z' },
+
+  // Fuego Collective
+  { id: 'fuego-assistant-1', projectId: 'fuego-collective', agentId: 'assistant', title: 'Setting up the shop', createdAt: '2026-02-14T12:30:00Z' },
 ]
 
 export const seedMessages: Message[] = [
@@ -111,6 +114,26 @@ export const seedMessages: Message[] = [
     { type: 'card', card: 'page', data: { title: 'Invoice Detail', slug: '/invoice', template: 'app', status: 'published', excerpt: 'Full invoice view with line items, totals, payment details, and actions.' } },
     { type: 'text', text: "Check the preview — the status badge updates based on payment state. Want to add anything else?" },
   ], timestamp: '2026-02-10T09:32:00Z' },
+
+  // Fuego Collective — assistant
+  { id: 'fc1-1', conversationId: 'fuego-assistant-1', role: 'agent', agentId: 'assistant', content: [{ type: 'text', text: "Welcome to Fuego Collective! Let's get your hot sauce empire online. I'll set up WooCommerce and get your shop ready to take orders." }], timestamp: '2026-02-14T12:30:00Z' },
+  { id: 'fc1-2', conversationId: 'fuego-assistant-1', role: 'user', content: [{ type: 'text', text: 'Hell yeah. I need product pages for each sauce, a shop page, and checkout. We have 8 sauces ranging from mild to "sign a waiver" hot.' }], timestamp: '2026-02-14T12:31:00Z', messageContext: { source: 'typed' } },
+  { id: 'fc1-3', conversationId: 'fuego-assistant-1', role: 'agent', agentId: 'assistant', content: [
+    { type: 'card', card: 'progress', data: { label: 'Setting up WooCommerce', steps: [
+      { name: 'Installed WooCommerce plugin', status: 'done' },
+      { name: 'Created Shop, Cart, and Checkout pages', status: 'done' },
+      { name: 'Configured shipping for glass bottles (fragile handling)', status: 'done' },
+      { name: 'Set up Stripe payments', status: 'done' },
+    ] } },
+    { type: 'text', text: "WooCommerce is live. I've configured shipping with fragile handling rules for glass bottles and set up weight-based rates. Want me to start adding your sauces?" },
+  ], timestamp: '2026-02-14T12:32:00Z' },
+  { id: 'fc1-4', conversationId: 'fuego-assistant-1', role: 'user', content: [{ type: 'text', text: "Start with Smoky Habanero — it's our flagship. $14, 5oz bottle. Then add the rest. Oh, and I want a heat level rating on each product page." }], timestamp: '2026-02-14T12:33:00Z', messageContext: { source: 'typed' } },
+  { id: 'fc1-5', conversationId: 'fuego-assistant-1', role: 'agent', agentId: 'assistant', content: [{ type: 'text', text: "Smoky Habanero is up — $14, 5oz, with Scoville rating, ingredient list, and suggested pairings. I've added a custom 'Heat Level' field using ACF that shows a 🌶️ scale from 1-5 on every product page. Adding the rest of the lineup now." }], timestamp: '2026-02-14T12:34:00Z' },
+  { id: 'fc1-6', conversationId: 'fuego-assistant-1', role: 'user', content: [{ type: 'text', text: "Nice. Can we also set up a subscription box? Monthly hot sauce club — 3 bottles for $36." }], timestamp: '2026-02-14T12:35:00Z', messageContext: { source: 'typed' } },
+  { id: 'fc1-7', conversationId: 'fuego-assistant-1', role: 'agent', agentId: 'assistant', content: [
+    { type: 'text', text: "Done! All 8 sauces are live with heat ratings, and I've set up WooCommerce Subscriptions for the monthly club. The 'Fuego Club' product is a $36/month subscription that ships 3 rotating bottles. Subscribers get free shipping too. Check out the shop page!" },
+    { type: 'card', card: 'page', data: { title: 'Shop', slug: '/shop', template: 'page', status: 'published', excerpt: '8 small-batch hot sauces plus a monthly subscription club.' } },
+  ], timestamp: '2026-02-14T12:36:00Z' },
 
   // Ledger — code
   { id: 'lc1-1', conversationId: 'ledger-code-1', role: 'agent', agentId: 'code', content: [{ type: 'text', text: "I'm the code agent for Ledger. I can wire up APIs, handle data models, or build custom components. What do you need?" }], timestamp: '2026-02-11T10:00:00Z' },

@@ -55,4 +55,13 @@ export const seedProjects: Project[] = [
     createdAt: '2026-02-10T09:00:00Z',
     description: 'Invoicing and payments app.',
   },
+  {
+    id: 'fuego-collective',
+    name: 'Fuego Collective',
+    favicon: 'https://api.dicebear.com/9.x/shapes/svg?seed=fuego',
+    status: 'running',
+    url: 'http://localhost:8887',
+    createdAt: '2026-02-14T12:00:00Z',
+    description: 'Small-batch artisan hot sauce. Big heat.',
+  },
 ]

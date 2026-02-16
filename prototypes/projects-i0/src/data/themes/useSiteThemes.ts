@@ -7,6 +7,7 @@ import uiPortfolioTheme from './ui-portfolio'
 import flavorRecordsTheme from './flavor-records'
 import miseEnPlaceTheme from './mise-en-place'
 import ledgerTheme from './ledger'
+import fuegoCollectiveTheme from './fuego-collective'
 
 const state = reactive<{ themes: Record<string, SiteTheme> }>({
   themes: {
@@ -16,6 +17,7 @@ const state = reactive<{ themes: Record<string, SiteTheme> }>({
     'flavor-records': flavorRecordsTheme,
     'mise-en-place': miseEnPlaceTheme,
     'ledger': ledgerTheme,
+    'fuego-collective': fuegoCollectiveTheme,
   },
 })
 
