@@ -4,8 +4,9 @@
  * Orchestrates the AI generation flow:
  *   theme (sequential) → template parts (sequential) → pages (parallel, max 3 concurrent)
  *
- * Each step uses streamAI from ai-service with generation-specific prompts.
- * Retry logic: 2 retries per step. Theme/templatePart failure is fatal, page failure is non-fatal.
+ * Each step uses the Anthropic SDK directly with generation-specific prompts.
+ * Retry logic: 2 retries per step with exponential backoff.
+ * Theme/templatePart failure is fatal, page failure is non-fatal.
  */
 
 import type { Section } from './sections/types'
@@ -17,7 +18,7 @@ import type {
   PageConfig,
   ContextData,
 } from './ai-pipeline-types'
-import { parseGenerationResponse } from './ai-service'
+import { parseGenerationResponse, parseGenerationStream } from './ai-service'
 import {
   buildGenerationSystemPrompt,
   buildThemePrompt,
@@ -28,6 +29,7 @@ import {
 
 const MAX_RETRIES = 2
 const MAX_CONCURRENT_PAGES = 3
+const RETRY_DELAYS = [1000, 3000] // exponential backoff
 
 export class PipelineOrchestrator {
   private state: PipelineState
@@ -87,6 +89,11 @@ export class PipelineOrchestrator {
     const themeBlock = themeStep.artifacts.find(b => b.type === 'theme')
     if (themeBlock && themeBlock.type === 'theme') {
       this.state.theme = themeBlock.data
+    } else {
+      // No theme block found — fatal
+      themeStep.status = 'error'
+      themeStep.error = 'AI did not return a valid theme'
+      return this.fail()
     }
 
     // Step 2: Template parts
@@ -136,7 +143,7 @@ export class PipelineOrchestrator {
   }
 
   private notify(): void {
-    this.onStateChange({ ...this.state })
+    this.onStateChange(JSON.parse(JSON.stringify(this.state)))
   }
 
   private fail(): PipelineState {
@@ -147,42 +154,47 @@ export class PipelineOrchestrator {
 
   /**
    * Execute a single pipeline step with streaming + retry.
+   * Uses a loop instead of recursion for retries, with exponential backoff.
    */
   private async executeStep(
     step: PipelineStep,
     buildPrompt: () => string,
   ): Promise<void> {
-    if (this.aborted) return
+    while (true) {
+      if (this.aborted) return
 
-    step.status = 'generating'
-    this.notify()
+      step.status = 'generating'
+      this.notify()
 
-    const systemPrompt = buildGenerationSystemPrompt(this.state.brief, this.state.theme)
-    const prompt = buildPrompt()
-    const messages: { role: 'user' | 'assistant'; content: string }[] = [
-      { role: 'user', content: prompt },
-    ]
+      const systemPrompt = buildGenerationSystemPrompt(this.state.brief, this.state.theme)
+      const prompt = buildPrompt()
+      const messages: { role: 'user' | 'assistant'; content: string }[] = [
+        { role: 'user', content: prompt },
+      ]
 
-    try {
-      // Stream directly and capture raw text for generation parsing
-      const rawBlocks = await this.streamAndCapture(messages, systemPrompt)
-      step.artifacts = rawBlocks
-      step.status = 'complete'
-    } catch (err) {
-      step.error = err instanceof Error ? err.message : 'Unknown error'
-
-      if (step.retryCount < MAX_RETRIES) {
-        step.retryCount++
-        step.status = 'retrying'
+      try {
+        const rawBlocks = await this.streamAndCapture(messages, systemPrompt, step)
+        step.artifacts = rawBlocks
+        step.status = 'complete'
         this.notify()
-        await this.executeStep(step, buildPrompt)
+        return
+      } catch (err) {
+        step.error = err instanceof Error ? err.message : 'Unknown error'
+
+        if (step.retryCount < MAX_RETRIES) {
+          const delayMs = RETRY_DELAYS[step.retryCount] ?? 3000
+          step.retryCount++
+          step.status = 'retrying'
+          this.notify()
+          await this.delay(delayMs)
+          continue
+        }
+
+        step.status = 'error'
+        this.notify()
         return
       }
-
-      step.status = 'error'
     }
-
-    this.notify()
   }
 
   /**
@@ -192,13 +204,13 @@ export class PipelineOrchestrator {
     await this.executeStep(step, () => buildPagePrompt(pageConfig, this.state.brief))
 
     if (step.status === 'complete') {
-      // Extract sections from artifacts
+      const sanitizedSlug = pageConfig.slug.replace(/\//g, '') || 'home'
       const sections: Section[] = []
       let sectionIndex = 0
       for (const block of step.artifacts) {
         if (block.type === 'section') {
           sections.push({
-            id: `${pageConfig.slug}-section-${sectionIndex++}`,
+            id: `${sanitizedSlug}-section-${sectionIndex++}`,
             type: block.sectionType,
             data: block.data as Record<string, any>,
           })
@@ -211,20 +223,21 @@ export class PipelineOrchestrator {
 
   /**
    * Stream AI and capture the raw text for generation parsing.
-   * Returns ParsedAIBlock[] from the generation parser.
+   * Emits incremental section updates during streaming via onStateChange.
+   * Throws on missing API key or API errors.
    */
   private async streamAndCapture(
     messages: { role: 'user' | 'assistant'; content: string }[],
     systemPrompt: string,
+    step: PipelineStep,
   ): Promise<ParsedAIBlock[]> {
     let rawText = ''
 
-    // Use a wrapper that captures the raw streaming text
     const { getAPIKey } = await import('./ai-service')
     const apiKey = getAPIKey()
 
     if (!apiKey) {
-      return [{ type: 'text', text: 'No API key configured.' }]
+      throw new Error('No API key configured. Add your Anthropic API key in settings.')
     }
 
     const Anthropic = (await import('@anthropic-ai/sdk')).default
@@ -240,8 +253,21 @@ export class PipelineOrchestrator {
       messages,
     })
 
+    let lastBlockCount = 0
+
     stream.on('text', (text) => {
       rawText += text
+
+      // Parse incrementally to detect new section blocks arriving
+      const blocks = parseGenerationStream(rawText)
+      const sectionBlocks = blocks.filter(b => b.type === 'section' || b.type === 'theme' || b.type === 'templatePart')
+
+      // If new blocks appeared, update step artifacts and notify
+      if (sectionBlocks.length > lastBlockCount) {
+        lastBlockCount = sectionBlocks.length
+        step.artifacts = blocks
+        this.notify()
+      }
     })
 
     await stream.finalMessage()
@@ -267,16 +293,8 @@ export class PipelineOrchestrator {
     }
     await Promise.all(executing)
   }
-}
 
-/**
- * Create a mock pipeline for testing without an API key.
- * Returns a pre-populated PipelineState after a short delay.
- */
-export function createMockPipeline(
-  brief: CreativeBrief,
-  onStateChange: (state: PipelineState) => void,
-): PipelineOrchestrator {
-  const orchestrator = new PipelineOrchestrator(brief, onStateChange)
-  return orchestrator
+  private delay(ms: number): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, ms))
+  }
 }
