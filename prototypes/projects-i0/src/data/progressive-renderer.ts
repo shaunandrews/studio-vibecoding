@@ -85,6 +85,18 @@ const LISTENER_SCRIPT = `
     userHasScrolled = true;
   });
 
+  document.addEventListener('click', function(e) {
+    var el = e.target;
+    while (el && el !== document.body) {
+      if (el.dataset && el.dataset.navPage) {
+        e.preventDefault();
+        window.parent.postMessage({type:'navigate',page:el.dataset.navPage},'*');
+        return;
+      }
+      el = el.parentElement;
+    }
+  });
+
   window.addEventListener('message', function(event) {
     var msg = event.data;
     if (!msg || !msg.type) return;
@@ -122,13 +134,21 @@ const LISTENER_SCRIPT = `
 
 // ---- Header/Footer Renderers ----
 
+function escapeAttr(str: string): string {
+  return str.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+}
+
+function escapeHtml(str: string): string {
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+}
+
 function renderHeader(
   data: Record<string, unknown>,
   _activePage?: string,
 ): string {
   const navItems = (data.navItems || []) as Array<{ label: string; page: string }>
   const links = navItems.map(item => {
-    return `<a href="#" onclick="window.parent.postMessage({type:'navigate',page:'${item.page}'},'*');return false">${item.label}</a>`
+    return `<a href="#" data-nav-page="${escapeAttr(item.page)}">${escapeHtml(item.label)}</a>`
   }).join('\n  ')
   return `<nav class="site-nav">\n  ${links}\n</nav>`
 }

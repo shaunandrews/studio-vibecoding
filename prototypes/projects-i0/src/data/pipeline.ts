@@ -198,25 +198,48 @@ export class PipelineOrchestrator {
   }
 
   /**
-   * Execute a page generation step. Extracts sections into state.pages.
+   * Extract sections from step artifacts into state.pages for a given page config.
+   * Called both during streaming (incremental) and after completion.
+   */
+  private extractPageSections(step: PipelineStep, pageConfig: PageConfig): void {
+    const sanitizedSlug = pageConfig.slug.replace(/\//g, '') || 'home'
+    const sections: Section[] = []
+    let sectionIndex = 0
+    for (const block of step.artifacts) {
+      if (block.type === 'section') {
+        sections.push({
+          id: `${sanitizedSlug}-section-${sectionIndex++}`,
+          type: block.sectionType,
+          data: block.data as Record<string, any>,
+        })
+      }
+    }
+    this.state.pages[pageConfig.slug] = sections
+  }
+
+  /**
+   * Execute a page generation step. Extracts sections into state.pages
+   * both during streaming (via onArtifactsUpdated) and after completion.
    */
   private async executePageStep(step: PipelineStep, pageConfig: PageConfig): Promise<void> {
+    // Hook into artifact updates during streaming so pages update incrementally
+    const originalNotify = this.notify.bind(this)
+    const origExtract = () => this.extractPageSections(step, pageConfig)
+    const patchedNotify = () => {
+      origExtract()
+      originalNotify()
+    }
+    // Temporarily patch notify to extract page sections before each notification
+    const savedNotify = this.notify
+    this.notify = patchedNotify as typeof this.notify
+
     await this.executeStep(step, () => buildPagePrompt(pageConfig, this.state.brief))
 
+    // Restore original notify
+    this.notify = savedNotify
+
     if (step.status === 'complete') {
-      const sanitizedSlug = pageConfig.slug.replace(/\//g, '') || 'home'
-      const sections: Section[] = []
-      let sectionIndex = 0
-      for (const block of step.artifacts) {
-        if (block.type === 'section') {
-          sections.push({
-            id: `${sanitizedSlug}-section-${sectionIndex++}`,
-            type: block.sectionType,
-            data: block.data as Record<string, any>,
-          })
-        }
-      }
-      this.state.pages[pageConfig.slug] = sections
+      this.extractPageSections(step, pageConfig)
       this.notify()
     }
   }

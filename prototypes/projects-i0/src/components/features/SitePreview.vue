@@ -10,7 +10,8 @@ import { seedProjects } from '@/data/seed-projects'
 import { useSiteThemes } from '@/data/themes'
 import { themeToCSS } from '@/data/themes/theme-utils'
 import type { PipelineState, SkeletonSlot } from '@/data/ai-pipeline-types'
-import { renderProgressivePage } from '@/data/progressive-renderer'
+import { renderProgressivePage, sendSectionUpdate, sendThemeUpdate } from '@/data/progressive-renderer'
+import { generatedSites } from '@/data/generated-sites'
 
 const props = defineProps<{
   projectId?: string | null
@@ -60,13 +61,13 @@ function navigateTo(page: string) {
 function goBack() {
   if (!canGoBack.value) return
   historyIndex.value--
-  currentPage.value = history.value[historyIndex.value]
+  currentPage.value = history.value[historyIndex.value] ?? 'homepage'
 }
 
 function goForward() {
   if (!canGoForward.value) return
   historyIndex.value++
-  currentPage.value = history.value[historyIndex.value]
+  currentPage.value = history.value[historyIndex.value] ?? 'homepage'
 }
 
 function reload() {
@@ -126,21 +127,100 @@ const isProgressiveMode = computed(() =>
   props.pipelineState && props.pipelineState.status !== 'idle'
 )
 
-const srcdoc = computed(() => {
-  // Progressive rendering mode — pipeline is active
-  if (isProgressiveMode.value && props.pipelineState) {
-    return renderProgressivePage(
+// Ref to the iframe element for postMessage updates
+const iframeRef = ref<HTMLIFrameElement | null>(null)
+
+// Track whether we've rendered the initial srcdoc for progressive mode
+const progressiveSrcdocRendered = ref(false)
+
+// Track completed slot ids to detect new arrivals
+const completedSlotIds = ref(new Set<string>())
+
+// Watch for slot changes and send incremental updates via postMessage
+watch(() => props.skeletonSlots, (newSlots) => {
+  if (!isProgressiveMode.value || !iframeRef.value || !progressiveSrcdocRendered.value || !newSlots) return
+
+  for (const slot of newSlots) {
+    if (slot.status === 'complete' && slot.section && !completedSlotIds.value.has(slot.id)) {
+      completedSlotIds.value.add(slot.id)
+      sendSectionUpdate(iframeRef.value!, slot.id, slot.section)
+    }
+  }
+}, { deep: true })
+
+// Watch for theme changes and send via postMessage
+watch(() => props.pipelineState?.theme, (newTheme, oldTheme) => {
+  if (!isProgressiveMode.value || !iframeRef.value || !progressiveSrcdocRendered.value || !newTheme) return
+  if (oldTheme) {
+    sendThemeUpdate(iframeRef.value, newTheme)
+  }
+}, { deep: true })
+
+// Reset tracking when pipeline starts
+watch(() => props.pipelineState?.status, (status) => {
+  if (status === 'running') {
+    progressiveSrcdocRendered.value = false
+    completedSlotIds.value = new Set()
+  }
+})
+
+// Cached initial srcdoc — only rebuilt on structural changes, not every slot update
+const initialProgressiveSrcdoc = ref<string | null>(null)
+
+// Watch for structural changes that need a full srcdoc rebuild
+watch([
+  () => props.pipelineState?.templateParts,
+  () => props.pipelineState?.theme,
+  () => isProgressiveMode.value,
+], () => {
+  if (isProgressiveMode.value && props.pipelineState && !progressiveSrcdocRendered.value) {
+    initialProgressiveSrcdoc.value = renderProgressivePage(
       props.pipelineState.theme ?? null,
       props.pipelineState.templateParts,
       props.skeletonSlots ?? [],
     )
   }
+}, { deep: true, immediate: true })
 
-  // Normal mode — render from mock site data
+const srcdoc = computed(() => {
+  // Progressive rendering mode — pipeline is active
+  if (isProgressiveMode.value && props.pipelineState) {
+    if (!progressiveSrcdocRendered.value) {
+      return initialProgressiveSrcdoc.value
+    }
+    // After initial render, don't rebuild srcdoc — use postMessage
+    return undefined
+  }
+
+  // Normal mode — check generated sites first (persisted pipeline output)
+  if (props.projectId && generatedSites[props.projectId]) {
+    const genSite = generatedSites[props.projectId]!
+    const pageSlug = currentPage.value === 'homepage' ? '/' : currentPage.value
+    const page = genSite.pages.find(p => p.slug === pageSlug) ?? genSite.pages[0]
+    if (page) {
+      const slots = page.sections.map((section, i) => ({
+        id: `${page.slug.replace(/\//g, '') || 'home'}-slot-${i}`,
+        expectedType: section.type,
+        status: 'complete' as const,
+        section,
+      }))
+      const templateParts: Record<string, Record<string, unknown>> = {}
+      templateParts.header = { navItems: genSite.pages.map(p => ({ label: p.title, page: p.slug })) }
+      templateParts.footer = { tagline: `© ${genSite.name}` }
+      return renderProgressivePage(genSite.theme, templateParts, slots)
+    }
+  }
+
   if (!site.value) return undefined
   const css = currentThemeCSS.value
   return site.value.renderSitePage(currentPage.value, css)
 })
+
+function onIframeLoad() {
+  if (isProgressiveMode.value) {
+    progressiveSrcdocRendered.value = true
+  }
+}
 
 const hasDarkMode = computed(() => {
   if (!props.projectId) return false
@@ -185,9 +265,11 @@ function toggleColorMode() {
     <div class="preview-frame flex-1 overflow-auto">
       <div class="preview-viewport-container">
         <iframe
-          v-if="srcdoc"
-          :srcdoc="srcdoc"
+          v-if="srcdoc != null || (isProgressiveMode && progressiveSrcdocRendered)"
+          ref="iframeRef"
+          v-bind="srcdoc != null ? { srcdoc } : {}"
           class="preview-iframe"
+          @load="onIframeLoad"
         />
         <div v-else class="preview-placeholder vstack align-center justify-center flex-1">
           <Text variant="body" color="muted">No preview available</Text>
