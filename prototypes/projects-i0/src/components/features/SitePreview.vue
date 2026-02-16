@@ -139,9 +139,12 @@ const currentThemeCSS = computed(() => {
   return themeToCSS(theme, colorMode.value)
 })
 
-/** Whether the preview is in progressive (pipeline) mode */
+/** Whether the preview is in progressive (pipeline) mode — only while actively building */
 const isProgressiveMode = computed(() =>
-  props.pipelineState && props.pipelineState.status !== 'idle'
+  props.pipelineState &&
+  props.pipelineState.status !== 'idle' &&
+  props.pipelineState.status !== 'complete' &&
+  props.pipelineState.status !== 'error'
 )
 
 // Ref to the iframe element for postMessage updates
