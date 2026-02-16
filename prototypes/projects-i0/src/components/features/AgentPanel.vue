@@ -9,12 +9,14 @@ import InputChat from '@/components/composites/InputChat.vue'
 import { useConversations } from '@/data/useConversations'
 import { useSiteThemes } from '@/data/themes/useSiteThemes'
 import { useBuildProgress } from '@/data/useBuildProgress'
+import { usePipeline } from '@/data/usePipeline'
 import type { ActionButton, Conversation } from '@/data/types'
 import type { Tab } from '@/components/composites/TabBar.vue'
 
 const { conversations, messages, getMessages, ensureConversation, sendMessage } = useConversations()
 const { updateTheme } = useSiteThemes()
-const { isBuilding, queueEdit } = useBuildProgress()
+const { isBuilding } = useBuildProgress()
+const { updateContext } = usePipeline()
 
 const props = defineProps<{
   projectId?: string | null
@@ -121,23 +123,9 @@ const currentDraft = computed({
 })
 
 function handleSend(text: string) {
-  // During build, store user message but handle as edit/answer instead of AI chat
-  if (props.projectId && isBuilding(props.projectId)) {
-    // Add user message to chat (without triggering AI response)
-    messages.value.push({
-      id: `msg-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
-      conversationId: activeConvoId.value,
-      role: 'user',
-      content: [{ type: 'text', text }],
-      messageContext: { source: 'typed' },
-      timestamp: new Date().toISOString(),
-    })
-    // Queue as edit instruction
-    queueEdit(props.projectId, text)
-    drafts.value[activeConvoId.value] = ''
-    return
-  }
-
+  // During build, send through normal AI chat so the user can answer questions.
+  // The AI's system prompt handles context extraction via card:context blocks.
+  // After the AI responds, we parse any context data and feed it to the pipeline.
   sendMessage(
     activeConvoId.value,
     'user',
@@ -146,6 +134,32 @@ function handleSend(text: string) {
     { source: 'typed' },
   )
   drafts.value[activeConvoId.value] = ''
+
+  // Watch for the AI response to extract card:context blocks during build
+  if (props.projectId && isBuilding(props.projectId)) {
+    const checkForContext = () => {
+      const recentMsgs = messages.value
+        .filter(m => m.conversationId === activeConvoId.value && m.role === 'agent')
+      const lastMsg = recentMsgs[recentMsgs.length - 1]
+      if (lastMsg) {
+        // Look for context data in text blocks (card:context JSON blocks)
+        for (const block of lastMsg.content) {
+          if (block.type === 'text' && block.text.includes('card:context')) {
+            const match = block.text.match(/```card:context\s*\n([\s\S]*?)\n```/)
+            if (match?.[1]) {
+              try {
+                const contextData = JSON.parse(match[1])
+                updateContext(contextData)
+              } catch { /* ignore parse errors */ }
+            }
+          }
+        }
+      }
+    }
+    // Check after a delay to let the AI respond
+    setTimeout(checkForContext, 3000)
+    setTimeout(checkForContext, 8000)
+  }
 }
 
 function handleAction(action: ActionButton) {

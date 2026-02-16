@@ -11,11 +11,11 @@
  *   The composable will run the pipeline and post chat messages.
  */
 
-import { ref, computed, reactive, watch } from 'vue'
-import type { CreativeBrief, PageConfig } from './ai-pipeline-types'
+import { computed, reactive } from 'vue'
+import type { CreativeBrief } from './ai-pipeline-types'
 import type { SiteTheme } from './themes/types'
 import type { Section } from './sections/types'
-import type { ContentBlock } from './types'
+import type { ContentBlock, ProjectBrief } from './types'
 import { usePipeline } from './usePipeline'
 import { useConversations } from './useConversations'
 import { useProjects } from './useProjects'
@@ -23,13 +23,6 @@ import { getPagesForSiteType } from './generation-prompts'
 import { isAIConfigured } from './ai-service'
 
 // ---- Types ----
-
-export interface ProjectBrief {
-  type: 'restaurant' | 'portfolio' | 'store' | 'blog' | 'custom'
-  name: string
-  description: string
-  freeTextType?: string
-}
 
 export type BuildStatus =
   | 'queued'
@@ -78,7 +71,7 @@ const editQueue = reactive<Map<string, Array<{ description: string; pageSlug?: s
 
 export function useBuildProgress() {
   const pipeline = usePipeline()
-  const { ensureConversation, sendMessage, messages } = useConversations()
+  const { ensureConversation, messages } = useConversations()
   const { setStatus } = useProjects()
 
   // ---- Helper: post agent message to project chat ----
@@ -177,7 +170,7 @@ export function useBuildProgress() {
 
   // ---- Build Chat: error ----
 
-  function sendErrorMessage(state: BuildState, errorMsg: string) {
+  function sendErrorMessage(state: BuildState, _errorMsg: string) {
     const completedPages = Object.values(state.pages).filter(p => p.complete)
     if (completedPages.length > 0) {
       postBuildMessage(
@@ -195,6 +188,16 @@ export function useBuildProgress() {
   // ---- Start Build ----
 
   async function startBuild(projectId: string, brief: ProjectBrief): Promise<void> {
+    // Only one build at a time — abort any existing build (pipeline is a singleton).
+    // If another build is active, mark it as error so the UI knows it stopped.
+    for (const [existingId, existingBuild] of builds.entries()) {
+      if (existingId !== projectId && existingBuild.status !== 'complete' && existingBuild.status !== 'error') {
+        existingBuild.status = 'error'
+        existingBuild.error = 'Superseded by a new build'
+        pipeline.abort()
+      }
+    }
+
     // Get page configs for this site type
     const pageConfigs = getPagesForSiteType(brief.type)
 

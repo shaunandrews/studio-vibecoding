@@ -5,11 +5,13 @@ import Titlebar from '@/components/primitives/Titlebar.vue'
 import ProjectList from '@/components/features/ProjectList.vue'
 import NewProjectModal from '@/components/features/NewProjectModal.vue'
 import { useProjects } from '@/data/useProjects'
+import { useBuildProgress } from '@/data/useBuildProgress'
 import type { ProjectBrief } from '@/data/types'
 
 const route = useRoute()
 const router = useRouter()
 const { createProject } = useProjects()
+const { startBuild } = useBuildProgress()
 const mode = computed(() => (route.meta.mode as string) || 'home')
 const transitioning = ref(false)
 let transitionTimer: ReturnType<typeof setTimeout> | null = null
@@ -28,6 +30,8 @@ function onProjectCreated(brief: ProjectBrief) {
   const project = createProject(brief)
   showNewProjectModal.value = false
   router.push({ name: 'project', params: { id: project.id } })
+  // Start the build after navigation so ProjectPage mounts with build in progress
+  startBuild(project.id, brief)
 }
 </script>
 
