@@ -4,7 +4,7 @@ import WPIcon from '@/components/primitives/WPIcon.vue'
 import Text from '@/components/primitives/Text.vue'
 import ProjectItem from '@/components/composites/ProjectItem.vue'
 import { useProjects } from '@/data/useProjects'
-import { useRouter } from 'vue-router'
+import { useProjectTransition } from '@/data/useProjectTransition'
 
 const props = defineProps<{
   mode: 'grid' | 'list'
@@ -15,14 +15,14 @@ const emit = defineEmits<{
 }>()
 
 const { projects, activeProjectId, setStatus } = useProjects()
-const router = useRouter()
+const { navigateToProject, navigateHome } = useProjectTransition()
 
 function selectProject(id: string) {
-  router.push({ name: 'project', params: { id } })
+  navigateToProject(id)
 }
 
 function goHome() {
-  router.push({ name: 'home' })
+  navigateHome()
 }
 
 function toggleStatus(id: string) {
