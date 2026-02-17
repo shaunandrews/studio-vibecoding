@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import Button from '@/components/primitives/Button.vue'
 import ChatCard from './ChatCard.vue'
-import type { ActionButton, CardUiState, ColorPaletteData } from '@/data/types'
+import type { CardUiState, ColorPaletteData } from '@/data/types'
 
 withDefaults(defineProps<{
   data: ColorPaletteData
@@ -12,9 +11,6 @@ withDefaults(defineProps<{
   state: 'default',
 })
 
-const emit = defineEmits<{
-  action: [action: ActionButton]
-}>()
 </script>
 
 <template>
@@ -27,15 +23,6 @@ const emit = defineEmits<{
         :style="{ backgroundColor: color.hex }"
       />
     </div>
-    <template v-if="data.action" #footer>
-      <Button
-        :label="data.action.label"
-        :variant="data.action.variant === 'destructive' ? 'tertiary' : (data.action.variant || 'secondary')"
-        :icon="data.action.icon"
-        size="small"
-        @click.stop="emit('action', data.action)"
-      />
-    </template>
   </ChatCard>
 </template>
 

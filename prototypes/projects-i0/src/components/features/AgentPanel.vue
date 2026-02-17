@@ -10,6 +10,7 @@ import { useConversations } from '@/data/useConversations'
 import { useSiteThemes } from '@/data/themes/useSiteThemes'
 import { useBuildProgress } from '@/data/useBuildProgress'
 import { useOnboarding } from '@/data/useOnboarding'
+import { useInputActions } from '@/data/useInputActions'
 import type { ActionButton, Conversation } from '@/data/types'
 import type { Tab } from '@/components/composites/TabBar.vue'
 
@@ -17,6 +18,7 @@ const { conversations, messages, getMessages, ensureConversation, sendMessage, p
 const { updateTheme } = useSiteThemes()
 const { selectBrief } = useBuildProgress()
 const { isOnboarding, getOnboardingStep, resolveInput } = useOnboarding()
+const { getActions, clearActions } = useInputActions()
 
 const props = defineProps<{
   projectId?: string | null
@@ -81,6 +83,7 @@ const openTabs = computed<Tab[]>(() => {
 })
 
 const activeConvoId = computed(() => ensureTabState().activeConvoId)
+const inputActions = getActions(activeConvoId)
 
 function setActiveTab(id: string) {
   ensureTabState().activeConvoId = id
@@ -136,6 +139,8 @@ const inputPlaceholder = computed(() => {
 })
 
 function handleSend(text: string) {
+  clearActions(activeConvoId.value)
+
   const pid = props.projectId
   if (pid && isOnboarding(pid)) {
     postMessage(activeConvoId.value, 'user', text, undefined, { source: 'typed' })
@@ -155,6 +160,8 @@ function handleSend(text: string) {
 }
 
 function handleAction(action: ActionButton) {
+  clearActions(activeConvoId.value)
+
   const pid = props.projectId
 
   // Onboarding: type selection — only valid during the type step
@@ -211,11 +218,11 @@ function handleAction(action: ActionButton) {
       </template>
     </PanelToolbar>
 
-    <ChatMessageList :messages="msgs" :project-id="projectId" @action="(_, action) => handleAction(action)" />
+    <ChatMessageList :messages="msgs" :project-id="projectId" />
 
     <div class="agent-panel__input shrink-0 px-s pb-s">
       <div class="agent-panel__input-inner">
-        <InputChat ref="inputChatRef" v-model="currentDraft" :placeholder="inputPlaceholder" @send="handleSend" />
+        <InputChat ref="inputChatRef" v-model="currentDraft" :placeholder="inputPlaceholder" :actions="inputActions" @send="handleSend" @action="handleAction" />
       </div>
     </div>
   </div>

@@ -1,12 +1,23 @@
 import type { DesignBrief } from './types'
 
 export function buildSectionPrompt(
-  brief: DesignBrief, 
-  sectionRole: string, 
-  pageTitle: string, 
-  pageContext: string[]
+  brief: DesignBrief,
+  sectionRole: string,
+  pageTitle: string,
+  pageContext: string[],
+  siteName?: string,
+  siteType?: string,
+  siteDescription?: string,
 ): string {
+  const siteContext = [
+    siteName && `SITE NAME: ${siteName}`,
+    siteType && `SITE TYPE: ${siteType}`,
+    siteDescription && `SITE DESCRIPTION: ${siteDescription}`,
+  ].filter(Boolean).join('\n')
+
   return `You're building a section for ${pageTitle} using the established design foundation.
+
+${siteContext}
 
 DESIGN BRIEF:
 ${brief.cssVariables}
@@ -27,6 +38,7 @@ TECHNICAL REQUIREMENTS:
 - Section-local variables can use --${sectionRole}-* naming pattern
 
 CONTENT GUIDELINES:
+- Use "${siteName}" as the site/brand name everywhere — never invent a different name
 - Create realistic, appropriate content for a ${sectionRole} section
 - Match the content to the design direction personality
 - Use semantic HTML structure

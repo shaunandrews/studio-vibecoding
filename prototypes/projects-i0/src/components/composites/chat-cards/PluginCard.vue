@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import Badge from '@/components/primitives/Badge.vue'
-import Button from '@/components/primitives/Button.vue'
 import ChatCard from './ChatCard.vue'
-import type { ActionButton, CardUiState, PluginCardData } from '@/data/types'
+import type { CardUiState, PluginCardData } from '@/data/types'
 
 const props = withDefaults(defineProps<{
   data: PluginCardData
@@ -14,9 +13,6 @@ const props = withDefaults(defineProps<{
   state: 'default',
 })
 
-const emit = defineEmits<{
-  action: [action: ActionButton]
-}>()
 
 const statusLabel = computed(() => {
   const map: Record<PluginCardData['status'], string> = {
@@ -57,15 +53,6 @@ const statusVariant = computed(() => {
       </div>
     </div>
 
-    <template v-if="data.action" #footer>
-      <Button
-        :label="data.action.label"
-        :variant="data.action.variant === 'destructive' ? 'tertiary' : (data.action.variant || 'secondary')"
-        :icon="data.action.icon"
-        size="small"
-        @click.stop="emit('action', data.action)"
-      />
-    </template>
   </ChatCard>
 </template>
 

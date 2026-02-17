@@ -2,6 +2,7 @@
 import { ref, computed } from 'vue'
 import Button from '@/components/primitives/Button.vue'
 import Dropdown from '@/components/primitives/Dropdown.vue'
+import type { ActionButton } from '@/data/types'
 
 const selectedModel = ref('Sonnet 4.5')
 const textareaRef = ref<HTMLTextAreaElement | null>(null)
@@ -15,15 +16,18 @@ const props = withDefaults(defineProps<{
   surface?: 'light' | 'dark'
   modelValue?: string
   placeholder?: string
+  actions?: ActionButton[]
 }>(), {
   surface: 'light',
   modelValue: '',
   placeholder: 'Ask anything...',
+  actions: () => [],
 })
 
 const emit = defineEmits<{
   send: [message: string, model: string]
   'update:modelValue': [value: string]
+  action: [action: ActionButton]
 }>()
 
 const message = computed({
@@ -42,8 +46,18 @@ function onKeydown(e: KeyboardEvent) {
   if (e.key === 'Enter' && !e.shiftKey && !e.metaKey && !e.ctrlKey) {
     e.preventDefault()
     send()
+    return
   }
-  // Cmd/Ctrl+Enter and Shift+Enter: default textarea newline behavior
+
+  // Number keys (1-9) trigger actions when the input is empty
+  if (props.actions.length && !message.value.trim() && e.key >= '1' && e.key <= '9') {
+    const idx = Number(e.key) - 1
+    const action = props.actions[idx]
+    if (action) {
+      e.preventDefault()
+      emit('action', action)
+    }
+  }
 }
 
 function focus() {
@@ -58,10 +72,27 @@ function focusInput(e: MouseEvent) {
   if (target.closest('button')) return
   textareaRef.value?.focus()
 }
+
+function buttonVariant(variant?: ActionButton['variant']): 'primary' | 'secondary' | 'tertiary' {
+  if (variant === 'primary') return 'primary'
+  if (variant === 'destructive') return 'tertiary'
+  return 'secondary'
+}
 </script>
 
 <template>
   <div class="input-chat p-xs" :class="[`surface-${props.surface}`, { 'has-content': message.trim().length > 0 }]" @click="focusInput">
+    <div v-if="actions.length" class="input-actions hstack gap-xxs flex-wrap pb-xxs">
+      <Button
+        v-for="(action, idx) in actions"
+        :key="action.id"
+        :label="`${idx + 1}. ${action.label}`"
+        :icon="action.icon"
+        :variant="buttonVariant(action.variant)"
+        size="small"
+        @click="$emit('action', action)"
+      />
+    </div>
     <textarea
       ref="textareaRef"
       v-model="message"

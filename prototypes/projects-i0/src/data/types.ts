@@ -178,6 +178,7 @@ export interface ThemeEditCardData {
 
 export interface DesignBriefCardData {
   siteName: string
+  styleName: string
   direction: string
   fonts: string[]               // [heading, body, ...]
   colors: { name: string; value: string }[]

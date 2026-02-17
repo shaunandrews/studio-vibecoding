@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import Button from '@/components/primitives/Button.vue'
 import ChatCard from './ChatCard.vue'
-import type { ActionButton, CardUiState, SettingsCardData } from '@/data/types'
+import type { CardUiState, SettingsCardData } from '@/data/types'
 
 withDefaults(defineProps<{
   data: SettingsCardData
@@ -11,10 +10,6 @@ withDefaults(defineProps<{
   compact: false,
   state: 'default',
 })
-
-const emit = defineEmits<{
-  action: [action: ActionButton]
-}>()
 </script>
 
 <template>
@@ -29,19 +24,6 @@ const emit = defineEmits<{
         <span class="setting-arrow">{{ setting.current }} → {{ setting.proposed }}</span>
       </div>
     </div>
-    <template v-if="data.actions?.length" #footer>
-      <div class="hstack gap-xxs">
-        <Button
-          v-for="action in data.actions"
-          :key="action.id"
-          :label="action.label"
-          :variant="action.variant === 'destructive' ? 'tertiary' : (action.variant || 'secondary')"
-          :icon="action.icon"
-          size="small"
-          @click.stop="emit('action', action)"
-        />
-      </div>
-    </template>
   </ChatCard>
 </template>
 

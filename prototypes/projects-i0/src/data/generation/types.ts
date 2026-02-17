@@ -2,6 +2,7 @@ export interface DesignBrief {
   cssVariables: string    // the :root CSS block
   direction: string       // design direction text
   fonts: string[]         // Google Font names
+  styleName: string       // short 1-2 word style label (e.g. "Punk", "Minimal Rose")
 }
 
 export interface GenerationProgress {

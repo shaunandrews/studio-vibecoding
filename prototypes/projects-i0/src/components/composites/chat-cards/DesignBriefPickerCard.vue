@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
-import Button from '@/components/primitives/Button.vue'
-import type { CardUiState, DesignBriefPickerCardData, ActionButton } from '@/data/types'
+import type { CardUiState, DesignBriefPickerCardData } from '@/data/types'
 
 const props = withDefaults(defineProps<{
   data: DesignBriefPickerCardData
@@ -11,10 +10,6 @@ const props = withDefaults(defineProps<{
   compact: false,
   state: 'default',
 })
-
-const emit = defineEmits<{
-  action: [action: ActionButton]
-}>()
 
 // Load Google Fonts for all briefs
 onMounted(() => {
@@ -46,21 +41,11 @@ function bodyFont(brief: DesignBriefPickerCardData['briefs'][0]) {
   return brief.fonts[1] ? `'${brief.fonts[1]}', sans-serif` : headingFont(brief)
 }
 
-/** Truncate direction to ~120 chars on a word boundary */
-function shortDirection(text: string): string {
-  if (text.length <= 120) return text
-  const cut = text.lastIndexOf(' ', 120)
-  return text.slice(0, cut > 0 ? cut : 120) + '...'
-}
-
 /** Show at most 8 color swatches */
 function limitedColors(brief: DesignBriefPickerCardData['briefs'][0]) {
   return brief.colors.slice(0, 8)
 }
 
-function actionForBrief(index: number): ActionButton | undefined {
-  return props.data.actions?.[index]
-}
 </script>
 
 <template>
@@ -82,8 +67,8 @@ function actionForBrief(index: number): ActionButton | undefined {
         }"
       >
         <div class="brief-picker__preview">
+          <div class="brief-picker__style-name">{{ brief.styleName }}</div>
           <div class="brief-picker__site-name">{{ brief.siteName }}</div>
-          <div class="brief-picker__direction">{{ shortDirection(brief.direction) }}</div>
           <div class="brief-picker__swatches hstack gap-xxxs">
             <div
               v-for="color in limitedColors(brief)"
@@ -93,16 +78,6 @@ function actionForBrief(index: number): ActionButton | undefined {
               :title="`${color.name}: ${color.value}`"
             />
           </div>
-        </div>
-        <div class="brief-picker__footer">
-          <Button
-            v-if="actionForBrief(i)"
-            :label="actionForBrief(i)!.label"
-            variant="primary"
-            size="small"
-            width="full"
-            @click="emit('action', actionForBrief(i)!)"
-          />
         </div>
       </div>
     </div>
@@ -148,19 +123,20 @@ function actionForBrief(index: number): ActionButton | undefined {
   flex: 1;
 }
 
+.brief-picker__style-name {
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  opacity: 0.6;
+}
+
 .brief-picker__site-name {
   font-family: var(--bp-font-heading);
   font-size: var(--font-size-l);
   font-weight: 700;
   line-height: 1.2;
   color: var(--bp-accent);
-}
-
-.brief-picker__direction {
-  font-family: var(--bp-font-body);
-  font-size: var(--font-size-s);
-  line-height: var(--line-height-relaxed);
-  opacity: 0.85;
 }
 
 .brief-picker__swatches {
@@ -174,12 +150,6 @@ function actionForBrief(index: number): ActionButton | undefined {
   height: 20px;
   border-radius: var(--radius-s);
   border: 1px solid color-mix(in srgb, var(--bp-text) 20%, transparent);
-}
-
-.brief-picker__footer {
-  padding: var(--space-xs) var(--space-s);
-  background: var(--color-surface);
-  border-block-start: 1px solid var(--color-surface-border);
 }
 
 .brief-picker--disabled {

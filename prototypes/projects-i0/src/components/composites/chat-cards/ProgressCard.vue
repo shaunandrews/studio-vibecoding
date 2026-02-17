@@ -15,7 +15,12 @@ withDefaults(defineProps<{
 <template>
   <ChatCard :compact="compact" :state="state" :title="data.label">
     <ol class="progress-list vstack">
-      <li v-for="step in data.steps" :key="step.name" class="progress-item hstack justify-between gap-xs">
+      <li
+        v-for="(step, idx) in data.steps"
+        :key="step.name"
+        class="progress-item hstack justify-between gap-xs"
+        :style="{ animationDelay: `${idx * 60}ms` }"
+      >
         <span>{{ step.name }}</span>
         <span class="progress-status" :class="`progress-status--${step.status}`">
           <svg v-if="step.status === 'running'" class="progress-spinner" viewBox="0 0 16 16">
@@ -38,6 +43,18 @@ withDefaults(defineProps<{
 .progress-item {
   padding: var(--space-xxxs) 0;
   border-block-end: 1px solid var(--color-surface-border);
+  animation: progress-reveal 0.3s ease-out both;
+}
+
+@keyframes progress-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .progress-item:last-child {

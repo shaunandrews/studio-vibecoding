@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
-import Button from '@/components/primitives/Button.vue'
 import ChatCard from './ChatCard.vue'
 import { useSiteThemes } from '@/data/themes/useSiteThemes'
-import type { ActionButton, CardUiState, ThemeUpdateCardData } from '@/data/types'
+import type { CardUiState, ThemeUpdateCardData } from '@/data/types'
 
 const props = withDefaults(defineProps<{
   data: ThemeUpdateCardData
@@ -15,9 +14,6 @@ const props = withDefaults(defineProps<{
   state: 'default',
 })
 
-const emit = defineEmits<{
-  action: [action: ActionButton]
-}>()
 
 const route = useRoute()
 const { getTheme } = useSiteThemes()
@@ -84,15 +80,6 @@ const hasTypographyChanges = computed(() => !!props.data.changes.typography)
       </div>
     </div>
 
-    <template v-if="data.action" #footer>
-      <Button
-        :label="data.action.label"
-        :variant="data.action.variant === 'destructive' ? 'tertiary' : (data.action.variant || 'primary')"
-        :icon="data.action.icon"
-        size="small"
-        @click.stop="emit('action', data.action)"
-      />
-    </template>
   </ChatCard>
 </template>
 

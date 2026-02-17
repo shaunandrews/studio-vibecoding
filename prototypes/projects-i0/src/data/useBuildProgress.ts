@@ -15,6 +15,7 @@ import { useGeneration } from './generation/useGeneration'
 import { useProjects } from './useProjects'
 import { useConversations } from './useConversations'
 import { usePreviewState } from './usePreviewState'
+import { useInputActions } from './useInputActions'
 import type { ProjectBrief, ProjectType, ContentBlock } from './types'
 import type { DesignBrief, GenerationEvent } from './generation/types'
 
@@ -155,7 +156,7 @@ function extractBriefCardData(brief: DesignBrief, siteName: string) {
     .filter(c => c.value !== bgColor && c.value !== textColor)
     .slice(0, 8)
 
-  return { siteName, direction: brief.direction, fonts: brief.fonts, colors: displayColors, bgColor, textColor, accentColor }
+  return { siteName, styleName: brief.styleName, direction: brief.direction, fonts: brief.fonts, colors: displayColors, bgColor, textColor, accentColor }
 }
 
 // ---- Build State ----
@@ -180,6 +181,7 @@ export function useBuildProgress() {
   const { setStatus } = useProjects()
   const { ensureConversation, sendMessage, streamAgentMessage, postMessage, removeMessage, messages } = useConversations()
   const { hide, show } = usePreviewState()
+  const { pushActions, clearBySource } = useInputActions()
 
   return {
     isBuilding(projectId: string): boolean {
@@ -199,7 +201,10 @@ export function useBuildProgress() {
       const brief = pending.briefs[briefIndex]
       if (!brief) return
 
-      // Mutate the picker card in-place: keep only the chosen brief, remove buttons
+      // Clear the input actions
+      clearBySource('brief-picker')
+
+      // Mutate the picker card in-place: keep only the chosen brief
       const pickerMsg = messages.value.find(m =>
         m.content.some(b => b.type === 'card' && b.card === 'designBriefPicker')
       )
@@ -287,20 +292,28 @@ export function useBuildProgress() {
         id: 'brief-picker',
         data: {
           briefs: validBriefs.map(b => extractBriefCardData(b, brief.name)),
-          actions: validBriefs.map((_, i) => ({
-            id: `choose-brief-${i}`,
-            label: `Pick option ${i + 1}`,
-            variant: 'primary' as const,
-            action: {
-              type: 'send-message' as const,
-              message: `I'll go with option ${i + 1}`,
-              payload: { briefSelection: String(i), projectId },
-            },
-          })),
         },
       }]
 
       sendMessage(convo.id, 'agent', pickerCard, 'assistant')
+
+      // Push brief selection actions to the input area
+      const briefCardData = validBriefs.map(b => extractBriefCardData(b, brief.name))
+      pushActions({
+        id: 'brief-pick',
+        conversationId: convo.id,
+        actions: briefCardData.map((cardData, i) => ({
+          id: `pick-brief-${i}`,
+          label: cardData.styleName,
+          variant: 'secondary' as const,
+          action: {
+            type: 'send-message' as const,
+            message: cardData.styleName,
+            payload: { briefSelection: String(i), projectId },
+          },
+        })),
+        sourceRef: 'brief-picker',
+      })
 
       // 6. Wait for user selection
       const chosenBrief = await new Promise<DesignBrief>((resolve) => {

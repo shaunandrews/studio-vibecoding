@@ -32,7 +32,7 @@ src/
     features/        # ProjectList, AgentPanel, SitePreview, OnboardingEmpty
   layouts/           # MainLayout (app shell), BareLayout (standalone pages)
   pages/             # ProjectPage, DesignSystem, Components, Settings, Architecture
-  data/              # State (useProjects, useConversations, useSiteStore, useBuildProgress, useOnboarding)
+  data/              # State (useProjects, useConversations, useSiteStore, useBuildProgress, useOnboarding, useInputActions)
     generation/      # AI prompts and generation loop (useGeneration, design-brief-prompt, etc.)
     seed-sites/      # Hardcoded demo sites (downstreet-cafe, portfolio)
     themes/          # Theme definitions and utilities
@@ -47,11 +47,19 @@ src/
 - **StatusIndicator** — `status` (stopped/loading/running). Emits `toggle`. Clip-path morph animation on hover.
 - **Titlebar** — App titlebar with traffic lights, sidebar toggle, greeting, settings/help
 - **ProjectList** — Project list in two modes: `grid` (home view, full width) and `list` (sidebar, 210px). New Project button lives in MainLayout below this component, not inside it.
-- **InputChat** — Chat input with model selector. Props: `surface`, `modelValue`, `placeholder`. Enter sends, Cmd+Enter for newline.
+- **InputChat** — Chat input with model selector and action strip. Props: `surface`, `modelValue`, `placeholder`, `actions` (ActionButton[]). Renders action buttons above the textarea; number keys (1-9) trigger actions when input is empty. Enter sends, Cmd+Enter for newline.
 
 ## New project flow
 
-No modal. Clicking "New project" creates an untitled project in the sidebar, opens the project view, and runs onboarding as the first chat messages. The flow: type → name (sidebar updates live) → description (skippable) → build starts. Managed by `useOnboarding.ts` (singleton state machine with promise-based input waiting). `useConversations.postMessage()` adds messages without triggering AI responses during onboarding. Action buttons (type chips, skip) are stripped from messages after use via `consumeActions()`, and `handleAction` guards check the current step to prevent stale clicks.
+No modal. Clicking "New project" creates an untitled project in the sidebar, opens the project view, and runs onboarding as the first chat messages. The flow: type → name (sidebar updates live) → description (skippable) → build starts. Managed by `useOnboarding.ts` (singleton state machine with promise-based input waiting). `useConversations.postMessage()` adds messages without triggering AI responses during onboarding.
+
+## Input actions system
+
+All user-facing action buttons (onboarding chips, skip, brief selection, card actions) render in a strip above the chat textarea — never inline in messages or card footers. Managed by `useInputActions.ts` (singleton composable). Features push actions via `pushActions()`, AgentPanel wires them to InputChat via `getActions()`. Actions clear on click or when the user sends a message. Cards are purely informational (no footer buttons). Number keys (1-9) work as keyboard shortcuts when the input is empty.
+
+## Design brief generation
+
+Each brief includes a `styleName` (1-2 word label like "Punk", "Noir", "Warm Earth") used as the picker button label and displayed on the brief card. The site name, type, and description are threaded through to all section generation prompts so the AI uses the actual site name in content.
 
 ## Don't
 

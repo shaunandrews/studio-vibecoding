@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import Button from '@/components/primitives/Button.vue'
 import MarkdownText from '@/components/composites/renderers/MarkdownText.vue'
 import PluginCard from '@/components/composites/chat-cards/PluginCard.vue'
 import ColorPaletteCard from '@/components/composites/chat-cards/ColorPaletteCard.vue'
@@ -13,7 +12,7 @@ import ThemeUpdateCard from '@/components/composites/chat-cards/ThemeUpdateCard.
 import SectionEditCard from '@/components/composites/chat-cards/SectionEditCard.vue'
 import ThemeEditCard from '@/components/composites/chat-cards/ThemeEditCard.vue'
 import DesignBriefPickerCard from '@/components/composites/chat-cards/DesignBriefPickerCard.vue'
-import type { ActionButton, ContentBlock, AgentId } from '@/data/types'
+import type { ContentBlock, AgentId } from '@/data/types'
 
 const props = defineProps<{
   role: 'user' | 'agent'
@@ -22,24 +21,9 @@ const props = defineProps<{
   projectId?: string
 }>()
 
-const emit = defineEmits<{
-  action: [action: ActionButton]
-}>()
-
 const normalizedContent = computed<ContentBlock[]>(() =>
   typeof props.content === 'string' ? [{ type: 'text', text: props.content }] : props.content,
 )
-
-function onAction(action: ActionButton) {
-  if (props.role !== 'agent') return
-  emit('action', action)
-}
-
-function buttonVariant(variant?: ActionButton['variant']): 'primary' | 'secondary' | 'tertiary' {
-  if (variant === 'primary') return 'primary'
-  if (variant === 'destructive') return 'tertiary'
-  return 'secondary'
-}
 </script>
 
 <template>
@@ -69,7 +53,6 @@ function buttonVariant(variant?: ActionButton['variant']): 'primary' | 'secondar
           :data="block.data"
           :compact="block.compact"
           :state="block.state"
-          @action="onAction"
         />
 
         <ColorPaletteCard
@@ -77,7 +60,6 @@ function buttonVariant(variant?: ActionButton['variant']): 'primary' | 'secondar
           :data="block.data"
           :compact="block.compact"
           :state="block.state"
-          @action="onAction"
         />
 
         <SettingsCard
@@ -85,7 +67,6 @@ function buttonVariant(variant?: ActionButton['variant']): 'primary' | 'secondar
           :data="block.data"
           :compact="block.compact"
           :state="block.state"
-          @action="onAction"
         />
 
         <ProgressCard
@@ -100,7 +81,6 @@ function buttonVariant(variant?: ActionButton['variant']): 'primary' | 'secondar
           :data="block.data"
           :compact="block.compact"
           :state="block.state"
-          @action="onAction"
         />
 
         <PageCard
@@ -108,7 +88,6 @@ function buttonVariant(variant?: ActionButton['variant']): 'primary' | 'secondar
           :data="block.data"
           :compact="block.compact"
           :state="block.state"
-          @action="onAction"
         />
 
         <PostDraftCard
@@ -116,7 +95,6 @@ function buttonVariant(variant?: ActionButton['variant']): 'primary' | 'secondar
           :data="block.data"
           :compact="block.compact"
           :state="block.state"
-          @action="onAction"
         />
 
         <ThemeUpdateCard
@@ -124,7 +102,6 @@ function buttonVariant(variant?: ActionButton['variant']): 'primary' | 'secondar
           :data="block.data"
           :compact="block.compact"
           :state="block.state"
-          @action="onAction"
         />
 
         <SectionEditCard
@@ -149,20 +126,8 @@ function buttonVariant(variant?: ActionButton['variant']): 'primary' | 'secondar
           :data="block.data"
           :compact="block.compact"
           :state="block.state"
-          @action="onAction"
         />
 
-        <div v-else-if="block.type === 'actions'" class="chat-actions hstack gap-xxs flex-wrap" style="max-width: 520px;">
-          <Button
-            v-for="action in block.actions"
-            :key="action.id"
-            :label="action.label"
-            :icon="action.icon"
-            :variant="buttonVariant(action.variant)"
-            size="small"
-            @click="onAction(action)"
-          />
-        </div>
       </div>
     </div>
   </div>
@@ -198,10 +163,6 @@ function buttonVariant(variant?: ActionButton['variant']): 'primary' | 'secondar
   color: var(--color-text);
   font-size: var(--font-size-xl);
   line-height: var(--line-height-normal);
-}
-
-.chat-actions {
-  padding-top: var(--space-xxxs);
 }
 
 .thinking-dots {

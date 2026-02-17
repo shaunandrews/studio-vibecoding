@@ -1,15 +1,11 @@
 <script setup lang="ts">
 import { nextTick, ref, watch } from 'vue'
 import ChatMessage from '@/components/composites/ChatMessage.vue'
-import type { ActionButton, Message } from '@/data/types'
+import type { Message } from '@/data/types'
 
 const props = defineProps<{
   messages: Message[]
   projectId?: string
-}>()
-
-defineEmits<{
-  action: [messageId: string, action: ActionButton]
 }>()
 
 const scrollerRef = ref<HTMLDivElement | null>(null)
@@ -43,7 +39,6 @@ watch(
         :content="msg.content"
         :agent-id="msg.agentId"
         :project-id="projectId"
-        @action="$emit('action', msg.id, $event)"
       />
     </div>
   </div>
@@ -53,6 +48,6 @@ watch(
 .messages-inner {
   max-width: 720px;
   width: 100%;
-  margin: 0 auto;
+  margin: auto auto 0; /* Push messages to the bottom when content is short */
 }
 </style>

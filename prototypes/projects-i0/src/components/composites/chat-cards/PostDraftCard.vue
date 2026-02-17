@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import Badge from '@/components/primitives/Badge.vue'
-import Button from '@/components/primitives/Button.vue'
 import ChatCard from './ChatCard.vue'
-import type { ActionButton, CardUiState, PostDraftCardData } from '@/data/types'
+import type { CardUiState, PostDraftCardData } from '@/data/types'
 
 const props = withDefaults(defineProps<{
   data: PostDraftCardData
@@ -14,9 +13,6 @@ const props = withDefaults(defineProps<{
   state: 'default',
 })
 
-const emit = defineEmits<{
-  action: [action: ActionButton]
-}>()
 
 const statusVariant = computed(() => {
   if (props.data.status === 'published') return 'success'
@@ -51,19 +47,6 @@ const statusLabel = computed(() => {
       </div>
     </div>
 
-    <template v-if="data.actions?.length" #footer>
-      <div class="hstack gap-xxs">
-        <Button
-          v-for="action in data.actions"
-          :key="action.id"
-          :label="action.label"
-          :variant="action.variant === 'destructive' ? 'tertiary' : (action.variant || 'secondary')"
-          :icon="action.icon"
-          size="small"
-          @click.stop="emit('action', action)"
-        />
-      </div>
-    </template>
   </ChatCard>
 </template>
 

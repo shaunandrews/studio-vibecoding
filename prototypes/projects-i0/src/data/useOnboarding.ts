@@ -13,7 +13,8 @@ import { useConversations } from './useConversations'
 import { useProjects } from './useProjects'
 import { useBuildProgress } from './useBuildProgress'
 import { usePreviewState } from './usePreviewState'
-import type { ProjectType, ContentBlock, Message } from './types'
+import { useInputActions } from './useInputActions'
+import type { ProjectType } from './types'
 
 // ---- Per-project onboarding state ----
 
@@ -63,21 +64,11 @@ function waitForInput(projectId: string): Promise<string> {
   })
 }
 
-/** Strip actions blocks containing a specific payload key from a conversation's messages */
-function consumeActions(msgs: Message[], convoId: string, payloadKey: string) {
-  for (const msg of msgs) {
-    if (msg.conversationId !== convoId || msg.role !== 'agent') continue
-    const has = msg.content.some(b => b.type === 'actions' && b.actions.some(a => a.action.payload?.[payloadKey]))
-    if (has) {
-      msg.content = msg.content.filter(b => !(b.type === 'actions' && b.actions.some(a => a.action.payload?.[payloadKey])))
-    }
-  }
-}
-
 // ---- Exports ----
 
 export function useOnboarding() {
-  const { ensureConversation, postMessage, streamAgentMessage, messages } = useConversations()
+  const { ensureConversation, streamAgentMessage } = useConversations()
+  const { pushActions, clearActions } = useInputActions()
   const { updateProject } = useProjects()
   const { startBuild } = useBuildProgress()
   const { hide } = usePreviewState()
@@ -117,9 +108,10 @@ export function useOnboarding() {
     // 3. Opening message
     await streamAgentMessage(convo.id, 'Hey! What are you building today?', 'assistant')
 
-    // 4. Type selection buttons
-    const typeActions: ContentBlock[] = [{
-      type: 'actions',
+    // 4. Type selection buttons — pushed to the input area
+    pushActions({
+      id: 'onboarding-type',
+      conversationId: convo.id,
       actions: [
         { id: 'type-restaurant', label: 'Restaurant', variant: 'secondary', action: { type: 'send-message', message: 'Restaurant', payload: { onboardingType: 'restaurant' } } },
         { id: 'type-portfolio', label: 'Portfolio', variant: 'secondary', action: { type: 'send-message', message: 'Portfolio', payload: { onboardingType: 'portfolio' } } },
@@ -127,12 +119,11 @@ export function useOnboarding() {
         { id: 'type-blog', label: 'Blog', variant: 'secondary', action: { type: 'send-message', message: 'Blog', payload: { onboardingType: 'blog' } } },
         { id: 'type-custom', label: 'Something else', variant: 'secondary', action: { type: 'send-message', message: 'Something else', payload: { onboardingType: 'custom' } } },
       ],
-    }]
-    postMessage(convo.id, 'agent', typeActions, 'assistant')
+    })
 
     // 5. Wait for type selection
     const typeInput = await waitForInput(projectId)
-    consumeActions(messages.value, convo.id, 'onboardingType')
+    clearActions(convo.id)
     const state = onboardingStates[projectId]
     if (!state) return // cancelled
 
@@ -164,18 +155,18 @@ export function useOnboarding() {
     state.step = 'description'
     await streamAgentMessage(convo.id, descMessages[state.type], 'assistant')
 
-    // 10. Skip button (since InputChat won't fire on empty text)
-    const skipAction: ContentBlock[] = [{
-      type: 'actions',
+    // 10. Skip button — pushed to the input area
+    pushActions({
+      id: 'onboarding-skip',
+      conversationId: convo.id,
       actions: [
         { id: 'skip-description', label: 'Skip', variant: 'secondary', action: { type: 'send-message', message: 'Skip', payload: { onboardingSkip: 'true' } } },
       ],
-    }]
-    postMessage(convo.id, 'agent', skipAction, 'assistant')
+    })
 
     // 11. Wait for description
     const descInput = await waitForInput(projectId)
-    consumeActions(messages.value, convo.id, 'onboardingSkip')
+    clearActions(convo.id)
     if (!onboardingStates[projectId]) return
     state.description = descInput
 

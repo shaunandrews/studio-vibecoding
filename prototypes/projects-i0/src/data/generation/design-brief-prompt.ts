@@ -24,10 +24,14 @@ Return a design brief in this exact format:
   /* Your CSS variables here */
 }
 ---
+Style Name
+---
 Your design direction here (2-3 sentences about the aesthetic, personality, mood)
 ---
 Font Name 1, Font Name 2, Font Name 3
 \`\`\`
+
+Style Name is a short 1-2 word evocative label for this design direction (e.g. "Punk", "Noir", "Candy Pop", "Clean Slate", "Cyber", "Warm Earth"). It should be distinctive, memorable, and capture the essence of the visual style.
 
 The design direction should capture the personality and visual approach. Font names should be comma-separated Google Font names (without quotes).`
 }

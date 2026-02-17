@@ -48,21 +48,20 @@ function parseDesignBrief(text: string): DesignBrief {
 
   const briefContent = briefMatch[1].trim()
   const parts = briefContent.split('---').map(p => p.trim())
-  
-  if (parts.length !== 3) {
-    throw new Error('Design brief must have 3 parts separated by ---')
+
+  // Support both old 3-part format (no styleName) and new 4-part format
+  if (parts.length === 3) {
+    // Legacy: css / direction / fonts
+    const fonts = parts[2]!.split(',').map(f => f.trim())
+    return { cssVariables: parts[0]!, styleName: fonts[0] || 'Classic', direction: parts[1]!, fonts }
   }
 
-  const cssVariables = parts[0]!
-  const direction = parts[1]!
-  const fontsStr = parts[2]!
-  const fonts = fontsStr.split(',').map(f => f.trim())
-
-  return {
-    cssVariables,
-    direction,
-    fonts
+  if (parts.length === 4) {
+    const fonts = parts[3]!.split(',').map(f => f.trim())
+    return { cssVariables: parts[0]!, styleName: parts[1]!, direction: parts[2]!, fonts }
   }
+
+  throw new Error(`Design brief must have 3 or 4 parts separated by ---, got ${parts.length}`)
 }
 
 function parseSectionResponse(text: string, expectedSectionId: string): { css: string; html: string } {
@@ -159,10 +158,13 @@ async function generateSection(
   brief: DesignBrief,
   sectionRole: string,
   pageTitle: string,
-  pageContext: string[]
+  pageContext: string[],
+  siteName?: string,
+  siteType?: string,
+  siteDescription?: string,
 ): Promise<{ css: string; html: string }> {
   const client = getAIClient()
-  const prompt = buildSectionPrompt(brief, sectionRole, pageTitle, pageContext)
+  const prompt = buildSectionPrompt(brief, sectionRole, pageTitle, pageContext, siteName, siteType, siteDescription)
 
   const response = await client.messages.create({
     model: 'claude-sonnet-4-20250514',
@@ -187,15 +189,18 @@ async function generateSectionWithRetry(
   sectionRole: string,
   pageTitle: string,
   pageContext: string[],
+  siteName?: string,
+  siteType?: string,
+  siteDescription?: string,
 ): Promise<{ css: string; html: string }> {
   try {
-    return await generateSection(brief, sectionRole, pageTitle, pageContext)
+    return await generateSection(brief, sectionRole, pageTitle, pageContext, siteName, siteType, siteDescription)
   } catch (firstError) {
     console.warn(`[Gen] ${sectionRole} failed, retrying with simplified prompt:`, firstError)
 
     // Retry with a more explicit, stripped-down prompt
     const client = getAIClient()
-    const retryPrompt = `Generate a ${sectionRole} section for "${pageTitle}".
+    const retryPrompt = `Generate a ${sectionRole} section for "${pageTitle}"${siteName ? ` on a site called "${siteName}"` : ''}.
 
 Design variables: ${brief.cssVariables}
 Fonts: ${brief.fonts.join(', ')}
@@ -334,7 +339,7 @@ async function generateSite(
 
     const homepageSectionPromises = homepageConfig.sectionRoles.map(async (role) => {
       try {
-        const { css, html } = await generateSectionWithRetry(brief, role, homepageConfig.title, [])
+        const { css, html } = await generateSectionWithRetry(brief, role, homepageConfig.title, [], siteName, siteType, description)
 
         siteStore.updateSection(projectId, role, html, css)
         progress.value.sectionsComplete += 1
@@ -383,7 +388,7 @@ async function generateSite(
         const sectionId = pageConfig.slug === '/' ? role : `${pageConfig.slug.replace('/', '')}-${role}`
         try {
           const contextInfo = [`Page: ${pageConfig.title}`, `Design system established`]
-          const { css, html } = await generateSectionWithRetry(brief, role, pageConfig.title, contextInfo)
+          const { css, html } = await generateSectionWithRetry(brief, role, pageConfig.title, contextInfo, siteName, siteType, description)
 
           siteStore.updateSection(projectId, sectionId, html, css)
           progress.value.sectionsComplete += 1
