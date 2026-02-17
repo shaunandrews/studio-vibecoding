@@ -18,9 +18,10 @@ export interface GenerationProgress {
 export type GenerationEvent =
   | { type: 'brief-done'; brief: DesignBrief }
   | { type: 'section-done'; sectionId: string; pageSlug: string; sectionsComplete: number; sectionsTotal: number }
+  | { type: 'section-error'; sectionId: string; error: string }
   | { type: 'page-start'; pageTitle: string }
   | { type: 'extract-start' }
-  | { type: 'complete' }
+  | { type: 'complete'; failed: string[] }
   | { type: 'error'; error: string }
 
 export type GenerationEventCallback = (event: GenerationEvent) => void

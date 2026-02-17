@@ -86,6 +86,7 @@ export type CardBlock =
   | (BaseCardBlock & { card: 'themeUpdate'; data: ThemeUpdateCardData })
   | (BaseCardBlock & { card: 'sectionEdit'; data: SectionEditCardData })
   | (BaseCardBlock & { card: 'themeEdit'; data: ThemeEditCardData })
+  | (BaseCardBlock & { card: 'designBrief'; data: DesignBriefCardData })
 
 export type ContentBlock =
   | { type: 'text'; text: string }
@@ -173,4 +174,10 @@ export interface ThemeEditCardData {
   changeSummary: string
   before: Record<string, string>  // old variables
   after: Record<string, string>   // new variables
+}
+
+export interface DesignBriefCardData {
+  direction: string
+  fonts: string[]
+  colors: { name: string; value: string }[]
 }

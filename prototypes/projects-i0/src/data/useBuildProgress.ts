@@ -103,6 +103,13 @@ export function useBuildProgress() {
         'assistant',
       )
 
+      // Push a thinking indicator while brief generates
+      const thinkingId = `msg-${Date.now()}-thinking`
+      sendMessage(convo.id, 'agent', [{ type: 'text', text: 'Crafting the design brief...' }], 'assistant')
+      // Tag it so we can remove it when brief arrives
+      const thinkingMsg = messages.value[messages.value.length - 1]
+      if (thinkingMsg) thinkingMsg.id = thinkingId
+
       // Track state for event callback
       let progressMsgId: string | null = null
       let firstSectionSeen = false
@@ -133,10 +140,36 @@ export function useBuildProgress() {
       const onEvent = (event: GenerationEvent) => {
         switch (event.type) {
           case 'brief-done': {
-            // Stream the brief-done message (fire-and-forget — don't block generation)
+            // Remove the thinking indicator
+            const thinkingIdx = messages.value.findIndex(m => m.id === thinkingId)
+            if (thinkingIdx !== -1) messages.value.splice(thinkingIdx, 1)
+
+            // Extract color values from the CSS variables for the brief card
+            const colorRegex = /--(color-[\w-]+):\s*([^;]+);/g
+            const colors: { name: string; value: string }[] = []
+            let match
+            while ((match = colorRegex.exec(event.brief.cssVariables)) !== null) {
+              if (match[1] && match[2]) {
+                colors.push({ name: match[1], value: match[2].trim() })
+              }
+            }
+
+            // Push the DesignBriefCard
+            const briefCardContent: ContentBlock[] = [{
+              type: 'card',
+              card: 'designBrief',
+              data: {
+                direction: event.brief.direction,
+                fonts: event.brief.fonts,
+                colors,
+              },
+            }]
+            sendMessage(convo.id, 'agent', briefCardContent, 'assistant')
+
+            // Stream the building message (fire-and-forget — don't block generation)
             streamAgentMessage(
               convo.id,
-              `Design brief locked in. Building ${allSteps.length} sections across ${pageConfigs.length} page${pageConfigs.length > 1 ? 's' : ''}...`,
+              `Building ${allSteps.length} sections across ${pageConfigs.length} page${pageConfigs.length > 1 ? 's' : ''}...`,
               'assistant',
             )
 
@@ -195,17 +228,39 @@ export function useBuildProgress() {
             break
           }
 
-          case 'complete': {
-            // Mark any remaining steps as done
+          case 'section-error': {
+            // Mark the failed step as error in the ProgressCard
             updateProgressCard(steps => {
-              steps.forEach(s => { s.status = 'done' })
+              const step = steps.find(s =>
+                s.name.includes(humanizeRole(event.sectionId)) && s.status === 'running'
+              )
+              if (step) step.status = 'error'
+            })
+            break
+          }
+
+          case 'complete': {
+            // Mark any remaining running steps as done (pending ones from skipped pages stay pending)
+            updateProgressCard(steps => {
+              steps.forEach(s => {
+                if (s.status === 'running') s.status = 'done'
+              })
             })
 
-            streamAgentMessage(
-              convo.id,
-              `**${brief.name}** is ready! ${allSteps.length} sections built across ${pageConfigs.length} page${pageConfigs.length > 1 ? 's' : ''}. Take a look and let me know if you want to tweak anything.`,
-              'assistant',
-            )
+            const succeeded = allSteps.length - event.failed.length
+            if (event.failed.length === 0) {
+              streamAgentMessage(
+                convo.id,
+                `**${brief.name}** is ready! ${allSteps.length} sections built across ${pageConfigs.length} page${pageConfigs.length > 1 ? 's' : ''}. Take a look and let me know if you want to tweak anything.`,
+                'assistant',
+              )
+            } else {
+              streamAgentMessage(
+                convo.id,
+                `**${brief.name}** is mostly ready — ${succeeded} of ${allSteps.length} sections built. ${event.failed.length} section${event.failed.length > 1 ? 's' : ''} couldn't be generated: ${event.failed.map(humanizeRole).join(', ')}. You can ask me to regenerate them.`,
+                'assistant',
+              )
+            }
             break
           }
 

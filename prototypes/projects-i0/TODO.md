@@ -20,12 +20,16 @@
 - [x] Streaming agent messages — `streamAgentMessage()` types text in over ~400ms like real AI responses
 - [x] ProgressCard running state — homepage sections marked `running` immediately (parallel), subsequent pages on `page-start`
 
-### Next: Generation Resilience
-- [ ] **Per-section error boundaries** — wrap individual `generateSection()` in try/catch so one failure doesn't kill the page. Use `Promise.allSettled()` instead of `Promise.all()` for parallel batches
-- [ ] **Retry with reprompt** — on parse failure, retry once with a simplified prompt ("Return only CSS and HTML, no explanation"). Max 1 retry per section
-- [ ] **Skip-and-continue** — if a section fails after retry, mark it as error in ProgressCard and continue building remaining sections. Show a "Retry failed sections" action button in chat after completion
-- [ ] **Design brief progress** — show a thinking/loading indicator while the brief is being generated (currently silent gap between opening message and brief-done)
-- [ ] **Design brief chat card** — new `designBrief` card type showing fonts, color direction, and CSS variables so the user sees what the AI decided before building starts
+### Done (Generation Resilience) ✅
+- [x] **Per-section error boundaries** — `generateSectionWithRetry()` wraps each section in try/catch so one failure doesn't kill the page
+- [x] **Retry with reprompt** — on parse failure, retries once with a stripped-down prompt asking for only CSS + HTML blocks
+- [x] **Skip-and-continue** — failed sections marked as `error` in ProgressCard, build continues. Completion message reports what failed
+- [x] **section-error event** — new event type lets orchestrator track failures without stopping the build
+- [x] **Non-fatal extraction & review** — design system extraction and CSS review wrapped in try/catch so they can't kill the build
+- [x] **Design brief progress** — "Crafting the design brief..." thinking indicator shown while brief generates, removed when brief arrives
+- [x] **Design brief chat card** — new `designBrief` card type showing direction, fonts, and color swatches extracted from CSS variables
+
+### Next
 - [ ] Graceful API key check — warn user when no Anthropic key is configured instead of silently failing to 'stopped'
 - [ ] Graceful API error handling — parse Anthropic error responses and show human-readable messages in chat (e.g. "Your API credits have run out" instead of raw JSON dumps)
 

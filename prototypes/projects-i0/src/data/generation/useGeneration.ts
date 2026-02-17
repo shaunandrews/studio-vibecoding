@@ -178,6 +178,55 @@ async function generateSection(
   return parseSectionResponse(content.text, sectionRole)
 }
 
+/**
+ * Generate a section with one retry on failure.
+ * The retry uses a stripped-down prompt to reduce format confusion.
+ */
+async function generateSectionWithRetry(
+  brief: DesignBrief,
+  sectionRole: string,
+  pageTitle: string,
+  pageContext: string[],
+): Promise<{ css: string; html: string }> {
+  try {
+    return await generateSection(brief, sectionRole, pageTitle, pageContext)
+  } catch (firstError) {
+    console.warn(`[Gen] ${sectionRole} failed, retrying with simplified prompt:`, firstError)
+
+    // Retry with a more explicit, stripped-down prompt
+    const client = getAIClient()
+    const retryPrompt = `Generate a ${sectionRole} section for "${pageTitle}".
+
+Design variables: ${brief.cssVariables}
+Fonts: ${brief.fonts.join(', ')}
+
+Return ONLY this format, nothing else:
+
+\`\`\`css
+[data-section="${sectionRole}"] {
+  /* your CSS */
+}
+\`\`\`
+
+\`\`\`html
+<!-- your HTML -->
+\`\`\``
+
+    const response = await client.messages.create({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 3072,
+      messages: [{ role: 'user', content: retryPrompt }],
+    })
+
+    const content = response.content[0]
+    if (!content || content.type !== 'text') {
+      throw new Error('Invalid response type from AI on retry')
+    }
+
+    return parseSectionResponse(content.text, sectionRole)
+  }
+}
+
 async function extractDesignSystem(allSectionCSS: string): Promise<DesignSystem> {
   const client = getAIClient()
   const prompt = buildExtractionPrompt(allSectionCSS)
@@ -276,33 +325,46 @@ async function generateSite(
     progress.value.currentPage = homepageConfig.title
     onEvent?.({ type: 'page-start', pageTitle: homepageConfig.title })
 
+    const failedSections: string[] = []
+
     const homepageSectionPromises = homepageConfig.sectionRoles.map(async (role) => {
-      const { css, html } = await generateSection(brief, role, homepageConfig.title, [])
-      
-      // Update site store immediately
-      siteStore.updateSection(projectId, role, html, css)
+      try {
+        const { css, html } = await generateSectionWithRetry(brief, role, homepageConfig.title, [])
 
-      // Update progress
-      progress.value.sectionsComplete += 1
-      onEvent?.({ type: 'section-done', sectionId: role, pageSlug: homepageConfig.slug, sectionsComplete: progress.value.sectionsComplete, sectionsTotal: totalSections })
+        siteStore.updateSection(projectId, role, html, css)
+        progress.value.sectionsComplete += 1
+        onEvent?.({ type: 'section-done', sectionId: role, pageSlug: homepageConfig.slug, sectionsComplete: progress.value.sectionsComplete, sectionsTotal: totalSections })
 
-      return { role, css, html }
+        return { role, css, html }
+      } catch (error) {
+        const msg = error instanceof Error ? error.message : 'Unknown error'
+        console.error(`[Gen] Section ${role} failed after retry:`, msg)
+        progress.value.sectionsComplete += 1
+        failedSections.push(role)
+        onEvent?.({ type: 'section-error', sectionId: role, error: msg })
+        return null
+      }
     })
 
-    const homepageSections = await Promise.all(homepageSectionPromises)
+    const homepageResults = await Promise.all(homepageSectionPromises)
+    const homepageSections = homepageResults.filter((s): s is { role: string; css: string; html: string } => s !== null)
 
-    // Step 3: Extract design system from homepage CSS
-    progress.value.status = 'extracting'
-    progress.value.currentPage = 'Analyzing design patterns...'
-    onEvent?.({ type: 'extract-start' })
-    
-    const homepageCSS = homepageSections.map(s => s.css).join('\n\n')
-    const designSystem = await extractDesignSystem(homepageCSS)
-    
-    // Update site with design system
-    const updatedSite = siteStore.getSite(projectId)
-    if (updatedSite) {
-      updatedSite.designSystem = designSystem
+    // Step 3: Extract design system from homepage CSS (skip if no sections succeeded)
+    if (homepageSections.length > 0) {
+      progress.value.status = 'extracting'
+      progress.value.currentPage = 'Analyzing design patterns...'
+      onEvent?.({ type: 'extract-start' })
+
+      try {
+        const homepageCSS = homepageSections.map(s => s.css).join('\n\n')
+        const designSystem = await extractDesignSystem(homepageCSS)
+        const updatedSite = siteStore.getSite(projectId)
+        if (updatedSite) {
+          updatedSite.designSystem = designSystem
+        }
+      } catch (extractError) {
+        console.warn('[Gen] Design system extraction failed, continuing:', extractError)
+      }
     }
 
     // Step 4: Generate remaining pages in parallel
@@ -313,40 +375,51 @@ async function generateSite(
       onEvent?.({ type: 'page-start', pageTitle: pageConfig.title })
 
       const pageSectionPromises = pageConfig.sectionRoles.map(async (role) => {
-        const contextInfo = [`Page: ${pageConfig.title}`, `Design system established`]
-        const { css, html } = await generateSection(brief, role, pageConfig.title, contextInfo)
-        
-        // Use unique section ID for non-homepage sections
         const sectionId = pageConfig.slug === '/' ? role : `${pageConfig.slug.replace('/', '')}-${role}`
-        
-        siteStore.updateSection(projectId, sectionId, html, css)
-        progress.value.sectionsComplete += 1
-        onEvent?.({ type: 'section-done', sectionId, pageSlug: pageConfig.slug, sectionsComplete: progress.value.sectionsComplete, sectionsTotal: totalSections })
+        try {
+          const contextInfo = [`Page: ${pageConfig.title}`, `Design system established`]
+          const { css, html } = await generateSectionWithRetry(brief, role, pageConfig.title, contextInfo)
 
-        return { role: sectionId, css, html }
+          siteStore.updateSection(projectId, sectionId, html, css)
+          progress.value.sectionsComplete += 1
+          onEvent?.({ type: 'section-done', sectionId, pageSlug: pageConfig.slug, sectionsComplete: progress.value.sectionsComplete, sectionsTotal: totalSections })
+
+          return { role: sectionId, css, html }
+        } catch (error) {
+          const msg = error instanceof Error ? error.message : 'Unknown error'
+          console.error(`[Gen] Section ${sectionId} failed after retry:`, msg)
+          progress.value.sectionsComplete += 1
+          failedSections.push(sectionId)
+          onEvent?.({ type: 'section-error', sectionId, error: msg })
+          return null
+        }
       })
-      
+
       await Promise.all(pageSectionPromises)
     }
 
-    // Step 5: Review generated CSS
-    progress.value.status = 'reviewing'
-    progress.value.currentPage = 'Final quality review...'
-    
+    // Step 5: Review generated CSS (non-fatal)
     const allSections = Object.values(siteStore.getSite(projectId)?.sections || {})
-    const allCSS = allSections.map(s => s.css).join('\n\n')
-    
-    const reviewResult = await reviewCSS(allCSS, description)
-    console.log('Review result:', reviewResult)
-    
-    if (!reviewResult.passed) {
-      console.warn('Generated site has issues:', reviewResult.issues)
+    if (allSections.length > 0) {
+      progress.value.status = 'reviewing'
+      progress.value.currentPage = 'Final quality review...'
+
+      try {
+        const allCSS = allSections.map(s => s.css).join('\n\n')
+        const reviewResult = await reviewCSS(allCSS, description)
+        console.log('Review result:', reviewResult)
+        if (!reviewResult.passed) {
+          console.warn('Generated site has issues:', reviewResult.issues)
+        }
+      } catch (reviewError) {
+        console.warn('[Gen] Review failed, continuing:', reviewError)
+      }
     }
 
     // Complete
     progress.value.status = 'complete'
     progress.value.currentPage = 'Generation complete!'
-    onEvent?.({ type: 'complete' })
+    onEvent?.({ type: 'complete', failed: failedSections })
 
   } catch (error) {
     progress.value.status = 'error'
