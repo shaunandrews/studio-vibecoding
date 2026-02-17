@@ -2,6 +2,7 @@
 import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import Titlebar from '@/components/primitives/Titlebar.vue'
+import Button from '@/components/primitives/Button.vue'
 import ProjectList from '@/components/features/ProjectList.vue'
 import NewProjectModal from '@/components/features/NewProjectModal.vue'
 import { useProjects } from '@/data/useProjects'
@@ -40,8 +41,11 @@ function onProjectCreated(brief: ProjectBrief) {
     <Titlebar />
     <div class="app-body flex-1 min-w-0 p-xs">
       <!-- Left column: full width on home, 210px on project -->
-      <div class="left-column" :class="{ 'is-sidebar': mode === 'project', 'is-transitioning': transitioning }">
-        <ProjectList :mode="mode === 'project' ? 'list' : 'grid'" @new-project="showNewProjectModal = true" />
+      <div class="left-column vstack" :class="{ 'is-sidebar': mode === 'project', 'is-transitioning': transitioning }">
+        <ProjectList class="flex-1 min-h-0" :mode="mode === 'project' ? 'list' : 'grid'" @new-project="showNewProjectModal = true" />
+        <div class="new-project-footer">
+          <Button variant="secondary" surface="dark" label="New project" width="full" @click="showNewProjectModal = true" />
+        </div>
       </div>
       <!-- Frame: slides in from right as a solid block -->
       <main class="frame" :class="{ 'frame-visible': mode === 'project' }">
@@ -87,6 +91,16 @@ function onProjectCreated(brief: ProjectBrief) {
 
 .left-column.is-transitioning {
   pointer-events: none;
+}
+
+.new-project-footer {
+  max-width: 210px;
+  display: flex;
+}
+
+.new-project-footer :deep(.tooltip-trigger) {
+  display: flex;
+  flex: 1;
 }
 
 /* Frame: positioned at final size, slides in from right */

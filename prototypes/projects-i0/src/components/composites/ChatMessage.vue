@@ -12,7 +12,7 @@ import PostDraftCard from '@/components/composites/chat-cards/PostDraftCard.vue'
 import ThemeUpdateCard from '@/components/composites/chat-cards/ThemeUpdateCard.vue'
 import SectionEditCard from '@/components/composites/chat-cards/SectionEditCard.vue'
 import ThemeEditCard from '@/components/composites/chat-cards/ThemeEditCard.vue'
-import DesignBriefCard from '@/components/composites/chat-cards/DesignBriefCard.vue'
+import DesignBriefPickerCard from '@/components/composites/chat-cards/DesignBriefPickerCard.vue'
 import type { ActionButton, ContentBlock, AgentId } from '@/data/types'
 
 const props = defineProps<{
@@ -139,11 +139,12 @@ function buttonVariant(variant?: ActionButton['variant']): 'primary' | 'secondar
           :state="block.state"
         />
 
-        <DesignBriefCard
-          v-else-if="block.type === 'card' && block.card === 'designBrief'"
+        <DesignBriefPickerCard
+          v-else-if="block.type === 'card' && block.card === 'designBriefPicker'"
           :data="block.data"
           :compact="block.compact"
           :state="block.state"
+          @action="onAction"
         />
 
         <div v-else-if="block.type === 'actions'" class="chat-actions hstack gap-xxs flex-wrap" style="max-width: 520px;">

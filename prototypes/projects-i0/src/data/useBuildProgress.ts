@@ -52,6 +52,39 @@ function humanizeRole(role: string): string {
   return role.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
 }
 
+/**
+ * Parse a CSS hex color to [r, g, b] (0-255).
+ * Supports #rgb, #rrggbb, and named fallbacks.
+ */
+function parseHex(hex: string): [number, number, number] | null {
+  const m = hex.trim().match(/^#([0-9a-f]{3,8})$/i)
+  if (!m || !m[1]) return null
+  const h = m[1]
+  if (h.length === 3) {
+    return [parseInt(h[0]! + h[0]!, 16), parseInt(h[1]! + h[1]!, 16), parseInt(h[2]! + h[2]!, 16)]
+  }
+  if (h.length >= 6) {
+    return [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)]
+  }
+  return null
+}
+
+/** Relative luminance (WCAG 2.0) — 0 = black, 1 = white */
+function luminance(r: number, g: number, b: number): number {
+  const [rs, gs, bs] = [r, g, b].map(c => {
+    const s = c / 255
+    return s <= 0.03928 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4)
+  })
+  return 0.2126 * rs! + 0.7152 * gs! + 0.0722 * bs!
+}
+
+/** Contrast ratio between two luminance values (1:1 to 21:1) */
+function contrastRatio(l1: number, l2: number): number {
+  const lighter = Math.max(l1, l2)
+  const darker = Math.min(l1, l2)
+  return (lighter + 0.05) / (darker + 0.05)
+}
+
 function extractBriefCardData(brief: DesignBrief, siteName: string) {
   const colorRegex = /--(color-[\w-]+):\s*([^;]+);/g
   const colors: { name: string; value: string }[] = []
@@ -71,11 +104,58 @@ function extractBriefCardData(brief: DesignBrief, siteName: string) {
     return null
   }
 
-  const bgColor = findColor('bg', 'background', 'surface') || '#1a1a2e'
-  const textColor = findColor('text', 'foreground') || '#e0e0e0'
-  const accentColor = findColor('primary', 'accent', 'brand') || colors[0]?.value || '#6366f1'
+  let bgColor = findColor('bg', 'background', 'surface') || '#1a1a2e'
+  let textColor = findColor('text', 'foreground') || '#e0e0e0'
+  let accentColor = findColor('primary', 'accent', 'brand') || colors[0]?.value || '#6366f1'
 
-  return { siteName, direction: brief.direction, fonts: brief.fonts, colors, bgColor, textColor, accentColor }
+  // Ensure readable contrast — fix bad AI color picks
+  const bgRgb = parseHex(bgColor)
+  const textRgb = parseHex(textColor)
+  const accentRgb = parseHex(accentColor)
+
+  if (bgRgb && textRgb) {
+    const bgLum = luminance(...bgRgb)
+    const textLum = luminance(...textRgb)
+    const ratio = contrastRatio(bgLum, textLum)
+
+    // If text/bg contrast is too low, force readable values
+    if (ratio < 3) {
+      // Determine if bg is light or dark
+      if (bgLum > 0.5) {
+        // Light background — use dark text
+        textColor = '#1a1a2e'
+      } else {
+        // Dark background — use light text
+        textColor = '#f0f0f0'
+      }
+    }
+  }
+
+  if (bgRgb && accentRgb) {
+    const bgLum = luminance(...bgRgb)
+    const accentLum = luminance(...accentRgb)
+    const ratio = contrastRatio(bgLum, accentLum)
+
+    if (ratio < 2.5) {
+      // Accent invisible against bg — try to find any color with decent contrast
+      for (const c of colors) {
+        const rgb = parseHex(c.value)
+        if (!rgb) continue
+        const lum = luminance(...rgb)
+        if (contrastRatio(bgLum, lum) >= 3) {
+          accentColor = c.value
+          break
+        }
+      }
+    }
+  }
+
+  // Limit palette to 8 swatches — skip bg/text dupes since those are already shown as card chrome
+  const displayColors = colors
+    .filter(c => c.value !== bgColor && c.value !== textColor)
+    .slice(0, 8)
+
+  return { siteName, direction: brief.direction, fonts: brief.fonts, colors: displayColors, bgColor, textColor, accentColor }
 }
 
 // ---- Build State ----
@@ -118,6 +198,24 @@ export function useBuildProgress() {
       if (!pending) return
       const brief = pending.briefs[briefIndex]
       if (!brief) return
+
+      // Mutate the picker card in-place: keep only the chosen brief, remove buttons
+      const pickerMsg = messages.value.find(m =>
+        m.content.some(b => b.type === 'card' && b.card === 'designBriefPicker')
+      )
+      if (pickerMsg) {
+        const cardBlock = pickerMsg.content.find(
+          (b): b is Extract<ContentBlock, { type: 'card'; card: 'designBriefPicker' }> =>
+            b.type === 'card' && b.card === 'designBriefPicker'
+        )
+        if (cardBlock) {
+          cardBlock.data = {
+            briefs: [cardBlock.data.briefs[briefIndex]!],
+          }
+          pickerMsg.content = [...pickerMsg.content]
+        }
+      }
+
       pending.resolve(brief)
       delete pendingSelections[projectId]
     },
@@ -169,53 +267,33 @@ export function useBuildProgress() {
         'assistant',
       )
 
-      const briefCards: ContentBlock[] = validBriefs.flatMap((b, i) => {
-        const cardData = extractBriefCardData(b, brief.name)
-        const blocks: ContentBlock[] = [
-          {
-            type: 'card',
-            card: 'designBrief',
-            id: `brief-${i}`,
-            data: cardData,
-          },
-        ]
-        return blocks
-      })
+      const pickerCard: ContentBlock[] = [{
+        type: 'card',
+        card: 'designBriefPicker',
+        id: 'brief-picker',
+        data: {
+          briefs: validBriefs.map(b => extractBriefCardData(b, brief.name)),
+          actions: validBriefs.map((_, i) => ({
+            id: `choose-brief-${i}`,
+            label: `Pick option ${i + 1}`,
+            variant: 'primary' as const,
+            action: {
+              type: 'send-message' as const,
+              message: `I'll go with option ${i + 1}`,
+              payload: { briefSelection: String(i), projectId },
+            },
+          })),
+        },
+      }]
 
-      // Add action buttons for choosing
-      const actions: ContentBlock = {
-        type: 'actions',
-        actions: validBriefs.map((_, i) => ({
-          id: `choose-brief-${i}`,
-          label: `Option ${i + 1}`,
-          variant: i === 0 ? 'primary' as const : 'secondary' as const,
-          action: {
-            type: 'send-message' as const,
-            message: `I'll go with option ${i + 1}`,
-            payload: { briefSelection: String(i), projectId },
-          },
-        })),
-      }
-      briefCards.push(actions)
-
-      sendMessage(convo.id, 'agent', briefCards, 'assistant')
+      sendMessage(convo.id, 'agent', pickerCard, 'assistant')
 
       // 6. Wait for user selection
       const chosenBrief = await new Promise<DesignBrief>((resolve) => {
         pendingSelections[projectId] = { resolve, briefs: validBriefs }
       })
 
-      // 7. Acknowledge selection and start building
-      await streamAgentMessage(
-        convo.id,
-        `Great choice. Let's build it.`,
-        'assistant',
-      )
-
-      // Track state for event callback
-      let progressMsgId: string | null = null
-      let firstSectionSeen = false
-
+      // 7. Acknowledge selection and show progress card immediately
       const allSteps = pageConfigs.flatMap(page =>
         page.sectionRoles.map(role => ({
           name: `${page.title} — ${humanizeRole(role)}`,
@@ -223,6 +301,20 @@ export function useBuildProgress() {
           status: 'pending' as 'pending' | 'running' | 'done' | 'error',
         }))
       )
+
+      // Single message: intro text + progress card together
+      const buildIntro: ContentBlock[] = [
+        { type: 'text', text: `Great choice! Building **${brief.name}** — ${allSteps.length} sections across ${pageConfigs.length} page${pageConfigs.length > 1 ? 's' : ''}.` },
+        {
+          type: 'card',
+          card: 'progress',
+          data: { label: 'Build Progress', steps: allSteps.map(s => ({ name: s.name, status: s.status })) },
+        },
+      ]
+      sendMessage(convo.id, 'agent', buildIntro, 'assistant')
+
+      const progressMsgId = messages.value[messages.value.length - 1]?.id ?? null
+      let firstSectionSeen = false
 
       function updateProgressCard(updater: (steps: typeof allSteps) => void) {
         if (!progressMsgId) return
@@ -238,45 +330,18 @@ export function useBuildProgress() {
 
       const onEvent = (event: GenerationEvent) => {
         switch (event.type) {
-          case 'brief-done': {
-            // Brief was pre-selected, this shouldn't fire — but handle gracefully
+          case 'brief-done':
             break
-          }
 
           case 'page-start': {
-            // First page-start: push the ProgressCard
-            if (!progressMsgId) {
-              const homepageTitle = pageConfigs[0]?.title
-              const cardSteps = allSteps.map(s => ({
-                name: s.name,
-                status: s.pageTitle === homepageTitle ? 'running' as const : s.status,
-              }))
-
-              streamAgentMessage(
-                convo.id,
-                `Building ${allSteps.length} sections across ${pageConfigs.length} page${pageConfigs.length > 1 ? 's' : ''}...`,
-                'assistant',
-              )
-
-              const cardContent: ContentBlock[] = [{
-                type: 'card',
-                card: 'progress',
-                data: { label: 'Build Progress', steps: cardSteps },
-              }]
-              sendMessage(convo.id, 'agent', cardContent, 'assistant')
-
-              const lastMsg = messages.value[messages.value.length - 1]
-              if (lastMsg) progressMsgId = lastMsg.id
-            } else {
-              // Subsequent pages: mark steps as running
-              updateProgressCard(steps => {
-                for (const step of steps) {
-                  if (step.name.startsWith(`${event.pageTitle} —`) && step.status === 'pending') {
-                    step.status = 'running'
-                  }
+            // Mark this page's steps as running
+            updateProgressCard(steps => {
+              for (const step of steps) {
+                if (step.name.startsWith(`${event.pageTitle} —`) && step.status === 'pending') {
+                  step.status = 'running'
                 }
-              })
-            }
+              }
+            })
             break
           }
 
@@ -284,11 +349,6 @@ export function useBuildProgress() {
             if (!firstSectionSeen) {
               firstSectionSeen = true
               show(projectId)
-              streamAgentMessage(
-                convo.id,
-                `First section is up — **${humanizeRole(event.sectionId)}**. Opening the preview now.`,
-                'assistant',
-              )
             }
 
             updateProgressCard(steps => {
@@ -321,13 +381,13 @@ export function useBuildProgress() {
             if (event.failed.length === 0) {
               streamAgentMessage(
                 convo.id,
-                `**${brief.name}** is ready! ${allSteps.length} sections built across ${pageConfigs.length} page${pageConfigs.length > 1 ? 's' : ''}. Take a look and let me know if you want to tweak anything.`,
+                `**${brief.name}** is ready! Take a look and let me know if you want to tweak anything.`,
                 'assistant',
               )
             } else {
               streamAgentMessage(
                 convo.id,
-                `**${brief.name}** is mostly ready — ${succeeded} of ${allSteps.length} sections built. ${event.failed.length} section${event.failed.length > 1 ? 's' : ''} couldn't be generated: ${event.failed.map(humanizeRole).join(', ')}. You can ask me to regenerate them.`,
+                `**${brief.name}** is mostly ready — ${succeeded} of ${allSteps.length} sections built. ${event.failed.length} couldn't be generated. You can ask me to regenerate them.`,
                 'assistant',
               )
             }

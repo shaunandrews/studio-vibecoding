@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { chevronLeft } from '@wordpress/icons'
-import Button from '@/components/primitives/Button.vue'
 import WPIcon from '@/components/primitives/WPIcon.vue'
 import Text from '@/components/primitives/Text.vue'
 import ProjectItem from '@/components/composites/ProjectItem.vue'
@@ -41,9 +40,8 @@ function toggleStatus(id: string) {
     </div>
 
     <!-- Header (grid mode only) -->
-    <div v-if="mode === 'grid'" class="list-header hstack justify-between">
+    <div v-if="mode === 'grid'" class="list-header">
       <Text variant="label" color="muted" tag="h2">Projects</Text>
-      <Button variant="secondary" label="New project" size="small" surface="dark" @click="emit('new-project')" />
     </div>
 
     <!-- Items -->
@@ -59,17 +57,6 @@ function toggleStatus(id: string) {
       />
     </div>
 
-    <!-- Footer -->
-    <div class="list-footer">
-      <Button
-        v-if="mode === 'list'"
-        variant="secondary"
-        surface="dark"
-        label="Add project"
-        width="full"
-        @click="emit('new-project')"
-      />
-    </div>
   </div>
 </template>
 
@@ -128,7 +115,4 @@ function toggleStatus(id: string) {
   white-space: nowrap;
 }
 
-.list-footer {
-  margin-top: auto;
-}
 </style>

@@ -138,9 +138,11 @@ function handleSend(text: string) {
 }
 
 function handleAction(action: ActionButton) {
-  // Brief selection — resolve the pending promise in useBuildProgress
+  // Brief selection — just resolve the promise, no message needed.
+  // The picker card mutates in-place to show the chosen brief.
   if (action.action.payload?.briefSelection && action.action.payload?.projectId) {
     selectBrief(action.action.payload.projectId, Number(action.action.payload.briefSelection))
+    return
   }
 
   if (action.action.payload?.themeChanges && props.projectId) {
@@ -149,6 +151,7 @@ function handleAction(action: ActionButton) {
       updateTheme(props.projectId, changes)
     } catch { /* ignore parse errors */ }
   }
+
   sendMessage(
     activeConvoId.value,
     'user',

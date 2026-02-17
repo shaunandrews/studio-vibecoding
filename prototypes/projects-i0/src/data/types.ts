@@ -86,7 +86,7 @@ export type CardBlock =
   | (BaseCardBlock & { card: 'themeUpdate'; data: ThemeUpdateCardData })
   | (BaseCardBlock & { card: 'sectionEdit'; data: SectionEditCardData })
   | (BaseCardBlock & { card: 'themeEdit'; data: ThemeEditCardData })
-  | (BaseCardBlock & { card: 'designBrief'; data: DesignBriefCardData })
+  | (BaseCardBlock & { card: 'designBriefPicker'; data: DesignBriefPickerCardData })
 
 export type ContentBlock =
   | { type: 'text'; text: string }
@@ -184,4 +184,9 @@ export interface DesignBriefCardData {
   bgColor: string               // extracted --color-bg or first dark color
   textColor: string              // extracted --color-text or contrasting
   accentColor: string            // extracted --color-primary or first accent
+}
+
+export interface DesignBriefPickerCardData {
+  briefs: DesignBriefCardData[]
+  actions?: ActionButton[]
 }
