@@ -8,11 +8,13 @@ import ChatMessageList from '@/components/composites/ChatMessageList.vue'
 import InputChat from '@/components/composites/InputChat.vue'
 import { useConversations } from '@/data/useConversations'
 import { useSiteThemes } from '@/data/themes/useSiteThemes'
+import { useBuildProgress } from '@/data/useBuildProgress'
 import type { ActionButton, Conversation } from '@/data/types'
 import type { Tab } from '@/components/composites/TabBar.vue'
 
 const { conversations, messages, getMessages, ensureConversation, sendMessage } = useConversations()
 const { updateTheme } = useSiteThemes()
+const { selectBrief } = useBuildProgress()
 
 const props = defineProps<{
   projectId?: string | null
@@ -136,6 +138,11 @@ function handleSend(text: string) {
 }
 
 function handleAction(action: ActionButton) {
+  // Brief selection — resolve the pending promise in useBuildProgress
+  if (action.action.payload?.briefSelection && action.action.payload?.projectId) {
+    selectBrief(action.action.payload.projectId, Number(action.action.payload.briefSelection))
+  }
+
   if (action.action.payload?.themeChanges && props.projectId) {
     try {
       const changes = JSON.parse(action.action.payload.themeChanges)

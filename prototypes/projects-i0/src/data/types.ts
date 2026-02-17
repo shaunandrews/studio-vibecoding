@@ -177,7 +177,11 @@ export interface ThemeEditCardData {
 }
 
 export interface DesignBriefCardData {
+  siteName: string
   direction: string
-  fonts: string[]
+  fonts: string[]               // [heading, body, ...]
   colors: { name: string; value: string }[]
+  bgColor: string               // extracted --color-bg or first dark color
+  textColor: string              // extracted --color-text or contrasting
+  accentColor: string            // extracted --color-primary or first accent
 }

@@ -272,17 +272,18 @@ async function generateSite(
   description: string,
   pageConfigs: { title: string; slug: string; sectionRoles: string[] }[],
   onEvent?: GenerationEventCallback,
+  preSelectedBrief?: DesignBrief,
 ): Promise<void> {
   const siteStore = useSiteStore()
-  
+
   try {
     // Reset progress
     progress.value = {
-      status: 'brief',
-      briefReady: false,
+      status: preSelectedBrief ? 'generating' : 'brief',
+      briefReady: !!preSelectedBrief,
       sectionsTotal: 0,
       sectionsComplete: 0,
-      currentPage: 'Generating design brief...',
+      currentPage: preSelectedBrief ? '' : 'Generating design brief...',
     }
 
     // Setup abort controller
@@ -292,10 +293,12 @@ async function generateSite(
     const totalSections = pageConfigs.reduce((sum, page) => sum + page.sectionRoles.length, 0)
     progress.value.sectionsTotal = totalSections
 
-    // Step 1: Generate design brief
-    const brief = await generateDesignBrief(siteName, siteType, description)
-    progress.value.briefReady = true
-    onEvent?.({ type: 'brief-done', brief })
+    // Step 1: Use pre-selected brief or generate one
+    const brief = preSelectedBrief ?? await generateDesignBrief(siteName, siteType, description)
+    if (!preSelectedBrief) {
+      progress.value.briefReady = true
+      onEvent?.({ type: 'brief-done', brief })
+    }
 
     // Initialize site structure
     const site: Site = {
@@ -469,6 +472,7 @@ function abort(): void {
 export function useGeneration() {
   return {
     generateSite,
+    generateDesignBrief,
     progress,
     abort,
   }

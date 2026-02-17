@@ -4,14 +4,10 @@
  * When startBuild() is called it:
  *  1. Hides the preview panel
  *  2. Gets/creates a conversation for the project
- *  3. Streams an opening agent message narrating the build
- *  4. Passes an onEvent callback to generateSite that:
- *     - brief-done  → streamed message + ProgressCard (homepage steps → running)
- *     - page-start  → mark that page's steps as running
- *     - section-done (first) → auto-open preview with animation
- *     - section-done (each)  → mutate ProgressCard steps
- *     - complete    → summary message
- *  5. Updates project status on completion or error
+ *  3. Generates 3 design briefs in parallel
+ *  4. Shows DesignBriefCards with Choose buttons — waits for selection
+ *  5. Passes chosen brief + onEvent callback to generateSite
+ *  6. Narrates the build via chat messages and ProgressCard
  */
 
 import { reactive } from 'vue'
@@ -20,7 +16,7 @@ import { useProjects } from './useProjects'
 import { useConversations } from './useConversations'
 import { usePreviewState } from './usePreviewState'
 import type { ProjectBrief, ProjectType, ContentBlock } from './types'
-import type { GenerationEvent } from './generation/types'
+import type { DesignBrief, GenerationEvent } from './generation/types'
 
 // ---- Page Configs per Project Type ----
 
@@ -56,6 +52,32 @@ function humanizeRole(role: string): string {
   return role.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
 }
 
+function extractBriefCardData(brief: DesignBrief, siteName: string) {
+  const colorRegex = /--(color-[\w-]+):\s*([^;]+);/g
+  const colors: { name: string; value: string }[] = []
+  let match
+  while ((match = colorRegex.exec(brief.cssVariables)) !== null) {
+    if (match[1] && match[2]) {
+      colors.push({ name: match[1], value: match[2].trim() })
+    }
+  }
+
+  // Extract specific colors for the card chrome
+  const findColor = (...patterns: string[]) => {
+    for (const pattern of patterns) {
+      const c = colors.find(c => c.name.includes(pattern))
+      if (c) return c.value
+    }
+    return null
+  }
+
+  const bgColor = findColor('bg', 'background', 'surface') || '#1a1a2e'
+  const textColor = findColor('text', 'foreground') || '#e0e0e0'
+  const accentColor = findColor('primary', 'accent', 'brand') || colors[0]?.value || '#6366f1'
+
+  return { siteName, direction: brief.direction, fonts: brief.fonts, colors, bgColor, textColor, accentColor }
+}
+
 // ---- Build State ----
 
 interface BuildState {
@@ -65,10 +87,16 @@ interface BuildState {
 
 const buildStates: Record<string, BuildState> = reactive({})
 
+// Pending brief selections — resolved when user clicks Choose
+const pendingSelections: Record<string, {
+  resolve: (brief: DesignBrief) => void
+  briefs: DesignBrief[]
+}> = {}
+
 // ---- Export ----
 
 export function useBuildProgress() {
-  const { generateSite, progress, abort } = useGeneration()
+  const { generateSite, generateDesignBrief, progress, abort } = useGeneration()
   const { setStatus } = useProjects()
   const { ensureConversation, sendMessage, streamAgentMessage, messages } = useConversations()
   const { hide, show } = usePreviewState()
@@ -84,6 +112,16 @@ export function useBuildProgress() {
 
     progress,
 
+    /** Called by AgentPanel when user clicks a Choose button */
+    selectBrief(projectId: string, briefIndex: number): void {
+      const pending = pendingSelections[projectId]
+      if (!pending) return
+      const brief = pending.briefs[briefIndex]
+      if (!brief) return
+      pending.resolve(brief)
+      delete pendingSelections[projectId]
+    },
+
     async startBuild(projectId: string, brief: ProjectBrief): Promise<void> {
       buildStates[projectId] = { status: 'building' }
 
@@ -96,21 +134,88 @@ export function useBuildProgress() {
       // 2. Get or create conversation
       const convo = ensureConversation(projectId, 'assistant')
 
-      // 3. Opening narration (streamed)
+      // 3. Opening narration
       await streamAgentMessage(
         convo.id,
-        `Let me design **${brief.name}** for you. I'll start with a design brief, then build each section one by one.`,
+        `Let me design **${brief.name}** for you. I'll create a few design directions for you to choose from.`,
+        'assistant',
+      )
+      streamAgentMessage(convo.id, 'Crafting design briefs...', 'assistant')
+
+      // 4. Generate 3 briefs in parallel
+      const briefPromises = [0, 1, 2].map(async (i) => {
+        try {
+          return await generateDesignBrief(brief.name, siteType, brief.description)
+        } catch (error) {
+          console.warn(`[Build] Brief ${i} failed:`, error)
+          return null
+        }
+      })
+
+      const briefResults = await Promise.all(briefPromises)
+      const validBriefs = briefResults.filter((b): b is DesignBrief => b !== null)
+
+      if (validBriefs.length === 0) {
+        streamAgentMessage(convo.id, 'All design briefs failed to generate. Please try again.', 'assistant')
+        buildStates[projectId] = { status: 'error', error: 'All briefs failed' }
+        setStatus(projectId, 'stopped')
+        return
+      }
+
+      // 5. Show brief cards with Choose buttons
+      await streamAgentMessage(
+        convo.id,
+        `Here ${validBriefs.length === 1 ? 'is 1 direction' : `are ${validBriefs.length} directions`} for **${brief.name}**. Pick the one that feels right:`,
         'assistant',
       )
 
-      // Thinking indicator while brief generates
-      streamAgentMessage(convo.id, 'Crafting the design brief...', 'assistant')
+      const briefCards: ContentBlock[] = validBriefs.flatMap((b, i) => {
+        const cardData = extractBriefCardData(b, brief.name)
+        const blocks: ContentBlock[] = [
+          {
+            type: 'card',
+            card: 'designBrief',
+            id: `brief-${i}`,
+            data: cardData,
+          },
+        ]
+        return blocks
+      })
+
+      // Add action buttons for choosing
+      const actions: ContentBlock = {
+        type: 'actions',
+        actions: validBriefs.map((_, i) => ({
+          id: `choose-brief-${i}`,
+          label: `Option ${i + 1}`,
+          variant: i === 0 ? 'primary' as const : 'secondary' as const,
+          action: {
+            type: 'send-message' as const,
+            message: `I'll go with option ${i + 1}`,
+            payload: { briefSelection: String(i), projectId },
+          },
+        })),
+      }
+      briefCards.push(actions)
+
+      sendMessage(convo.id, 'agent', briefCards, 'assistant')
+
+      // 6. Wait for user selection
+      const chosenBrief = await new Promise<DesignBrief>((resolve) => {
+        pendingSelections[projectId] = { resolve, briefs: validBriefs }
+      })
+
+      // 7. Acknowledge selection and start building
+      await streamAgentMessage(
+        convo.id,
+        `Great choice. Let's build it.`,
+        'assistant',
+      )
 
       // Track state for event callback
       let progressMsgId: string | null = null
       let firstSectionSeen = false
 
-      // Build the step list from page configs — include page title for lookup
       const allSteps = pageConfigs.flatMap(page =>
         page.sectionRoles.map(role => ({
           name: `${page.title} — ${humanizeRole(role)}`,
@@ -119,7 +224,6 @@ export function useBuildProgress() {
         }))
       )
 
-      // Helper: find the progress card block and update it reactively
       function updateProgressCard(updater: (steps: typeof allSteps) => void) {
         if (!progressMsgId) return
         const msg = messages.value.find(m => m.id === progressMsgId)
@@ -129,77 +233,54 @@ export function useBuildProgress() {
         )
         if (!cardBlock || cardBlock.card !== 'progress') return
         updater(cardBlock.data.steps as typeof allSteps)
-        msg.content = [...msg.content] // trigger Vue reactivity
+        msg.content = [...msg.content]
       }
 
-      // 4. Event callback
       const onEvent = (event: GenerationEvent) => {
         switch (event.type) {
           case 'brief-done': {
-            // Extract color values from the CSS variables for the brief card
-            const colorRegex = /--(color-[\w-]+):\s*([^;]+);/g
-            const colors: { name: string; value: string }[] = []
-            let match
-            while ((match = colorRegex.exec(event.brief.cssVariables)) !== null) {
-              if (match[1] && match[2]) {
-                colors.push({ name: match[1], value: match[2].trim() })
-              }
-            }
-
-            // Push the DesignBriefCard
-            const briefCardContent: ContentBlock[] = [{
-              type: 'card',
-              card: 'designBrief',
-              data: {
-                direction: event.brief.direction,
-                fonts: event.brief.fonts,
-                colors,
-              },
-            }]
-            sendMessage(convo.id, 'agent', briefCardContent, 'assistant')
-
-            // Stream the building message (fire-and-forget — don't block generation)
-            streamAgentMessage(
-              convo.id,
-              `Building ${allSteps.length} sections across ${pageConfigs.length} page${pageConfigs.length > 1 ? 's' : ''}...`,
-              'assistant',
-            )
-
-            // Push a ProgressCard message with homepage steps already running
-            // (homepage sections fire in parallel immediately after brief)
-            const homepageTitle = pageConfigs[0]?.title
-            const cardSteps = allSteps.map(s => ({
-              name: s.name,
-              status: s.pageTitle === homepageTitle ? 'running' as const : s.status,
-            }))
-
-            const cardContent: ContentBlock[] = [{
-              type: 'card',
-              card: 'progress',
-              data: { label: 'Build Progress', steps: cardSteps },
-            }]
-            sendMessage(convo.id, 'agent', cardContent, 'assistant')
-
-            // Grab the message so we can mutate it later
-            const lastMsg = messages.value[messages.value.length - 1]
-            if (lastMsg) progressMsgId = lastMsg.id
+            // Brief was pre-selected, this shouldn't fire — but handle gracefully
             break
           }
 
           case 'page-start': {
-            // Mark this page's steps as running
-            updateProgressCard(steps => {
-              for (const step of steps) {
-                if (step.name.startsWith(`${event.pageTitle} —`) && step.status === 'pending') {
-                  step.status = 'running'
+            // First page-start: push the ProgressCard
+            if (!progressMsgId) {
+              const homepageTitle = pageConfigs[0]?.title
+              const cardSteps = allSteps.map(s => ({
+                name: s.name,
+                status: s.pageTitle === homepageTitle ? 'running' as const : s.status,
+              }))
+
+              streamAgentMessage(
+                convo.id,
+                `Building ${allSteps.length} sections across ${pageConfigs.length} page${pageConfigs.length > 1 ? 's' : ''}...`,
+                'assistant',
+              )
+
+              const cardContent: ContentBlock[] = [{
+                type: 'card',
+                card: 'progress',
+                data: { label: 'Build Progress', steps: cardSteps },
+              }]
+              sendMessage(convo.id, 'agent', cardContent, 'assistant')
+
+              const lastMsg = messages.value[messages.value.length - 1]
+              if (lastMsg) progressMsgId = lastMsg.id
+            } else {
+              // Subsequent pages: mark steps as running
+              updateProgressCard(steps => {
+                for (const step of steps) {
+                  if (step.name.startsWith(`${event.pageTitle} —`) && step.status === 'pending') {
+                    step.status = 'running'
+                  }
                 }
-              }
-            })
+              })
+            }
             break
           }
 
           case 'section-done': {
-            // Auto-open preview on first section
             if (!firstSectionSeen) {
               firstSectionSeen = true
               show(projectId)
@@ -210,7 +291,6 @@ export function useBuildProgress() {
               )
             }
 
-            // Mark the completed step as done
             updateProgressCard(steps => {
               const step = steps.find(s =>
                 s.name.includes(humanizeRole(event.sectionId)) && s.status === 'running'
@@ -221,7 +301,6 @@ export function useBuildProgress() {
           }
 
           case 'section-error': {
-            // Mark the failed step as error in the ProgressCard
             updateProgressCard(steps => {
               const step = steps.find(s =>
                 s.name.includes(humanizeRole(event.sectionId)) && s.status === 'running'
@@ -232,7 +311,6 @@ export function useBuildProgress() {
           }
 
           case 'complete': {
-            // Mark any remaining running steps as done (pending ones from skipped pages stay pending)
             updateProgressCard(steps => {
               steps.forEach(s => {
                 if (s.status === 'running') s.status = 'done'
@@ -257,25 +335,19 @@ export function useBuildProgress() {
           }
 
           case 'error': {
-            // Mark running steps as error
             updateProgressCard(steps => {
               steps.forEach(s => {
                 if (s.status === 'running') s.status = 'error'
               })
             })
-
-            streamAgentMessage(
-              convo.id,
-              `Something went wrong: ${event.error}`,
-              'assistant',
-            )
+            streamAgentMessage(convo.id, `Something went wrong: ${event.error}`, 'assistant')
             break
           }
         }
       }
 
       try {
-        await generateSite(projectId, brief.name, siteType, brief.description, pageConfigs, onEvent)
+        await generateSite(projectId, brief.name, siteType, brief.description, pageConfigs, onEvent, chosenBrief)
         buildStates[projectId] = { status: 'complete' }
         setStatus(projectId, 'running')
       } catch (error) {
