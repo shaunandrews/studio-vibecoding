@@ -152,13 +152,16 @@ watch(site, () => {
   })
   if (!page) return
 
-  for (const sectionId of page.sections) {
+  for (let i = 0; i < page.sections.length; i++) {
+    const sectionId = page.sections[i]!
     const section = site.value.sections[sectionId]
     if (!section) continue
 
     // Send update whether new or existing — the iframe listener
-    // creates-with-fade-in if missing, updates-in-place if present
-    sendSectionUpdate(iframeRef.value!, sectionId, section.html, section.css)
+    // creates-with-fade-in if missing, updates-in-place if present.
+    // Pass order index so sections insert in the right position
+    // even when they arrive out of order (parallel generation).
+    sendSectionUpdate(iframeRef.value!, sectionId, section.html, section.css, i)
     renderedSections.value.add(sectionId)
   }
 }, { deep: true })

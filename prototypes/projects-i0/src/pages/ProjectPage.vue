@@ -65,11 +65,15 @@ function onPointerUp(e: PointerEvent) {
 const isAnimating = ref(false)
 let animationTimeout: ReturnType<typeof setTimeout> | null = null
 
-function togglePreview() {
+// Animate on any visibility change (toggle button or programmatic via usePreviewState)
+watch(showPreview, () => {
   isAnimating.value = true
-  showPreview.value = !showPreview.value
   if (animationTimeout) clearTimeout(animationTimeout)
   animationTimeout = setTimeout(() => { isAnimating.value = false }, 300)
+})
+
+function togglePreview() {
+  showPreview.value = !showPreview.value
 }
 
 const { activeProjectId } = useProjects()

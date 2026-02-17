@@ -8,12 +8,39 @@
 - [x] Phase C: Generation loop (design brief → parallel sections → extraction → review)
 - [x] Phase D: Editing cards (self-contained lifecycle, undo/redo, SectionEditCard, ThemeEditCard)
 
-### Next
+### Done (Conversational Build) ✅
 - [x] Test seed sites rendering in the preview — fixed slug mismatch, nav links, font flash, body margin
 - [x] Wire generation loop into new project flow — useBuildProgress bridges ProjectBrief → generateSite()
-- [ ] Test a real AI-generated site end-to-end
+- [x] Conversational build UX — agent narrates generation in chat, ProgressCard tracks steps live
+- [x] Generation event callbacks — `onEvent` param on `generateSite` fires brief-done/section-done/page-start/complete/error
+- [x] Preview auto-open with animation — hidden during brief, slides open when first section lands
+- [x] Section fade-in — new sections created with `opacity:0` → CSS transition in iframe listener
+- [x] Diff-based section rendering — SitePreview tracks rendered sections in a Set, sends individual updates
+- [x] Section ordering — `data-order` attribute ensures sections insert at correct DOM position during parallel gen
+- [x] Streaming agent messages — `streamAgentMessage()` types text in over ~400ms like real AI responses
+- [x] ProgressCard running state — homepage sections marked `running` immediately (parallel), subsequent pages on `page-start`
+
+### Next: Generation Resilience
+- [ ] **Per-section error boundaries** — wrap individual `generateSection()` in try/catch so one failure doesn't kill the page. Use `Promise.allSettled()` instead of `Promise.all()` for parallel batches
+- [ ] **Retry with reprompt** — on parse failure, retry once with a simplified prompt ("Return only CSS and HTML, no explanation"). Max 1 retry per section
+- [ ] **Skip-and-continue** — if a section fails after retry, mark it as error in ProgressCard and continue building remaining sections. Show a "Retry failed sections" action button in chat after completion
+- [ ] **Design brief progress** — show a thinking/loading indicator while the brief is being generated (currently silent gap between opening message and brief-done)
+- [ ] **Design brief chat card** — new `designBrief` card type showing fonts, color direction, and CSS variables so the user sees what the AI decided before building starts
+- [ ] Graceful API key check — warn user when no Anthropic key is configured instead of silently failing to 'stopped'
+- [ ] Graceful API error handling — parse Anthropic error responses and show human-readable messages in chat (e.g. "Your API credits have run out" instead of raw JSON dumps)
+
+### Known Failure: Section Parse Errors
+The AI sometimes returns sections in unexpected formats that `parseSectionResponse()` can't parse. Root causes:
+- **Token exhaustion** — later sections (especially footer) hit `max_tokens: 3072`, truncating the response mid-format
+- **Format drift** — AI returns prose + code instead of the expected `\`\`\`section:role` fenced block
+- **Promise.all cascade** — one parse failure rejects the entire parallel batch, killing all in-flight sections
+
+Fix strategy: error boundaries per section + retry + skip-and-continue (see items above).
+
+### Later
 - [ ] Design pass on the app UI (chat, cards, preview chrome)
 - [ ] Iterate on generation prompt quality (the actual output needs to look good)
+- [ ] Test a real AI-generated site end-to-end with all pages completing
 
 ---
 

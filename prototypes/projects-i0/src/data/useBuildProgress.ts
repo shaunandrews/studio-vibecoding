@@ -4,10 +4,11 @@
  * When startBuild() is called it:
  *  1. Hides the preview panel
  *  2. Gets/creates a conversation for the project
- *  3. Posts an opening agent message narrating the build
+ *  3. Streams an opening agent message narrating the build
  *  4. Passes an onEvent callback to generateSite that:
- *     - brief-done  → agent message + ProgressCard with all steps pending
- *     - section-done (first) → auto-open preview
+ *     - brief-done  → streamed message + ProgressCard (homepage steps → running)
+ *     - page-start  → mark that page's steps as running
+ *     - section-done (first) → auto-open preview with animation
  *     - section-done (each)  → mutate ProgressCard steps
  *     - complete    → summary message
  *  5. Updates project status on completion or error
@@ -18,7 +19,7 @@ import { useGeneration } from './generation/useGeneration'
 import { useProjects } from './useProjects'
 import { useConversations } from './useConversations'
 import { usePreviewState } from './usePreviewState'
-import type { ProjectBrief, ProjectType, ContentBlock, Message } from './types'
+import type { ProjectBrief, ProjectType, ContentBlock } from './types'
 import type { GenerationEvent } from './generation/types'
 
 // ---- Page Configs per Project Type ----
@@ -55,10 +56,6 @@ function humanizeRole(role: string): string {
   return role.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
 }
 
-function agentMsg(text: string): ContentBlock[] {
-  return [{ type: 'text', text }]
-}
-
 // ---- Build State ----
 
 interface BuildState {
@@ -73,7 +70,7 @@ const buildStates: Record<string, BuildState> = reactive({})
 export function useBuildProgress() {
   const { generateSite, progress, abort } = useGeneration()
   const { setStatus } = useProjects()
-  const { ensureConversation, sendMessage, messages } = useConversations()
+  const { ensureConversation, sendMessage, streamAgentMessage, messages } = useConversations()
   const { hide, show } = usePreviewState()
 
   return {
@@ -99,41 +96,80 @@ export function useBuildProgress() {
       // 2. Get or create conversation
       const convo = ensureConversation(projectId, 'assistant')
 
-      // 3. Opening narration
-      sendMessage(convo.id, 'agent', `Let me design **${brief.name}** for you. I'll start with a design brief, then build each section one by one.`, 'assistant')
+      // 3. Opening narration (streamed)
+      await streamAgentMessage(
+        convo.id,
+        `Let me design **${brief.name}** for you. I'll start with a design brief, then build each section one by one.`,
+        'assistant',
+      )
 
       // Track state for event callback
       let progressMsgId: string | null = null
       let firstSectionSeen = false
 
-      // Build the step list from page configs
+      // Build the step list from page configs — include page title for lookup
       const allSteps = pageConfigs.flatMap(page =>
         page.sectionRoles.map(role => ({
           name: `${page.title} — ${humanizeRole(role)}`,
-          status: 'pending' as const,
+          pageTitle: page.title,
+          status: 'pending' as 'pending' | 'running' | 'done' | 'error',
         }))
       )
+
+      // Helper: find the progress card block and update it reactively
+      function updateProgressCard(updater: (steps: typeof allSteps) => void) {
+        if (!progressMsgId) return
+        const msg = messages.value.find(m => m.id === progressMsgId)
+        if (!msg) return
+        const cardBlock = msg.content.find(
+          (b): b is Extract<ContentBlock, { type: 'card' }> => b.type === 'card' && b.card === 'progress'
+        )
+        if (!cardBlock || cardBlock.card !== 'progress') return
+        updater(cardBlock.data.steps as typeof allSteps)
+        msg.content = [...msg.content] // trigger Vue reactivity
+      }
 
       // 4. Event callback
       const onEvent = (event: GenerationEvent) => {
         switch (event.type) {
           case 'brief-done': {
-            sendMessage(convo.id, 'agent', `Design brief locked in. Building ${allSteps.length} sections across ${pageConfigs.length} page${pageConfigs.length > 1 ? 's' : ''}...`, 'assistant')
+            // Stream the brief-done message (fire-and-forget — don't block generation)
+            streamAgentMessage(
+              convo.id,
+              `Design brief locked in. Building ${allSteps.length} sections across ${pageConfigs.length} page${pageConfigs.length > 1 ? 's' : ''}...`,
+              'assistant',
+            )
 
-            // Push a ProgressCard message
+            // Push a ProgressCard message with homepage steps already running
+            // (homepage sections fire in parallel immediately after brief)
+            const homepageTitle = pageConfigs[0]?.title
+            const cardSteps = allSteps.map(s => ({
+              name: s.name,
+              status: s.pageTitle === homepageTitle ? 'running' as const : s.status,
+            }))
+
             const cardContent: ContentBlock[] = [{
               type: 'card',
               card: 'progress',
-              data: {
-                label: 'Build Progress',
-                steps: allSteps.map(s => ({ ...s })),
-              },
+              data: { label: 'Build Progress', steps: cardSteps },
             }]
             sendMessage(convo.id, 'agent', cardContent, 'assistant')
 
-            // Grab the message we just pushed so we can mutate it later
+            // Grab the message so we can mutate it later
             const lastMsg = messages.value[messages.value.length - 1]
             if (lastMsg) progressMsgId = lastMsg.id
+            break
+          }
+
+          case 'page-start': {
+            // Mark this page's steps as running
+            updateProgressCard(steps => {
+              for (const step of steps) {
+                if (step.name.startsWith(`${event.pageTitle} —`) && step.status === 'pending') {
+                  step.status = 'running'
+                }
+              }
+            })
             break
           }
 
@@ -142,54 +178,50 @@ export function useBuildProgress() {
             if (!firstSectionSeen) {
               firstSectionSeen = true
               show(projectId)
-              sendMessage(convo.id, 'agent', `First section is up — **${humanizeRole(event.sectionId)}**. Opening the preview now.`, 'assistant')
+              streamAgentMessage(
+                convo.id,
+                `First section is up — **${humanizeRole(event.sectionId)}**. Opening the preview now.`,
+                'assistant',
+              )
             }
 
-            // Mutate the ProgressCard steps — replace the content array to trigger reactivity
-            if (progressMsgId) {
-              const msg = messages.value.find(m => m.id === progressMsgId)
-              if (msg) {
-                const cardBlock = msg.content.find(
-                  (b): b is Extract<ContentBlock, { type: 'card' }> => b.type === 'card' && b.card === 'progress'
-                )
-                if (cardBlock && cardBlock.card === 'progress') {
-                  // Find the step for this section and mark done
-                  const step = cardBlock.data.steps.find(s => s.name.includes(humanizeRole(event.sectionId)))
-                  if (step) step.status = 'done'
-
-                  // Mark next pending step as running
-                  const nextPending = cardBlock.data.steps.find(s => s.status === 'pending')
-                  if (nextPending) nextPending.status = 'running'
-
-                  // Replace content array to trigger Vue reactivity
-                  msg.content = [...msg.content]
-                }
-              }
-            }
+            // Mark the completed step as done
+            updateProgressCard(steps => {
+              const step = steps.find(s =>
+                s.name.includes(humanizeRole(event.sectionId)) && s.status === 'running'
+              )
+              if (step) step.status = 'done'
+            })
             break
           }
 
           case 'complete': {
             // Mark any remaining steps as done
-            if (progressMsgId) {
-              const msg = messages.value.find(m => m.id === progressMsgId)
-              if (msg) {
-                const cardBlock = msg.content.find(
-                  (b): b is Extract<ContentBlock, { type: 'card' }> => b.type === 'card' && b.card === 'progress'
-                )
-                if (cardBlock && cardBlock.card === 'progress') {
-                  cardBlock.data.steps.forEach(s => { s.status = 'done' })
-                  msg.content = [...msg.content]
-                }
-              }
-            }
+            updateProgressCard(steps => {
+              steps.forEach(s => { s.status = 'done' })
+            })
 
-            sendMessage(convo.id, 'agent', `**${brief.name}** is ready! ${allSteps.length} sections built across ${pageConfigs.length} page${pageConfigs.length > 1 ? 's' : ''}. Take a look and let me know if you want to tweak anything.`, 'assistant')
+            streamAgentMessage(
+              convo.id,
+              `**${brief.name}** is ready! ${allSteps.length} sections built across ${pageConfigs.length} page${pageConfigs.length > 1 ? 's' : ''}. Take a look and let me know if you want to tweak anything.`,
+              'assistant',
+            )
             break
           }
 
           case 'error': {
-            sendMessage(convo.id, 'agent', `Something went wrong: ${event.error}`, 'assistant')
+            // Mark running steps as error
+            updateProgressCard(steps => {
+              steps.forEach(s => {
+                if (s.status === 'running') s.status = 'error'
+              })
+            })
+
+            streamAgentMessage(
+              convo.id,
+              `Something went wrong: ${event.error}`,
+              'assistant',
+            )
             break
           }
         }

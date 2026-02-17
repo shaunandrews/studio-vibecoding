@@ -53,15 +53,31 @@ const LISTENER_SCRIPT = `
         section = document.createElement('div');
         section.setAttribute('data-section', msg.sectionId);
         if (msg.role) section.setAttribute('data-role', msg.role);
+        if (typeof msg.order === 'number') section.setAttribute('data-order', String(msg.order));
         section.style.opacity = '0';
         section.style.transition = 'opacity 0.4s ease-in-out';
 
-        // Insert before the script tag so sections stack in order
-        var scriptTag = document.body.querySelector('script');
-        if (scriptTag) {
-          document.body.insertBefore(section, scriptTag);
-        } else {
-          document.body.appendChild(section);
+        // Insert at correct position based on order
+        var inserted = false;
+        if (typeof msg.order === 'number') {
+          var allSections = document.querySelectorAll('[data-section]');
+          for (var si = 0; si < allSections.length; si++) {
+            var existing = allSections[si];
+            var existingOrder = parseInt(existing.getAttribute('data-order') || '0', 10);
+            if (existingOrder > msg.order) {
+              existing.parentNode.insertBefore(section, existing);
+              inserted = true;
+              break;
+            }
+          }
+        }
+        if (!inserted) {
+          var scriptTag = document.body.querySelector('script');
+          if (scriptTag) {
+            document.body.insertBefore(section, scriptTag);
+          } else {
+            document.body.appendChild(section);
+          }
         }
 
         // Add section CSS to head
@@ -260,9 +276,10 @@ export function sendSectionUpdate(
   sectionId: string,
   html: string,
   css: string,
+  order?: number,
 ): void {
   iframe.contentWindow?.postMessage(
-    { type: 'section-update', sectionId, html, css },
+    { type: 'section-update', sectionId, html, css, order },
     '*',
   )
 }

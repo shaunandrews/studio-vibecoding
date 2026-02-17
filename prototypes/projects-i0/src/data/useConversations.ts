@@ -174,6 +174,57 @@ export function useConversations() {
     }
   }
 
+  /**
+   * Push an agent message that "types in" over ~400ms, matching the look
+   * of real AI streaming. Returns a promise that resolves when done.
+   */
+  function streamAgentMessage(
+    conversationId: string,
+    text: string,
+    agentId?: AgentId,
+  ): Promise<void> {
+    const msgId = `msg-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`
+    const msg: Message = {
+      id: msgId,
+      conversationId,
+      role: 'agent',
+      agentId,
+      content: [{ type: 'text', text: '' }],
+      timestamp: new Date().toISOString(),
+    }
+    messages.value.push(msg)
+
+    return new Promise(resolve => {
+      const chars = [...text]
+      const total = chars.length
+      const duration = Math.min(400, total * 8) // cap at 400ms
+      const interval = duration / total
+      let i = 0
+
+      function tick() {
+        // Write a few characters per tick for longer messages
+        const chunkSize = Math.max(1, Math.ceil(total / 50))
+        const end = Math.min(i + chunkSize, total)
+        const partial = chars.slice(0, end).join('')
+        i = end
+
+        const idx = messages.value.findIndex(m => m.id === msgId)
+        if (idx !== -1) {
+          messages.value[idx]!.content = [{ type: 'text', text: partial }]
+        }
+
+        if (i < total) {
+          setTimeout(tick, interval * chunkSize)
+        } else {
+          resolve()
+        }
+      }
+
+      // Start after a brief pause (feels more natural)
+      setTimeout(tick, 80)
+    })
+  }
+
   return {
     conversations,
     messages,
@@ -182,5 +233,6 @@ export function useConversations() {
     getMessages,
     ensureConversation,
     sendMessage,
+    streamAgentMessage,
   }
 }
