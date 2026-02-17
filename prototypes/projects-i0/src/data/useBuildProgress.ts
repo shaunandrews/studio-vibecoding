@@ -103,12 +103,8 @@ export function useBuildProgress() {
         'assistant',
       )
 
-      // Push a thinking indicator while brief generates
-      const thinkingId = `msg-${Date.now()}-thinking`
-      sendMessage(convo.id, 'agent', [{ type: 'text', text: 'Crafting the design brief...' }], 'assistant')
-      // Tag it so we can remove it when brief arrives
-      const thinkingMsg = messages.value[messages.value.length - 1]
-      if (thinkingMsg) thinkingMsg.id = thinkingId
+      // Thinking indicator while brief generates
+      streamAgentMessage(convo.id, 'Crafting the design brief...', 'assistant')
 
       // Track state for event callback
       let progressMsgId: string | null = null
@@ -140,10 +136,6 @@ export function useBuildProgress() {
       const onEvent = (event: GenerationEvent) => {
         switch (event.type) {
           case 'brief-done': {
-            // Remove the thinking indicator
-            const thinkingIdx = messages.value.findIndex(m => m.id === thinkingId)
-            if (thinkingIdx !== -1) messages.value.splice(thinkingIdx, 1)
-
             // Extract color values from the CSS variables for the brief card
             const colorRegex = /--(color-[\w-]+):\s*([^;]+);/g
             const colors: { name: string; value: string }[] = []

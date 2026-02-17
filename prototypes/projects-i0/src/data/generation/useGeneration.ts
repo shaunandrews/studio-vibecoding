@@ -310,7 +310,9 @@ async function generateSite(
       pages: pageConfigs.map(config => ({
         slug: config.slug,
         title: config.title,
-        sections: config.sectionRoles,
+        sections: config.sectionRoles.map(role =>
+          config.slug === '/' ? role : `${config.slug.replace('/', '')}-${role}`
+        ),
       })),
     }
 

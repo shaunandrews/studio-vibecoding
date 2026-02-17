@@ -33,6 +33,14 @@
 - [ ] Graceful API key check — warn user when no Anthropic key is configured instead of silently failing to 'stopped'
 - [ ] Graceful API error handling — parse Anthropic error responses and show human-readable messages in chat (e.g. "Your API credits have run out" instead of raw JSON dumps)
 
+### Prompt Quality & Design Variety
+Designs are coming out very similar across projects. The `design-brief-prompt.ts` says "complete creative freedom" but gives no variety signal, so Sonnet defaults to safe corporate palettes every time. To fix:
+- [ ] **Define expected CSS variable schema** — specify the variable names the system expects (--color-primary, --color-bg, --font-heading, etc.) so sections can reliably use them, while leaving values entirely to the AI
+- [ ] **Push for distinctiveness** — add variety prompting: "be bold, avoid generic corporate blues, surprise me"
+- [ ] **Test different models** — Opus may be slower but produce more creative, higher-quality results. Add model selection to the generation config
+- [ ] **Temperature tuning** — experiment with temperature > 1.0 for the design brief (creative divergence) vs lower temperature for sections (consistent execution)
+- [ ] **Section prompt quality** — the section prompt is bare-bones; richer context about content expectations and design intent would improve output
+
 ### Known Failure: Section Parse Errors
 The AI sometimes returns sections in unexpected formats that `parseSectionResponse()` can't parse. Root causes:
 - **Token exhaustion** — later sections (especially footer) hit `max_tokens: 3072`, truncating the response mid-format
