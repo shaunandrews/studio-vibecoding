@@ -120,8 +120,8 @@ const iframeReady = ref(false)
 // srcdoc only updates on initial load or project change (not page navigation)
 const srcdoc = ref<string | undefined>(undefined)
 
-// Render initial srcdoc when site/project changes
-watch([site, () => props.projectId], () => {
+// Full srcdoc reload when project changes
+watch(() => props.projectId, () => {
   iframeReady.value = false
   if (!site.value) {
     srcdoc.value = undefined
@@ -129,6 +129,18 @@ watch([site, () => props.projectId], () => {
   }
   srcdoc.value = renderSite(site.value, currentPage.value)
 }, { immediate: true })
+
+// When site content mutates (e.g. sections added during generation),
+// update in-place via postMessage to avoid font flash. Falls back to
+// srcdoc if the iframe isn't ready yet.
+watch(site, () => {
+  if (!site.value) return
+  if (iframeRef.value && iframeReady.value) {
+    sendPageUpdate(iframeRef.value, site.value, currentPage.value)
+  } else {
+    srcdoc.value = renderSite(site.value, currentPage.value)
+  }
+}, { deep: true })
 
 // When the iframe loads, mark it ready for postMessage
 function onIframeLoad() {

@@ -5,7 +5,6 @@ import Panel from '@/components/composites/Panel.vue'
 import AgentPanel from '@/components/features/AgentPanel.vue'
 import SitePreview from '@/components/features/SitePreview.vue'
 import { useProjects } from '@/data/useProjects'
-import { usePipeline } from '@/data/usePipeline'
 
 const route = useRoute()
 const STORAGE_KEY = 'previewState'
@@ -87,7 +86,6 @@ function togglePreview() {
 }
 
 const { activeProjectId } = useProjects()
-const { pipelineState, skeletonSlots } = usePipeline()
 
 watch(() => route.params.id as string, (newId) => {
   activeProjectId.value = newId
@@ -105,7 +103,7 @@ onBeforeUnmount(() => {
     </Panel>
     <div class="resize-handle" :class="{ 'resize-handle--hidden': !showPreview }" @pointerdown="onPointerDown" />
     <Panel class="preview-panel" :class="{ 'preview-panel--hidden': !showPreview }">
-      <SitePreview :project-id="activeProjectId" :pipeline-state="pipelineState" :skeleton-slots="skeletonSlots" />
+      <SitePreview :project-id="activeProjectId" />
     </Panel>
   </div>
 </template>

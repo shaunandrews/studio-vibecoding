@@ -10,7 +10,7 @@
 
 ### Next
 - [x] Test seed sites rendering in the preview — fixed slug mismatch, nav links, font flash, body margin
-- [ ] Wire generation loop into the chat/new project flow
+- [x] Wire generation loop into new project flow — useBuildProgress bridges ProjectBrief → generateSite()
 - [ ] Test a real AI-generated site end-to-end
 - [ ] Design pass on the app UI (chat, cards, preview chrome)
 - [ ] Iterate on generation prompt quality (the actual output needs to look good)

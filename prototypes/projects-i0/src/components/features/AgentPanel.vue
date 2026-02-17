@@ -9,14 +9,12 @@ import InputChat from '@/components/composites/InputChat.vue'
 import { useConversations } from '@/data/useConversations'
 import { useSiteThemes } from '@/data/themes/useSiteThemes'
 import { useBuildProgress } from '@/data/useBuildProgress'
-import { usePipeline } from '@/data/usePipeline'
 import type { ActionButton, Conversation } from '@/data/types'
 import type { Tab } from '@/components/composites/TabBar.vue'
 
 const { conversations, messages, getMessages, ensureConversation, sendMessage } = useConversations()
 const { updateTheme } = useSiteThemes()
 const { isBuilding } = useBuildProgress()
-const { updateContext } = usePipeline()
 
 const props = defineProps<{
   projectId?: string | null
@@ -137,32 +135,6 @@ function handleSend(text: string) {
     { source: 'typed' },
   )
   drafts.value[activeConvoId.value] = ''
-
-  // Watch for the AI response to extract card:context blocks during build
-  if (props.projectId && isBuilding(props.projectId)) {
-    const checkForContext = () => {
-      const recentMsgs = messages.value
-        .filter(m => m.conversationId === activeConvoId.value && m.role === 'agent')
-      const lastMsg = recentMsgs[recentMsgs.length - 1]
-      if (lastMsg) {
-        // Look for context data in text blocks (card:context JSON blocks)
-        for (const block of lastMsg.content) {
-          if (block.type === 'text' && block.text.includes('card:context')) {
-            const match = block.text.match(/```card:context\s*\n([\s\S]*?)\n```/)
-            if (match?.[1]) {
-              try {
-                const contextData = JSON.parse(match[1])
-                updateContext(contextData)
-              } catch { /* ignore parse errors */ }
-            }
-          }
-        }
-      }
-    }
-    // Check after a delay to let the AI respond
-    setTimeout(checkForContext, 3000)
-    setTimeout(checkForContext, 8000)
-  }
 }
 
 function handleAction(action: ActionButton) {
