@@ -22,10 +22,20 @@ const LISTENER_SCRIPT = `
   document.addEventListener('click', function(e) {
     var el = e.target;
     while (el && el !== document.body) {
+      // Handle data-nav-page attributes
       if (el.dataset && el.dataset.navPage) {
         e.preventDefault();
         window.parent.postMessage({type:'navigate',page:el.dataset.navPage},'*');
         return;
+      }
+      // Handle regular internal links
+      if (el.tagName === 'A' && el.getAttribute('href')) {
+        var href = el.getAttribute('href');
+        if (href.charAt(0) === '/' && href.indexOf('//') !== 0) {
+          e.preventDefault();
+          window.parent.postMessage({type:'navigate',page:href},'*');
+          return;
+        }
       }
       el = el.parentElement;
     }
@@ -63,6 +73,45 @@ const LISTENER_SCRIPT = `
       }
     }
 
+    if (msg.type === 'page-update') {
+      // Swap all sections without reloading the document (preserves fonts)
+      var head = document.head;
+      var body = document.body;
+
+      // Remove old section styles
+      var oldStyles = head.querySelectorAll('style[id^="section-"]');
+      for (var i = 0; i < oldStyles.length; i++) oldStyles[i].remove();
+
+      // Add new section styles
+      msg.sections.forEach(function(s) {
+        if (s.css && s.css.trim()) {
+          var style = document.createElement('style');
+          style.id = 'section-' + s.id;
+          style.textContent = s.css;
+          head.appendChild(style);
+        }
+      });
+
+      // Replace body content (keep script tag)
+      var scriptTag = body.querySelector('script');
+      while (body.firstChild) body.removeChild(body.firstChild);
+      msg.sections.forEach(function(s) {
+        var div = document.createElement('div');
+        div.setAttribute('data-section', s.id);
+        if (s.role) div.setAttribute('data-role', s.role);
+        div.innerHTML = s.html;
+        body.appendChild(div);
+      });
+      if (scriptTag) body.appendChild(scriptTag);
+
+      // Update title
+      if (msg.title) document.title = msg.title;
+
+      // Scroll to top
+      window.scrollTo(0, 0);
+      userHasScrolled = false;
+    }
+
     if (msg.type === 'reset-scroll-tracking') {
       userHasScrolled = false;
     }
@@ -95,7 +144,12 @@ function escapeAttr(str: string): string {
  * 6. Injecting the postMessage listener script
  */
 export function renderSite(site: Site, pageSlug: string): string {
-  const page = site.pages.find(p => p.slug === pageSlug)
+  // Normalize slug: strip leading slash, treat "/" as empty string
+  const normalizedSlug = pageSlug === '/' ? '' : pageSlug.replace(/^\//, '')
+  const page = site.pages.find(p => {
+    const pSlug = p.slug === '/' ? '' : p.slug.replace(/^\//, '')
+    return pSlug === normalizedSlug
+  })
   if (!page) {
     return createErrorDocument(`Page "${pageSlug}" not found`)
   }
@@ -138,6 +192,7 @@ export function renderSite(site: Site, pageSlug: string): string {
     }
   }
 
+  parts.push('<style>body { margin: 0; }</style>')
   parts.push('</head>')
 
   // Body with sections
@@ -190,6 +245,47 @@ export function sendThemeUpdate(
     { type: 'theme-update', variables },
     '*',
   )
+}
+
+/**
+ * Get the section data for a page, suitable for postMessage page-update.
+ * Returns null if the page isn't found.
+ */
+export function getPageData(site: Site, pageSlug: string): {
+  title: string
+  sections: { id: string; html: string; css: string; role?: string }[]
+} | null {
+  const normalizedSlug = pageSlug === '/' ? '' : pageSlug.replace(/^\//, '')
+  const page = site.pages.find(p => {
+    const pSlug = p.slug === '/' ? '' : p.slug.replace(/^\//, '')
+    return pSlug === normalizedSlug
+  })
+  if (!page) return null
+
+  const sections = page.sections
+    .map(id => site.sections[id])
+    .filter(Boolean)
+    .map(s => ({ id: s.id, html: s.html, css: s.css, role: s.role }))
+
+  return { title: `${page.title} - ${site.name}`, sections }
+}
+
+/**
+ * Send a page-update to the preview iframe via postMessage.
+ * Swaps sections in-place without reloading the document.
+ */
+export function sendPageUpdate(
+  iframe: HTMLIFrameElement,
+  site: Site,
+  pageSlug: string,
+): boolean {
+  const data = getPageData(site, pageSlug)
+  if (!data) return false
+  iframe.contentWindow?.postMessage(
+    { type: 'page-update', title: data.title, sections: data.sections },
+    '*',
+  )
+  return true
 }
 
 // ---- Error Handling ----

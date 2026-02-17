@@ -1138,17 +1138,17 @@ export const downstreetCafe: Site = {
   pages: [
     {
       slug: "",
-      title: "Home | Downstreet Café",
+      title: "Home",
       sections: ["header", "hero", "menu-preview", "community", "footer"]
     },
     {
       slug: "menu",
-      title: "Menu | Downstreet Café",
+      title: "Menu",
       sections: ["header", "menu-full", "footer"]
     },
     {
       slug: "about",
-      title: "About | Downstreet Café",
+      title: "About",
       sections: ["header", "about-content", "footer"]
     }
   ]

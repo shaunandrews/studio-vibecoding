@@ -1077,17 +1077,17 @@ export const portfolio: Site = {
   pages: [
     {
       slug: "",
-      title: "Studio Meridian | Digital Design & Experience",
+      title: "Home",
       sections: ["header", "hero", "work-preview", "footer"]
     },
     {
       slug: "work",
-      title: "Work | Studio Meridian",
+      title: "Work",
       sections: ["header", "work-grid", "footer"]
     },
     {
       slug: "about",
-      title: "About | Studio Meridian",
+      title: "About",
       sections: ["header", "about-content", "footer"]
     }
   ]

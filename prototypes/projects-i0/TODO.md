@@ -9,7 +9,7 @@
 - [x] Phase D: Editing cards (self-contained lifecycle, undo/redo, SectionEditCard, ThemeEditCard)
 
 ### Next
-- [ ] Test seed sites rendering in the preview (fire up dev server)
+- [x] Test seed sites rendering in the preview — fixed slug mismatch, nav links, font flash, body margin
 - [ ] Wire generation loop into the chat/new project flow
 - [ ] Test a real AI-generated site end-to-end
 - [ ] Design pass on the app UI (chat, cards, preview chrome)

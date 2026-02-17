@@ -5,7 +5,7 @@ import Button from '@/components/primitives/Button.vue'
 import BrowserBar from '@/components/primitives/BrowserBar.vue'
 import PanelToolbar from '@/components/composites/PanelToolbar.vue'
 import Text from '@/components/primitives/Text.vue'
-import { renderSite } from '@/data/site-renderer'
+import { renderSite, sendPageUpdate } from '@/data/site-renderer'
 import { useSiteStore } from '@/data/useSiteStore'
 
 const props = defineProps<{
@@ -57,9 +57,9 @@ function goForward() {
 }
 
 function reload() {
-  const page = currentPage.value
-  currentPage.value = ''
-  requestAnimationFrame(() => { currentPage.value = page })
+  if (!site.value) return
+  iframeReady.value = false
+  srcdoc.value = renderSite(site.value, currentPage.value)
 }
 
 // Reset on project change
@@ -100,7 +100,7 @@ const pages = computed(() => {
   if (!site.value) return {}
   const result: Record<string, { label: string }> = {}
   for (const page of site.value.pages) {
-    const pageKey = page.slug === '/' ? 'homepage' : page.slug.replace(/^\//, '')
+    const pageKey = (page.slug === '/' || page.slug === '') ? 'homepage' : page.slug.replace(/^\//, '')
     result[pageKey] = { label: page.title }
   }
   return result
@@ -113,13 +113,42 @@ const hasDarkMode = computed(() => {
   return Object.keys(themeVars).some(key => key.includes('dark') || key.includes('night'))
 })
 
-// Generate the iframe srcdoc
-const srcdoc = computed(() => {
-  if (!site.value) return undefined
-  return renderSite(site.value, currentPage.value)
-})
+// Iframe ref for postMessage communication
+const iframeRef = ref<HTMLIFrameElement | null>(null)
+const iframeReady = ref(false)
 
-// TODO: Re-add iframe ref when implementing live editing features
+// srcdoc only updates on initial load or project change (not page navigation)
+const srcdoc = ref<string | undefined>(undefined)
+
+// Render initial srcdoc when site/project changes
+watch([site, () => props.projectId], () => {
+  iframeReady.value = false
+  if (!site.value) {
+    srcdoc.value = undefined
+    return
+  }
+  srcdoc.value = renderSite(site.value, currentPage.value)
+}, { immediate: true })
+
+// When the iframe loads, mark it ready for postMessage
+function onIframeLoad() {
+  iframeReady.value = true
+}
+
+// On page navigation (within the same site), swap via postMessage
+watch(currentPage, (newPage, oldPage) => {
+  if (!site.value || !iframeRef.value || !iframeReady.value) {
+    // Iframe not ready — fall back to full srcdoc render
+    if (site.value) srcdoc.value = renderSite(site.value, newPage)
+    return
+  }
+  // Send page-update via postMessage (no document reload, fonts stay loaded)
+  const sent = sendPageUpdate(iframeRef.value, site.value, newPage)
+  if (!sent) {
+    // Page not found — fall back to srcdoc for error display
+    srcdoc.value = renderSite(site.value, newPage)
+  }
+})
 
 function toggleColorMode() {
   colorMode.value = colorMode.value === 'light' ? 'dark' : 'light'
@@ -161,9 +190,11 @@ function toggleColorMode() {
       <div class="preview-viewport-container">
         <iframe
           v-if="srcdoc != null"
+          ref="iframeRef"
           :srcdoc="srcdoc"
           sandbox="allow-scripts"
           class="preview-iframe"
+          @load="onIframeLoad"
         />
         <div v-else class="preview-placeholder vstack align-center justify-center flex-1">
           <Text variant="body" color="muted">No preview available</Text>
