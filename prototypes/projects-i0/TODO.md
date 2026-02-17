@@ -1,5 +1,24 @@
 # TODO
 
+## Extract Loop Architecture (Current Direction)
+
+### Done ✅
+- [x] Phase A: Extraction proof — messy CSS → clean design system (tested with real API)
+- [x] Phase B: New data model (Site/Page/Section/Theme), simple renderer, seed sites, store
+- [x] Phase C: Generation loop (design brief → parallel sections → extraction → review)
+- [x] Phase D: Editing cards (self-contained lifecycle, undo/redo, SectionEditCard, ThemeEditCard)
+
+### Next
+- [ ] Test seed sites rendering in the preview (fire up dev server)
+- [ ] Wire generation loop into the chat/new project flow
+- [ ] Test a real AI-generated site end-to-end
+- [ ] Design pass on the app UI (chat, cards, preview chrome)
+- [ ] Iterate on generation prompt quality (the actual output needs to look good)
+
+---
+
+## Legacy (from rigid section system — archived)
+
 ## Design Pass
 - [ ] Full visual audit of every screen and component — spacing, alignment, typography, color usage
 - [ ] Chat message layout and rhythm — how text, cards, and actions flow together
