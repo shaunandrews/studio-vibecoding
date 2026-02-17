@@ -14,7 +14,26 @@ import type { Tab } from '@/components/composites/TabBar.vue'
 
 const { conversations, messages, getMessages, ensureConversation, sendMessage } = useConversations()
 const { updateTheme } = useSiteThemes()
-const { isBuilding } = useBuildProgress()
+const { isBuilding, progress } = useBuildProgress()
+
+// Build progress for the current project
+const building = computed(() => props.projectId ? isBuilding(props.projectId) : false)
+
+const buildLabel = computed(() => {
+  if (!building.value) return ''
+  const p = progress.value
+  const statusLabels: Record<string, string> = {
+    brief: 'Creating design brief...',
+    generating: p.currentPage ? `Building ${p.currentPage}...` : 'Generating sections...',
+    extracting: 'Analyzing design patterns...',
+    reviewing: 'Reviewing quality...',
+  }
+  const label = statusLabels[p.status] || 'Building...'
+  if (p.sectionsTotal > 0) {
+    return `${label} (${p.sectionsComplete}/${p.sectionsTotal} sections)`
+  }
+  return label
+})
 
 const props = defineProps<{
   projectId?: string | null
@@ -171,6 +190,11 @@ function handleAction(action: ActionButton) {
       </template>
     </PanelToolbar>
 
+    <div v-if="building" class="build-banner">
+      <div class="build-banner__pulse" />
+      <span class="build-banner__label">{{ buildLabel }}</span>
+    </div>
+
     <ChatMessageList :messages="msgs" :project-id="projectId" @action="(_, action) => handleAction(action)" />
 
     <div class="agent-panel__input shrink-0 px-s pb-s">
@@ -182,6 +206,34 @@ function handleAction(action: ActionButton) {
 </template>
 
 <style scoped>
+.build-banner {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-xs) var(--space-s);
+  background: var(--color-surface-secondary);
+  border-block-end: 1px solid var(--color-surface-border);
+  flex-shrink: 0;
+}
+
+.build-banner__pulse {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.build-banner__label {
+  font-size: var(--font-size-s);
+  color: var(--color-text-muted);
+}
+
 .agent-panel__input-inner {
   max-width: 720px;
   margin: 0 auto;

@@ -66,20 +66,46 @@ function parseDesignBrief(text: string): DesignBrief {
 }
 
 function parseSectionResponse(text: string, expectedSectionId: string): { css: string; html: string } {
-  const sectionMatch = text.match(new RegExp(`\`\`\`section:${expectedSectionId}\\s*([\\s\\S]*?)\`\`\``))
-  if (!sectionMatch || !sectionMatch[1]) {
+  // Try exact format first: ```section:sectionId
+  let sectionMatch = text.match(new RegExp(`\`\`\`section:${expectedSectionId}\\s*\\n([\\s\\S]*?)\`\`\``))
+
+  // Fallback: any ```section:... block (AI might rename the section)
+  if (!sectionMatch?.[1]) {
+    sectionMatch = text.match(/```section:\S*\s*\n([\s\S]*?)```/)
+  }
+
+  // Fallback: ```css block followed by ```html block
+  if (!sectionMatch?.[1]) {
+    const cssMatch = text.match(/```css\s*\n([\s\S]*?)```/)
+    const htmlMatch = text.match(/```html\s*\n([\s\S]*?)```/)
+    if (cssMatch?.[1] && htmlMatch?.[1]) {
+      return { css: cssMatch[1].trim(), html: htmlMatch[1].trim() }
+    }
+  }
+
+  if (!sectionMatch?.[1]) {
     throw new Error(`Section ${expectedSectionId} not found in response`)
   }
 
   const sectionContent = sectionMatch[1].trim()
-  const parts = sectionContent.split('---').map(p => p.trim())
-  
-  if (parts.length !== 2) {
+
+  // Split on --- separator, but be lenient — the separator might have
+  // whitespace or extra dashes
+  const separatorIndex = sectionContent.search(/\n-{3,}\n/)
+  if (separatorIndex === -1) {
+    // No separator — try to split on the first HTML tag
+    const htmlStart = sectionContent.search(/<[a-zA-Z]/)
+    if (htmlStart > 0) {
+      return {
+        css: sectionContent.slice(0, htmlStart).trim(),
+        html: sectionContent.slice(htmlStart).trim(),
+      }
+    }
     throw new Error(`Section ${expectedSectionId} must have CSS and HTML separated by ---`)
   }
 
-  const css = parts[0]!
-  const html = parts[1]!
+  const css = sectionContent.slice(0, separatorIndex).trim()
+  const html = sectionContent.slice(separatorIndex).replace(/^[\s-]+/, '').trim()
   return { css, html }
 }
 

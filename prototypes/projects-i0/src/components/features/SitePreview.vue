@@ -132,11 +132,12 @@ watch(() => props.projectId, () => {
 
 // When site content mutates (e.g. sections added during generation),
 // update in-place via postMessage to avoid font flash. Falls back to
-// srcdoc if the iframe isn't ready yet.
+// srcdoc if the iframe isn't ready yet. Uses preserveScroll to avoid
+// scroll-jacking during generation.
 watch(site, () => {
   if (!site.value) return
   if (iframeRef.value && iframeReady.value) {
-    sendPageUpdate(iframeRef.value, site.value, currentPage.value)
+    sendPageUpdate(iframeRef.value, site.value, currentPage.value, { preserveScroll: true })
   } else {
     srcdoc.value = renderSite(site.value, currentPage.value)
   }

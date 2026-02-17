@@ -107,9 +107,11 @@ const LISTENER_SCRIPT = `
       // Update title
       if (msg.title) document.title = msg.title;
 
-      // Scroll to top
-      window.scrollTo(0, 0);
-      userHasScrolled = false;
+      // Only scroll to top on navigation, not during generation updates
+      if (!msg.preserveScroll) {
+        window.scrollTo(0, 0);
+        userHasScrolled = false;
+      }
     }
 
     if (msg.type === 'reset-scroll-tracking') {
@@ -273,16 +275,18 @@ export function getPageData(site: Site, pageSlug: string): {
 /**
  * Send a page-update to the preview iframe via postMessage.
  * Swaps sections in-place without reloading the document.
+ * Set preserveScroll to avoid scrolling to top (e.g. during generation).
  */
 export function sendPageUpdate(
   iframe: HTMLIFrameElement,
   site: Site,
   pageSlug: string,
+  options?: { preserveScroll?: boolean },
 ): boolean {
   const data = getPageData(site, pageSlug)
   if (!data) return false
   iframe.contentWindow?.postMessage(
-    { type: 'page-update', title: data.title, sections: data.sections },
+    { type: 'page-update', title: data.title, sections: data.sections, preserveScroll: options?.preserveScroll },
     '*',
   )
   return true
