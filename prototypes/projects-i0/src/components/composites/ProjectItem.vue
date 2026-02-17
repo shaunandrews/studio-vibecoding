@@ -1,8 +1,14 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import Text from '@/components/primitives/Text.vue'
 import StatusIndicator from '@/components/primitives/StatusIndicator.vue'
 import Tooltip from '@/components/primitives/Tooltip.vue'
 import type { Project } from '@/data/types'
+import { useSiteStore } from '@/data/useSiteStore'
+import { renderSite } from '@/data/site-renderer'
+import { transitionProjectId } from '@/data/useProjectTransition'
+
+const { getSite } = useSiteStore()
 
 const props = defineProps<{
   project: Project
@@ -14,14 +20,32 @@ defineEmits<{
   select: [id: string]
   'toggle-status': [id: string]
 }>()
+
+const previewHtml = computed(() => {
+  if (props.mode !== 'card') return ''
+  const site = getSite(props.project.id)
+  if (!site || site.pages.length === 0) return ''
+  const homepage = site.pages[0].slug
+  const html = renderSite(site, homepage)
+  return html.replace(/<script[\s\S]*?<\/script>/gi, '')
+})
 </script>
 
 <template>
     <div
       class="project-item"
       :class="[`mode-${mode}`, { active }]"
+      :style="mode === 'card' && project.id === transitionProjectId ? { viewTransitionName: 'project-frame' } : {}"
       @click="$emit('select', project.id)"
     >
+      <div class="item-preview" v-if="mode === 'card' && previewHtml">
+        <iframe
+          :srcdoc="previewHtml"
+          class="preview-iframe"
+          tabindex="-1"
+          loading="lazy"
+        />
+      </div>
       <div class="item-header hstack gap-xs">
         <img class="item-favicon shrink-0" :src="project.favicon" alt="" />
         <div class="flex-1 min-w-0">
@@ -39,7 +63,6 @@ defineEmits<{
 .project-item {
   cursor: pointer;
   color: var(--color-chrome-text);
-  transition: padding var(--transition-layout), border-radius var(--transition-layout);
 }
 
 /* Card mode */
@@ -77,7 +100,6 @@ defineEmits<{
 /* Favicon */
 .item-favicon {
   border-radius: var(--radius-s);
-  transition: width var(--transition-layout), height var(--transition-layout);
 }
 
 .mode-card .item-favicon {
@@ -102,7 +124,6 @@ defineEmits<{
 
 /* Collapsible: url */
 .item-url {
-  transition: opacity var(--transition-layout), max-height var(--transition-layout);
   overflow: hidden;
 }
 
