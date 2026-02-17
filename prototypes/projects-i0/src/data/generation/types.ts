@@ -13,6 +13,18 @@ export interface GenerationProgress {
   error?: string
 }
 
+// ---- Generation Events ----
+
+export type GenerationEvent =
+  | { type: 'brief-done'; brief: DesignBrief }
+  | { type: 'section-done'; sectionId: string; pageSlug: string; sectionsComplete: number; sectionsTotal: number }
+  | { type: 'page-start'; pageTitle: string }
+  | { type: 'extract-start' }
+  | { type: 'complete' }
+  | { type: 'error'; error: string }
+
+export type GenerationEventCallback = (event: GenerationEvent) => void
+
 export interface ReviewResult {
   passed: boolean
   issues: {

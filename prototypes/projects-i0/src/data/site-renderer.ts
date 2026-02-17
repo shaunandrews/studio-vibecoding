@@ -47,19 +47,50 @@ const LISTENER_SCRIPT = `
 
     if (msg.type === 'section-update') {
       var section = document.querySelector('[data-section="' + msg.sectionId + '"]');
-      if (section) {
+
+      if (!section) {
+        // Create the section div with fade-in
+        section = document.createElement('div');
+        section.setAttribute('data-section', msg.sectionId);
+        if (msg.role) section.setAttribute('data-role', msg.role);
+        section.style.opacity = '0';
+        section.style.transition = 'opacity 0.4s ease-in-out';
+
+        // Insert before the script tag so sections stack in order
+        var scriptTag = document.body.querySelector('script');
+        if (scriptTag) {
+          document.body.insertBefore(section, scriptTag);
+        } else {
+          document.body.appendChild(section);
+        }
+
+        // Add section CSS to head
+        if (msg.css && msg.css.trim()) {
+          var style = document.createElement('style');
+          style.id = 'section-' + msg.sectionId;
+          style.textContent = msg.css;
+          document.head.appendChild(style);
+        }
+
         section.innerHTML = msg.html;
-        
+
+        // Trigger fade-in on next frame
+        requestAnimationFrame(function() {
+          section.style.opacity = '1';
+        });
+      } else {
+        section.innerHTML = msg.html;
+
         // Update section CSS
         var sectionStyle = document.getElementById('section-' + msg.sectionId);
         if (sectionStyle) {
           sectionStyle.textContent = msg.css;
         }
+      }
 
-        // Auto-scroll if user hasn't manually scrolled
-        if (!userHasScrolled) {
-          section.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        }
+      // Auto-scroll if user hasn't manually scrolled
+      if (!userHasScrolled) {
+        section.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       }
     }
 

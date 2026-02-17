@@ -2,7 +2,7 @@ import { ref, type Ref } from 'vue'
 import Anthropic from '@anthropic-ai/sdk'
 import { useSiteStore } from '../useSiteStore'
 import { getAPIKey } from '../ai-service'
-import type { DesignBrief, GenerationProgress, ReviewResult } from './types'
+import type { DesignBrief, GenerationProgress, ReviewResult, GenerationEventCallback } from './types'
 import type { Site, DesignSystem } from '../site-types'
 import { buildDesignBriefPrompt } from './design-brief-prompt'
 import { buildSectionPrompt } from './section-prompt'
@@ -221,7 +221,8 @@ async function generateSite(
   siteName: string,
   siteType: string,
   description: string,
-  pageConfigs: { title: string; slug: string; sectionRoles: string[] }[]
+  pageConfigs: { title: string; slug: string; sectionRoles: string[] }[],
+  onEvent?: GenerationEventCallback,
 ): Promise<void> {
   const siteStore = useSiteStore()
   
@@ -245,6 +246,7 @@ async function generateSite(
     // Step 1: Generate design brief
     const brief = await generateDesignBrief(siteName, siteType, description)
     progress.value.briefReady = true
+    onEvent?.({ type: 'brief-done', brief })
 
     // Initialize site structure
     const site: Site = {
@@ -272,16 +274,18 @@ async function generateSite(
       throw new Error('No homepage configuration found')
     }
     progress.value.currentPage = homepageConfig.title
+    onEvent?.({ type: 'page-start', pageTitle: homepageConfig.title })
 
     const homepageSectionPromises = homepageConfig.sectionRoles.map(async (role) => {
       const { css, html } = await generateSection(brief, role, homepageConfig.title, [])
       
       // Update site store immediately
       siteStore.updateSection(projectId, role, html, css)
-      
+
       // Update progress
       progress.value.sectionsComplete += 1
-      
+      onEvent?.({ type: 'section-done', sectionId: role, pageSlug: homepageConfig.slug, sectionsComplete: progress.value.sectionsComplete, sectionsTotal: totalSections })
+
       return { role, css, html }
     })
 
@@ -290,6 +294,7 @@ async function generateSite(
     // Step 3: Extract design system from homepage CSS
     progress.value.status = 'extracting'
     progress.value.currentPage = 'Analyzing design patterns...'
+    onEvent?.({ type: 'extract-start' })
     
     const homepageCSS = homepageSections.map(s => s.css).join('\n\n')
     const designSystem = await extractDesignSystem(homepageCSS)
@@ -305,7 +310,8 @@ async function generateSite(
     
     for (const pageConfig of remainingPages) {
       progress.value.currentPage = pageConfig.title
-      
+      onEvent?.({ type: 'page-start', pageTitle: pageConfig.title })
+
       const pageSectionPromises = pageConfig.sectionRoles.map(async (role) => {
         const contextInfo = [`Page: ${pageConfig.title}`, `Design system established`]
         const { css, html } = await generateSection(brief, role, pageConfig.title, contextInfo)
@@ -315,7 +321,8 @@ async function generateSite(
         
         siteStore.updateSection(projectId, sectionId, html, css)
         progress.value.sectionsComplete += 1
-        
+        onEvent?.({ type: 'section-done', sectionId, pageSlug: pageConfig.slug, sectionsComplete: progress.value.sectionsComplete, sectionsTotal: totalSections })
+
         return { role: sectionId, css, html }
       })
       
@@ -339,10 +346,12 @@ async function generateSite(
     // Complete
     progress.value.status = 'complete'
     progress.value.currentPage = 'Generation complete!'
-    
+    onEvent?.({ type: 'complete' })
+
   } catch (error) {
     progress.value.status = 'error'
     progress.value.error = error instanceof Error ? error.message : 'Unknown error'
+    onEvent?.({ type: 'error', error: progress.value.error })
     throw error
   }
 }

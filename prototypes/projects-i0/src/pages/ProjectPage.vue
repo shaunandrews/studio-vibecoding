@@ -5,24 +5,11 @@ import Panel from '@/components/composites/Panel.vue'
 import AgentPanel from '@/components/features/AgentPanel.vue'
 import SitePreview from '@/components/features/SitePreview.vue'
 import { useProjects } from '@/data/useProjects'
+import { usePreviewState } from '@/data/usePreviewState'
 
 const route = useRoute()
-const STORAGE_KEY = 'previewState'
-
-function loadPreviewState(): Record<string, boolean> {
-  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}') }
-  catch { return {} }
-}
-
-const previewState = ref(loadPreviewState())
-
-const showPreview = computed({
-  get: () => previewState.value[route.params.id as string] ?? true,
-  set: (v: boolean) => {
-    previewState.value = { ...previewState.value, [route.params.id as string]: v }
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(previewState.value))
-  },
-})
+const { visibleComputed } = usePreviewState()
+const showPreview = visibleComputed(() => route.params.id as string)
 // Per-project panel width (fraction 0-1, default 0.5)
 const WIDTHS_KEY = 'panelWidths'
 

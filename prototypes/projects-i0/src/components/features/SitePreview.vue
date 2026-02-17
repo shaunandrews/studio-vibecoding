@@ -5,7 +5,7 @@ import Button from '@/components/primitives/Button.vue'
 import BrowserBar from '@/components/primitives/BrowserBar.vue'
 import PanelToolbar from '@/components/composites/PanelToolbar.vue'
 import Text from '@/components/primitives/Text.vue'
-import { renderSite, sendPageUpdate } from '@/data/site-renderer'
+import { renderSite, sendPageUpdate, sendSectionUpdate } from '@/data/site-renderer'
 import { useSiteStore } from '@/data/useSiteStore'
 
 const props = defineProps<{
@@ -120,9 +120,13 @@ const iframeReady = ref(false)
 // srcdoc only updates on initial load or project change (not page navigation)
 const srcdoc = ref<string | undefined>(undefined)
 
-// Full srcdoc reload when project changes
+// Track which sections have been rendered into the iframe (for diff-based updates)
+const renderedSections = ref(new Set<string>())
+
+// Full srcdoc reload when project changes — loads theme/fonts/shell
 watch(() => props.projectId, () => {
   iframeReady.value = false
+  renderedSections.value = new Set()
   if (!site.value) {
     srcdoc.value = undefined
     return
@@ -130,16 +134,32 @@ watch(() => props.projectId, () => {
   srcdoc.value = renderSite(site.value, currentPage.value)
 }, { immediate: true })
 
-// When site content mutates (e.g. sections added during generation),
-// update in-place via postMessage to avoid font flash. Falls back to
-// srcdoc if the iframe isn't ready yet. Uses preserveScroll to avoid
-// scroll-jacking during generation.
+// Diff-based section rendering: on site mutation, compare against rendered
+// set and send individual section updates. New sections fade in via the
+// iframe listener; existing sections update in place.
 watch(site, () => {
   if (!site.value) return
-  if (iframeRef.value && iframeReady.value) {
-    sendPageUpdate(iframeRef.value, site.value, currentPage.value, { preserveScroll: true })
-  } else {
+  if (!iframeRef.value || !iframeReady.value) {
     srcdoc.value = renderSite(site.value, currentPage.value)
+    return
+  }
+
+  // Find the current page's section list
+  const normalizedSlug = currentPage.value === '/' ? '' : currentPage.value.replace(/^\//, '')
+  const page = site.value.pages.find(p => {
+    const pSlug = p.slug === '/' ? '' : p.slug.replace(/^\//, '')
+    return pSlug === normalizedSlug
+  })
+  if (!page) return
+
+  for (const sectionId of page.sections) {
+    const section = site.value.sections[sectionId]
+    if (!section) continue
+
+    // Send update whether new or existing — the iframe listener
+    // creates-with-fade-in if missing, updates-in-place if present
+    sendSectionUpdate(iframeRef.value!, sectionId, section.html, section.css)
+    renderedSections.value.add(sectionId)
   }
 }, { deep: true })
 
@@ -149,16 +169,16 @@ function onIframeLoad() {
 }
 
 // On page navigation (within the same site), swap via postMessage
-watch(currentPage, (newPage, oldPage) => {
+watch(currentPage, (newPage) => {
+  // Reset rendered set — the new page has different sections
+  renderedSections.value = new Set()
+
   if (!site.value || !iframeRef.value || !iframeReady.value) {
-    // Iframe not ready — fall back to full srcdoc render
     if (site.value) srcdoc.value = renderSite(site.value, newPage)
     return
   }
-  // Send page-update via postMessage (no document reload, fonts stay loaded)
   const sent = sendPageUpdate(iframeRef.value, site.value, newPage)
   if (!sent) {
-    // Page not found — fall back to srcdoc for error display
     srcdoc.value = renderSite(site.value, newPage)
   }
 })
