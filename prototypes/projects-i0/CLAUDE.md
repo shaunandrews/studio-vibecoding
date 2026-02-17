@@ -25,20 +25,28 @@ Read `DESIGN-SYSTEM.md` before touching any component. Key rules:
 
 ```
 src/
-  styles/          # Design tokens (colors, space, radius)
-  components/      # Reusable components (Button, WPIcon, Titlebar, Sidebar, StatusIndicator)
-  pages/           # Route pages (Index, DesignSystem, AppShell, Components)
-  router.ts        # Vue Router config
+  styles/            # Design tokens (colors, space, radius)
+  components/
+    primitives/      # Button, Tooltip, WPIcon, Text, StatusIndicator, Titlebar, etc.
+    composites/      # ChatMessage, InputChat, ProjectItem, TabBar, Panel, chat-cards/
+    features/        # ProjectList, AgentPanel, SitePreview, NewProjectModal, OnboardingEmpty
+  layouts/           # MainLayout (app shell), BareLayout (standalone pages)
+  pages/             # ProjectPage, DesignSystem, Components, Settings, Architecture
+  data/              # State (useProjects, useConversations, useSiteStore, useBuildProgress)
+    generation/      # AI prompts and generation loop (useGeneration, design-brief-prompt, etc.)
+    seed-sites/      # Hardcoded demo sites (downstreet-cafe, portfolio)
+    themes/          # Theme definitions and utilities
+  router.ts
 ```
 
-## Components
+## Key components
 
 - **Button** — `variant` (primary/secondary/tertiary), `surface` (light/dark), `size` (default/small), `width` (hug/full), `icon`, `label`, `tooltip`, `disabled`
-- **Tooltip** — `text`, `placement` (top/bottom/left/right), `delay` (ms, default 600). Smart viewport flipping. Warm state skips delay between consecutive tooltips.
+- **Tooltip** — `text`, `placement` (top/bottom/left/right), `delay` (ms, default 600). Smart viewport flipping. Warm state skips delay between consecutive tooltips. Note: wraps content in `span.tooltip-trigger` with `inline-flex` — override to `flex` if parent needs it to fill width.
 - **WPIcon** — Vue wrapper for `@wordpress/icons`. Props: `icon`, `size`
 - **StatusIndicator** — `status` (stopped/loading/running). Emits `toggle`. Clip-path morph animation on hover.
 - **Titlebar** — App titlebar with traffic lights, sidebar toggle, greeting, settings/help
-- **Sidebar** — Site list with status indicators, footer meta, add site button
+- **ProjectList** — Project list in two modes: `grid` (home view, full width) and `list` (sidebar, 210px). New Project button lives in MainLayout below this component, not inside it.
 
 ## Don't
 
