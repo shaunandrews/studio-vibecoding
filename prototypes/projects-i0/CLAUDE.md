@@ -29,10 +29,10 @@ src/
   components/
     primitives/      # Button, Tooltip, WPIcon, Text, StatusIndicator, Titlebar, etc.
     composites/      # ChatMessage, InputChat, ProjectItem, TabBar, Panel, chat-cards/
-    features/        # ProjectList, AgentPanel, SitePreview, NewProjectModal, OnboardingEmpty
+    features/        # ProjectList, AgentPanel, SitePreview, OnboardingEmpty
   layouts/           # MainLayout (app shell), BareLayout (standalone pages)
   pages/             # ProjectPage, DesignSystem, Components, Settings, Architecture
-  data/              # State (useProjects, useConversations, useSiteStore, useBuildProgress)
+  data/              # State (useProjects, useConversations, useSiteStore, useBuildProgress, useOnboarding)
     generation/      # AI prompts and generation loop (useGeneration, design-brief-prompt, etc.)
     seed-sites/      # Hardcoded demo sites (downstreet-cafe, portfolio)
     themes/          # Theme definitions and utilities
@@ -47,6 +47,11 @@ src/
 - **StatusIndicator** — `status` (stopped/loading/running). Emits `toggle`. Clip-path morph animation on hover.
 - **Titlebar** — App titlebar with traffic lights, sidebar toggle, greeting, settings/help
 - **ProjectList** — Project list in two modes: `grid` (home view, full width) and `list` (sidebar, 210px). New Project button lives in MainLayout below this component, not inside it.
+- **InputChat** — Chat input with model selector. Props: `surface`, `modelValue`, `placeholder`. Enter sends, Cmd+Enter for newline.
+
+## New project flow
+
+No modal. Clicking "New project" creates an untitled project in the sidebar, opens the project view, and runs onboarding as the first chat messages. The flow: type → name (sidebar updates live) → description (skippable) → build starts. Managed by `useOnboarding.ts` (singleton state machine with promise-based input waiting). `useConversations.postMessage()` adds messages without triggering AI responses during onboarding. Action buttons (type chips, skip) are stripped from messages after use via `consumeActions()`, and `handleAction` guards check the current step to prevent stale clicks.
 
 ## Don't
 

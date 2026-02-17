@@ -112,8 +112,9 @@ function actionForBrief(index: number): ActionButton | undefined {
 <style scoped>
 .brief-picker {
   width: calc(100% + var(--space-s) * 2);
+  min-width: 360px;
   margin-inline-start: calc(-1 * var(--space-s));
-  margin-block: var(--space-s);
+  margin-block: var(--space-m) 0;
 }
 
 .brief-picker__row {
@@ -121,7 +122,6 @@ function actionForBrief(index: number): ActionButton | undefined {
   gap: var(--space-xs);
   overflow-x: auto;
   scroll-snap-type: x mandatory;
-  padding-inline: var(--space-s);
   -webkit-overflow-scrolling: touch;
   /* Equal height cards */
   align-items: stretch;

@@ -29,7 +29,23 @@
 - [x] **Design brief progress** — "Crafting the design brief..." thinking indicator shown while brief generates, removed when brief arrives
 - [x] **Design brief chat card** — new `designBrief` card type showing direction, fonts, and color swatches extracted from CSS variables
 
+### Done (Inline Onboarding) ✅
+- [x] **Kill the modal** — replaced `NewProjectModal` / `OnboardingChat` / `QuickReplyChips` with inline chat-based onboarding
+- [x] **`useOnboarding.ts`** — singleton state machine with promise-based input waiting, same pattern as `useBuildProgress`
+- [x] **`postMessage()`** — new `useConversations` export: append messages without triggering AI responses (for onboarding flow)
+- [x] **`createUntitledProject()`** — timestamp-based ID, dicebear favicon, adds to bottom of project list
+- [x] **`updateProject()`** — partial updates for name/favicon/description; sidebar updates live as user names the project
+- [x] **Seamless build transition** — onboarding collects type/name/description, then calls `startBuild()` directly — no modal dismiss, no page reload
+- [x] **Preview hidden during onboarding** — `hide(projectId)` called at onboarding start, preview stays hidden until first section is built
+- [x] **Enter to send** — Enter sends message, Cmd+Enter for newline (InputChat keydown handler)
+- [x] **Dynamic placeholder** — InputChat placeholder changes per onboarding step ("Or type what you're building...", "Give it a name...", etc.)
+- [x] **Thinking dots** — pulsing three-dot animation while design briefs generate, removed when briefs arrive
+- [x] **ProgressCard spinners** — running items show animated spinner ring instead of "RUNNING" text
+- [x] **Card width consistency** — DesignBriefPickerCard aligned to same width/margins as ChatCard
+- [x] **Consume stale action buttons** — type/skip buttons stripped from chat after use, step guards prevent out-of-order clicks
+
 ### Next
+- [ ] **Input-anchored responses** — Move predefined response options (type chips, design brief picks, color palettes) from inline chat messages to a slot above the chat input, visually connected to it. Generalizes to any "choose one" interaction — makes options feel like user choices rather than agent output. Explore as a reusable pattern across onboarding, brief selection, and theme picking.
 - [ ] Graceful API key check — warn user when no Anthropic key is configured instead of silently failing to 'stopped'
 - [ ] Graceful API error handling — parse Anthropic error responses and show human-readable messages in chat (e.g. "Your API credits have run out" instead of raw JSON dumps)
 
@@ -76,7 +92,7 @@ Fix strategy: error boundaries per section + retry + skip-and-continue (see item
 ## Polish
 - [ ] Card entrance animations (fade-in text, staggered card entrance, actions appear last)
 - [ ] Smooth scroll-to-bottom on new messages
-- [ ] Thinking indicator design (currently plain "Thinking…" text)
+- [x] Thinking indicator design — pulsing three-dot animation, spinner rings in ProgressCard
 
 ## Bugs / Minor
 - [ ] ProgressCard `done` color should use a design token (currently hardcoded `#00a32a`)
@@ -108,12 +124,13 @@ Fix strategy: error boundaries per section + retry + skip-and-continue (see item
 - [x] Incremental streaming — sections appear as they arrive, not batch-per-page
 
 ## Phase 3 — New Project Flow (Complete ✅)
-- [x] Onboarding modal (conversational mini-chat) — NewProjectModal, OnboardingChat, QuickReplyChips
-- [x] Project creation — slug ID generation, DiceBear favicons, sidebar integration
+- [x] ~~Onboarding modal (conversational mini-chat)~~ → replaced with inline chat onboarding via `useOnboarding.ts`
+- [x] Project creation — timestamp ID, DiceBear favicons, sidebar integration, live name updates
 - [x] Build-time chat — first message, progress updates, completion summary, error handling
-- [x] Progressive preview during build — skeleton → theme → header → sections → complete
-- [x] Pipeline integration — useBuildProgress composable wires modal → pipeline → preview
+- [x] Progressive preview during build — hidden until first section → slides open → complete
+- [x] Pipeline integration — useBuildProgress composable wires onboarding → pipeline → preview
 - [x] BrowserBar shows planned pages with dimmed unbuilt indicators
+- [x] Deleted: `NewProjectModal.vue`, `OnboardingChat.vue`, `QuickReplyChips.vue`
 
 ## Next: Phase 4 — Section Editing
 - [ ] Edit taxonomy (9 edit types)

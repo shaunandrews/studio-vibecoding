@@ -9,12 +9,14 @@ import InputChat from '@/components/composites/InputChat.vue'
 import { useConversations } from '@/data/useConversations'
 import { useSiteThemes } from '@/data/themes/useSiteThemes'
 import { useBuildProgress } from '@/data/useBuildProgress'
+import { useOnboarding } from '@/data/useOnboarding'
 import type { ActionButton, Conversation } from '@/data/types'
 import type { Tab } from '@/components/composites/TabBar.vue'
 
-const { conversations, messages, getMessages, ensureConversation, sendMessage } = useConversations()
+const { conversations, messages, getMessages, ensureConversation, sendMessage, postMessage } = useConversations()
 const { updateTheme } = useSiteThemes()
 const { selectBrief } = useBuildProgress()
+const { isOnboarding, getOnboardingStep, resolveInput } = useOnboarding()
 
 const props = defineProps<{
   projectId?: string | null
@@ -123,10 +125,25 @@ const currentDraft = computed({
   set: (val: string) => { drafts.value[activeConvoId.value] = val },
 })
 
+const inputPlaceholder = computed(() => {
+  const pid = props.projectId
+  if (!pid) return 'Ask anything...'
+  const step = getOnboardingStep(pid)
+  if (step === 'type') return "Or type what you're building..."
+  if (step === 'name') return 'Give it a name...'
+  if (step === 'description') return 'A sentence or two (optional)...'
+  return 'Ask anything...'
+})
+
 function handleSend(text: string) {
-  // During build, send through normal AI chat so the user can answer questions.
-  // The AI's system prompt handles context extraction via card:context blocks.
-  // After the AI responds, we parse any context data and feed it to the pipeline.
+  const pid = props.projectId
+  if (pid && isOnboarding(pid)) {
+    postMessage(activeConvoId.value, 'user', text, undefined, { source: 'typed' })
+    resolveInput(pid, text)
+    drafts.value[activeConvoId.value] = ''
+    return
+  }
+
   sendMessage(
     activeConvoId.value,
     'user',
@@ -138,6 +155,21 @@ function handleSend(text: string) {
 }
 
 function handleAction(action: ActionButton) {
+  const pid = props.projectId
+
+  // Onboarding: type selection — only valid during the type step
+  if (pid && action.action.payload?.onboardingType && getOnboardingStep(pid) === 'type') {
+    postMessage(activeConvoId.value, 'user', action.action.message, undefined, { source: 'action' })
+    resolveInput(pid, action.action.payload.onboardingType)
+    return
+  }
+
+  // Onboarding: skip description — only valid during the description step
+  if (pid && action.action.payload?.onboardingSkip && getOnboardingStep(pid) === 'description') {
+    resolveInput(pid, '')
+    return
+  }
+
   // Brief selection — just resolve the promise, no message needed.
   // The picker card mutates in-place to show the chosen brief.
   if (action.action.payload?.briefSelection && action.action.payload?.projectId) {
@@ -183,7 +215,7 @@ function handleAction(action: ActionButton) {
 
     <div class="agent-panel__input shrink-0 px-s pb-s">
       <div class="agent-panel__input-inner">
-        <InputChat ref="inputChatRef" v-model="currentDraft" @send="handleSend" />
+        <InputChat ref="inputChatRef" v-model="currentDraft" :placeholder="inputPlaceholder" @send="handleSend" />
       </div>
     </div>
   </div>

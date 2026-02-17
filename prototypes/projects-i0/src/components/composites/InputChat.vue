@@ -14,9 +14,11 @@ const models = [
 const props = withDefaults(defineProps<{
   surface?: 'light' | 'dark'
   modelValue?: string
+  placeholder?: string
 }>(), {
   surface: 'light',
   modelValue: '',
+  placeholder: 'Ask anything...',
 })
 
 const emit = defineEmits<{
@@ -36,7 +38,13 @@ function send() {
   message.value = ''
 }
 
-// Cmd+Enter handled via Button shortcut prop
+function onKeydown(e: KeyboardEvent) {
+  if (e.key === 'Enter' && !e.shiftKey && !e.metaKey && !e.ctrlKey) {
+    e.preventDefault()
+    send()
+  }
+  // Cmd/Ctrl+Enter and Shift+Enter: default textarea newline behavior
+}
 
 function focus() {
   textareaRef.value?.focus()
@@ -58,8 +66,9 @@ function focusInput(e: MouseEvent) {
       ref="textareaRef"
       v-model="message"
       class="input-textarea flex-1 px-xxs py-xxxs"
-      placeholder="Ask anything..."
+      :placeholder="props.placeholder"
       rows="1"
+      @keydown="onKeydown"
     />
     <div class="input-toolbar hstack justify-between pt-xxs">
       <Dropdown v-model="selectedModel" :groups="models" placement="above" :surface="props.surface" tooltip="Model" />
@@ -67,7 +76,6 @@ function focusInput(e: MouseEvent) {
         variant="primary"
         label="Send"
         size="small"
-        shortcut="mod+enter"
         @click="send"
       />
     </div>

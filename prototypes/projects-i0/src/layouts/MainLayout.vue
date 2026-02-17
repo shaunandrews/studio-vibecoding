@@ -4,15 +4,13 @@ import { useRoute, useRouter } from 'vue-router'
 import Titlebar from '@/components/primitives/Titlebar.vue'
 import Button from '@/components/primitives/Button.vue'
 import ProjectList from '@/components/features/ProjectList.vue'
-import NewProjectModal from '@/components/features/NewProjectModal.vue'
 import { useProjects } from '@/data/useProjects'
-import { useBuildProgress } from '@/data/useBuildProgress'
-import type { ProjectBrief } from '@/data/types'
+import { useOnboarding } from '@/data/useOnboarding'
 
 const route = useRoute()
 const router = useRouter()
-const { createProject } = useProjects()
-const { startBuild } = useBuildProgress()
+const { createUntitledProject } = useProjects()
+const { startOnboarding } = useOnboarding()
 const mode = computed(() => (route.meta.mode as string) || 'home')
 const transitioning = ref(false)
 let transitionTimer: ReturnType<typeof setTimeout> | null = null
@@ -25,14 +23,10 @@ watch(mode, () => {
   }, 300) // matches --duration-slow
 })
 
-const showNewProjectModal = ref(false)
-
-function onProjectCreated(brief: ProjectBrief) {
-  const project = createProject(brief)
-  showNewProjectModal.value = false
-  router.push({ name: 'project', params: { id: project.id } })
-  // Start the build after navigation so ProjectPage mounts with build in progress
-  startBuild(project.id, brief)
+async function handleNewProject() {
+  const project = createUntitledProject()
+  await router.push({ name: 'project', params: { id: project.id } })
+  startOnboarding(project.id)
 }
 </script>
 
@@ -42,9 +36,9 @@ function onProjectCreated(brief: ProjectBrief) {
     <div class="app-body flex-1 min-w-0 p-xs">
       <!-- Left column: full width on home, 210px on project -->
       <div class="left-column vstack" :class="{ 'is-sidebar': mode === 'project', 'is-transitioning': transitioning }">
-        <ProjectList class="flex-1 min-h-0" :mode="mode === 'project' ? 'list' : 'grid'" @new-project="showNewProjectModal = true" />
+        <ProjectList class="flex-1 min-h-0" :mode="mode === 'project' ? 'list' : 'grid'" @new-project="handleNewProject" />
         <div class="new-project-footer">
-          <Button variant="secondary" surface="dark" label="New project" width="full" @click="showNewProjectModal = true" />
+          <Button variant="secondary" surface="dark" label="New project" width="full" @click="handleNewProject" />
         </div>
       </div>
       <!-- Frame: slides in from right as a solid block -->
@@ -52,11 +46,6 @@ function onProjectCreated(brief: ProjectBrief) {
         <router-view name="main" />
       </main>
     </div>
-    <NewProjectModal
-      :open="showNewProjectModal"
-      @close="showNewProjectModal = false"
-      @created="onProjectCreated"
-    />
   </div>
 </template>
 

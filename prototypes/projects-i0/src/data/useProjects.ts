@@ -49,11 +49,32 @@ export function useProjects() {
     return newProject
   }
 
+  function createUntitledProject(): Project {
+    const id = `project-${Date.now()}`
+    const newProject: Project = {
+      id,
+      name: 'Untitled project',
+      favicon: `https://api.dicebear.com/9.x/shapes/svg?seed=${encodeURIComponent(id)}`,
+      status: 'stopped',
+      url: '',
+      createdAt: new Date().toISOString(),
+    }
+    projects.value.push(newProject)
+    return newProject
+  }
+
+  function updateProject(id: string, updates: Partial<Pick<Project, 'name' | 'favicon' | 'description'>>) {
+    const p = projects.value.find(p => p.id === id)
+    if (p) Object.assign(p, updates)
+  }
+
   return {
     projects,
     activeProjectId,
     activeProject,
     setStatus,
     createProject,
+    createUntitledProject,
+    updateProject,
   }
 }

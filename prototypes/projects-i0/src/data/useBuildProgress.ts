@@ -178,7 +178,7 @@ const pendingSelections: Record<string, {
 export function useBuildProgress() {
   const { generateSite, generateDesignBrief, progress, abort } = useGeneration()
   const { setStatus } = useProjects()
-  const { ensureConversation, sendMessage, streamAgentMessage, messages } = useConversations()
+  const { ensureConversation, sendMessage, streamAgentMessage, postMessage, removeMessage, messages } = useConversations()
   const { hide, show } = usePreviewState()
 
   return {
@@ -238,7 +238,18 @@ export function useBuildProgress() {
         `Let me design **${brief.name}** for you. I'll create a few design directions for you to choose from.`,
         'assistant',
       )
-      streamAgentMessage(convo.id, 'Crafting design briefs...', 'assistant')
+      await streamAgentMessage(convo.id, 'Crafting design briefs...', 'assistant')
+
+      // Add a thinking indicator while briefs generate
+      const thinkingId = `msg-thinking-${projectId}`
+      messages.value.push({
+        id: thinkingId,
+        conversationId: convo.id,
+        role: 'agent',
+        agentId: 'assistant',
+        content: [{ type: 'text', text: '...' }],
+        timestamp: new Date().toISOString(),
+      })
 
       // 4. Generate 3 briefs in parallel
       const briefPromises = [0, 1, 2].map(async (i) => {
@@ -252,6 +263,9 @@ export function useBuildProgress() {
 
       const briefResults = await Promise.all(briefPromises)
       const validBriefs = briefResults.filter((b): b is DesignBrief => b !== null)
+
+      // Remove thinking indicator
+      removeMessage(thinkingId)
 
       if (validBriefs.length === 0) {
         streamAgentMessage(convo.id, 'All design briefs failed to generate. Please try again.', 'assistant')

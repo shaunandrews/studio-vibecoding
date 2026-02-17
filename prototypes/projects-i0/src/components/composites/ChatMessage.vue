@@ -53,8 +53,13 @@ function buttonVariant(variant?: ActionButton['variant']): 'primary' | 'secondar
         :key="`${idx}-${block.type}`"
         class="content-block"
       >
+        <div v-if="block.type === 'text' && block.text === '...'" class="thinking-dots">
+          <span class="thinking-dot" />
+          <span class="thinking-dot" />
+          <span class="thinking-dot" />
+        </div>
         <MarkdownText
-          v-if="block.type === 'text'"
+          v-else-if="block.type === 'text'"
           class="chat-message-text"
           :text="block.text"
         />
@@ -197,5 +202,33 @@ function buttonVariant(variant?: ActionButton['variant']): 'primary' | 'secondar
 
 .chat-actions {
   padding-top: var(--space-xxxs);
+}
+
+.thinking-dots {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: var(--space-xxs) 0;
+}
+
+.thinking-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-text-muted);
+  animation: thinking-pulse 1.4s ease-in-out infinite;
+}
+
+.thinking-dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.thinking-dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes thinking-pulse {
+  0%, 80%, 100% { opacity: 0.3; transform: scale(0.8); }
+  40% { opacity: 1; transform: scale(1); }
 }
 </style>

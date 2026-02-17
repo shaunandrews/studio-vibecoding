@@ -225,6 +225,21 @@ export function useConversations() {
     })
   }
 
+  function postMessage(
+    conversationId: string,
+    role: 'user' | 'agent',
+    content: string | ContentBlock[],
+    agentId?: AgentId,
+    messageContext?: MessageContext,
+  ) {
+    appendMessage(conversationId, role, content, agentId, messageContext)
+  }
+
+  function removeMessage(messageId: string) {
+    const idx = messages.value.findIndex(m => m.id === messageId)
+    if (idx !== -1) messages.value.splice(idx, 1)
+  }
+
   return {
     conversations,
     messages,
@@ -233,6 +248,8 @@ export function useConversations() {
     getMessages,
     ensureConversation,
     sendMessage,
+    postMessage,
+    removeMessage,
     streamAgentMessage,
   }
 }
