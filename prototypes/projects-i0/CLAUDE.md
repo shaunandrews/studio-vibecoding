@@ -94,6 +94,37 @@ Navigation between home and project uses the View Transitions API via `useProjec
 - `transitionProjectId` ref tracks which card is mid-morph. Only one card gets `view-transition-name` at a time.
 - Animation CSS lives in `motion.css` under `::view-transition-*` pseudo-elements with `vt-` prefixed keyframes.
 
+## AI site editing
+
+The AI chat assistant (Kit) can propose and apply changes to the site preview. Changes flow through a preview-then-confirm pattern using the input actions system.
+
+**Architecture:**
+```
+User asks for change → AI gets site context in system prompt
+→ AI outputs proposal card (card:themeUpdate, card:sectionEdit)
+→ Chat shows card as informational preview
+→ extractCardActions() auto-pushes "Apply" input action
+→ User clicks Apply
+→ AgentPanel: settingsToVariables() → siteStore.updateThemeVariables()
+→ SitePreview watcher → sendThemeUpdate(iframe, vars)
+→ Site preview updates live
+```
+
+**Key files:**
+- `ai-system-prompt.ts` — what the AI knows about cards and the site
+- `ai-site-context.ts` — `buildSiteContext()` builds theme vars + pages + sections for the AI
+- `ai-service.ts` — streaming + card fence parsing (`CARD_TYPES` array)
+- `themes/settings-to-variables.ts` — converts structured `ThemeUpdateCardData.changes` to flat CSS vars
+- `useConversations.ts` — threads `siteContext` to `streamAI()`, runs `extractCardActions()` after AI response
+
+**Theme changes:** `card:themeUpdate` supports a `mode` field (`'light' | 'dark'`). Multiple cards in one response are bundled into a single "Apply" action via `applyType: 'themeBatch'`. Palette slugs must match CSS variable suffixes (e.g. slug `"primary"` → `--color-primary`).
+
+**Section editing (Phase 2):** `card:sectionEdit` is registered in `CARD_TYPES` and the system prompt. The apply handler calls `siteStore.updateSection()` → iframe gets `sendSectionUpdate()`.
+
+**Two theme systems exist:**
+- `SiteTheme` (`themes/types.ts`) — structured design data (palette entries, font families). Used by `useSiteThemes.ts` and the theme design UI.
+- `Site.theme` (`site-types.ts`) — flat CSS vars (`--color-primary`, `--font-heading`). Used by the iframe. `settingsToVariables()` bridges them.
+
 ## Site preview dark mode
 
 Sites support dark/light mode via `theme.darkVariables` on the `Theme` type (same CSS custom property keys, different values). The SitePreview toggle sends a `theme-update` postMessage to swap `:root` variables live. `renderSite()` accepts an optional `colorMode` param for flash-free initial renders.
