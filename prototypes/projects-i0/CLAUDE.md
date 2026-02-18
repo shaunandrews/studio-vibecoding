@@ -47,7 +47,7 @@ src/
 - **StatusIndicator** — `status` (stopped/loading/running). Emits `toggle`. Clip-path morph animation on hover.
 - **Titlebar** — App titlebar with traffic lights, sidebar toggle, greeting, settings/help
 - **ProjectList** — Project list in two modes: `grid` (home view, full width) and `list` (sidebar, 210px). New Project button lives in MainLayout below this component, not inside it.
-- **InputChat** — Chat input with model selector and action strip. Props: `surface`, `modelValue`, `placeholder`, `actions` (ActionButton[]). Renders action buttons above the textarea with staggered entrance animation; number keys (1-9, 0 for 10th) trigger actions when input is empty. Enter sends, Cmd+Enter for newline.
+- **InputChat** — Chat input with model selector and action strip. Props: `surface`, `modelValue`, `placeholder`, `actions` (ActionButton[]). Two rendering modes: regular text buttons, or card actions when `ActionButton.card` is present (caller provides arbitrary `style` and `content` HTML). Number keys (1-9, 0 for 10th) trigger actions when input is empty. Enter sends, Cmd+Enter for newline.
 
 ## New project flow
 
@@ -55,11 +55,19 @@ No modal. Clicking "New project" creates an untitled project in the sidebar, ope
 
 ## Input actions system
 
-All user-facing action buttons (onboarding chips, skip, brief selection, card actions) render in a strip above the chat textarea—never inline in messages or card footers. Managed by `useInputActions.ts` (singleton composable). Features push actions via `pushActions()`, AgentPanel wires them to InputChat via `getActions()`. Actions clear on click or when the user sends a message. Cards are purely informational (no footer buttons). Number keys 1-9 and 0 (for 10th item) work as keyboard shortcuts when the input is empty. Buttons animate in with a staggered pop effect (30ms delay per button).
+All user-facing action buttons render in a strip above the chat textarea—never inline in messages or card footers. Managed by `useInputActions.ts` (singleton composable). Features push actions via `pushActions()`, AgentPanel wires them to InputChat via `getActions()`. Actions clear on click or when the user sends a message.
+
+**Two rendering modes:**
+- **Text buttons** — default, uses the `Button` component with numbered labels and staggered pop animation (30ms delay).
+- **Card actions** — when `ActionButton.card` is present (`{ style, content }`), renders as styled `<button>` elements with caller-provided inline styles and HTML content via `v-html`. InputChat provides only the container shell (flex column, border-radius, hover/active scale, number badge, entrance animation). All visual content is the caller's responsibility.
+
+Number keys 1-9 and 0 (for 10th item) work as keyboard shortcuts when the input is empty.
 
 ## Design brief generation
 
 Each brief includes a `styleName` (1-2 word label like "Punk", "Noir", "Warm Earth") used as the picker button label and displayed on the brief card. The site name, type, and description are threaded through to all section generation prompts so the AI uses the actual site name in content.
+
+**Brief selection** uses the card action system—`useBuildProgress` builds the HTML content (style name, site name in heading font, color swatches) and pushes card actions with inline styles. Design brief cards appear in the input area, not in the message stream. On selection, the chosen brief is posted as a single `DesignBriefPickerCard` in chat history.
 
 ## View transitions (home ↔ project)
 

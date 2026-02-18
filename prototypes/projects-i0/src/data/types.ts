@@ -60,6 +60,10 @@ export interface ActionButton {
   label: string
   variant?: 'primary' | 'secondary' | 'destructive'
   icon?: any
+  card?: {
+    style: Record<string, string>
+    content: string
+  }
   action: {
     type: 'send-message'
     message: string

@@ -35,6 +35,8 @@ const message = computed({
   set: (val: string) => emit('update:modelValue', val),
 })
 
+const hasCardActions = computed(() => props.actions.some(a => a.card))
+
 function send() {
   const text = message.value.trim()
   if (!text) return
@@ -78,11 +80,33 @@ function buttonVariant(variant?: ActionButton['variant']): 'primary' | 'secondar
   if (variant === 'destructive') return 'tertiary'
   return 'secondary'
 }
+
+function actionLabel(idx: number): string {
+  return `${idx < 9 ? idx + 1 : 0}`
+}
 </script>
 
 <template>
   <div class="input-chat p-xs" :class="[`surface-${props.surface}`, { 'has-content': message.trim().length > 0 }]" @click="focusInput">
-    <div v-if="actions.length" class="input-actions hstack gap-xxs flex-wrap pb-xxs">
+
+    <!-- Card actions: caller controls all styling and content -->
+    <div v-if="hasCardActions" class="input-actions-cards hstack gap-xs pb-xxs">
+      <button
+        v-for="(action, idx) in actions"
+        :key="action.id"
+        class="action-card action-enter"
+        :style="{ ...action.card?.style, animationDelay: `${idx * 60}ms` }"
+        :aria-label="action.label"
+        @click="$emit('action', action)"
+      >
+        <span class="action-card__badge">{{ actionLabel(idx) }}</span>
+        <!-- eslint-disable-next-line vue/no-v-html -->
+        <span v-if="action.card" v-html="action.card.content" />
+      </button>
+    </div>
+
+    <!-- Regular text actions -->
+    <div v-else-if="actions.length" class="input-actions hstack gap-xxs flex-wrap pb-xxs">
       <span
         v-for="(action, idx) in actions"
         :key="action.id"
@@ -90,7 +114,7 @@ function buttonVariant(variant?: ActionButton['variant']): 'primary' | 'secondar
         :style="{ animationDelay: `${idx * 30}ms` }"
       >
         <Button
-          :label="`${idx < 9 ? idx + 1 : 0}. ${action.label}`"
+          :label="`${actionLabel(idx)}. ${action.label}`"
           :icon="action.icon"
           :variant="buttonVariant(action.variant)"
           size="small"
@@ -98,6 +122,7 @@ function buttonVariant(variant?: ActionButton['variant']): 'primary' | 'secondar
         />
       </span>
     </div>
+
     <textarea
       ref="textareaRef"
       v-model="message"
@@ -179,7 +204,7 @@ function buttonVariant(variant?: ActionButton['variant']): 'primary' | 'secondar
   /* padding via .pt-xxs utility */
 }
 
-/* Staggered action button entrance */
+/* Staggered action entrance */
 .action-enter {
   animation: action-pop 0.25s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
@@ -189,6 +214,48 @@ function buttonVariant(variant?: ActionButton['variant']): 'primary' | 'secondar
     opacity: 0;
     transform: translateY(4px) scale(0.95);
   }
+}
+
+/* Card actions — InputChat provides the container, caller controls everything else */
+.input-actions-cards {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x mandatory;
+  align-items: stretch;
+}
+
+.action-card {
+  position: relative;
+  flex: 1 1 0;
+  min-width: 140px;
+  border: none;
+  border-radius: var(--radius-m);
+  padding: var(--space-xs);
+  text-align: start;
+  cursor: pointer;
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xxxs);
+  transition: transform 0.15s ease;
+}
+
+.action-card:hover {
+  transform: scale(1.02);
+}
+
+.action-card:active {
+  transform: scale(0.98);
+}
+
+.action-card__badge {
+  position: absolute;
+  inset-block-start: var(--space-xxxs);
+  inset-inline-end: var(--space-xxxs);
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1;
+  opacity: 0.4;
 }
 
 </style>

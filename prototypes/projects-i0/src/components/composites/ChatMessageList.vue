@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { nextTick, ref, watch } from 'vue'
+import { nextTick, ref, watch, onMounted, onBeforeUnmount } from 'vue'
 import ChatMessage from '@/components/composites/ChatMessage.vue'
 import type { Message } from '@/data/types'
 
@@ -9,12 +9,14 @@ const props = defineProps<{
 }>()
 
 const scrollerRef = ref<HTMLDivElement | null>(null)
+let resizeObserver: ResizeObserver | null = null
 
 function scrollToBottom() {
   if (!scrollerRef.value) return
   scrollerRef.value.scrollTop = scrollerRef.value.scrollHeight
 }
 
+// Scroll when messages change
 watch(
   () => {
     // Track both message count and content of the last message for streaming updates
@@ -27,6 +29,17 @@ watch(
   },
   { immediate: true },
 )
+
+// Scroll when container resizes (e.g. input area grows/shrinks)
+onMounted(() => {
+  if (!scrollerRef.value) return
+  resizeObserver = new ResizeObserver(() => scrollToBottom())
+  resizeObserver.observe(scrollerRef.value)
+})
+
+onBeforeUnmount(() => {
+  resizeObserver?.disconnect()
+})
 </script>
 
 <template>

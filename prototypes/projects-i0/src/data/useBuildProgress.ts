@@ -168,10 +168,11 @@ interface BuildState {
 
 const buildStates: Record<string, BuildState> = reactive({})
 
-// Pending brief selections — resolved when user clicks Choose
+// Pending brief selections — resolved when user clicks a brief card
 const pendingSelections: Record<string, {
   resolve: (brief: DesignBrief) => void
   briefs: DesignBrief[]
+  cardData: ReturnType<typeof extractBriefCardData>[]
 }> = {}
 
 // ---- Export ----
@@ -194,7 +195,7 @@ export function useBuildProgress() {
 
     progress,
 
-    /** Called by AgentPanel when user clicks a Choose button */
+    /** Called by AgentPanel when user clicks a brief card */
     selectBrief(projectId: string, briefIndex: number): void {
       const pending = pendingSelections[projectId]
       if (!pending) return
@@ -204,21 +205,15 @@ export function useBuildProgress() {
       // Clear the input actions
       clearBySource('brief-picker')
 
-      // Mutate the picker card in-place: keep only the chosen brief
-      const pickerMsg = messages.value.find(m =>
-        m.content.some(b => b.type === 'card' && b.card === 'designBriefPicker')
-      )
-      if (pickerMsg) {
-        const cardBlock = pickerMsg.content.find(
-          (b): b is Extract<ContentBlock, { type: 'card'; card: 'designBriefPicker' }> =>
-            b.type === 'card' && b.card === 'designBriefPicker'
-        )
-        if (cardBlock) {
-          cardBlock.data = {
-            briefs: [cardBlock.data.briefs[briefIndex]!],
-          }
-          pickerMsg.content = [...pickerMsg.content]
-        }
+      // Post the chosen brief as a card in the message stream
+      const convo = ensureConversation(projectId, 'assistant')
+      const cardData = pending.cardData[briefIndex]
+      if (cardData) {
+        postMessage(convo.id, 'agent', [{
+          type: 'card',
+          card: 'designBriefPicker',
+          data: { briefs: [cardData] },
+        }], 'assistant')
       }
 
       pending.resolve(brief)
@@ -279,45 +274,66 @@ export function useBuildProgress() {
         return
       }
 
-      // 5. Show brief cards with Choose buttons
+      // 5. Show brief options as visual actions in the input area
       await streamAgentMessage(
         convo.id,
         `Here ${validBriefs.length === 1 ? 'is 1 direction' : `are ${validBriefs.length} directions`} for **${brief.name}**. Pick the one that feels right:`,
         'assistant',
       )
 
-      const pickerCard: ContentBlock[] = [{
-        type: 'card',
-        card: 'designBriefPicker',
-        id: 'brief-picker',
-        data: {
-          briefs: validBriefs.map(b => extractBriefCardData(b, brief.name)),
-        },
-      }]
-
-      sendMessage(convo.id, 'agent', pickerCard, 'assistant')
-
-      // Push brief selection actions to the input area
       const briefCardData = validBriefs.map(b => extractBriefCardData(b, brief.name))
+
+      // Load Google Fonts for brief previews
+      const allFonts = new Set(briefCardData.flatMap(d => d.fonts))
+      if (allFonts.size > 0) {
+        const families = [...allFonts].map(f => `family=${encodeURIComponent(f)}:wght@400;700`).join('&')
+        const id = `brief-fonts-${[...allFonts].join('-').replace(/\s+/g, '-')}`
+        if (!document.getElementById(id)) {
+          const link = document.createElement('link')
+          link.id = id
+          link.rel = 'stylesheet'
+          link.href = `https://fonts.googleapis.com/css2?${families}&display=swap`
+          document.head.appendChild(link)
+        }
+      }
+
       pushActions({
         id: 'brief-pick',
         conversationId: convo.id,
-        actions: briefCardData.map((cardData, i) => ({
-          id: `pick-brief-${i}`,
-          label: cardData.styleName,
-          variant: 'secondary' as const,
-          action: {
-            type: 'send-message' as const,
-            message: cardData.styleName,
-            payload: { briefSelection: String(i), projectId },
-          },
-        })),
+        actions: briefCardData.map((d, i) => {
+          const swatches = d.colors.slice(0, 6)
+            .map(c => `<span style="width:14px;height:14px;border-radius:3px;background:${c.value};border:1px solid rgba(255,255,255,.1)"></span>`)
+            .join('')
+
+          return {
+            id: `pick-brief-${i}`,
+            label: d.styleName,
+            variant: 'secondary' as const,
+            card: {
+              style: {
+                background: d.bgColor,
+                color: d.textColor,
+                border: `1px solid color-mix(in srgb, ${d.textColor} 15%, transparent)`,
+              },
+              content: `
+                <span style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;opacity:.6">${d.styleName}</span>
+                <span style="font-family:'${d.fonts[0]}',sans-serif;font-size:14px;font-weight:700;line-height:1.2;color:${d.accentColor}">${d.siteName}</span>
+                <span style="display:flex;gap:3px;flex-wrap:wrap;margin-top:auto;padding-top:3px">${swatches}</span>
+              `,
+            },
+            action: {
+              type: 'send-message' as const,
+              message: d.styleName,
+              payload: { briefSelection: String(i), projectId },
+            },
+          }
+        }),
         sourceRef: 'brief-picker',
       })
 
       // 6. Wait for user selection
       const chosenBrief = await new Promise<DesignBrief>((resolve) => {
-        pendingSelections[projectId] = { resolve, briefs: validBriefs }
+        pendingSelections[projectId] = { resolve, briefs: validBriefs, cardData: briefCardData }
       })
 
       // 7. Acknowledge selection and show progress card immediately
