@@ -28,7 +28,7 @@ src/
   styles/            # Design tokens (colors, space, radius)
   components/
     primitives/      # Button, Tooltip, WPIcon, Text, StatusIndicator, Titlebar, etc.
-    composites/      # ChatMessage, InputChat, ProjectItem, TabBar, Panel, chat-cards/
+    composites/      # ChatMessage, InputChat, ProjectItem, TabBar, Panel, StyleTileCard, StylePreview, chat-cards/
     features/        # ProjectList, AgentPanel, SitePreview, OnboardingEmpty
   layouts/           # MainLayout (app shell), BareLayout (standalone pages)
   pages/             # ProjectPage, DesignSystem, Components, Settings, Architecture
@@ -47,27 +47,38 @@ src/
 - **StatusIndicator** — `status` (stopped/loading/running). Emits `toggle`. Clip-path morph animation on hover.
 - **Titlebar** — App titlebar with traffic lights, sidebar toggle, greeting, settings/help
 - **ProjectList** — Project list in two modes: `grid` (home view, full width) and `list` (sidebar, 210px). New Project button lives in MainLayout below this component, not inside it.
-- **InputChat** — Chat input with model selector and action strip. Props: `surface`, `modelValue`, `placeholder`, `actions` (ActionButton[]). Two rendering modes: regular text buttons, or card actions when `ActionButton.card` is present (caller provides arbitrary `style` and `content` HTML). Number keys (1-9, 0 for 10th) trigger actions when input is empty. Enter sends, Cmd+Enter for newline.
+- **InputChat** — Chat input with model selector and action strip. Props: `surface`, `modelValue`, `placeholder`, `actions` (ActionButton[]). Three rendering modes: (1) **brief cards** when `ActionButton.card.briefData` is present — 3-column grid of StyleTileCard components with StylePreview hover popups, (2) **card actions** when `ActionButton.card` is present — styled buttons with caller-provided inline styles/content, (3) **text buttons** — default, numbered Button components. Number keys (1-9, 0 for 10th) trigger actions when input is empty. Enter sends, Cmd+Enter for newline.
+- **StyleTileCard** — Compact card showing style name in the brief's heading font + accent color stripe. Emits `preview-enter`/`preview-leave` with DOM rect for hover preview positioning.
+- **StylePreview** — Floating 400×250px preview panel (teleported to body). Renders AI-generated style tile HTML via `v-html`, or a fallback type specimen if no tile. Viewport-clamped positioning, scale-in animation, scroll-to-dismiss.
 
 ## New project flow
 
-No modal. Clicking "New project" creates an untitled project in the sidebar, opens the project view (with chat input auto-focused), and runs onboarding as the first chat messages. The AI assistant is named **Kit** with randomized greetings. The flow: greeting → capabilities overview → type selection (10 options as action buttons) → name (sidebar updates live) → description (skippable) → build starts. Managed by `useOnboarding.ts` (singleton state machine with promise-based input waiting). `useConversations.postMessage()` adds messages without triggering AI responses during onboarding.
+No modal. Clicking "New project" creates an untitled project in the sidebar, opens the project view (with chat input auto-focused), and runs onboarding as the first chat messages. The AI assistant is named **Kit** with randomized greetings. The flow: greeting → capabilities overview → type selection (10 options as action buttons) → name (sidebar updates live) → description (skippable) → visual direction (skippable) → inspiration sites (skippable) → style tile selection → build starts. Managed by `useOnboarding.ts` (singleton state machine with promise-based input waiting). `useConversations.postMessage()` adds messages without triggering AI responses during onboarding.
+
+Type selection uses button labels ("Business Site", "Restaurant", etc.) which flow through as `freeTextType` on the `ProjectBrief`. A `labelToType` map in `useOnboarding.ts` resolves labels to `ProjectType` enum values for page config selection, while preserving the human-readable label for the AI prompt.
 
 ## Input actions system
 
 All user-facing action buttons render in a strip above the chat textarea—never inline in messages or card footers. Managed by `useInputActions.ts` (singleton composable). Features push actions via `pushActions()`, AgentPanel wires them to InputChat via `getActions()`. Actions clear on click or when the user sends a message.
 
-**Two rendering modes:**
-- **Text buttons** — default, uses the `Button` component with numbered labels and staggered pop animation (30ms delay).
-- **Card actions** — when `ActionButton.card` is present (`{ style, content }`), renders as styled `<button>` elements with caller-provided inline styles and HTML content via `v-html`. InputChat provides only the container shell (flex column, border-radius, hover/active scale, number badge, entrance animation). All visual content is the caller's responsibility.
+**Three rendering modes** (priority order in InputChat template):
+1. **Brief cards** — when `ActionButton.card.briefData` is present. 3-column grid of `StyleTileCard` components with `StylePreview` hover popups. Extra non-brief actions (e.g. "Show more") render below the grid. Staggered entrance (60ms delay per card).
+2. **Card actions** — when `ActionButton.card` is present (`{ style, content }`). Styled `<button>` elements with caller-provided inline styles and HTML content via `v-html`. InputChat provides only the container shell.
+3. **Text buttons** — default. Numbered `Button` components with staggered pop animation (30ms delay).
 
 Number keys 1-9 and 0 (for 10th item) work as keyboard shortcuts when the input is empty.
 
 ## Design brief generation
 
-Each brief includes a `styleName` (1-2 word label like "Punk", "Noir", "Warm Earth") used as the picker button label and displayed on the brief card. The site name, type, and description are threaded through to all section generation prompts so the AI uses the actual site name in content.
+**Prompt architecture:** `design-brief-prompt.ts` builds the prompt in 4 layers: (1) design foundations (research-backed typography/color/composition rules), (2) user context (name, type, description, visual direction, inspiration — elevated to top), (3) type-specific overlay (composition vocabulary, typographic character, color mood per site type), (4) output format + style tile instructions. Type overlays stored as `TYPE_OVERLAYS` Record with entries for all 10 onboarding types plus a `DEFAULT_OVERLAY` fallback. `getTypeOverlay()` does exact match → bidirectional fuzzy match → default.
 
-**Brief selection** uses the card action system—`useBuildProgress` builds the HTML content (style name, site name in heading font, color swatches) and pushes card actions with inline styles. Design brief cards appear in the input area, not in the message stream. On selection, the chosen brief is posted as a single `DesignBriefPickerCard` in chat history.
+**Algorithmic color anchors:** Instead of asking the LLM to invent colors, `useBuildProgress` generates 3 hex anchor sets using HSL with 120° hue spacing (triadic). Three structural modes (dark, light, saturated) are shuffled randomly. Each anchor includes bg/text/accent colors plus a mood hint. The LLM's job is design narration around the constrained palette.
+
+**Brief flow:** 3 briefs generated in parallel (one per color anchor) → style tile cards shown in input area → user picks → generation starts with chosen brief. "Show more" appends 3 more briefs (additive accumulation). Rejected briefs tracked for avoidance context on regeneration.
+
+Each brief includes a `styleName` (1-2 word label), CSS variables, design direction, font names, and an optional `styleTile` (self-contained HTML+CSS visual composition). The style tile is parsed from a ` ```styleTile ` fenced block in the AI response.
+
+**Brief selection** uses StyleTileCard components in a 3-column grid (via the brief cards rendering mode in InputChat). Hover triggers a floating StylePreview popup showing the AI-generated tile. On selection, the chosen brief is posted as a `DesignBriefPickerCard` in chat history.
 
 ## View transitions (home ↔ project)
 
