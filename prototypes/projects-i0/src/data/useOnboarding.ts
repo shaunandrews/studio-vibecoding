@@ -61,12 +61,19 @@ const descMessages: Record<ProjectType, string> = {
   custom: "Describe it in a sentence—who's it for and what does it do?",
 }
 
-const typeLabels: Record<string, string> = {
-  restaurant: 'Restaurant',
-  portfolio: 'Portfolio',
-  store: 'Online Store',
-  blog: 'Blog',
-  custom: 'Something else',
+// Maps button labels from the type-selection actions → ProjectType.
+// Keys must match the `label` values in the onboarding type actions array.
+const labelToType: Record<string, ProjectType> = {
+  'Business Site': 'custom',
+  'Online Store': 'store',
+  'Blog': 'blog',
+  'Portfolio': 'portfolio',
+  'Restaurant': 'restaurant',
+  'Agency': 'custom',
+  'Nonprofit': 'custom',
+  'Membership': 'custom',
+  'Course': 'custom',
+  'Event': 'custom',
 }
 
 // ---- Helpers ----
@@ -124,6 +131,7 @@ export function useOnboarding() {
     await streamAgentMessage(convo.id, "I can design and build just about anything. I can make stores, blogs, portfolios, apps, you name it. Just describe what you want and I'll make it happen.", 'assistant')
     await streamAgentMessage(convo.id, "So, what are we making?", 'assistant')
 
+    // Button labels here must match the keys in `labelToType` (module scope).
     pushActions({
       id: 'onboarding-type',
       conversationId: convo.id,
@@ -146,27 +154,13 @@ export function useOnboarding() {
     const state = onboardingStates[projectId]
     if (!state) return // cancelled
 
-    // Map button labels → ProjectType (for page configs)
-    const labelToType: Record<string, ProjectType> = {
-      'Business Site': 'custom',
-      'Online Store': 'store',
-      'Blog': 'blog',
-      'Portfolio': 'portfolio',
-      'Restaurant': 'restaurant',
-      'Agency': 'custom',
-      'Nonprofit': 'custom',
-      'Membership': 'custom',
-      'Course': 'custom',
-      'Event': 'custom',
-    }
-
     const mappedType = labelToType[typeInput]
     if (mappedType) {
       state.type = mappedType
       // Always store the label so the prompt gets "Business Site" not "custom"
       state.freeTextType = typeInput
     } else {
-      // Free text input (user typed something custom)
+      // User typed free text instead of picking a button — treat as custom type
       state.type = 'custom'
       state.freeTextType = typeInput
     }
