@@ -139,33 +139,23 @@ async function sendToAIWithIndicator(conversationId: string, text: string, agent
 function extractCardActions(conversationId: string, blocks: ContentBlock[]) {
   const actions: ActionButton[] = []
 
+  // Collect all theme changes into a single bundled action
+  const themeChanges: { mode: string; changes: any; label: string }[] = []
   for (const block of blocks) {
     if (block.type !== 'card') continue
 
     if (block.card === 'themeUpdate') {
       const data = block.data as ThemeUpdateCardData & { mode?: string }
       if (data.changes) {
-        const mode = data.mode === 'dark' ? 'dark' : 'light'
-        actions.push({
-          id: `apply-theme-${mode}-${Date.now()}`,
-          label: `Apply: ${data.label}`,
-          variant: 'primary',
-          action: {
-            type: 'send-message',
-            message: `Apply the theme changes: ${data.label}`,
-            payload: {
-              applyType: 'theme',
-              themeMode: mode,
-              themeChanges: JSON.stringify(data.changes),
-            },
-          },
+        themeChanges.push({
+          mode: data.mode === 'dark' ? 'dark' : 'light',
+          changes: data.changes,
+          label: data.label,
         })
       }
     }
 
     if (block.card === 'sectionEdit') {
-      // AI outputs flat html/css per the system prompt schema;
-      // the TS type's before/after is for card display, not the AI output
       const data = block.data as Record<string, any>
       if (data.sectionId) {
         actions.push({
@@ -185,6 +175,26 @@ function extractCardActions(conversationId: string, blocks: ContentBlock[]) {
         })
       }
     }
+  }
+
+  // Bundle all theme cards into one "Apply" action
+  if (themeChanges.length > 0) {
+    const label = themeChanges.length === 1
+      ? themeChanges[0]!.label
+      : themeChanges[0]!.label.replace(/ - (Light|Dark) Mode$/i, '')
+    actions.unshift({
+      id: `apply-theme-${Date.now()}`,
+      label: `Apply: ${label}`,
+      variant: 'primary',
+      action: {
+        type: 'send-message',
+        message: `Apply the theme changes: ${label}`,
+        payload: {
+          applyType: 'themeBatch',
+          themeChanges: JSON.stringify(themeChanges),
+        },
+      },
+    })
   }
 
   if (actions.length > 0) {

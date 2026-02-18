@@ -211,12 +211,14 @@ function handleAction(action: ActionButton) {
   if (action.action.payload?.applyType && props.projectId) {
     const applyType = action.action.payload.applyType
 
-    if (applyType === 'theme' && action.action.payload.themeChanges) {
+    if (applyType === 'themeBatch' && action.action.payload.themeChanges) {
       try {
-        const changes = JSON.parse(action.action.payload.themeChanges)
-        const overrides = settingsToVariables(changes)
-        const mode = action.action.payload.themeMode === 'dark' ? 'dark' as const : 'light' as const
-        siteStore.updateThemeVariables(props.projectId, overrides, mode)
+        const batch = JSON.parse(action.action.payload.themeChanges) as { mode: string; changes: any }[]
+        for (const entry of batch) {
+          const overrides = settingsToVariables(entry.changes)
+          const mode = entry.mode === 'dark' ? 'dark' as const : 'light' as const
+          siteStore.updateThemeVariables(props.projectId, overrides, mode)
+        }
       } catch { /* ignore parse errors */ }
     }
 
