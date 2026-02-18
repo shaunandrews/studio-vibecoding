@@ -174,11 +174,25 @@ watch(
   },
   (newVars) => {
     if (!newVars || !iframeRef.value || !iframeReady.value) return
-    // Respect current color mode
-    const vars = colorMode.value === 'dark' && site.value?.theme.darkVariables
-      ? { ...site.value.theme.darkVariables }
-      : newVars
-    sendThemeUpdate(iframeRef.value, vars)
+    // Only push light mode changes when in light mode
+    if (colorMode.value !== 'dark') {
+      sendThemeUpdate(iframeRef.value, newVars)
+    }
+  },
+)
+
+// Push dark mode variable changes when in dark mode
+watch(
+  () => {
+    if (!site.value?.theme.darkVariables) return undefined
+    return { ...site.value.theme.darkVariables }
+  },
+  (newDarkVars) => {
+    if (!newDarkVars || !iframeRef.value || !iframeReady.value) return
+    // Only push dark mode changes when in dark mode
+    if (colorMode.value === 'dark') {
+      sendThemeUpdate(iframeRef.value, newDarkVars)
+    }
   },
 )
 

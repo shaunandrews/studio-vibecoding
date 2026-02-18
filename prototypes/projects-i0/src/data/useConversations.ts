@@ -143,10 +143,11 @@ function extractCardActions(conversationId: string, blocks: ContentBlock[]) {
     if (block.type !== 'card') continue
 
     if (block.card === 'themeUpdate') {
-      const data = block.data as ThemeUpdateCardData
+      const data = block.data as ThemeUpdateCardData & { mode?: string }
       if (data.changes) {
+        const mode = data.mode === 'dark' ? 'dark' : 'light'
         actions.push({
-          id: `apply-theme-${Date.now()}`,
+          id: `apply-theme-${mode}-${Date.now()}`,
           label: `Apply: ${data.label}`,
           variant: 'primary',
           action: {
@@ -154,6 +155,7 @@ function extractCardActions(conversationId: string, blocks: ContentBlock[]) {
             message: `Apply the theme changes: ${data.label}`,
             payload: {
               applyType: 'theme',
+              themeMode: mode,
               themeChanges: JSON.stringify(data.changes),
             },
           },

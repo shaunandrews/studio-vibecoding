@@ -30,10 +30,15 @@ export function buildSiteContext(site: Site): string {
     lines.push(`Fonts: ${site.theme.fonts.join(', ')}`)
   }
 
-  // Dark mode
+  // Dark mode variables
   if (site.theme.darkVariables) {
     lines.push('')
-    lines.push('This site has dark mode support.')
+    lines.push('### Dark Mode Variables')
+    lines.push('This site has dark mode. To change dark mode colors, use `"mode": "dark"` in your card:themeUpdate. The dark mode uses these variables (same keys, different values):')
+    lines.push('')
+    for (const [key, value] of Object.entries(site.theme.darkVariables)) {
+      lines.push(`${key}: ${value}`)
+    }
   }
 
   // Pages and sections

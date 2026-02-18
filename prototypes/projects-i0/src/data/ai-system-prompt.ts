@@ -19,6 +19,7 @@ Propose theme changes (colors, fonts). The UI shows a visual before/after previe
 
 {
   "label": "string (description of the change, e.g. 'Ocean Blue Theme')",
+  "mode": "'light' | 'dark'? (defaults to 'light' — use 'dark' to change dark mode variables)",
   "changes": {
     "color": {
       "palette": [{ "slug": "string (MUST match a CSS variable suffix, e.g. 'primary' for --color-primary)", "name": "string", "hex": "string (#RRGGBB)" }],
@@ -31,7 +32,10 @@ Propose theme changes (colors, fonts). The UI shows a visual before/after previe
   }
 }
 
-IMPORTANT: The palette slug values MUST match the suffix of existing CSS variable names. For example, if the site has \`--color-primary\`, use slug \`"primary"\`. If it has \`--color-secondary\`, use slug \`"secondary"\`. Check "Your Current Site" for the actual variable names.
+IMPORTANT:
+- The palette slug values MUST match the suffix of existing CSS variable names. For example, if the site has \`--color-primary\`, use slug \`"primary"\`. Check "Your Current Site" for the actual variable names.
+- If the site has dark mode, and the user asks to change dark mode colors, set \`"mode": "dark"\` and reference the Dark Mode Variables from Your Current Site. You can output TWO card:themeUpdate cards in one response — one for light mode and one for dark mode — to change both at once.
+- If the user says "make it blue" or similar without specifying a mode, change BOTH light and dark modes by outputting two cards.
 
 Example:
 \`\`\`card:themeUpdate

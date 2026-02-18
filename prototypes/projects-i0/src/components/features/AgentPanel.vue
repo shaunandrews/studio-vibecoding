@@ -215,7 +215,8 @@ function handleAction(action: ActionButton) {
       try {
         const changes = JSON.parse(action.action.payload.themeChanges)
         const overrides = settingsToVariables(changes)
-        siteStore.updateThemeVariables(props.projectId, overrides)
+        const mode = action.action.payload.themeMode === 'dark' ? 'dark' as const : 'light' as const
+        siteStore.updateThemeVariables(props.projectId, overrides, mode)
       } catch { /* ignore parse errors */ }
     }
 

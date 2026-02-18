@@ -64,16 +64,25 @@ export function useSiteStore() {
 
     /**
      * Merge partial CSS variable overrides onto a site's theme.
+     * Use mode='dark' to target darkVariables instead.
      * Optionally update the font list (triggers iframe reload for new fonts).
      */
     updateThemeVariables(
       projectId: string,
       variableOverrides: Record<string, string>,
+      mode: 'light' | 'dark' = 'light',
       newFonts?: string[],
     ): void {
       const site = sites[projectId]
       if (!site) return
-      Object.assign(site.theme.variables, variableOverrides)
+      if (mode === 'dark') {
+        if (!site.theme.darkVariables) {
+          site.theme.darkVariables = { ...site.theme.variables }
+        }
+        Object.assign(site.theme.darkVariables, variableOverrides)
+      } else {
+        Object.assign(site.theme.variables, variableOverrides)
+      }
       if (newFonts && newFonts.length > 0) {
         site.theme.fonts = newFonts
       }
