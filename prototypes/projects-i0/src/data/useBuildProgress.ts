@@ -16,7 +16,7 @@ import { useProjects } from './useProjects'
 import { useConversations } from './useConversations'
 import { usePreviewState } from './usePreviewState'
 import { useInputActions } from './useInputActions'
-import type { ProjectBrief, ProjectType, ContentBlock } from './types'
+import type { ProjectBrief, ProjectType, ContentBlock, VariationHint } from './types'
 import type { DesignBrief, GenerationEvent } from './generation/types'
 
 // ---- Page Configs per Project Type ----
@@ -156,7 +156,7 @@ function extractBriefCardData(brief: DesignBrief, siteName: string) {
     .filter(c => c.value !== bgColor && c.value !== textColor)
     .slice(0, 8)
 
-  return { siteName, styleName: brief.styleName, direction: brief.direction, fonts: brief.fonts, colors: displayColors, bgColor, textColor, accentColor }
+  return { siteName, styleName: brief.styleName, direction: brief.direction, fonts: brief.fonts, colors: displayColors, bgColor, textColor, accentColor, styleTile: brief.styleTile }
 }
 
 // ---- Build State ----
@@ -175,14 +175,217 @@ const pendingSelections: Record<string, {
   cardData: ReturnType<typeof extractBriefCardData>[]
 }> = {}
 
+// Rejected briefs per project — used as avoidance context for regen
+const rejectedBriefs: Record<string, string[]> = {}
+
+// Build context per project — needed for regen to re-call generateDesignBrief
+const buildContexts: Record<string, {
+  projectId: string
+  brief: ProjectBrief
+  siteType: string
+  convoId: string
+}> = {}
+
+// ---- Algorithmic Color Anchors ----
+// Instead of asking the LLM to invent colors, we generate concrete hex anchors
+// using color theory (120° hue spacing) and inject them as hard constraints.
+// The LLM's job becomes design narration around our chosen palette, not color invention.
+
+interface ColorAnchor {
+  bg: string
+  text: string
+  accent: string
+  mood: string  // one-line personality hint for the AI
+}
+
+/** Convert HSL (h: 0-360, s: 0-100, l: 0-100) to hex */
+function hslToHex(h: number, s: number, l: number): string {
+  const sN = s / 100
+  const lN = l / 100
+  const a = sN * Math.min(lN, 1 - lN)
+  const f = (n: number) => {
+    const k = (n + h / 30) % 12
+    const color = lN - a * Math.max(Math.min(k - 3, 9 - k, 1), -1)
+    return Math.round(255 * color).toString(16).padStart(2, '0')
+  }
+  return `#${f(0)}${f(8)}${f(4)}`
+}
+
+/** Generate 3 color anchors with guaranteed visual diversity */
+function generateColorAnchors(): ColorAnchor[] {
+  // Pick a random starting hue, then space the other two 120° apart (triadic)
+  const baseHue = Math.floor(Math.random() * 360)
+  const hues = [baseHue, (baseHue + 120) % 360, (baseHue + 240) % 360]
+
+  // Shuffle the structural modes so the order isn't always dark/light/colorful
+  const modes = [
+    { type: 'dark' as const, moods: ['Luxurious, editorial, cinematic', 'Moody, atmospheric, noir', 'Raw, technical, brutalist'] },
+    { type: 'light' as const, moods: ['Clean, minimal, Swiss', 'Warm, artisanal, handcrafted', 'Crisp, professional, modern'] },
+    { type: 'saturated' as const, moods: ['Bold, branded, unapologetic', 'Rich, earthy, grounded', 'Playful, fresh, energetic'] },
+  ]
+  // Shuffle modes
+  for (let i = modes.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[modes[i], modes[j]] = [modes[j]!, modes[i]!]
+  }
+
+  return modes.map((mode, i) => {
+    const hue = hues[i]!
+    const mood = mode.moods[Math.floor(Math.random() * mode.moods.length)]!
+
+    switch (mode.type) {
+      case 'dark': {
+        // Dark bg with slight hue tint, light text, vivid accent from the hue
+        const bg = hslToHex(hue, 15 + Math.random() * 20, 8 + Math.random() * 7)
+        const text = hslToHex(hue, 5 + Math.random() * 10, 88 + Math.random() * 8)
+        const accent = hslToHex(hue, 70 + Math.random() * 25, 55 + Math.random() * 15)
+        return { bg, text, accent, mood }
+      }
+      case 'light': {
+        // Light bg, dark text, muted accent from the hue
+        const bg = hslToHex(hue, 5 + Math.random() * 15, 95 + Math.random() * 4)
+        const text = hslToHex(hue, 10 + Math.random() * 15, 12 + Math.random() * 10)
+        const accent = hslToHex(hue, 50 + Math.random() * 30, 40 + Math.random() * 20)
+        return { bg, text, accent, mood }
+      }
+      case 'saturated': {
+        // Saturated hue as background, contrasting text
+        const bgLightness = 25 + Math.random() * 30
+        const bg = hslToHex(hue, 50 + Math.random() * 35, bgLightness)
+        const text = bgLightness < 45
+          ? hslToHex(hue, 5 + Math.random() * 10, 92 + Math.random() * 6)
+          : hslToHex(hue, 15 + Math.random() * 10, 10 + Math.random() * 8)
+        const accent = hslToHex((hue + 30 + Math.random() * 60) % 360, 60 + Math.random() * 30, 55 + Math.random() * 20)
+        return { bg, text, accent, mood }
+      }
+    }
+  })
+}
+
+function anchorToVariation(anchor: ColorAnchor): string {
+  return `USE THESE EXACT SEED COLORS — build your full palette around them:
+  Background: ${anchor.bg}
+  Text: ${anchor.text}
+  Primary/Accent: ${anchor.accent}
+You may adjust slightly for harmony but the background MUST stay within the same hue and lightness range. Do not drift to a different color family.
+Mood/personality: ${anchor.mood}.`
+}
+
 // ---- Export ----
 
 export function useBuildProgress() {
   const { generateSite, generateDesignBrief, progress, abort } = useGeneration()
   const { setStatus } = useProjects()
-  const { ensureConversation, sendMessage, streamAgentMessage, postMessage, removeMessage, messages } = useConversations()
+  const { ensureConversation, sendMessage, streamAgentMessage, postMessage, messages } = useConversations()
   const { hide, show } = usePreviewState()
   const { pushActions, clearBySource } = useInputActions()
+
+  /**
+   * Generate briefs and show them as style tile cards in the input area.
+   * Returns false if all briefs failed to generate.
+   */
+  async function generateAndShowBriefs(
+    projectId: string,
+    convoId: string,
+    siteName: string,
+    siteType: string,
+    description: string,
+    visualDirection?: string,
+    inspiration?: string,
+  ): Promise<boolean> {
+    const anchors = generateColorAnchors()
+    const variations = anchors.map(a => anchorToVariation(a))
+    const avoided = rejectedBriefs[projectId] || []
+
+    const briefPromises = variations.map(async (variation, i) => {
+      try {
+        return await generateDesignBrief(
+          siteName, siteType, description, variation,
+          visualDirection, inspiration,
+          avoided.length ? avoided : undefined,
+        )
+      } catch (error) {
+        console.warn(`[Build] Brief ${i} failed:`, error)
+        return null
+      }
+    })
+
+    const briefResults = await Promise.all(briefPromises)
+    const validBriefs = briefResults.filter((b): b is DesignBrief => b !== null)
+
+    if (validBriefs.length === 0) return false
+
+    const variationHints: VariationHint[] = ['bold', 'minimal', 'warm']
+    const briefCardData = validBriefs.map((b, i) => ({
+      ...extractBriefCardData(b, siteName),
+      variationHint: variationHints[i] || 'bold' as VariationHint,
+    }))
+
+    // Load Google Fonts for brief previews
+    const allFonts = new Set(briefCardData.flatMap(d => d.fonts))
+    if (allFonts.size > 0) {
+      const families = [...allFonts].map(f => `family=${encodeURIComponent(f)}:wght@400;700;800`).join('&')
+      const id = `brief-fonts-${[...allFonts].join('-').replace(/\s+/g, '-')}`
+      if (!document.getElementById(id)) {
+        const link = document.createElement('link')
+        link.id = id
+        link.rel = 'stylesheet'
+        link.href = `https://fonts.googleapis.com/css2?${families}&display=swap`
+        document.head.appendChild(link)
+      }
+    }
+
+    // Accumulate briefs into the pending selection (additive across rounds)
+    const existing = pendingSelections[projectId]
+    if (existing) {
+      existing.briefs.push(...validBriefs)
+      existing.cardData.push(...briefCardData)
+    } else {
+      pendingSelections[projectId] = {
+        resolve: () => {}, // placeholder, overwritten by caller
+        briefs: validBriefs,
+        cardData: briefCardData,
+      }
+    }
+
+    // Rebuild full action list from ALL accumulated briefs
+    const allBriefs = pendingSelections[projectId]!.cardData
+    const briefPickActions = allBriefs.map((d, i) => ({
+      id: `pick-brief-${i}`,
+      label: d.styleName,
+      variant: 'secondary' as const,
+      card: {
+        style: {},
+        content: '',
+        briefData: d,
+      },
+      action: {
+        type: 'send-message' as const,
+        message: d.styleName,
+        payload: { briefSelection: String(i), projectId },
+      },
+    }))
+
+    const showMoreAction = {
+      id: 'regen-briefs',
+      label: 'Show more',
+      variant: 'secondary' as const,
+      action: {
+        type: 'send-message' as const,
+        message: 'Show me more options',
+        payload: { briefRegenerate: 'true', projectId },
+      },
+    }
+
+    pushActions({
+      id: 'brief-pick',
+      conversationId: convoId,
+      actions: [...briefPickActions, showMoreAction],
+      sourceRef: 'brief-picker',
+    })
+
+    return true
+  }
 
   return {
     isBuilding(projectId: string): boolean {
@@ -216,8 +419,34 @@ export function useBuildProgress() {
         }], 'assistant')
       }
 
+      // Clean up rejected briefs for this project
+      delete rejectedBriefs[projectId]
+      delete buildContexts[projectId]
+
       pending.resolve(brief)
       delete pendingSelections[projectId]
+    },
+
+    /** Called by AgentPanel when user clicks the "Show more" button */
+    async regenerateBriefs(projectId: string): Promise<void> {
+      const pending = pendingSelections[projectId]
+      const ctx = buildContexts[projectId]
+      if (!pending || !ctx) return
+
+      // Narrate
+      const convo = ensureConversation(projectId, 'assistant')
+      await streamAgentMessage(convo.id, 'Generating more options...', 'assistant')
+
+      // Generate and append (generateAndShowBriefs is additive now)
+      const ok = await generateAndShowBriefs(
+        projectId, ctx.convoId,
+        ctx.brief.name, ctx.siteType, ctx.brief.description,
+        ctx.brief.visualDirection, ctx.brief.inspiration,
+      )
+
+      if (!ok) {
+        await streamAgentMessage(convo.id, 'Those failed to generate. Try once more.', 'assistant')
+      }
     },
 
     async startBuild(projectId: string, brief: ProjectBrief): Promise<void> {
@@ -232,6 +461,9 @@ export function useBuildProgress() {
       // 2. Get or create conversation
       const convo = ensureConversation(projectId, 'assistant')
 
+      // Store build context for regen
+      buildContexts[projectId] = { projectId, brief, siteType, convoId: convo.id }
+
       // 3. Opening narration
       await streamAgentMessage(
         convo.id,
@@ -240,100 +472,35 @@ export function useBuildProgress() {
       )
       await streamAgentMessage(convo.id, 'Crafting design briefs...', 'assistant')
 
-      // Add a thinking indicator while briefs generate
-      const thinkingId = `msg-thinking-${projectId}`
-      messages.value.push({
-        id: thinkingId,
-        conversationId: convo.id,
-        role: 'agent',
-        agentId: 'assistant',
-        content: [{ type: 'text', text: '...' }],
-        timestamp: new Date().toISOString(),
-      })
+      // 4. Generate and show brief cards
+      const ok = await generateAndShowBriefs(
+        projectId, convo.id,
+        brief.name, siteType, brief.description,
+        brief.visualDirection, brief.inspiration,
+      )
 
-      // 4. Generate 3 briefs in parallel
-      const briefPromises = [0, 1, 2].map(async (i) => {
-        try {
-          return await generateDesignBrief(brief.name, siteType, brief.description)
-        } catch (error) {
-          console.warn(`[Build] Brief ${i} failed:`, error)
-          return null
-        }
-      })
-
-      const briefResults = await Promise.all(briefPromises)
-      const validBriefs = briefResults.filter((b): b is DesignBrief => b !== null)
-
-      // Remove thinking indicator
-      removeMessage(thinkingId)
-
-      if (validBriefs.length === 0) {
+      if (!ok) {
         streamAgentMessage(convo.id, 'All design briefs failed to generate. Please try again.', 'assistant')
         buildStates[projectId] = { status: 'error', error: 'All briefs failed' }
         setStatus(projectId, 'stopped')
         return
       }
 
-      // 5. Show brief options as visual actions in the input area
+      // 5. Show brief options
       await streamAgentMessage(
         convo.id,
-        `Here ${validBriefs.length === 1 ? 'is 1 direction' : `are ${validBriefs.length} directions`} for **${brief.name}**. Pick the one that feels right:`,
+        `Here are ${pendingSelections[projectId]?.briefs.length || 3} directions for **${brief.name}**. Pick the one that feels right:`,
         'assistant',
       )
 
-      const briefCardData = validBriefs.map(b => extractBriefCardData(b, brief.name))
-
-      // Load Google Fonts for brief previews
-      const allFonts = new Set(briefCardData.flatMap(d => d.fonts))
-      if (allFonts.size > 0) {
-        const families = [...allFonts].map(f => `family=${encodeURIComponent(f)}:wght@400;700`).join('&')
-        const id = `brief-fonts-${[...allFonts].join('-').replace(/\s+/g, '-')}`
-        if (!document.getElementById(id)) {
-          const link = document.createElement('link')
-          link.id = id
-          link.rel = 'stylesheet'
-          link.href = `https://fonts.googleapis.com/css2?${families}&display=swap`
-          document.head.appendChild(link)
-        }
-      }
-
-      pushActions({
-        id: 'brief-pick',
-        conversationId: convo.id,
-        actions: briefCardData.map((d, i) => {
-          const swatches = d.colors.slice(0, 6)
-            .map(c => `<span style="width:14px;height:14px;border-radius:3px;background:${c.value};border:1px solid rgba(255,255,255,.1)"></span>`)
-            .join('')
-
-          return {
-            id: `pick-brief-${i}`,
-            label: d.styleName,
-            variant: 'secondary' as const,
-            card: {
-              style: {
-                background: d.bgColor,
-                color: d.textColor,
-                border: `1px solid color-mix(in srgb, ${d.textColor} 15%, transparent)`,
-              },
-              content: `
-                <span style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;opacity:.6">${d.styleName}</span>
-                <span style="font-family:'${d.fonts[0]}',sans-serif;font-size:14px;font-weight:700;line-height:1.2;color:${d.accentColor}">${d.siteName}</span>
-                <span style="display:flex;gap:3px;flex-wrap:wrap;margin-top:auto;padding-top:3px">${swatches}</span>
-              `,
-            },
-            action: {
-              type: 'send-message' as const,
-              message: d.styleName,
-              payload: { briefSelection: String(i), projectId },
-            },
-          }
-        }),
-        sourceRef: 'brief-picker',
-      })
-
-      // 6. Wait for user selection
+      // 6. Wait for user selection (regen cycles update the pending selection in place)
       const chosenBrief = await new Promise<DesignBrief>((resolve) => {
-        pendingSelections[projectId] = { resolve, briefs: validBriefs, cardData: briefCardData }
+        const pending = pendingSelections[projectId]
+        if (pending) {
+          pending.resolve = resolve
+        } else {
+          pendingSelections[projectId] = { resolve, briefs: [], cardData: [] }
+        }
       })
 
       // 7. Acknowledge selection and show progress card immediately

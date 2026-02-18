@@ -49,19 +49,27 @@ function parseDesignBrief(text: string): DesignBrief {
   const briefContent = briefMatch[1].trim()
   const parts = briefContent.split('---').map(p => p.trim())
 
+  let brief: DesignBrief
+
   // Support both old 3-part format (no styleName) and new 4-part format
   if (parts.length === 3) {
     // Legacy: css / direction / fonts
     const fonts = parts[2]!.split(',').map(f => f.trim())
-    return { cssVariables: parts[0]!, styleName: fonts[0] || 'Classic', direction: parts[1]!, fonts }
-  }
-
-  if (parts.length === 4) {
+    brief = { cssVariables: parts[0]!, styleName: fonts[0] || 'Classic', direction: parts[1]!, fonts }
+  } else if (parts.length === 4) {
     const fonts = parts[3]!.split(',').map(f => f.trim())
-    return { cssVariables: parts[0]!, styleName: parts[1]!, direction: parts[2]!, fonts }
+    brief = { cssVariables: parts[0]!, styleName: parts[1]!, direction: parts[2]!, fonts }
+  } else {
+    throw new Error(`Design brief must have 3 or 4 parts separated by ---, got ${parts.length}`)
   }
 
-  throw new Error(`Design brief must have 3 or 4 parts separated by ---, got ${parts.length}`)
+  // Parse optional style tile
+  const tileMatch = text.match(/```styleTile\s*([\s\S]*?)```/)
+  if (tileMatch?.[1]) {
+    brief.styleTile = tileMatch[1].trim()
+  }
+
+  return brief
 }
 
 function parseSectionResponse(text: string, expectedSectionId: string): { css: string; html: string } {
@@ -136,13 +144,14 @@ function parseReviewResult(text: string): ReviewResult {
 
 // ---- Generation Functions ----
 
-async function generateDesignBrief(siteName: string, siteType: string, description: string): Promise<DesignBrief> {
+async function generateDesignBrief(siteName: string, siteType: string, description: string, variation?: string, visualDirection?: string, inspiration?: string, previousBriefs?: string[]): Promise<DesignBrief> {
   const client = getAIClient()
-  const prompt = buildDesignBriefPrompt(siteName, siteType, description)
+  const prompt = buildDesignBriefPrompt(siteName, siteType, description, variation, visualDirection, inspiration, previousBriefs)
 
   const response = await client.messages.create({
     model: 'claude-sonnet-4-20250514',
-    max_tokens: 2048,
+    max_tokens: 3072,
+    temperature: 0.95,
     messages: [{ role: 'user', content: prompt }],
   })
 
