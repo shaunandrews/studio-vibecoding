@@ -16,7 +16,7 @@ import type { Tab } from '@/components/composites/TabBar.vue'
 
 const { conversations, messages, getMessages, ensureConversation, sendMessage, postMessage } = useConversations()
 const { updateTheme } = useSiteThemes()
-const { selectBrief } = useBuildProgress()
+const { selectBrief, regenerateBriefs } = useBuildProgress()
 const { isOnboarding, getOnboardingStep, resolveInput } = useOnboarding()
 const { getActions, clearActions } = useInputActions()
 
@@ -162,20 +162,28 @@ function handleSend(text: string) {
 }
 
 function handleAction(action: ActionButton) {
-  clearActions(activeConvoId.value)
-
   const pid = props.projectId
 
-  // Onboarding: type selection — only valid during the type step
-  if (pid && action.action.payload?.onboardingType && getOnboardingStep(pid) === 'type') {
-    postMessage(activeConvoId.value, 'user', action.action.message, undefined, { source: 'action' })
-    resolveInput(pid, action.action.payload.onboardingType)
+  // Brief regeneration — DON'T clear actions, cards stay visible while generating
+  if (action.action.payload?.briefRegenerate && action.action.payload?.projectId) {
+    regenerateBriefs(action.action.payload.projectId)
     return
   }
 
-  // Onboarding: skip description — only valid during the description step
-  if (pid && action.action.payload?.onboardingSkip && getOnboardingStep(pid) === 'description') {
-    resolveInput(pid, '')
+  clearActions(activeConvoId.value)
+
+  // Onboarding: type selection — only valid during the type step
+  if (pid && getOnboardingStep(pid) === 'type') {
+    postMessage(activeConvoId.value, 'user', action.action.message, undefined, { source: 'action' })
+    resolveInput(pid, action.action.message)
+    return
+  }
+
+  // Onboarding: skip — valid during description, visual, and inspiration steps
+  const skipSteps = ['description', 'visual', 'inspiration']
+  if (pid && action.action.payload?.onboardingSkip && skipSteps.includes(getOnboardingStep(pid) || '')) {
+    postMessage(activeConvoId.value, 'user', action.action.message, undefined, { source: 'action' })
+    resolveInput(pid, getOnboardingStep(pid) === 'description' ? '' : 'skip')
     return
   }
 

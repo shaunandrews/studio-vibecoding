@@ -19,11 +19,13 @@ import type { ProjectType } from './types'
 // ---- Per-project onboarding state ----
 
 interface OnboardingState {
-  step: 'type' | 'name' | 'description'
+  step: 'type' | 'name' | 'description' | 'visual' | 'inspiration'
   type: ProjectType
   name: string
   description: string
   freeTextType?: string
+  visualDirection?: string
+  inspiration?: string
   resolve?: (value: string) => void
 }
 
@@ -52,10 +54,10 @@ const nameMessages: Record<ProjectType, string> = {
 }
 
 const descMessages: Record<ProjectType, string> = {
-  restaurant: "Last thing—describe it in a sentence. What kind of food, what's the vibe?",
-  portfolio: "Almost there. In a sentence—what kind of work do you do?",
-  store: "One more—what do you sell, and who's it for?",
-  blog: "Last one—what do you write about?",
+  restaurant: "Describe it in a sentence. What kind of food, what's the vibe?",
+  portfolio: "In a sentence—what kind of work do you do?",
+  store: "What do you sell, and who's it for?",
+  blog: "What do you write about?",
   custom: "Describe it in a sentence—who's it for and what does it do?",
 }
 
@@ -89,7 +91,7 @@ export function useOnboarding() {
     return !!onboardingStates[projectId]
   }
 
-  function getOnboardingStep(projectId: string): 'type' | 'name' | 'description' | null {
+  function getOnboardingStep(projectId: string): OnboardingState['step'] | null {
     return onboardingStates[projectId]?.step ?? null
   }
 
@@ -126,16 +128,16 @@ export function useOnboarding() {
       id: 'onboarding-type',
       conversationId: convo.id,
       actions: [
-        { id: 'type-business', label: 'Business Site', variant: 'secondary', action: { type: 'send-message', message: 'Business Site', payload: { onboardingType: 'custom' } } },
-        { id: 'type-store', label: 'Online Store', variant: 'secondary', action: { type: 'send-message', message: 'Online Store', payload: { onboardingType: 'store' } } },
-        { id: 'type-blog', label: 'Blog', variant: 'secondary', action: { type: 'send-message', message: 'Blog', payload: { onboardingType: 'blog' } } },
-        { id: 'type-portfolio', label: 'Portfolio', variant: 'secondary', action: { type: 'send-message', message: 'Portfolio', payload: { onboardingType: 'portfolio' } } },
-        { id: 'type-restaurant', label: 'Restaurant', variant: 'secondary', action: { type: 'send-message', message: 'Restaurant', payload: { onboardingType: 'restaurant' } } },
-        { id: 'type-agency', label: 'Agency', variant: 'secondary', action: { type: 'send-message', message: 'Agency', payload: { onboardingType: 'custom' } } },
-        { id: 'type-nonprofit', label: 'Nonprofit', variant: 'secondary', action: { type: 'send-message', message: 'Nonprofit', payload: { onboardingType: 'custom' } } },
-        { id: 'type-membership', label: 'Membership', variant: 'secondary', action: { type: 'send-message', message: 'Membership', payload: { onboardingType: 'custom' } } },
-        { id: 'type-course', label: 'Course', variant: 'secondary', action: { type: 'send-message', message: 'Course', payload: { onboardingType: 'custom' } } },
-        { id: 'type-event', label: 'Event', variant: 'secondary', action: { type: 'send-message', message: 'Event', payload: { onboardingType: 'custom' } } },
+        { id: 'type-business', label: 'Business Site', variant: 'secondary', action: { type: 'send-message', message: 'Business Site' } },
+        { id: 'type-store', label: 'Online Store', variant: 'secondary', action: { type: 'send-message', message: 'Online Store' } },
+        { id: 'type-blog', label: 'Blog', variant: 'secondary', action: { type: 'send-message', message: 'Blog' } },
+        { id: 'type-portfolio', label: 'Portfolio', variant: 'secondary', action: { type: 'send-message', message: 'Portfolio' } },
+        { id: 'type-restaurant', label: 'Restaurant', variant: 'secondary', action: { type: 'send-message', message: 'Restaurant' } },
+        { id: 'type-agency', label: 'Agency', variant: 'secondary', action: { type: 'send-message', message: 'Agency' } },
+        { id: 'type-nonprofit', label: 'Nonprofit', variant: 'secondary', action: { type: 'send-message', message: 'Nonprofit' } },
+        { id: 'type-membership', label: 'Membership', variant: 'secondary', action: { type: 'send-message', message: 'Membership' } },
+        { id: 'type-course', label: 'Course', variant: 'secondary', action: { type: 'send-message', message: 'Course' } },
+        { id: 'type-event', label: 'Event', variant: 'secondary', action: { type: 'send-message', message: 'Event' } },
       ],
     })
 
@@ -144,11 +146,27 @@ export function useOnboarding() {
     const state = onboardingStates[projectId]
     if (!state) return // cancelled
 
-    // Parse: known type from action button, or freeform text
-    const knownTypes: ProjectType[] = ['restaurant', 'portfolio', 'store', 'blog', 'custom']
-    if (knownTypes.includes(typeInput as ProjectType)) {
-      state.type = typeInput as ProjectType
+    // Map button labels → ProjectType (for page configs)
+    const labelToType: Record<string, ProjectType> = {
+      'Business Site': 'custom',
+      'Online Store': 'store',
+      'Blog': 'blog',
+      'Portfolio': 'portfolio',
+      'Restaurant': 'restaurant',
+      'Agency': 'custom',
+      'Nonprofit': 'custom',
+      'Membership': 'custom',
+      'Course': 'custom',
+      'Event': 'custom',
+    }
+
+    const mappedType = labelToType[typeInput]
+    if (mappedType) {
+      state.type = mappedType
+      // Always store the label so the prompt gets "Business Site" not "custom"
+      state.freeTextType = typeInput
     } else {
+      // Free text input (user typed something custom)
       state.type = 'custom'
       state.freeTextType = typeInput
     }
@@ -187,16 +205,54 @@ export function useOnboarding() {
     if (!onboardingStates[projectId]) return
     state.description = descInput
 
-    // 12. Clear onboarding state
+    // 12. Ask for visual direction
+    state.step = 'visual'
+    await streamAgentMessage(convo.id, "How do you want the site to look and feel? Any vibe, mood, or style you have in mind?", 'assistant')
+    pushActions({
+      id: 'onboarding-skip-visual',
+      conversationId: convo.id,
+      actions: [
+        { id: 'skip-visual', label: 'Skip', variant: 'secondary', action: { type: 'send-message', message: 'Skip', payload: { onboardingSkip: 'true' } } },
+      ],
+    })
+
+    const visualInput = await waitForInput(projectId)
+    clearActions(convo.id)
+    if (!onboardingStates[projectId]) return
+    if (visualInput.toLowerCase() !== 'skip') {
+      state.visualDirection = visualInput
+    }
+
+    // 13. Ask for inspiration
+    state.step = 'inspiration'
+    await streamAgentMessage(convo.id, "Are there any sites you really like, or want to use as inspiration?", 'assistant')
+    pushActions({
+      id: 'onboarding-skip-inspiration',
+      conversationId: convo.id,
+      actions: [
+        { id: 'skip-inspiration', label: 'Skip', variant: 'secondary', action: { type: 'send-message', message: 'Skip', payload: { onboardingSkip: 'true' } } },
+      ],
+    })
+
+    const inspirationInput = await waitForInput(projectId)
+    clearActions(convo.id)
+    if (!onboardingStates[projectId]) return
+    if (inspirationInput.toLowerCase() !== 'skip') {
+      state.inspiration = inspirationInput
+    }
+
+    // 14. Clear onboarding state
     const brief = {
       type: state.type,
       name: state.name,
       description: state.description,
       freeTextType: state.freeTextType,
+      visualDirection: state.visualDirection,
+      inspiration: state.inspiration,
     }
     delete onboardingStates[projectId]
 
-    // 13. Seamless transition into build
+    // 15. Seamless transition into build
     startBuild(projectId, brief)
   }
 
