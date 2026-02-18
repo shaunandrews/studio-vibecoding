@@ -30,7 +30,7 @@ watch(
 </script>
 
 <template>
-  <div ref="scrollerRef" class="messages flex-1 overflow-auto px-s py-m">
+  <div ref="scrollerRef" class="messages vstack flex-1 overflow-auto px-s py-m">
     <div class="messages-inner vstack gap-m">
       <ChatMessage
         v-for="msg in messages"
@@ -48,6 +48,7 @@ watch(
 .messages-inner {
   max-width: 720px;
   width: 100%;
-  margin: auto auto 0; /* Push messages to the bottom when content is short */
+  margin-block-start: auto;
+  margin-inline: auto;
 }
 </style>

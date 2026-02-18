@@ -191,3 +191,4 @@ export interface DesignBriefPickerCardData {
   briefs: DesignBriefCardData[]
   actions?: ActionButton[]
 }
+

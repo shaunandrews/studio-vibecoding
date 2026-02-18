@@ -47,15 +47,15 @@ src/
 - **StatusIndicator** — `status` (stopped/loading/running). Emits `toggle`. Clip-path morph animation on hover.
 - **Titlebar** — App titlebar with traffic lights, sidebar toggle, greeting, settings/help
 - **ProjectList** — Project list in two modes: `grid` (home view, full width) and `list` (sidebar, 210px). New Project button lives in MainLayout below this component, not inside it.
-- **InputChat** — Chat input with model selector and action strip. Props: `surface`, `modelValue`, `placeholder`, `actions` (ActionButton[]). Renders action buttons above the textarea; number keys (1-9) trigger actions when input is empty. Enter sends, Cmd+Enter for newline.
+- **InputChat** — Chat input with model selector and action strip. Props: `surface`, `modelValue`, `placeholder`, `actions` (ActionButton[]). Renders action buttons above the textarea with staggered entrance animation; number keys (1-9, 0 for 10th) trigger actions when input is empty. Enter sends, Cmd+Enter for newline.
 
 ## New project flow
 
-No modal. Clicking "New project" creates an untitled project in the sidebar, opens the project view, and runs onboarding as the first chat messages. The flow: type → name (sidebar updates live) → description (skippable) → build starts. Managed by `useOnboarding.ts` (singleton state machine with promise-based input waiting). `useConversations.postMessage()` adds messages without triggering AI responses during onboarding.
+No modal. Clicking "New project" creates an untitled project in the sidebar, opens the project view (with chat input auto-focused), and runs onboarding as the first chat messages. The AI assistant is named **Kit** with randomized greetings. The flow: greeting → capabilities overview → type selection (10 options as action buttons) → name (sidebar updates live) → description (skippable) → build starts. Managed by `useOnboarding.ts` (singleton state machine with promise-based input waiting). `useConversations.postMessage()` adds messages without triggering AI responses during onboarding.
 
 ## Input actions system
 
-All user-facing action buttons (onboarding chips, skip, brief selection, card actions) render in a strip above the chat textarea — never inline in messages or card footers. Managed by `useInputActions.ts` (singleton composable). Features push actions via `pushActions()`, AgentPanel wires them to InputChat via `getActions()`. Actions clear on click or when the user sends a message. Cards are purely informational (no footer buttons). Number keys (1-9) work as keyboard shortcuts when the input is empty.
+All user-facing action buttons (onboarding chips, skip, brief selection, card actions) render in a strip above the chat textarea—never inline in messages or card footers. Managed by `useInputActions.ts` (singleton composable). Features push actions via `pushActions()`, AgentPanel wires them to InputChat via `getActions()`. Actions clear on click or when the user sends a message. Cards are purely informational (no footer buttons). Number keys 1-9 and 0 (for 10th item) work as keyboard shortcuts when the input is empty. Buttons animate in with a staggered pop effect (30ms delay per button).
 
 ## Design brief generation
 

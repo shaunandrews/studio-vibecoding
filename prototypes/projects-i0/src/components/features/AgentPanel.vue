@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, nextTick } from 'vue'
+import { ref, computed, nextTick, onMounted } from 'vue'
 import { drawerRight } from '@wordpress/icons'
 import Button from '@/components/primitives/Button.vue'
 import PanelToolbar from '@/components/composites/PanelToolbar.vue'
@@ -119,6 +119,8 @@ function handleCloseTab(id: string) {
 
 const msgs = getMessages(activeConvoId)
 const inputChatRef = ref<InstanceType<typeof InputChat> | null>(null)
+
+onMounted(() => nextTick(() => inputChatRef.value?.focus()))
 
 // Per-conversation draft text
 const drafts = ref<Record<string, string>>({})

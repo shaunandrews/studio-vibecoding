@@ -49,9 +49,9 @@ function onKeydown(e: KeyboardEvent) {
     return
   }
 
-  // Number keys (1-9) trigger actions when the input is empty
-  if (props.actions.length && !message.value.trim() && e.key >= '1' && e.key <= '9') {
-    const idx = Number(e.key) - 1
+  // Number keys (1-9, 0) trigger actions when the input is empty
+  if (props.actions.length && !message.value.trim() && e.key >= '0' && e.key <= '9') {
+    const idx = e.key === '0' ? 9 : Number(e.key) - 1
     const action = props.actions[idx]
     if (action) {
       e.preventDefault()
@@ -83,15 +83,20 @@ function buttonVariant(variant?: ActionButton['variant']): 'primary' | 'secondar
 <template>
   <div class="input-chat p-xs" :class="[`surface-${props.surface}`, { 'has-content': message.trim().length > 0 }]" @click="focusInput">
     <div v-if="actions.length" class="input-actions hstack gap-xxs flex-wrap pb-xxs">
-      <Button
+      <span
         v-for="(action, idx) in actions"
         :key="action.id"
-        :label="`${idx + 1}. ${action.label}`"
-        :icon="action.icon"
-        :variant="buttonVariant(action.variant)"
-        size="small"
-        @click="$emit('action', action)"
-      />
+        class="action-enter"
+        :style="{ animationDelay: `${idx * 30}ms` }"
+      >
+        <Button
+          :label="`${idx < 9 ? idx + 1 : 0}. ${action.label}`"
+          :icon="action.icon"
+          :variant="buttonVariant(action.variant)"
+          size="small"
+          @click="$emit('action', action)"
+        />
+      </span>
     </div>
     <textarea
       ref="textareaRef"
@@ -172,6 +177,18 @@ function buttonVariant(variant?: ActionButton['variant']): 'primary' | 'secondar
 
 .input-toolbar {
   /* padding via .pt-xxs utility */
+}
+
+/* Staggered action button entrance */
+.action-enter {
+  animation: action-pop 0.25s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes action-pop {
+  from {
+    opacity: 0;
+    transform: translateY(4px) scale(0.95);
+  }
 }
 
 </style>

@@ -29,10 +29,22 @@ interface OnboardingState {
 
 const onboardingStates: Record<string, OnboardingState> = reactive({})
 
+const greetings = [
+  "Hey, it's Kit—your AI assistant.",
+  "Hey! Kit here, ready when you are.",
+  "Hi! I'm Kit, your AI assistant.",
+  "Kit here—let's make something.",
+  "Hey! Kit here.",
+]
+
+function randomGreeting(): string {
+  return greetings[Math.floor(Math.random() * greetings.length)]!
+}
+
 // ---- Messages (ported from OnboardingChat) ----
 
 const nameMessages: Record<ProjectType, string> = {
-  restaurant: "Nice — what's the restaurant called?",
+  restaurant: "Nice—what's the restaurant called?",
   portfolio: "Love it. What's your name, or what should we call the site?",
   store: "Great choice. What's the store called?",
   blog: "Fun. What do you want to call it?",
@@ -40,11 +52,11 @@ const nameMessages: Record<ProjectType, string> = {
 }
 
 const descMessages: Record<ProjectType, string> = {
-  restaurant: "Last thing — describe it in a sentence. What kind of food, what's the vibe?",
-  portfolio: "Almost there. In a sentence — what kind of work do you do?",
-  store: "One more — what do you sell, and who's it for?",
-  blog: "Last one — what do you write about?",
-  custom: "Describe it in a sentence — who's it for and what does it do?",
+  restaurant: "Last thing—describe it in a sentence. What kind of food, what's the vibe?",
+  portfolio: "Almost there. In a sentence—what kind of work do you do?",
+  store: "One more—what do you sell, and who's it for?",
+  blog: "Last one—what do you write about?",
+  custom: "Describe it in a sentence—who's it for and what does it do?",
 }
 
 const typeLabels: Record<string, string> = {
@@ -99,31 +111,36 @@ export function useOnboarding() {
       description: '',
     }
 
-    // 2. Hide preview — nothing to show until first section is built
+    // 2. Hide preview—nothing to show until first section is built
     hide(projectId)
 
     // 3. Ensure conversation exists
     const convo = ensureConversation(projectId, 'assistant')
 
-    // 3. Opening message
-    await streamAgentMessage(convo.id, 'Hey! What are you building today?', 'assistant')
+    // 3. Opening messages
+    await streamAgentMessage(convo.id, randomGreeting(), 'assistant')
+    await streamAgentMessage(convo.id, "I can design and build just about anything. I can make stores, blogs, portfolios, apps, you name it. Just describe what you want and I'll make it happen.", 'assistant')
+    await streamAgentMessage(convo.id, "So, what are we making?", 'assistant')
 
-    // 4. Type selection buttons — pushed to the input area
     pushActions({
       id: 'onboarding-type',
       conversationId: convo.id,
       actions: [
-        { id: 'type-restaurant', label: 'Restaurant', variant: 'secondary', action: { type: 'send-message', message: 'Restaurant', payload: { onboardingType: 'restaurant' } } },
-        { id: 'type-portfolio', label: 'Portfolio', variant: 'secondary', action: { type: 'send-message', message: 'Portfolio', payload: { onboardingType: 'portfolio' } } },
+        { id: 'type-business', label: 'Business Site', variant: 'secondary', action: { type: 'send-message', message: 'Business Site', payload: { onboardingType: 'custom' } } },
         { id: 'type-store', label: 'Online Store', variant: 'secondary', action: { type: 'send-message', message: 'Online Store', payload: { onboardingType: 'store' } } },
         { id: 'type-blog', label: 'Blog', variant: 'secondary', action: { type: 'send-message', message: 'Blog', payload: { onboardingType: 'blog' } } },
-        { id: 'type-custom', label: 'Something else', variant: 'secondary', action: { type: 'send-message', message: 'Something else', payload: { onboardingType: 'custom' } } },
+        { id: 'type-portfolio', label: 'Portfolio', variant: 'secondary', action: { type: 'send-message', message: 'Portfolio', payload: { onboardingType: 'portfolio' } } },
+        { id: 'type-restaurant', label: 'Restaurant', variant: 'secondary', action: { type: 'send-message', message: 'Restaurant', payload: { onboardingType: 'restaurant' } } },
+        { id: 'type-agency', label: 'Agency', variant: 'secondary', action: { type: 'send-message', message: 'Agency', payload: { onboardingType: 'custom' } } },
+        { id: 'type-nonprofit', label: 'Nonprofit', variant: 'secondary', action: { type: 'send-message', message: 'Nonprofit', payload: { onboardingType: 'custom' } } },
+        { id: 'type-membership', label: 'Membership', variant: 'secondary', action: { type: 'send-message', message: 'Membership', payload: { onboardingType: 'custom' } } },
+        { id: 'type-course', label: 'Course', variant: 'secondary', action: { type: 'send-message', message: 'Course', payload: { onboardingType: 'custom' } } },
+        { id: 'type-event', label: 'Event', variant: 'secondary', action: { type: 'send-message', message: 'Event', payload: { onboardingType: 'custom' } } },
       ],
     })
 
     // 5. Wait for type selection
     const typeInput = await waitForInput(projectId)
-    clearActions(convo.id)
     const state = onboardingStates[projectId]
     if (!state) return // cancelled
 
@@ -155,7 +172,7 @@ export function useOnboarding() {
     state.step = 'description'
     await streamAgentMessage(convo.id, descMessages[state.type], 'assistant')
 
-    // 10. Skip button — pushed to the input area
+    // 10. Skip button—pushed to the input area
     pushActions({
       id: 'onboarding-skip',
       conversationId: convo.id,
