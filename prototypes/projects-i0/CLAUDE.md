@@ -32,7 +32,7 @@ src/
     features/        # ProjectList, AgentPanel, SitePreview, OnboardingEmpty
   layouts/           # MainLayout (app shell), BareLayout (standalone pages)
   pages/             # ProjectPage, DesignSystem, Components, Settings, Architecture
-  data/              # State (useProjects, useConversations, useSiteStore, useBuildProgress, useOnboarding, useInputActions)
+  data/              # State (useProjects, useConversations, useSiteStore, useBuildProgress, useOnboarding, useInputActions, useProjectTransition)
     generation/      # AI prompts and generation loop (useGeneration, design-brief-prompt, etc.)
     seed-sites/      # Hardcoded demo sites (downstreet-cafe, portfolio)
     themes/          # Theme definitions and utilities
@@ -60,6 +60,20 @@ All user-facing action buttons (onboarding chips, skip, brief selection, card ac
 ## Design brief generation
 
 Each brief includes a `styleName` (1-2 word label like "Punk", "Noir", "Warm Earth") used as the picker button label and displayed on the brief card. The site name, type, and description are threaded through to all section generation prompts so the AI uses the actual site name in content.
+
+## View transitions (home ↔ project)
+
+Navigation between home and project uses the View Transitions API via `useProjectTransition.ts` (singleton composable). The clicked project card morphs into the project frame; the sidebar slides in from the left; other cards shrink away. Reverse mirrors it.
+
+**View transition names:**
+- `project-frame` — shared between the clicked card (home) and the frame (project). Dynamically assigned via `:style` in ProjectItem and MainLayout.
+- `project-grid` / `sidebar` — the left column switches names between modes for independent entry/exit animations.
+- `new-project-btn` — the New Project button, captured independently so it doesn't duplicate during transitions.
+
+**Key rules:**
+- Project-to-project navigation (already in project mode) skips view transitions entirely — instant swap.
+- `transitionProjectId` ref tracks which card is mid-morph. Only one card gets `view-transition-name` at a time.
+- Animation CSS lives in `motion.css` under `::view-transition-*` pseudo-elements with `vt-` prefixed keyframes.
 
 ## Don't
 

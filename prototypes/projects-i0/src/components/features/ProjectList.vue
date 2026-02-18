@@ -39,11 +39,6 @@ function toggleStatus(id: string) {
       <span class="back-label flex-1 min-w-0">All projects</span>
     </div>
 
-    <!-- Header (grid mode only) -->
-    <div v-if="mode === 'grid'" class="list-header">
-      <Text variant="label" color="muted" tag="h2">Projects</Text>
-    </div>
-
     <!-- Items -->
     <div class="items-container" :class="mode === 'grid' ? 'items-grid' : 'items-stack'">
       <ProjectItem

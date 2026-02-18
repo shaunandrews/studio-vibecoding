@@ -8,6 +8,13 @@ export function useProjectTransition() {
   const router = useRouter()
 
   async function navigateToProject(projectId: string) {
+    // Already viewing a project — just swap, no transition
+    const currentMode = router.currentRoute.value.meta.mode
+    if (currentMode === 'project') {
+      router.push({ name: 'project', params: { id: projectId } })
+      return
+    }
+
     transitionProjectId.value = projectId
 
     if (!(document as any).startViewTransition) {

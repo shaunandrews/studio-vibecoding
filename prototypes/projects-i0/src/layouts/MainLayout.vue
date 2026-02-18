@@ -79,6 +79,7 @@ async function handleNewProject() {
 .new-project-footer {
   max-width: 210px;
   display: flex;
+  view-transition-name: new-project-btn;
 }
 
 .new-project-footer :deep(.tooltip-trigger) {
