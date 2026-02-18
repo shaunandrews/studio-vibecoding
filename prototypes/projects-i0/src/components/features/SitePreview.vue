@@ -5,7 +5,7 @@ import Button from '@/components/primitives/Button.vue'
 import BrowserBar from '@/components/primitives/BrowserBar.vue'
 import PanelToolbar from '@/components/composites/PanelToolbar.vue'
 import Text from '@/components/primitives/Text.vue'
-import { renderSite, sendPageUpdate, sendSectionUpdate } from '@/data/site-renderer'
+import { renderSite, sendPageUpdate, sendSectionUpdate, sendThemeUpdate } from '@/data/site-renderer'
 import { useSiteStore } from '@/data/useSiteStore'
 
 const props = defineProps<{
@@ -59,7 +59,7 @@ function goForward() {
 function reload() {
   if (!site.value) return
   iframeReady.value = false
-  srcdoc.value = renderSite(site.value, currentPage.value)
+  srcdoc.value = renderSite(site.value, currentPage.value, colorMode.value)
 }
 
 // Reset on project change
@@ -106,11 +106,10 @@ const pages = computed(() => {
   return result
 })
 
-// Check if theme has dark mode (simplified - just check if theme has dark mode variables)
+// Check if theme has dark mode variables
 const hasDarkMode = computed(() => {
   if (!site.value) return false
-  const themeVars = site.value.theme.variables
-  return Object.keys(themeVars).some(key => key.includes('dark') || key.includes('night'))
+  return !!site.value.theme.darkVariables
 })
 
 // Iframe ref for postMessage communication
@@ -131,7 +130,7 @@ watch(() => props.projectId, () => {
     srcdoc.value = undefined
     return
   }
-  srcdoc.value = renderSite(site.value, currentPage.value)
+  srcdoc.value = renderSite(site.value, currentPage.value, colorMode.value)
 }, { immediate: true })
 
 // Diff-based section rendering: on site mutation, compare against rendered
@@ -140,7 +139,7 @@ watch(() => props.projectId, () => {
 watch(site, () => {
   if (!site.value) return
   if (!iframeRef.value || !iframeReady.value) {
-    srcdoc.value = renderSite(site.value, currentPage.value)
+    srcdoc.value = renderSite(site.value, currentPage.value, colorMode.value)
     return
   }
 
@@ -177,18 +176,26 @@ watch(currentPage, (newPage) => {
   renderedSections.value = new Set()
 
   if (!site.value || !iframeRef.value || !iframeReady.value) {
-    if (site.value) srcdoc.value = renderSite(site.value, newPage)
+    if (site.value) srcdoc.value = renderSite(site.value, newPage, colorMode.value)
     return
   }
   const sent = sendPageUpdate(iframeRef.value, site.value, newPage)
   if (!sent) {
-    srcdoc.value = renderSite(site.value, newPage)
+    srcdoc.value = renderSite(site.value, newPage, colorMode.value)
   }
 })
 
+function applyColorMode(mode: 'light' | 'dark') {
+  if (!site.value || !iframeRef.value || !iframeReady.value) return
+  const vars = mode === 'dark' && site.value.theme.darkVariables
+    ? site.value.theme.darkVariables
+    : site.value.theme.variables
+  sendThemeUpdate(iframeRef.value, { ...vars })
+}
+
 function toggleColorMode() {
   colorMode.value = colorMode.value === 'light' ? 'dark' : 'light'
-  // TODO: Send theme update via postMessage when we support color mode switching
+  applyColorMode(colorMode.value)
 }
 </script>
 

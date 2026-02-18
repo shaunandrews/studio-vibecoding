@@ -192,7 +192,7 @@ function escapeAttr(str: string): string {
  * 5. Creating the body with section HTML wrapped in data-section divs
  * 6. Injecting the postMessage listener script
  */
-export function renderSite(site: Site, pageSlug: string): string {
+export function renderSite(site: Site, pageSlug: string, colorMode?: 'light' | 'dark'): string {
   // Normalize slug: strip leading slash, treat "/" as empty string
   const normalizedSlug = pageSlug === '/' ? '' : pageSlug.replace(/^\//, '')
   const page = site.pages.find(p => {
@@ -221,9 +221,12 @@ export function renderSite(site: Site, pageSlug: string): string {
     parts.push(`<link rel="stylesheet" href="https://fonts.googleapis.com/css2?${fontParams}&display=swap">`)
   }
 
-  // Theme CSS (:root variables)
-  if (Object.keys(site.theme.variables).length > 0) {
-    const rootVariables = Object.entries(site.theme.variables)
+  // Theme CSS (:root variables) — use dark overrides if requested and available
+  const themeVars = colorMode === 'dark' && site.theme.darkVariables
+    ? site.theme.darkVariables
+    : site.theme.variables
+  if (Object.keys(themeVars).length > 0) {
+    const rootVariables = Object.entries(themeVars)
       .map(([key, value]) => `  ${key}: ${value};`)
       .join('\n')
     parts.push(`<style id="theme">`)

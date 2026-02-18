@@ -30,6 +30,30 @@ export const portfolio: Site = {
       "--line-height-relaxed": "1.7",
       "--shadow-subtle": "0 1px 3px rgba(15, 23, 42, 0.08)",
       "--shadow-medium": "0 4px 12px rgba(15, 23, 42, 0.12)"
+    },
+    darkVariables: {
+      "--color-primary": "#f1f5f9",          // off-white text
+      "--color-secondary": "#94a3b8",        // light slate
+      "--color-accent": "#38bdf8",           // brighter electric blue
+      "--color-background": "#0f172a",       // deep navy
+      "--color-background-alt": "#1e293b",   // slightly lighter navy
+      "--color-border": "#334155",           // dark border
+      "--color-muted": "#64748b",            // muted stays
+      "--font-primary": "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
+      "--spacing-unit": "8px",
+      "--spacing-xs": "8px",
+      "--spacing-sm": "16px",
+      "--spacing-md": "32px",
+      "--spacing-lg": "48px",
+      "--spacing-xl": "64px",
+      "--spacing-2xl": "96px",
+      "--spacing-3xl": "128px",
+      "--border-radius": "2px",
+      "--line-height-tight": "1.1",
+      "--line-height-normal": "1.5",
+      "--line-height-relaxed": "1.7",
+      "--shadow-subtle": "0 1px 3px rgba(0, 0, 0, 0.3)",
+      "--shadow-medium": "0 4px 12px rgba(0, 0, 0, 0.4)"
     }
   },
 

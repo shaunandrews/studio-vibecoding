@@ -24,7 +24,34 @@ export const downstreetCafe: Site = {
       "--border-radius": "4px",
       "--line-height-tight": "1.2",
       "--line-height-normal": "1.6",
+      "--color-footer-bg": "#2d3748",
+      "--color-footer-text": "#faf9f7",
+      "--color-footer-muted": "rgba(250, 249, 247, 0.8)",
+      "--color-footer-border": "rgba(250, 249, 247, 0.2)",
       "--shadow-soft": "0 2px 8px rgba(45, 55, 72, 0.1)"
+    },
+    darkVariables: {
+      "--color-primary": "#e8e4df",         // warm cream text
+      "--color-secondary": "#8fa382",       // sage green (lightened)
+      "--color-accent": "#a3b899",          // lighter sage
+      "--color-neutral": "#9ca3af",         // light slate gray
+      "--color-background": "#1c1917",      // warm charcoal
+      "--color-background-alt": "#292524",  // slightly lighter charcoal
+      "--font-heading": "'Playfair Display', serif",
+      "--font-body": "'Source Sans Pro', sans-serif",
+      "--spacing-xs": "0.5rem",
+      "--spacing-sm": "1rem",
+      "--spacing-md": "2rem",
+      "--spacing-lg": "3rem",
+      "--spacing-xl": "4rem",
+      "--border-radius": "4px",
+      "--line-height-tight": "1.2",
+      "--line-height-normal": "1.6",
+      "--color-footer-bg": "#0f0e0d",
+      "--color-footer-text": "#e8e4df",
+      "--color-footer-muted": "rgba(232, 228, 223, 0.8)",
+      "--color-footer-border": "rgba(232, 228, 223, 0.2)",
+      "--shadow-soft": "0 2px 8px rgba(0, 0, 0, 0.3)"
     }
   },
 
@@ -622,8 +649,8 @@ export const downstreetCafe: Site = {
       `,
       css: `
         [data-section="footer"] .cafe-footer {
-          background: var(--color-primary);
-          color: var(--color-background);
+          background: var(--color-footer-bg);
+          color: var(--color-footer-text);
           padding: var(--spacing-lg) 0 var(--spacing-md) 0;
         }
         
@@ -644,14 +671,14 @@ export const downstreetCafe: Site = {
           font-family: var(--font-heading);
           font-size: 1.25rem;
           font-weight: 400;
-          color: var(--color-background);
+          color: var(--color-footer-text);
           margin: 0 0 var(--spacing-sm) 0;
         }
-        
+
         [data-section="footer"] .address {
           font-family: var(--font-body);
           font-size: 1rem;
-          color: rgba(250, 249, 247, 0.8);
+          color: var(--color-footer-muted);
           line-height: var(--line-height-normal);
           font-style: normal;
           margin: 0 0 var(--spacing-sm) 0;
@@ -665,18 +692,18 @@ export const downstreetCafe: Site = {
         
         [data-section="footer"] .contact-link {
           font-family: var(--font-body);
-          color: rgba(250, 249, 247, 0.8);
+          color: var(--color-footer-muted);
           text-decoration: none;
           transition: color 0.2s ease;
         }
         
         [data-section="footer"] .contact-link:hover {
-          color: var(--color-background);
+          color: var(--color-footer-text);
         }
-        
+
         [data-section="footer"] .hours-list {
           font-family: var(--font-body);
-          color: rgba(250, 249, 247, 0.8);
+          color: var(--color-footer-muted);
           line-height: var(--line-height-normal);
         }
         
@@ -686,14 +713,14 @@ export const downstreetCafe: Site = {
         
         [data-section="footer"] .footer-bottom {
           padding-top: var(--spacing-md);
-          border-top: 1px solid rgba(250, 249, 247, 0.2);
+          border-top: 1px solid var(--color-footer-border);
           text-align: center;
         }
         
         [data-section="footer"] .copyright {
           font-family: var(--font-body);
           font-size: 0.9rem;
-          color: rgba(250, 249, 247, 0.6);
+          color: var(--color-footer-muted);
           margin: 0;
         }
         

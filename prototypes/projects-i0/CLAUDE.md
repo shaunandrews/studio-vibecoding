@@ -83,6 +83,14 @@ Navigation between home and project uses the View Transitions API via `useProjec
 - `transitionProjectId` ref tracks which card is mid-morph. Only one card gets `view-transition-name` at a time.
 - Animation CSS lives in `motion.css` under `::view-transition-*` pseudo-elements with `vt-` prefixed keyframes.
 
+## Site preview dark mode
+
+Sites support dark/light mode via `theme.darkVariables` on the `Theme` type (same CSS custom property keys, different values). The SitePreview toggle sends a `theme-update` postMessage to swap `:root` variables live. `renderSite()` accepts an optional `colorMode` param for flash-free initial renders.
+
+Home grid thumbnails (ProjectItem) reactively follow `prefers-color-scheme` — system dark = dark thumbnails.
+
+**"Inverted" sections (e.g. dark footers):** Use dedicated variables like `--color-footer-bg`, `--color-footer-text` rather than repurposing `--color-primary`/`--color-background`, which swap meaning between modes.
+
 ## Don't
 
 - Don't rewrite entire files when Shaun has made edits. Surgical edits only.

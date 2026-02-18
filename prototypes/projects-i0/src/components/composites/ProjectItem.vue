@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, onMounted, onUnmounted } from 'vue'
 import Text from '@/components/primitives/Text.vue'
 import StatusIndicator from '@/components/primitives/StatusIndicator.vue'
 import Tooltip from '@/components/primitives/Tooltip.vue'
@@ -21,12 +21,19 @@ defineEmits<{
   'toggle-status': [id: string]
 }>()
 
+const darkQuery = window.matchMedia('(prefers-color-scheme: dark)')
+const systemDark = ref(darkQuery.matches)
+const onSchemeChange = (e: MediaQueryListEvent) => { systemDark.value = e.matches }
+onMounted(() => darkQuery.addEventListener('change', onSchemeChange))
+onUnmounted(() => darkQuery.removeEventListener('change', onSchemeChange))
+
 const previewHtml = computed(() => {
   if (props.mode !== 'card') return ''
   const site = getSite(props.project.id)
   if (!site || site.pages.length === 0) return ''
   const homepage = site.pages[0].slug
-  const html = renderSite(site, homepage)
+  const colorMode = systemDark.value && site.theme.darkVariables ? 'dark' : 'light'
+  const html = renderSite(site, homepage, colorMode)
   return html.replace(/<script[\s\S]*?<\/script>/gi, '')
 })
 </script>

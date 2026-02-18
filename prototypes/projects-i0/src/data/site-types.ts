@@ -16,7 +16,8 @@ export interface Page {
 
 export interface Theme {
   name: string
-  variables: Record<string, string>  // flat CSS custom properties
+  variables: Record<string, string>  // flat CSS custom properties (light mode)
+  darkVariables?: Record<string, string>  // dark mode overrides (same keys, different values)
   fonts: string[]                     // Google Font names
 }
 
