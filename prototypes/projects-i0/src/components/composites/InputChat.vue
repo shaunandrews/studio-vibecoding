@@ -1,10 +1,12 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import Button from '@/components/primitives/Button.vue'
 import Dropdown from '@/components/primitives/Dropdown.vue'
-import type { ActionButton } from '@/data/types'
+import StyleTileCard from '@/components/composites/StyleTileCard.vue'
+import StylePreview from '@/components/composites/StylePreview.vue'
+import type { ActionButton, DesignBriefCardData } from '@/data/types'
 
-const selectedModel = ref('Sonnet 4.5')
+const selectedModel = ref('Opus 4.6')
 const textareaRef = ref<HTMLTextAreaElement | null>(null)
 
 const models = [
@@ -36,6 +38,52 @@ const message = computed({
 })
 
 const hasCardActions = computed(() => props.actions.some(a => a.card))
+const hasBriefCards = computed(() => props.actions.some(a => a.card?.briefData))
+const briefActions = computed(() => props.actions.filter(a => a.card?.briefData))
+const extraActions = computed(() => hasBriefCards.value ? props.actions.filter(a => !a.card?.briefData) : [])
+
+// --- Preview hover state ---
+const previewData = ref<DesignBriefCardData | null>(null)
+const previewRect = ref<DOMRect | null>(null)
+let hideTimeout: ReturnType<typeof setTimeout> | null = null
+
+function showPreview(rect: DOMRect, data: DesignBriefCardData) {
+  if (hideTimeout) { clearTimeout(hideTimeout); hideTimeout = null }
+  previewData.value = data
+  previewRect.value = rect
+}
+
+function scheduleHide() {
+  if (hideTimeout) clearTimeout(hideTimeout)
+  hideTimeout = setTimeout(() => {
+    previewData.value = null
+    previewRect.value = null
+    hideTimeout = null
+  }, 150)
+}
+
+function cancelHide() {
+  if (hideTimeout) { clearTimeout(hideTimeout); hideTimeout = null }
+}
+
+function hidePreviewNow() {
+  if (hideTimeout) { clearTimeout(hideTimeout); hideTimeout = null }
+  previewData.value = null
+  previewRect.value = null
+}
+
+function onScroll() {
+  hidePreviewNow()
+}
+
+onMounted(() => {
+  window.addEventListener('scroll', onScroll, { capture: true, passive: true })
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('scroll', onScroll, { capture: true })
+  if (hideTimeout) clearTimeout(hideTimeout)
+})
 
 function send() {
   const text = message.value.trim()
@@ -89,8 +137,39 @@ function actionLabel(idx: number): string {
 <template>
   <div class="input-chat p-xs" :class="[`surface-${props.surface}`, { 'has-content': message.trim().length > 0 }]" @click="focusInput">
 
+    <!-- Style tile cards: structured brief data with hover preview -->
+    <div v-if="hasBriefCards" class="input-actions-brief vstack gap-xxs pb-xxs">
+      <div class="brief-cards-grid">
+        <StyleTileCard
+          v-for="(action, idx) in briefActions"
+          :key="action.id"
+          :data="action.card!.briefData!"
+          :index="idx"
+          @click="$emit('action', action)"
+          @preview-enter="(rect, data) => showPreview(rect, data)"
+          @preview-leave="scheduleHide"
+        />
+      </div>
+      <div v-if="extraActions.length" class="hstack gap-xxs">
+        <span
+          v-for="action in extraActions"
+          :key="action.id"
+          class="action-enter"
+          :style="{ animationDelay: `${briefActions.length * 60 + 80}ms` }"
+        >
+          <Button
+            :label="action.label"
+            :icon="action.icon"
+            variant="tertiary"
+            size="small"
+            @click="$emit('action', action)"
+          />
+        </span>
+      </div>
+    </div>
+
     <!-- Card actions: caller controls all styling and content -->
-    <div v-if="hasCardActions" class="input-actions-cards hstack gap-xs pb-xxs">
+    <div v-else-if="hasCardActions" class="input-actions-cards hstack gap-xs pb-xxs">
       <button
         v-for="(action, idx) in actions"
         :key="action.id"
@@ -140,6 +219,15 @@ function actionLabel(idx: number): string {
         @click="send"
       />
     </div>
+
+    <!-- Floating preview for style tiles -->
+    <StylePreview
+      v-if="previewData && previewRect"
+      :data="previewData"
+      :card-rect="previewRect"
+      @preview-enter="cancelHide"
+      @preview-leave="hidePreviewNow"
+    />
   </div>
 </template>
 
@@ -216,6 +304,13 @@ function actionLabel(idx: number): string {
   }
 }
 
+/* Brief cards: wrapping grid, 3 per row */
+.brief-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-xs);
+}
+
 /* Card actions — InputChat provides the container, caller controls everything else */
 .input-actions-cards {
   overflow-x: auto;
@@ -228,15 +323,17 @@ function actionLabel(idx: number): string {
   position: relative;
   flex: 1 1 0;
   min-width: 140px;
-  border: none;
-  border-radius: var(--radius-m);
-  padding: var(--space-xs);
+  background: var(--color-surface);
+  color: var(--color-text);
+  border: 1px solid var(--color-surface-border);
+  border-radius: var(--radius-s);
+  padding: var(--space-xs) var(--space-s);
   text-align: start;
   cursor: pointer;
   scroll-snap-align: start;
   display: flex;
   flex-direction: column;
-  gap: var(--space-xxxs);
+  gap: var(--space-xs);
   transition: transform 0.15s ease;
 }
 
