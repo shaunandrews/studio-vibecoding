@@ -3,6 +3,7 @@ export interface DesignBrief {
   direction: string       // design direction text
   fonts: string[]         // Google Font names
   styleName: string       // short 1-2 word style label (e.g. "Punk", "Minimal Rose")
+  styleTile?: string      // self-contained HTML+CSS visual composition for preview
 }
 
 export interface GenerationProgress {

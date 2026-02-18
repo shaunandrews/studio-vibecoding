@@ -7,6 +7,8 @@ export interface ProjectBrief {
   name: string
   description: string
   freeTextType?: string
+  visualDirection?: string
+  inspiration?: string
 }
 
 export interface Project {
@@ -63,6 +65,7 @@ export interface ActionButton {
   card?: {
     style: Record<string, string>
     content: string
+    briefData?: DesignBriefCardData
   }
   action: {
     type: 'send-message'
@@ -180,6 +183,8 @@ export interface ThemeEditCardData {
   after: Record<string, string>   // new variables
 }
 
+export type VariationHint = 'bold' | 'minimal' | 'warm'
+
 export interface DesignBriefCardData {
   siteName: string
   styleName: string
@@ -189,6 +194,8 @@ export interface DesignBriefCardData {
   bgColor: string               // extracted --color-bg or first dark color
   textColor: string              // extracted --color-text or contrasting
   accentColor: string            // extracted --color-primary or first accent
+  variationHint?: VariationHint  // layout composition hint for preview
+  styleTile?: string             // AI-generated HTML+CSS visual composition
 }
 
 export interface DesignBriefPickerCardData {
