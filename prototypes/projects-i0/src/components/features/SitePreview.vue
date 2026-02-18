@@ -165,6 +165,23 @@ watch(site, () => {
   }
 }, { deep: true })
 
+// Push theme variable changes to the iframe live (triggered by AI apply actions)
+watch(
+  () => {
+    if (!site.value) return undefined
+    // Return a shallow copy so Vue detects changes to individual vars
+    return { ...site.value.theme.variables }
+  },
+  (newVars) => {
+    if (!newVars || !iframeRef.value || !iframeReady.value) return
+    // Respect current color mode
+    const vars = colorMode.value === 'dark' && site.value?.theme.darkVariables
+      ? { ...site.value.theme.darkVariables }
+      : newVars
+    sendThemeUpdate(iframeRef.value, vars)
+  },
+)
+
 // When the iframe loads, mark it ready for postMessage
 function onIframeLoad() {
   iframeReady.value = true

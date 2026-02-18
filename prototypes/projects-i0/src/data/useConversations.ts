@@ -1,7 +1,11 @@
 import { ref, computed, type Ref, unref } from 'vue'
 import { seedConversations, seedMessages } from './seed-conversations'
 import { isAIConfigured, streamAI } from './ai-service'
-import type { Conversation, Message, AgentId, ContentBlock, MessageContext } from './types'
+import { AI_SYSTEM_PROMPT } from './ai-system-prompt'
+import { useInputActions } from './useInputActions'
+import type { Conversation, Message, AgentId, ContentBlock, MessageContext, ActionButton, ThemeUpdateCardData } from './types'
+
+const { pushActions } = useInputActions()
 
 // Module-level state (singleton)
 function cloneContentBlock(block: ContentBlock): ContentBlock {
@@ -67,12 +71,12 @@ function getConversationAgent(conversationId: string): AgentId | undefined {
   return conversations.value.find(c => c.id === conversationId)?.agentId
 }
 
-function queueAgentResponse(conversationId: string, text: string) {
+function queueAgentResponse(conversationId: string, text: string, siteContext?: string) {
   const agentId = getConversationAgent(conversationId)
-  sendToAIWithIndicator(conversationId, text, agentId)
+  sendToAIWithIndicator(conversationId, text, agentId, siteContext)
 }
 
-async function sendToAIWithIndicator(conversationId: string, text: string, agentId?: AgentId) {
+async function sendToAIWithIndicator(conversationId: string, text: string, agentId?: AgentId, siteContext?: string) {
   if (!isAIConfigured()) {
     window.setTimeout(() => {
       appendMessage(
@@ -109,13 +113,86 @@ async function sendToAIWithIndicator(conversationId: string, text: string, agent
         .join('\n') || '(card response)',
     }))
 
+  const systemPrompt = siteContext
+    ? `${AI_SYSTEM_PROMPT}\n\n${siteContext}`
+    : undefined
+
   await streamAI(history, (blocks) => {
     // Update the message content in place — Vue reactivity handles re-render
     const idx = messages.value.findIndex(m => m.id === streamingId)
     if (idx !== -1) {
       messages.value[idx]!.content = blocks
     }
-  })
+  }, systemPrompt)
+
+  // After AI finishes, extract any actionable cards and push as input actions
+  const finalBlocks = messages.value.find(m => m.id === streamingId)?.content
+  if (finalBlocks) {
+    extractCardActions(conversationId, finalBlocks)
+  }
+}
+
+/**
+ * After an AI response, scan content blocks for actionable cards
+ * and auto-push corresponding input actions for the user to confirm.
+ */
+function extractCardActions(conversationId: string, blocks: ContentBlock[]) {
+  const actions: ActionButton[] = []
+
+  for (const block of blocks) {
+    if (block.type !== 'card') continue
+
+    if (block.card === 'themeUpdate') {
+      const data = block.data as ThemeUpdateCardData
+      if (data.changes) {
+        actions.push({
+          id: `apply-theme-${Date.now()}`,
+          label: `Apply: ${data.label}`,
+          variant: 'primary',
+          action: {
+            type: 'send-message',
+            message: `Apply the theme changes: ${data.label}`,
+            payload: {
+              applyType: 'theme',
+              themeChanges: JSON.stringify(data.changes),
+            },
+          },
+        })
+      }
+    }
+
+    if (block.card === 'sectionEdit') {
+      // AI outputs flat html/css per the system prompt schema;
+      // the TS type's before/after is for card display, not the AI output
+      const data = block.data as Record<string, any>
+      if (data.sectionId) {
+        actions.push({
+          id: `apply-section-${data.sectionId}-${Date.now()}`,
+          label: `Apply: ${data.label}`,
+          variant: 'primary',
+          action: {
+            type: 'send-message',
+            message: `Apply section edit: ${data.label}`,
+            payload: {
+              applyType: 'sectionEdit',
+              sectionId: data.sectionId,
+              html: data.html ?? '',
+              css: data.css ?? '',
+            },
+          },
+        })
+      }
+    }
+  }
+
+  if (actions.length > 0) {
+    pushActions({
+      id: `ai-proposals-${conversationId}`,
+      conversationId,
+      actions,
+      sourceRef: 'ai-response',
+    })
+  }
 }
 
 export function useConversations() {
@@ -160,6 +237,7 @@ export function useConversations() {
     content: string | ContentBlock[],
     agentId?: AgentId,
     messageContext?: MessageContext,
+    siteContext?: string,
   ) {
     appendMessage(conversationId, role, content, agentId, messageContext)
 
@@ -170,7 +248,7 @@ export function useConversations() {
           .filter(block => block.type === 'text')
           .map(block => block.text)
           .join('\n')
-      queueAgentResponse(conversationId, text)
+      queueAgentResponse(conversationId, text, siteContext)
     }
   }
 

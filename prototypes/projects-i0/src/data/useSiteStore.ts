@@ -63,6 +63,23 @@ export function useSiteStore() {
     },
 
     /**
+     * Merge partial CSS variable overrides onto a site's theme.
+     * Optionally update the font list (triggers iframe reload for new fonts).
+     */
+    updateThemeVariables(
+      projectId: string,
+      variableOverrides: Record<string, string>,
+      newFonts?: string[],
+    ): void {
+      const site = sites[projectId]
+      if (!site) return
+      Object.assign(site.theme.variables, variableOverrides)
+      if (newFonts && newFonts.length > 0) {
+        site.theme.fonts = newFonts
+      }
+    },
+
+    /**
      * Add a section to a page
      */
     addSectionToPage(projectId: string, pageSlug: string, sectionId: string, position?: number): void {

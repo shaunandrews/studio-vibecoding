@@ -7,14 +7,18 @@ import TabBar from '@/components/composites/TabBar.vue'
 import ChatMessageList from '@/components/composites/ChatMessageList.vue'
 import InputChat from '@/components/composites/InputChat.vue'
 import { useConversations } from '@/data/useConversations'
+import { useSiteStore } from '@/data/useSiteStore'
 import { useSiteThemes } from '@/data/themes/useSiteThemes'
 import { useBuildProgress } from '@/data/useBuildProgress'
 import { useOnboarding } from '@/data/useOnboarding'
 import { useInputActions } from '@/data/useInputActions'
+import { settingsToVariables } from '@/data/themes/settings-to-variables'
+import { buildSiteContext } from '@/data/ai-site-context'
 import type { ActionButton, Conversation } from '@/data/types'
 import type { Tab } from '@/components/composites/TabBar.vue'
 
 const { conversations, messages, getMessages, ensureConversation, sendMessage, postMessage } = useConversations()
+const siteStore = useSiteStore()
 const { updateTheme } = useSiteThemes()
 const { selectBrief, regenerateBriefs } = useBuildProgress()
 const { isOnboarding, getOnboardingStep, resolveInput } = useOnboarding()
@@ -28,6 +32,14 @@ const props = defineProps<{
 const emit = defineEmits<{
   'toggle-preview': []
 }>()
+
+// Build site context for AI system prompt augmentation
+const siteContext = computed(() => {
+  if (!props.projectId) return undefined
+  const site = siteStore.getSite(props.projectId)
+  if (!site) return undefined
+  return buildSiteContext(site)
+})
 
 // Per-project tab state: tracks open conversation IDs
 const tabStateMap = ref<Record<string, { openConvoIds: string[], activeConvoId: string }>>({})
@@ -157,6 +169,7 @@ function handleSend(text: string) {
     text,
     undefined,
     { source: 'typed' },
+    siteContext.value,
   )
   drafts.value[activeConvoId.value] = ''
 }
@@ -194,11 +207,26 @@ function handleAction(action: ActionButton) {
     return
   }
 
-  if (action.action.payload?.themeChanges && props.projectId) {
-    try {
-      const changes = JSON.parse(action.action.payload.themeChanges)
-      updateTheme(props.projectId, changes)
-    } catch { /* ignore parse errors */ }
+  // AI-proposed changes: route by applyType
+  if (action.action.payload?.applyType && props.projectId) {
+    const applyType = action.action.payload.applyType
+
+    if (applyType === 'theme' && action.action.payload.themeChanges) {
+      try {
+        const changes = JSON.parse(action.action.payload.themeChanges)
+        const overrides = settingsToVariables(changes)
+        siteStore.updateThemeVariables(props.projectId, overrides)
+      } catch { /* ignore parse errors */ }
+    }
+
+    if (applyType === 'sectionEdit' && action.action.payload.sectionId) {
+      siteStore.updateSection(
+        props.projectId,
+        action.action.payload.sectionId,
+        action.action.payload.html ?? '',
+        action.action.payload.css ?? '',
+      )
+    }
   }
 
   sendMessage(
@@ -212,6 +240,7 @@ function handleAction(action: ActionButton) {
       cardRef: action.action.cardRef,
       payload: action.action.payload,
     },
+    siteContext.value,
   )
 }
 </script>
