@@ -1,0 +1,370 @@
+<script setup lang="ts">
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import Button from '@/components/primitives/Button.vue'
+import Dropdown from '@/components/primitives/Dropdown.vue'
+import ContextRing from '@/components/primitives/ContextRing.vue'
+import StyleTileCard from '@/components/composites/StyleTileCard.vue'
+import StylePreview from '@/components/composites/StylePreview.vue'
+import type { ActionButton, DesignBriefCardData } from '@/data/types'
+
+const selectedModel = ref('Opus 4.6')
+const textareaRef = ref<HTMLTextAreaElement | null>(null)
+
+const models = [
+  { label: 'Anthropic', options: ['Opus 4.6', 'Sonnet 4.5', 'Haiku 4.5'] },
+  { label: 'OpenAI', options: ['GPT-4.5', 'GPT-4', 'GPT-3.5'] },
+]
+
+const props = withDefaults(defineProps<{
+  surface?: 'light' | 'dark'
+  modelValue?: string
+  placeholder?: string
+  actions?: ActionButton[]
+}>(), {
+  surface: 'light',
+  modelValue: '',
+  placeholder: 'Ask anything...',
+  actions: () => [],
+})
+
+const emit = defineEmits<{
+  send: [message: string, model: string]
+  'update:modelValue': [value: string]
+  action: [action: ActionButton]
+}>()
+
+const message = computed({
+  get: () => props.modelValue,
+  set: (val: string) => emit('update:modelValue', val),
+})
+
+const hasCardActions = computed(() => props.actions.some(a => a.card))
+const hasBriefCards = computed(() => props.actions.some(a => a.card?.briefData))
+const briefActions = computed(() => props.actions.filter(a => a.card?.briefData))
+const extraActions = computed(() => hasBriefCards.value ? props.actions.filter(a => !a.card?.briefData) : [])
+
+// --- Preview hover state ---
+const previewData = ref<DesignBriefCardData | null>(null)
+const previewRect = ref<DOMRect | null>(null)
+let hideTimeout: ReturnType<typeof setTimeout> | null = null
+
+function showPreview(rect: DOMRect, data: DesignBriefCardData) {
+  if (hideTimeout) { clearTimeout(hideTimeout); hideTimeout = null }
+  previewData.value = data
+  previewRect.value = rect
+}
+
+function scheduleHide() {
+  if (hideTimeout) clearTimeout(hideTimeout)
+  hideTimeout = setTimeout(() => {
+    previewData.value = null
+    previewRect.value = null
+    hideTimeout = null
+  }, 150)
+}
+
+function cancelHide() {
+  if (hideTimeout) { clearTimeout(hideTimeout); hideTimeout = null }
+}
+
+function hidePreviewNow() {
+  if (hideTimeout) { clearTimeout(hideTimeout); hideTimeout = null }
+  previewData.value = null
+  previewRect.value = null
+}
+
+function onScroll() {
+  hidePreviewNow()
+}
+
+onMounted(() => {
+  window.addEventListener('scroll', onScroll, { capture: true, passive: true })
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('scroll', onScroll, { capture: true })
+  if (hideTimeout) clearTimeout(hideTimeout)
+})
+
+function send() {
+  const text = message.value.trim()
+  if (!text) return
+  emit('send', text, selectedModel.value)
+  message.value = ''
+}
+
+function onKeydown(e: KeyboardEvent) {
+  if (e.key === 'Enter' && !e.shiftKey && !e.metaKey && !e.ctrlKey) {
+    e.preventDefault()
+    send()
+    return
+  }
+
+  // Number keys (1-9, 0) trigger actions when the input is empty
+  if (props.actions.length && !message.value.trim() && e.key >= '0' && e.key <= '9') {
+    const idx = e.key === '0' ? 9 : Number(e.key) - 1
+    const action = props.actions[idx]
+    if (action) {
+      e.preventDefault()
+      emit('action', action)
+    }
+  }
+}
+
+function focus() {
+  textareaRef.value?.focus()
+}
+
+defineExpose({ focus })
+
+function focusInput(e: MouseEvent) {
+  // Don't steal focus from buttons inside the component
+  const target = e.target as HTMLElement
+  if (target.closest('button')) return
+  textareaRef.value?.focus()
+}
+
+function buttonVariant(variant?: ActionButton['variant']): 'primary' | 'secondary' | 'tertiary' {
+  if (variant === 'primary') return 'primary'
+  if (variant === 'destructive') return 'tertiary'
+  return 'secondary'
+}
+
+function actionLabel(idx: number): string {
+  return `${idx < 9 ? idx + 1 : 0}`
+}
+</script>
+
+<template>
+  <div class="input-chat p-xs" :class="[`surface-${props.surface}`, { 'has-content': message.trim().length > 0 }]" @click="focusInput">
+
+    <!-- Style tile cards: structured brief data with hover preview -->
+    <div v-if="hasBriefCards" class="input-actions-brief vstack gap-xxs pb-xxs">
+      <div class="brief-cards-grid">
+        <StyleTileCard
+          v-for="(action, idx) in briefActions"
+          :key="action.id"
+          :data="action.card!.briefData!"
+          :index="idx"
+          @click="$emit('action', action)"
+          @preview-enter="(rect, data) => showPreview(rect, data)"
+          @preview-leave="scheduleHide"
+        />
+      </div>
+      <div v-if="extraActions.length" class="hstack gap-xxs">
+        <span
+          v-for="action in extraActions"
+          :key="action.id"
+          class="action-enter"
+          :style="{ animationDelay: `${briefActions.length * 60 + 80}ms` }"
+        >
+          <Button
+            :label="action.label"
+            :icon="action.icon"
+            variant="tertiary"
+            size="small"
+            @click="$emit('action', action)"
+          />
+        </span>
+      </div>
+    </div>
+
+    <!-- Card actions: caller controls all styling and content -->
+    <div v-else-if="hasCardActions" class="input-actions-cards hstack gap-xs pb-xxs">
+      <button
+        v-for="(action, idx) in actions"
+        :key="action.id"
+        class="action-card action-enter"
+        :style="{ ...action.card?.style, animationDelay: `${idx * 60}ms` }"
+        :aria-label="action.label"
+        @click="$emit('action', action)"
+      >
+        <span class="action-card__badge">{{ actionLabel(idx) }}</span>
+        <!-- eslint-disable-next-line vue/no-v-html -->
+        <span v-if="action.card" v-html="action.card.content" />
+      </button>
+    </div>
+
+    <!-- Regular text actions -->
+    <div v-else-if="actions.length" class="input-actions hstack gap-xxs flex-wrap pb-xxs">
+      <span
+        v-for="(action, idx) in actions"
+        :key="action.id"
+        class="action-enter"
+        :style="{ animationDelay: `${idx * 30}ms` }"
+      >
+        <Button
+          :label="`${actionLabel(idx)}. ${action.label}`"
+          :icon="action.icon"
+          :variant="buttonVariant(action.variant)"
+          size="small"
+          @click="$emit('action', action)"
+        />
+      </span>
+    </div>
+
+    <textarea
+      ref="textareaRef"
+      v-model="message"
+      class="input-textarea flex-1 px-xxs py-xxxs"
+      :placeholder="props.placeholder"
+      rows="1"
+      @keydown="onKeydown"
+    />
+    <div class="input-toolbar hstack justify-between pt-xxs">
+      <div class="hstack gap-xxs align-center">
+        <Dropdown v-model="selectedModel" :groups="models" placement="above" :surface="props.surface" tooltip="Model" />
+        <ContextRing
+          :percent="42"
+          model="Claude Sonnet 4.5"
+          tokens="42,000 / 100,000"
+          cost="$0.12"
+          :messages="24"
+          :surface="props.surface"
+        />
+      </div>
+      <Button
+        variant="primary"
+        label="Send"
+        size="small"
+        @click="send"
+      />
+    </div>
+
+    <!-- Floating preview for style tiles -->
+    <StylePreview
+      v-if="previewData && previewRect"
+      :data="previewData"
+      :card-rect="previewRect"
+      @preview-enter="cancelHide"
+      @preview-leave="hidePreviewNow"
+    />
+  </div>
+</template>
+
+<style scoped>
+.input-chat {
+  width: 100%;
+  background: var(--color-surface-secondary);
+  border: 1px solid var(--color-surface-border);
+  border-radius: var(--radius-s);
+  cursor: text;
+  transition: border-color var(--transition-focus), box-shadow var(--transition-focus);
+}
+
+.input-chat:hover {
+  border-color: var(--color-text-muted);
+}
+
+.input-chat:focus-within {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 1px var(--color-primary); /* Double-ring focus — intentional */
+}
+
+.input-textarea {
+  display: block;
+  width: 100%;
+  background: none;
+  border: none;
+  outline: none;
+  font-family: inherit;
+  font-size: var(--font-size-l);
+  color: var(--color-text);
+  resize: none;
+  line-height: var(--line-height-normal);
+  field-sizing: content;
+  min-height: 0;
+  max-height: 150px; /* ~7 lines — intentional cap */
+}
+
+/* Dark surface variant */
+.input-chat.surface-dark {
+  background: var(--color-chrome-secondary);
+  border-color: var(--color-chrome-border);
+}
+
+.input-chat.surface-dark:hover {
+  border-color: var(--color-chrome-text-muted);
+}
+
+.input-chat.surface-dark .input-textarea {
+  color: var(--color-chrome-text);
+}
+
+.input-textarea::placeholder {
+  color: var(--color-text-muted);
+}
+
+.input-chat.surface-dark .input-textarea::placeholder {
+  color: var(--color-chrome-text-muted);
+}
+
+.input-toolbar {
+  /* padding via .pt-xxs utility */
+}
+
+/* Staggered action entrance */
+.action-enter {
+  animation: action-pop 0.25s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes action-pop {
+  from {
+    opacity: 0;
+    transform: translateY(4px) scale(0.95);
+  }
+}
+
+/* Brief cards: wrapping grid, 3 per row */
+.brief-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-xs);
+}
+
+/* Card actions — InputChat provides the container, caller controls everything else */
+.input-actions-cards {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x mandatory;
+  align-items: stretch;
+}
+
+.action-card {
+  position: relative;
+  flex: 1 1 0;
+  min-width: 140px;
+  background: var(--color-surface);
+  color: var(--color-text);
+  border: 1px solid var(--color-surface-border);
+  border-radius: var(--radius-s);
+  padding: var(--space-xs) var(--space-s);
+  text-align: start;
+  cursor: pointer;
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  transition: transform 0.15s ease;
+}
+
+.action-card:hover {
+  transform: scale(1.02);
+}
+
+.action-card:active {
+  transform: scale(0.98);
+}
+
+.action-card__badge {
+  position: absolute;
+  inset-block-start: var(--space-xxxs);
+  inset-inline-end: var(--space-xxxs);
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1;
+  opacity: 0.4;
+}
+
+
+</style>
