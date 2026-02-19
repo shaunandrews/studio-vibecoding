@@ -231,7 +231,7 @@ function onSettingsSelect(value: string) {
   padding: 0 var(--space-xs) 0 var(--space-s);
   flex-shrink: 0;
   -webkit-app-region: drag;
-  border-bottom: 1px solid var(--color-chrome-border);
+  border-block-end: 1px solid var(--color-chrome-border);
 }
 
 .titlebar-start,

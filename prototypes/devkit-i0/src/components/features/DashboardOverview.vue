@@ -18,5 +18,6 @@ import SkillsCard from './dashboard/SkillsCard.vue'
   display: flex;
   flex-direction: column;
   gap: var(--space-m);
+  padding-block-end: var(--space-xl);
 }
 </style>

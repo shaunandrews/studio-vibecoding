@@ -155,6 +155,7 @@ function handleAction(action: ActionButton) {
   <div class="agent-panel vstack flex-1 overflow-hidden">
     <PanelToolbar>
       <template #start>
+        <span class="agent-panel__label">Kit</span>
         <TabBar :tabs="openTabs" :active-id="activeConvoId" @update:active-id="setActiveTab" @add="handleAddTab" @close="handleCloseTab" />
       </template>
       <template #end>
@@ -188,6 +189,18 @@ function handleAction(action: ActionButton) {
 </template>
 
 <style scoped>
+.agent-panel__label {
+  font-size: var(--font-size-s);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-secondary);
+  padding-inline: var(--space-xs);
+  flex-shrink: 0;
+  border-inline-end: 1px solid var(--color-surface-border);
+  display: flex;
+  align-items: center;
+  align-self: stretch;
+}
+
 .agent-panel__input-inner {
   max-width: 720px;
   margin: 0 auto;

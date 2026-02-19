@@ -305,6 +305,6 @@ watch(() => props.activeId, () => {
 
 .tab-bar__tab.active {
   background: var(--color-surface-secondary);
-  padding-right: var(--space-xxxs);
+  padding-inline-end: var(--space-xxxs);
 }
 </style>

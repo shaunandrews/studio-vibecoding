@@ -235,6 +235,7 @@ function statusColor(status: 'clean' | 'error' | 'new') {
   display: flex;
   flex-direction: column;
   gap: var(--space-l);
+  padding-block-end: var(--space-xl);
 }
 
 /* ── Sections ── */

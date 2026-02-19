@@ -344,9 +344,9 @@ defineExpose({ toggle, close, open })
 }
 
 .flyout--light .flyout-group + .flyout-group {
-  border-top: 1px solid var(--color-surface-border);
-  margin-top: var(--space-xxxs);
-  padding-top: var(--space-xxxs);
+  border-block-start: 1px solid var(--color-surface-border);
+  margin-block-start: var(--space-xxxs);
+  padding-block-start: var(--space-xxxs);
 }
 
 .flyout--light .flyout-group-label {
@@ -383,9 +383,9 @@ defineExpose({ toggle, close, open })
 }
 
 .flyout--dark .flyout-group + .flyout-group {
-  border-top: 1px solid var(--color-chrome-border);
-  margin-top: var(--space-xxxs);
-  padding-top: var(--space-xxxs);
+  border-block-start: 1px solid var(--color-chrome-border);
+  margin-block-start: var(--space-xxxs);
+  padding-block-start: var(--space-xxxs);
 }
 
 .flyout--dark .flyout-group-label {

@@ -257,9 +257,9 @@ onUnmounted(() => {
 }
 
 .dropdown-group + .dropdown-group {
-  border-top: 1px solid var(--color-surface-border);
-  margin-top: var(--space-xxxs);
-  padding-top: var(--space-xxxs);
+  border-block-start: 1px solid var(--color-surface-border);
+  margin-block-start: var(--space-xxxs);
+  padding-block-start: var(--space-xxxs);
 }
 
 .dropdown-group-label {

@@ -36,7 +36,7 @@ async function handleNewProject() {
         :style="{ viewTransitionName: 'project-grid' }"
       >
         <ProjectList class="flex-1 min-h-0" @new-project="handleNewProject" />
-        <div class="new-project-footer p-inline-m p-block-end-m">
+        <div class="new-project-footer px-m pb-m">
           <Button
             variant="secondary"
             surface="dark"
