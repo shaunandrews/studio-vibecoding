@@ -11,21 +11,21 @@ export function useProjectTransition() {
     // Already viewing a project — just swap, no transition
     const currentMode = router.currentRoute.value.meta.mode
     if (currentMode === 'project') {
-      router.push({ name: 'project', params: { id: projectId } })
+      router.push({ name: 'site', params: { id: projectId } })
       return
     }
 
     transitionProjectId.value = projectId
 
     if (!(document as any).startViewTransition) {
-      router.push({ name: 'project', params: { id: projectId } })
+      router.push({ name: 'site', params: { id: projectId } })
       return
     }
 
     await nextTick() // card gets view-transition-name before capture
 
     const transition = (document as any).startViewTransition(async () => {
-      await router.push({ name: 'project', params: { id: projectId } })
+      await router.push({ name: 'site', params: { id: projectId } })
       await nextTick()
     })
 

@@ -7,8 +7,6 @@ import { transitionProjectId } from '@/data/useProjectTransition'
 
 const props = defineProps<{
   project: Project
-  mode: 'card' | 'row'
-  active?: boolean
 }>()
 
 defineEmits<{
@@ -20,8 +18,7 @@ defineEmits<{
 <template>
     <div
       class="project-item"
-      :class="[`mode-${mode}`, { active }]"
-      :style="mode === 'card' && project.id === transitionProjectId ? { viewTransitionName: 'project-frame' } : {}"
+      :style="project.id === transitionProjectId ? { viewTransitionName: 'project-frame' } : {}"
       @click="$emit('select', project.id)"
     >
       <div class="item-header hstack gap-xs">
@@ -41,53 +38,24 @@ defineEmits<{
 .project-item {
   cursor: pointer;
   color: var(--color-chrome-text);
-}
-
-/* Card mode */
-.project-item.mode-card {
   background: rgba(255, 255, 255, 0.02);
   border-radius: var(--radius-m);
   overflow: hidden;
 }
 
-.project-item.mode-card:hover {
+.project-item:hover {
   background: rgba(255, 255, 255, 0.06);
 }
 
-.project-item.mode-card .item-header {
+.item-header {
   padding: var(--space-s);
-}
-
-/* Row mode */
-.project-item.mode-row {
-  background: transparent;
-  border-radius: var(--radius-s);
-  padding: var(--space-xs);
-  color: var(--color-chrome-text-secondary);
-}
-
-.project-item.mode-row:hover {
-  background: var(--color-chrome-hover);
-}
-
-.project-item.mode-row.active {
-  background: var(--color-chrome-active);
-  color: var(--color-chrome-text);
 }
 
 /* Favicon */
 .item-favicon {
-  border-radius: var(--radius-s);
-}
-
-.mode-card .item-favicon {
   width: 32px;
   height: 32px;
-}
-
-.mode-row .item-favicon {
-  width: 20px;
-  height: 20px;
+  border-radius: var(--radius-s);
 }
 
 /* Name */
@@ -100,18 +68,9 @@ defineEmits<{
   line-height: var(--line-height-body);
 }
 
-/* Collapsible: url */
+/* URL */
 .item-url {
   overflow: hidden;
-}
-
-.mode-card .item-url {
-  opacity: 1;
   max-height: 2em;
-}
-
-.mode-row .item-url {
-  opacity: 0;
-  max-height: 0;
 }
 </style>

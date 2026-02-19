@@ -70,7 +70,7 @@ function positionSiteSwitcherMenu() {
 
 function onSiteSelect(projectId: string) {
   siteSwitcherOpen.value = false
-  router.push({ name: 'project', params: { id: projectId } })
+  router.push({ name: 'site', params: { id: projectId } })
 }
 
 function onClickOutsideSiteSwitcher(e: MouseEvent) {

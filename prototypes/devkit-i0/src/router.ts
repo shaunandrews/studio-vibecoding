@@ -11,10 +11,10 @@ const router = createRouter({
       meta: { layout: 'main', mode: 'home' },
     },
     {
-      name: 'project',
+      name: 'site',
       path: '/projects/:id',
       components: {
-        main: () => import('@/pages/ProjectPage.vue'),
+        main: () => import('@/pages/SitePage.vue'),
       },
       meta: { layout: 'main', mode: 'project' },
       beforeEnter: (to) => {
