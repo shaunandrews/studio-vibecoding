@@ -94,6 +94,7 @@ export type CardBlock =
   | (BaseCardBlock & { card: 'sectionEdit'; data: SectionEditCardData })
   | (BaseCardBlock & { card: 'themeEdit'; data: ThemeEditCardData })
   | (BaseCardBlock & { card: 'designBriefPicker'; data: DesignBriefPickerCardData })
+  | (BaseCardBlock & { card: 'skillBanner'; data: SkillBannerCardData })
 
 export type ContentBlock =
   | { type: 'text'; text: string }
@@ -201,5 +202,30 @@ export interface DesignBriefCardData {
 export interface DesignBriefPickerCardData {
   briefs: DesignBriefCardData[]
   actions?: ActionButton[]
+}
+
+// --- AI Skills ---
+
+export type SkillCategory = 'content' | 'design' | 'commerce' | 'performance' | 'security' | 'developer'
+
+export interface Skill {
+  id: string
+  name: string
+  description: string
+  icon: string
+  category: SkillCategory
+  author: string
+  source: 'built-in' | 'directory' | 'custom'
+  systemPrompt: string
+  slashCommand?: string
+  installed: boolean
+  activeProjectIds: string[]
+}
+
+export interface SkillBannerCardData {
+  skillId: string
+  skillName: string
+  skillIcon: string
+  category: SkillCategory
 }
 
