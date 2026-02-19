@@ -1,26 +1,25 @@
 <script setup lang="ts">
 import {
-  cog, help, chevronDown,
-  pencil, copy, trash,
-  dashboard, styles, navigation, layout, pages, post,
-  external,
-  desktop, code,
-  download, upload, cloudUpload,
+  cog, chevronDown, chevronLeft, search,
 } from '@wordpress/icons'
-import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed, watch, nextTick, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import Button from '@/components/primitives/Button.vue'
 import Dropdown from '@/components/primitives/Dropdown.vue'
-import FlyoutMenu from '@/components/primitives/FlyoutMenu.vue'
 import Text from '@/components/primitives/Text.vue'
 import WPIcon from '@/components/primitives/WPIcon.vue'
 import { useProjects } from '@/data/useProjects'
+import { useProjectTransition } from '@/data/useProjectTransition'
 import { isAIConfigured, getAPIKey, setAPIKey } from '@/data/ai-service'
-import type { FlyoutMenuGroup } from '@/components/primitives/FlyoutMenu.vue'
 
 const router = useRouter()
 const route = useRoute()
 const { projects } = useProjects()
+const { navigateHome } = useProjectTransition()
+
+const emit = defineEmits<{
+  'open-search': []
+}>()
 
 const currentProject = computed(() => {
   const projectId = route.params.id as string | undefined
@@ -29,71 +28,57 @@ const currentProject = computed(() => {
 })
 
 const title = computed(() => {
-  if (currentProject.value) return `WordPress Studio \u2022 ${currentProject.value.name}`
+  if (currentProject.value) return `WordPress Studio • ${currentProject.value.name}`
   return 'WordPress Studio'
 })
 watch(title, (t) => { document.title = t }, { immediate: true })
 
-// ── Project flyout menu ──
-const flyoutMenuRef = ref<InstanceType<typeof FlyoutMenu> | null>(null)
+// ── Site switcher (custom lightweight dropdown) ──
+const siteSwitcherOpen = ref(false)
+const siteSwitcherRef = ref<HTMLElement | null>(null)
+const siteSwitcherMenuRef = ref<HTMLElement | null>(null)
+const siteSwitcherMenuStyle = ref<Record<string, string>>({})
 
-const projectMenuGroups = computed<FlyoutMenuGroup[]>(() => [
-  {
-    items: [
-      {
-        label: 'Project',
-        icon: pencil,
-        children: [
-          { label: 'Rename', icon: pencil, action: () => {} },
-          { label: 'Duplicate', icon: copy, action: () => {} },
-          { label: 'Delete', icon: trash, destructive: true, action: () => {} },
-        ],
-      },
-      {
-        label: 'WordPress Admin',
-        icon: dashboard,
-        children: [
-          { label: 'WP Admin', icon: dashboard, action: () => {} },
-          { label: 'Styles', icon: styles, action: () => {} },
-          { label: 'Navigation', icon: navigation, action: () => {} },
-          { label: 'Templates', icon: layout, action: () => {} },
-          { label: 'Pages', icon: pages, action: () => {} },
-          { label: 'Posts', icon: post, action: () => {} },
-        ],
-      },
-      {
-        label: 'View',
-        icon: external,
-        children: [
-          { label: 'Open in browser', icon: external, action: () => {} },
-        ],
-      },
-      {
-        label: 'Open in\u2026',
-        icon: desktop,
-        children: [
-          { label: 'Finder', icon: desktop, action: () => {} },
-          { label: 'Cursor', icon: code, action: () => {} },
-          { label: 'VS Code', icon: code, action: () => {} },
-          { label: 'Terminal', action: () => {} },
-        ],
-      },
-    ],
-  },
-  {
-    items: [
-      {
-        label: 'More',
-        icon: download,
-        children: [
-          { label: 'Import', icon: download, action: () => {} },
-          { label: 'Export', icon: upload, action: () => {} },
-          { label: 'Publish', icon: cloudUpload, action: () => {} },
-        ],
-      },
-    ],
-  },
-])
+function toggleSiteSwitcher() {
+  siteSwitcherOpen.value = !siteSwitcherOpen.value
+  if (siteSwitcherOpen.value) {
+    nextTick(positionSiteSwitcherMenu)
+  }
+}
+
+function positionSiteSwitcherMenu() {
+  const trigger = siteSwitcherRef.value
+  const menu = siteSwitcherMenuRef.value
+  if (!trigger || !menu) return
+
+  const rect = trigger.getBoundingClientRect()
+  const menuRect = menu.getBoundingClientRect()
+  const vw = window.innerWidth
+
+  let left = rect.left
+  if (left + menuRect.width > vw - 8) {
+    left = rect.right - menuRect.width
+  }
+  if (left < 8) left = 8
+
+  siteSwitcherMenuStyle.value = {
+    position: 'fixed',
+    top: `${rect.bottom + 4}px`,
+    left: `${left}px`,
+  }
+}
+
+function onSiteSelect(projectId: string) {
+  siteSwitcherOpen.value = false
+  router.push({ name: 'project', params: { id: projectId } })
+}
+
+function onClickOutsideSiteSwitcher(e: MouseEvent) {
+  const target = e.target as Node
+  if (!siteSwitcherRef.value?.contains(target) && !siteSwitcherMenuRef.value?.contains(target)) {
+    siteSwitcherOpen.value = false
+  }
+}
 
 // ── Settings dropdown ──
 const settingsValue = ref('')
@@ -135,9 +120,11 @@ function onClickOutsideKey(e: MouseEvent) {
 
 onMounted(() => {
   document.addEventListener('pointerdown', onClickOutsideKey)
+  document.addEventListener('click', onClickOutsideSiteSwitcher)
 })
 onBeforeUnmount(() => {
   document.removeEventListener('pointerdown', onClickOutsideKey)
+  document.removeEventListener('click', onClickOutsideSiteSwitcher)
 })
 
 function onSettingsSelect(value: string) {
@@ -158,32 +145,55 @@ function onSettingsSelect(value: string) {
         <span class="light minimize"></span>
         <span class="light maximize"></span>
       </div>
-    </div>
-    <div class="titlebar-center hstack">
+
+      <!-- Site mode: back nav + site switcher -->
       <template v-if="currentProject">
-        <button class="titlebar-home" @click="router.push({ name: 'home' })">
-          <Text variant="body" color="secondary">WordPress Studio</Text>
+        <button class="titlebar-back hstack gap-xxxs" @click="navigateHome()">
+          <WPIcon :icon="chevronLeft" :size="16" />
+          <Text variant="body" color="secondary">Sites</Text>
         </button>
         <span class="titlebar-sep">/</span>
-        <FlyoutMenu
-          ref="flyoutMenuRef"
-          :groups="projectMenuGroups"
-          surface="dark"
-        >
-          <template #trigger="{ toggle, open }">
-            <button
-              class="project-menu-trigger hstack gap-xxxs"
-              @click="toggle"
+        <div ref="siteSwitcherRef" class="site-switcher">
+          <button class="site-switcher-trigger hstack gap-xxxs" @click="toggleSiteSwitcher">
+            <Text variant="body" color="secondary" weight="semibold">{{ currentProject.name }}</Text>
+            <WPIcon :icon="chevronDown" :size="14" />
+          </button>
+        </div>
+        <Teleport to="body">
+          <Transition name="dropdown">
+            <div
+              v-if="siteSwitcherOpen"
+              ref="siteSwitcherMenuRef"
+              class="dropdown-menu dropdown-menu--dark vstack"
+              :style="siteSwitcherMenuStyle"
             >
-              <Text variant="body" color="secondary" weight="semibold">{{ currentProject.name }}</Text>
-              <WPIcon :icon="chevronDown" :size="14" />
-            </button>
-          </template>
-        </FlyoutMenu>
+              <div class="dropdown-group">
+                <Text variant="label" color="muted" class="dropdown-group-label p-xs">Sites</Text>
+                <button
+                  v-for="project in projects"
+                  :key="project.id"
+                  class="dropdown-option hstack gap-xxs p-xs"
+                  :class="{ active: project.id === currentProject.id }"
+                  @click="onSiteSelect(project.id)"
+                >
+                  <span>{{ project.name }}</span>
+                </button>
+              </div>
+            </div>
+          </Transition>
+        </Teleport>
       </template>
-      <Text v-else variant="body" color="secondary" weight="semibold" tag="h1">{{ title }}</Text>
+
+      <!-- Home mode: static title -->
+      <Text v-else variant="body" color="secondary" weight="semibold" tag="h1" class="titlebar-title">WordPress Studio</Text>
     </div>
+
     <div class="titlebar-end hstack gap-xxs">
+      <button class="search-bar" @click="emit('open-search')">
+        <WPIcon :icon="search" :size="14" />
+        <span class="search-placeholder">Search…</span>
+        <kbd class="search-shortcut">⌘K</kbd>
+      </button>
       <Dropdown
         v-model="settingsValue"
         :groups="settingsOptions"
@@ -194,8 +204,8 @@ function onSettingsSelect(value: string) {
         tooltip="Settings"
         @update:model-value="onSettingsSelect"
       />
-      <Button variant="tertiary" surface="dark" :icon="help" size="small" tooltip="Help" />
     </div>
+
     <div v-if="showKeySettings" ref="keyPopoverRef" class="key-popover" @click.stop>
       <div class="key-popover__status">
         {{ aiConfigured ? 'AI configured' : 'No API key' }}
@@ -224,73 +234,19 @@ function onSettingsSelect(value: string) {
   border-bottom: 1px solid var(--color-chrome-border);
 }
 
-.titlebar-center {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  gap: var(--space-xxs);
-}
-
-/* Home link in project view */
-.titlebar-home {
-  background: none;
-  border: none;
-  font-family: inherit;
-  cursor: pointer;
-  padding: var(--space-xxxs) var(--space-xxs);
-  border-radius: var(--radius-s);
-  -webkit-app-region: no-drag;
-  transition: background var(--duration-instant) var(--ease-default);
-}
-
-.titlebar-home:hover {
-  background: var(--color-chrome-hover);
-}
-
-.titlebar-sep {
-  color: var(--color-chrome-text-muted);
-  pointer-events: none;
-  user-select: none;
-  font-size: var(--font-size-m);
-  line-height: 1;
-}
-
-/* Project name dropdown trigger */
-.project-menu-trigger {
-  background: none;
-  border: none;
-  font-family: inherit;
-  cursor: pointer;
-  color: var(--color-chrome-text-secondary);
-  border-radius: var(--radius-s);
-  padding: var(--space-xxxs) var(--space-xxs);
-  -webkit-app-region: no-drag;
-  transition: background var(--duration-instant) var(--ease-default), color var(--duration-instant) var(--ease-default);
-  align-items: center;
-}
-
-.project-menu-trigger:hover {
-  background: var(--color-chrome-hover);
-  color: var(--color-chrome-text);
-}
-
-.project-menu-trigger svg {
-  color: var(--color-chrome-text-muted);
-  transition: color var(--duration-instant) var(--ease-default);
-}
-
-.project-menu-trigger:hover svg {
-  color: var(--color-chrome-text-secondary);
-}
-
-/* Static title (home view) -- non-interactive */
-.titlebar-center > :deep(h1) {
-  pointer-events: none;
-}
-
 .titlebar-start,
 .titlebar-end {
   -webkit-app-region: no-drag;
+  align-items: center;
+}
+
+.titlebar-start {
+  flex: 1;
+  min-width: 0;
+}
+
+.titlebar-end {
+  flex-shrink: 0;
 }
 
 .traffic-lights {
@@ -307,6 +263,125 @@ function onSettingsSelect(value: string) {
 .light.minimize { background: var(--color-light-minimize); }
 .light.maximize { background: var(--color-light-maximize); }
 
+/* Static title (home view) — non-interactive */
+.titlebar-title {
+  pointer-events: none;
+}
+
+/* Back button ("◁ Sites") */
+.titlebar-back {
+  background: none;
+  border: none;
+  font-family: inherit;
+  cursor: pointer;
+  padding: var(--space-xxxs) var(--space-xxs);
+  border-radius: var(--radius-s);
+  -webkit-app-region: no-drag;
+  transition: background var(--duration-instant) var(--ease-default);
+  align-items: center;
+  color: var(--color-chrome-text-secondary);
+}
+
+.titlebar-back:hover {
+  background: var(--color-chrome-hover);
+}
+
+.titlebar-back svg {
+  color: var(--color-chrome-text-muted);
+  transition: color var(--duration-instant) var(--ease-default);
+}
+
+.titlebar-back:hover svg {
+  color: var(--color-chrome-text-secondary);
+}
+
+.titlebar-sep {
+  color: var(--color-chrome-text-muted);
+  pointer-events: none;
+  user-select: none;
+  font-size: var(--font-size-m);
+  line-height: 1;
+}
+
+/* Site switcher */
+.site-switcher {
+  position: relative;
+  -webkit-app-region: no-drag;
+}
+
+.site-switcher-trigger {
+  background: none;
+  border: none;
+  font-family: inherit;
+  cursor: pointer;
+  color: var(--color-chrome-text-secondary);
+  border-radius: var(--radius-s);
+  padding: var(--space-xxxs) var(--space-xxs);
+  transition: background var(--duration-instant) var(--ease-default), color var(--duration-instant) var(--ease-default);
+  align-items: center;
+}
+
+.site-switcher-trigger:hover {
+  background: var(--color-chrome-hover);
+  color: var(--color-chrome-text);
+}
+
+.site-switcher-trigger svg {
+  color: var(--color-chrome-text-muted);
+  transition: color var(--duration-instant) var(--ease-default);
+}
+
+.site-switcher-trigger:hover svg {
+  color: var(--color-chrome-text-secondary);
+}
+
+/* Search bar button */
+.search-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xxs);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-s);
+  padding: var(--space-xxxs) var(--space-xs);
+  height: 25px; /* fits in 35px titlebar */
+  width: 200px;
+  cursor: pointer;
+  -webkit-app-region: no-drag;
+  transition: background var(--duration-instant) var(--ease-default), border-color var(--duration-instant) var(--ease-default);
+}
+
+.search-bar:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.search-bar svg {
+  color: var(--color-chrome-text-muted);
+  flex-shrink: 0;
+}
+
+.search-placeholder {
+  font-family: inherit;
+  font-size: var(--font-size-s);
+  color: var(--color-chrome-text-muted);
+  flex: 1;
+  text-align: start;
+}
+
+.search-shortcut {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: var(--font-size-xs);
+  color: var(--color-chrome-text-faint);
+  background: rgba(255, 255, 255, 0.06);
+  padding: 1px var(--space-xxxs);
+  border-radius: 3px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  line-height: 1.3;
+  flex-shrink: 0;
+}
+
+/* API key popover */
 .key-popover {
   position: absolute;
   top: 100%;

@@ -12,6 +12,11 @@ const { createUntitledProject } = useProjects()
 const { navigateToProject } = useProjectTransition()
 const mode = computed(() => (route.meta.mode as string) || 'home')
 
+function onOpenSearch() {
+  // TODO: wire to command palette (Task 13)
+  console.log('Open search / command palette')
+}
+
 async function handleNewProject() {
   const project = createUntitledProject()
   await navigateToProject(project.id)
@@ -20,27 +25,36 @@ async function handleNewProject() {
 
 <template>
   <div class="main-layout vstack">
-    <Titlebar />
-    <div class="app-body flex-1 min-w-0 p-xs">
-      <!-- Left column: full width on home, 210px on project -->
+    <Titlebar @open-search="onOpenSearch" />
+    <div class="app-body flex-1 min-h-0">
+
+      <!-- Home: full-width project grid -->
       <div
-        class="left-column vstack"
-        :class="{ 'is-sidebar': mode === 'project' }"
-        :style="{ viewTransitionName: mode === 'project' ? 'sidebar' : 'project-grid' }"
+        v-if="mode === 'home'"
+        class="home-view vstack"
+        :style="{ viewTransitionName: 'project-grid' }"
       >
-        <ProjectList class="flex-1 min-h-0" :mode="mode === 'project' ? 'list' : 'grid'" @new-project="handleNewProject" />
-        <div class="new-project-footer">
-          <Button variant="secondary" surface="dark" label="New project" width="full" @click="handleNewProject" />
+        <ProjectList class="flex-1 min-h-0" @new-project="handleNewProject" />
+        <div class="new-project-footer p-inline-m p-block-end-m">
+          <Button
+            variant="secondary"
+            surface="dark"
+            label="New project"
+            @click="handleNewProject"
+            style="view-transition-name: new-project-btn"
+          />
         </div>
       </div>
-      <!-- Frame: slides in from right as a solid block -->
+
+      <!-- Project: full-window frame -->
       <main
+        v-else
         class="frame"
-        :class="{ 'frame-visible': mode === 'project' }"
-        :style="mode === 'project' ? { viewTransitionName: 'project-frame' } : {}"
+        :style="{ viewTransitionName: 'project-frame' }"
       >
         <router-view name="main" />
       </main>
+
     </div>
   </div>
 </template>
@@ -55,53 +69,25 @@ async function handleNewProject() {
 }
 
 .app-body {
-  position: relative;
-  min-height: 0;
   overflow: hidden;
+  padding: var(--space-xs);
 }
 
-/* Left column: shrinks from full-width to sidebar width */
-.left-column {
-  position: relative;
-  z-index: 1;
+/* Home: grid fills all available space */
+.home-view {
   width: 100%;
   height: 100%;
-  overflow: hidden;
 }
 
-.left-column.is-sidebar {
-  width: 210px;
-}
-
-.new-project-footer {
-  max-width: 210px;
-  display: flex;
-  view-transition-name: new-project-btn;
-}
-
-.new-project-footer :deep(.tooltip-trigger) {
-  display: flex;
-  flex: 1;
-}
-
+/* Project: frame fills all available space */
 .frame {
-  position: absolute;
-  top: var(--space-xs);
-  bottom: var(--space-xs);
-  right: var(--space-xs);
-  left: calc(210px + var(--space-xs) + var(--space-xs));
+  width: 100%;
+  height: 100%;
   background: var(--color-surface);
   border-radius: var(--radius-m);
   color: var(--color-text);
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  opacity: 0;
-  pointer-events: none;
-}
-
-.frame.frame-visible {
-  opacity: 1;
-  pointer-events: auto;
 }
 </style>
