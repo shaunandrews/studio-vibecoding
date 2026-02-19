@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, watch, onBeforeUnmount } from 'vue'
 import { useRoute } from 'vue-router'
+import { external } from '@wordpress/icons'
 import Panel from '@/components/composites/Panel.vue'
 import AgentPanel from '@/components/features/AgentPanel.vue'
 import StatusIndicator from '@/components/primitives/StatusIndicator.vue'
@@ -8,11 +9,14 @@ import Text from '@/components/primitives/Text.vue'
 import DashboardOverview from '@/components/features/DashboardOverview.vue'
 import DashboardCode from '@/components/features/DashboardCode.vue'
 import DashboardTerminal from '@/components/features/DashboardTerminal.vue'
+import WPIcon from '@/components/primitives/WPIcon.vue'
 import { useProjects } from '@/data/useProjects'
+import { useChatPopout } from '@/data/useChatPopout'
 
 const route = useRoute()
 const projectId = computed(() => route.params.id as string)
 const { projects, activeProjectId, setStatus } = useProjects()
+const { isPoppedOut, dockBack } = useChatPopout()
 
 const project = computed(() =>
   projects.value.find(p => p.id === projectId.value) ?? null
@@ -131,19 +135,31 @@ function onPointerUp() {
     </div>
 
     <!-- Resize handle -->
-    <div class="resize-handle" @pointerdown="onPointerDown" />
+    <div v-if="!isPoppedOut" class="resize-handle" @pointerdown="onPointerDown" />
 
     <!-- Right: chat panel -->
     <Panel
+      v-if="!isPoppedOut"
       class="chat-panel"
       :style="{ width: chatWidth + 'px', flex: 'none', minWidth: MIN_WIDTH + 'px' }"
     >
       <AgentPanel :project-id="activeProjectId" />
     </Panel>
+
+    <!-- Dock-back indicator when chat is popped out -->
+    <button v-if="isPoppedOut" class="dock-back" @click="dockBack">
+      <WPIcon :icon="external" :size="16" />
+      <span>Dock chat</span>
+    </button>
   </div>
 </template>
 
 <style scoped>
+/* ── Layout ── */
+.site-page {
+  position: relative;
+}
+
 /* ── Dashboard column ── */
 .dashboard {
   overflow: hidden;
@@ -240,6 +256,31 @@ function onPointerUp() {
 /* ── Chat panel ── */
 .chat-panel {
   flex: none;
+}
+
+/* ── Dock-back indicator ── */
+.dock-back {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xxs);
+  position: absolute;
+  inset-block-end: var(--space-s);
+  inset-inline-end: var(--space-s);
+  padding: var(--space-xxs) var(--space-xs);
+  background: var(--color-surface-secondary);
+  border: 1px solid var(--color-surface-border);
+  border-radius: var(--radius-m);
+  color: var(--color-text-secondary);
+  font-family: inherit;
+  font-size: var(--font-size-s);
+  cursor: pointer;
+  transition: background var(--duration-fast) var(--ease-default),
+              color var(--duration-fast) var(--ease-default);
+}
+
+.dock-back:hover {
+  background: var(--color-surface);
+  color: var(--color-text);
 }
 
 /* ── Drag state ── */

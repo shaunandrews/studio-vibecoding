@@ -23,6 +23,12 @@ const router = createRouter({
         if (!exists) return '/'
       },
     },
+    {
+      name: 'chat-popout',
+      path: '/chat-popout/:id',
+      component: () => import('@/pages/ChatPopout.vue'),
+      meta: { layout: 'bare', mode: 'popout' },
+    },
     // Catch-all
     { path: '/:pathMatch(.*)*', redirect: '/' },
   ],

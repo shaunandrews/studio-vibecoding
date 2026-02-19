@@ -1,19 +1,24 @@
 <script setup lang="ts">
 import { ref, computed, nextTick, onMounted } from 'vue'
+import { external } from '@wordpress/icons'
 import PanelToolbar from '@/components/composites/PanelToolbar.vue'
 import TabBar from '@/components/composites/TabBar.vue'
+import Button from '@/components/primitives/Button.vue'
 import ChatMessageList from '@/components/composites/ChatMessageList.vue'
 import InputChat from '@/components/composites/InputChat.vue'
 import { useConversations } from '@/data/useConversations'
 import { useInputActions } from '@/data/useInputActions'
+import { useChatPopout } from '@/data/useChatPopout'
 import type { ActionButton, Conversation } from '@/data/types'
 import type { Tab } from '@/components/composites/TabBar.vue'
 
 const { conversations, messages, getMessages, ensureConversation, sendMessage, postMessage } = useConversations()
 const { getActions, clearActions } = useInputActions()
+const { isPoppedOut, popOut, dockBack } = useChatPopout()
 
 const props = defineProps<{
   projectId?: string | null
+  isPopout?: boolean
 }>()
 
 // Per-project tab state: tracks open conversation IDs
@@ -151,6 +156,24 @@ function handleAction(action: ActionButton) {
     <PanelToolbar>
       <template #start>
         <TabBar :tabs="openTabs" :active-id="activeConvoId" @update:active-id="setActiveTab" @add="handleAddTab" @close="handleCloseTab" />
+      </template>
+      <template #end>
+        <Button
+          v-if="!isPopout"
+          :icon="external"
+          variant="tertiary"
+          size="small"
+          tooltip="Pop out chat"
+          @click="popOut(projectId ?? '')"
+        />
+        <Button
+          v-if="isPopout"
+          :icon="external"
+          variant="tertiary"
+          size="small"
+          tooltip="Dock back"
+          @click="dockBack()"
+        />
       </template>
     </PanelToolbar>
 
