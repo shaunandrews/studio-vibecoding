@@ -16,7 +16,7 @@ import { settingsToVariables } from '@/data/themes/settings-to-variables'
 import { buildSiteContext } from '@/data/ai-site-context'
 import { useSkills } from '@/data/useSkills'
 import SkillToggleMenu from '@/components/composites/SkillToggleMenu.vue'
-import type { ActionButton, Conversation } from '@/data/types'
+import type { ActionButton, Conversation, Skill } from '@/data/types'
 import type { Tab } from '@/components/composites/TabBar.vue'
 
 const { conversations, messages, getMessages, ensureConversation, sendMessage, postMessage } = useConversations()
@@ -25,7 +25,7 @@ const { updateTheme } = useSiteThemes()
 const { selectBrief, regenerateBriefs } = useBuildProgress()
 const { isOnboarding, getOnboardingStep, resolveInput } = useOnboarding()
 const { getActions, clearActions } = useInputActions()
-const { getSkillPrompt } = useSkills()
+const { getSkillPrompt, matchSlashCommand } = useSkills()
 
 const props = defineProps<{
   projectId?: string | null
@@ -143,6 +143,23 @@ function onClickOutsideSkillMenu(e: MouseEvent) {
   if (showSkillMenu.value && !target.closest('.skill-menu-wrapper') && !target.closest('.skill-menu-popover')) {
     showSkillMenu.value = false
   }
+}
+
+const slashMatches = ref<Skill[]>([])
+
+function handleSlashInput(query: string) {
+  if (!query || !props.projectId) {
+    slashMatches.value = []
+    return
+  }
+  slashMatches.value = matchSlashCommand(query, props.projectId)
+}
+
+function handleSlashSelect(skill: Skill) {
+  if (skill.slashCommand) {
+    currentDraft.value = skill.slashCommand + ' '
+  }
+  slashMatches.value = []
 }
 
 onMounted(() => {
@@ -288,7 +305,17 @@ function handleAction(action: ActionButton) {
 
     <div class="agent-panel__input shrink-0 px-s pb-s">
       <div class="agent-panel__input-inner">
-        <InputChat ref="inputChatRef" v-model="currentDraft" :placeholder="inputPlaceholder" :actions="inputActions" @send="handleSend" @action="handleAction" />
+        <InputChat
+          ref="inputChatRef"
+          v-model="currentDraft"
+          :placeholder="inputPlaceholder"
+          :actions="inputActions"
+          :slash-matches="slashMatches"
+          @send="handleSend"
+          @action="handleAction"
+          @slash-input="handleSlashInput"
+          @slash-select="handleSlashSelect"
+        />
       </div>
     </div>
   </div>

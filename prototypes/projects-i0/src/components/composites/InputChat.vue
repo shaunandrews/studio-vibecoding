@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
 import Button from '@/components/primitives/Button.vue'
 import Dropdown from '@/components/primitives/Dropdown.vue'
 import ContextRing from '@/components/primitives/ContextRing.vue'
 import StyleTileCard from '@/components/composites/StyleTileCard.vue'
 import StylePreview from '@/components/composites/StylePreview.vue'
-import type { ActionButton, DesignBriefCardData } from '@/data/types'
+import SkillAutocomplete from '@/components/composites/SkillAutocomplete.vue'
+import type { ActionButton, DesignBriefCardData, Skill } from '@/data/types'
 
 const selectedModel = ref('Opus 4.6')
 const textareaRef = ref<HTMLTextAreaElement | null>(null)
@@ -20,23 +21,29 @@ const props = withDefaults(defineProps<{
   modelValue?: string
   placeholder?: string
   actions?: ActionButton[]
+  slashMatches?: Skill[]
 }>(), {
   surface: 'light',
   modelValue: '',
   placeholder: 'Ask anything...',
   actions: () => [],
+  slashMatches: () => [],
 })
 
 const emit = defineEmits<{
   send: [message: string, model: string]
   'update:modelValue': [value: string]
   action: [action: ActionButton]
+  'slash-input': [query: string]
+  'slash-select': [skill: Skill]
 }>()
 
 const message = computed({
   get: () => props.modelValue,
   set: (val: string) => emit('update:modelValue', val),
 })
+
+const slashSelectedIndex = ref(0)
 
 const hasCardActions = computed(() => props.actions.some(a => a.card))
 const hasBriefCards = computed(() => props.actions.some(a => a.card?.briefData))
@@ -94,6 +101,36 @@ function send() {
 }
 
 function onKeydown(e: KeyboardEvent) {
+  // Slash command navigation (when autocomplete is open)
+  if (props.slashMatches?.length) {
+    if (e.key === 'ArrowDown') {
+      e.preventDefault()
+      slashSelectedIndex.value = Math.min(slashSelectedIndex.value + 1, props.slashMatches.length - 1)
+      return
+    }
+    if (e.key === 'ArrowUp') {
+      e.preventDefault()
+      slashSelectedIndex.value = Math.max(slashSelectedIndex.value - 1, 0)
+      return
+    }
+    if (e.key === 'Tab' || (e.key === 'Enter' && !e.shiftKey)) {
+      e.preventDefault()
+      const selected = props.slashMatches[slashSelectedIndex.value]
+      if (selected) {
+        emit('slash-select', selected)
+        slashSelectedIndex.value = 0
+      }
+      return
+    }
+    if (e.key === 'Escape') {
+      e.preventDefault()
+      message.value = ''
+      slashSelectedIndex.value = 0
+      return
+    }
+  }
+
+  // Enter sends (existing)
   if (e.key === 'Enter' && !e.shiftKey && !e.metaKey && !e.ctrlKey) {
     e.preventDefault()
     send()
@@ -110,6 +147,15 @@ function onKeydown(e: KeyboardEvent) {
     }
   }
 }
+
+watch(message, (val) => {
+  if (val.startsWith('/')) {
+    emit('slash-input', val)
+    slashSelectedIndex.value = 0
+  } else {
+    emit('slash-input', '')
+  }
+})
 
 function focus() {
   textareaRef.value?.focus()
@@ -202,6 +248,14 @@ function actionLabel(idx: number): string {
         />
       </span>
     </div>
+
+    <!-- Slash command autocomplete -->
+    <SkillAutocomplete
+      v-if="slashMatches?.length"
+      :matches="slashMatches"
+      :selected-index="slashSelectedIndex"
+      @select="(skill: Skill) => { $emit('slash-select', skill); slashSelectedIndex = 0 }"
+    />
 
     <textarea
       ref="textareaRef"
