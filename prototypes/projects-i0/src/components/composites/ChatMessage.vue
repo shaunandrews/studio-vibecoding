@@ -12,6 +12,7 @@ import ThemeUpdateCard from '@/components/composites/chat-cards/ThemeUpdateCard.
 import SectionEditCard from '@/components/composites/chat-cards/SectionEditCard.vue'
 import ThemeEditCard from '@/components/composites/chat-cards/ThemeEditCard.vue'
 import DesignBriefPickerCard from '@/components/composites/chat-cards/DesignBriefPickerCard.vue'
+import SkillBannerCard from '@/components/composites/chat-cards/SkillBannerCard.vue'
 import type { ContentBlock, AgentId } from '@/data/types'
 
 const props = defineProps<{
@@ -123,6 +124,12 @@ const normalizedContent = computed<ContentBlock[]>(() =>
           v-else-if="block.type === 'card' && block.card === 'designBriefPicker'"
           :data="block.data"
           :compact="block.compact"
+          :state="block.state"
+        />
+
+        <SkillBannerCard
+          v-else-if="block.type === 'card' && block.card === 'skillBanner'"
+          :data="block.data"
           :state="block.state"
         />
 
