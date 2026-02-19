@@ -95,6 +95,26 @@ Show a multi-step progress indicator.
   "steps": [{ "name": "string", "status": "'pending' | 'running' | 'done' | 'error'" }]
 }
 
+### card:skillBanner
+When you use one of your active skills, output this card FIRST before your response. This tells the user which skill you're using.
+
+{
+  "skillId": "string (the skill ID)",
+  "skillName": "string (display name)",
+  "skillIcon": "string (WordPress icon name)",
+  "category": "'content' | 'design' | 'commerce' | 'performance' | 'security' | 'developer'"
+}
+
+Example:
+\`\`\`card:skillBanner
+{
+  "skillId": "seo-audit",
+  "skillName": "SEO Audit",
+  "skillIcon": "search",
+  "category": "performance"
+}
+\`\`\`
+
 ## Guidelines
 - Use cards when showing structured data (colors, settings, edits)
 - Use plain text for conversational responses, explanations, questions

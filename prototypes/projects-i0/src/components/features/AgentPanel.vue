@@ -14,6 +14,7 @@ import { useOnboarding } from '@/data/useOnboarding'
 import { useInputActions } from '@/data/useInputActions'
 import { settingsToVariables } from '@/data/themes/settings-to-variables'
 import { buildSiteContext } from '@/data/ai-site-context'
+import { useSkills } from '@/data/useSkills'
 import type { ActionButton, Conversation } from '@/data/types'
 import type { Tab } from '@/components/composites/TabBar.vue'
 
@@ -23,6 +24,7 @@ const { updateTheme } = useSiteThemes()
 const { selectBrief, regenerateBriefs } = useBuildProgress()
 const { isOnboarding, getOnboardingStep, resolveInput } = useOnboarding()
 const { getActions, clearActions } = useInputActions()
+const { getSkillPrompt } = useSkills()
 
 const props = defineProps<{
   projectId?: string | null
@@ -37,8 +39,10 @@ const emit = defineEmits<{
 const siteContext = computed(() => {
   if (!props.projectId) return undefined
   const site = siteStore.getSite(props.projectId)
-  if (!site) return undefined
-  return buildSiteContext(site)
+  const base = site ? buildSiteContext(site) : undefined
+  const skillPrompt = getSkillPrompt(props.projectId)
+  if (!base && !skillPrompt) return undefined
+  return (base ?? '') + skillPrompt
 })
 
 // Per-project tab state: tracks open conversation IDs
