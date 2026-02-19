@@ -19,6 +19,9 @@ export interface Project {
   url: string
   createdAt: string
   description?: string
+  // Dev fields
+  phpVersion?: string
+  wpVersion?: string
 }
 
 export type AgentId = 'assistant' | 'code' | 'design'

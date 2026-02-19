@@ -2,13 +2,14 @@ import { ref, computed, type Ref, unref } from 'vue'
 import { isAIConfigured, streamAI } from './ai-service'
 import { AI_SYSTEM_PROMPT } from './ai-system-prompt'
 import { useInputActions } from './useInputActions'
+import { seedConversations, seedMessages } from './seed-conversations'
 import type { Conversation, Message, AgentId, ContentBlock, MessageContext, ActionButton } from './types'
 
 const { pushActions } = useInputActions()
 
-// Module-level state (singleton)
-const conversations = ref<Conversation[]>([])
-const messages = ref<Message[]>([])
+// Module-level state (singleton) — seeded with dev conversations
+const conversations = ref<Conversation[]>(structuredClone(seedConversations))
+const messages = ref<Message[]>(structuredClone(seedMessages))
 
 function textBlocks(text: string): ContentBlock[] {
   return [{ type: 'text', text }]
