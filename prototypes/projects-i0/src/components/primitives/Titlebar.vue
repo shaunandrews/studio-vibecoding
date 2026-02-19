@@ -1,27 +1,101 @@
 <script setup lang="ts">
-import { cog, help } from '@wordpress/icons'
+import {
+  cog, help, chevronDown,
+  pencil, copy, trash,
+  dashboard, styles, navigation, layout, pages, post,
+  external,
+  desktop, code,
+  download, upload, cloudUpload,
+} from '@wordpress/icons'
 import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import Button from '@/components/primitives/Button.vue'
 import Dropdown from '@/components/primitives/Dropdown.vue'
+import FlyoutMenu from '@/components/primitives/FlyoutMenu.vue'
 import Text from '@/components/primitives/Text.vue'
+import WPIcon from '@/components/primitives/WPIcon.vue'
 import { useProjects } from '@/data/useProjects'
 import { isAIConfigured, getAPIKey, setAPIKey } from '@/data/ai-service'
+import type { FlyoutMenuGroup } from '@/components/primitives/FlyoutMenu.vue'
 
 const router = useRouter()
 const route = useRoute()
 const { projects } = useProjects()
 
-const title = computed(() => {
+const currentProject = computed(() => {
   const projectId = route.params.id as string | undefined
-  if (projectId) {
-    const project = projects.value.find(p => p.id === projectId)
-    if (project) return `WordPress Studio • ${project.name}`
-  }
+  if (projectId) return projects.value.find(p => p.id === projectId) ?? null
+  return null
+})
+
+const title = computed(() => {
+  if (currentProject.value) return `WordPress Studio \u2022 ${currentProject.value.name}`
   return 'WordPress Studio'
 })
 watch(title, (t) => { document.title = t }, { immediate: true })
 
+// ── Project flyout menu ──
+const flyoutMenuRef = ref<InstanceType<typeof FlyoutMenu> | null>(null)
+
+const projectMenuGroups = computed<FlyoutMenuGroup[]>(() => [
+  {
+    items: [
+      {
+        label: 'Project',
+        icon: pencil,
+        children: [
+          { label: 'Rename', icon: pencil, action: () => {} },
+          { label: 'Duplicate', icon: copy, action: () => {} },
+          { label: 'Delete', icon: trash, destructive: true, action: () => {} },
+        ],
+      },
+      {
+        label: 'WordPress Admin',
+        icon: dashboard,
+        children: [
+          { label: 'WP Admin', icon: dashboard, action: () => {} },
+          { label: 'Styles', icon: styles, action: () => {} },
+          { label: 'Navigation', icon: navigation, action: () => {} },
+          { label: 'Templates', icon: layout, action: () => {} },
+          { label: 'Pages', icon: pages, action: () => {} },
+          { label: 'Posts', icon: post, action: () => {} },
+        ],
+      },
+      {
+        label: 'View',
+        icon: external,
+        children: [
+          { label: 'Open in browser', icon: external, action: () => {} },
+        ],
+      },
+      {
+        label: 'Open in\u2026',
+        icon: desktop,
+        children: [
+          { label: 'Finder', icon: desktop, action: () => {} },
+          { label: 'Cursor', icon: code, action: () => {} },
+          { label: 'VS Code', icon: code, action: () => {} },
+          { label: 'Terminal', action: () => {} },
+        ],
+      },
+    ],
+  },
+  {
+    items: [
+      {
+        label: 'More',
+        icon: download,
+        children: [
+          { label: 'Import', icon: download, action: () => {} },
+          { label: 'Export', icon: upload, action: () => {} },
+          { label: 'Publish', icon: cloudUpload, action: () => {} },
+        ],
+      },
+    ],
+  },
+])
+
+// ── Settings dropdown ──
 const settingsValue = ref('')
 
 const settingsOptions = [
@@ -64,8 +138,12 @@ function onClickOutsideKey(e: MouseEvent) {
   }
 }
 
-onMounted(() => document.addEventListener('pointerdown', onClickOutsideKey))
-onBeforeUnmount(() => document.removeEventListener('pointerdown', onClickOutsideKey))
+onMounted(() => {
+  document.addEventListener('pointerdown', onClickOutsideKey)
+})
+onBeforeUnmount(() => {
+  document.removeEventListener('pointerdown', onClickOutsideKey)
+})
 
 function onSettingsSelect(value: string) {
   settingsValue.value = ''
@@ -87,7 +165,28 @@ function onSettingsSelect(value: string) {
       </div>
     </div>
     <div class="titlebar-center hstack">
-      <Text variant="body" color="secondary" weight="medium" tag="h1">{{ title }}</Text>
+      <template v-if="currentProject">
+        <button class="titlebar-home" @click="router.push({ name: 'home' })">
+          <Text variant="body" color="secondary">WordPress Studio</Text>
+        </button>
+        <span class="titlebar-sep">/</span>
+        <FlyoutMenu
+          ref="flyoutMenuRef"
+          :groups="projectMenuGroups"
+          surface="dark"
+        >
+          <template #trigger="{ toggle, open }">
+            <button
+              class="project-menu-trigger hstack gap-xxxs"
+              @click="toggle"
+            >
+              <Text variant="body" color="secondary" weight="semibold">{{ currentProject.name }}</Text>
+              <WPIcon :icon="chevronDown" :size="14" />
+            </button>
+          </template>
+        </FlyoutMenu>
+      </template>
+      <Text v-else variant="body" color="secondary" weight="semibold" tag="h1">{{ title }}</Text>
     </div>
     <div class="titlebar-end hstack gap-xxs">
       <Dropdown
@@ -104,7 +203,7 @@ function onSettingsSelect(value: string) {
     </div>
     <div v-if="showKeySettings" ref="keyPopoverRef" class="key-popover" @click.stop>
       <div class="key-popover__status">
-        {{ aiConfigured ? '✅ AI configured' : '⚠️ No API key' }}
+        {{ aiConfigured ? 'AI configured' : 'No API key' }}
       </div>
       <input
         v-model="keyInput"
@@ -134,10 +233,65 @@ function onSettingsSelect(value: string) {
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
-  pointer-events: none;
+  gap: var(--space-xxs);
 }
 
-/* app title styled via Text component */
+/* Home link in project view */
+.titlebar-home {
+  background: none;
+  border: none;
+  font-family: inherit;
+  cursor: pointer;
+  padding: var(--space-xxxs) var(--space-xxs);
+  border-radius: var(--radius-s);
+  -webkit-app-region: no-drag;
+  transition: background var(--duration-instant) var(--ease-default);
+}
+
+.titlebar-home:hover {
+  background: var(--color-chrome-hover);
+}
+
+.titlebar-sep {
+  color: var(--color-chrome-text-muted);
+  pointer-events: none;
+  user-select: none;
+  font-size: var(--font-size-m);
+  line-height: 1;
+}
+
+/* Project name dropdown trigger */
+.project-menu-trigger {
+  background: none;
+  border: none;
+  font-family: inherit;
+  cursor: pointer;
+  color: var(--color-chrome-text-secondary);
+  border-radius: var(--radius-s);
+  padding: var(--space-xxxs) var(--space-xxs);
+  -webkit-app-region: no-drag;
+  transition: background var(--duration-instant) var(--ease-default), color var(--duration-instant) var(--ease-default);
+  align-items: center;
+}
+
+.project-menu-trigger:hover {
+  background: var(--color-chrome-hover);
+  color: var(--color-chrome-text);
+}
+
+.project-menu-trigger svg {
+  color: var(--color-chrome-text-muted);
+  transition: color var(--duration-instant) var(--ease-default);
+}
+
+.project-menu-trigger:hover svg {
+  color: var(--color-chrome-text-secondary);
+}
+
+/* Static title (home view) -- non-interactive */
+.titlebar-center > :deep(h1) {
+  pointer-events: none;
+}
 
 .titlebar-start,
 .titlebar-end {
@@ -149,7 +303,7 @@ function onSettingsSelect(value: string) {
 }
 
 .light {
-  width: 12px; /* OS-native size, not on grid — intentional */
+  width: 12px; /* OS-native size, not on grid -- intentional */
   height: 12px;
   border-radius: 50%;
 }
@@ -161,7 +315,7 @@ function onSettingsSelect(value: string) {
 .key-popover {
   position: absolute;
   top: 100%;
-  right: var(--space-xs);
+  right: var(--space-xs); /* Physical direction for app chrome edge */
   z-index: 100;
   background: var(--color-chrome);
   border: 1px solid var(--color-chrome-border);

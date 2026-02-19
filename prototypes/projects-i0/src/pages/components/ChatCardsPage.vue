@@ -8,9 +8,10 @@ import ProgressCard from '@/components/composites/chat-cards/ProgressCard.vue'
 import ThemePickerCard from '@/components/composites/chat-cards/ThemePickerCard.vue'
 import PageCard from '@/components/composites/chat-cards/PageCard.vue'
 import PostDraftCard from '@/components/composites/chat-cards/PostDraftCard.vue'
+import DesignBriefPickerCard from '@/components/composites/chat-cards/DesignBriefPickerCard.vue'
 import MarkdownText from '@/components/composites/renderers/MarkdownText.vue'
 import Text from '@/components/primitives/Text.vue'
-import type { PluginCardData, ColorPaletteData, SettingsCardData, ProgressCardData, ThemePickerCardData, PageCardData, PostDraftCardData, CardUiState } from '@/data/types'
+import type { PluginCardData, ColorPaletteData, SettingsCardData, ProgressCardData, ThemePickerCardData, PageCardData, PostDraftCardData, DesignBriefPickerCardData, CardUiState } from '@/data/types'
 import '@/pages/components/components-docs.css'
 
 const pluginAvailable: PluginCardData = {
@@ -125,6 +126,59 @@ const postPublishedData: PostDraftCardData = {
   categories: ['Menu'],
   tags: ['summer', 'drinks'],
   status: 'published',
+}
+
+const designBriefPickerData: DesignBriefPickerCardData = {
+  briefs: [
+    {
+      siteName: 'Downstreet Cafe',
+      styleName: 'Warm Editorial',
+      direction: 'Inviting editorial warmth with serif headings and a muted earthy palette. Paper-like backgrounds with sage green accents evoke a handcrafted, community-rooted feel.',
+      fonts: ['Playfair Display', 'Source Sans Pro'],
+      colors: [
+        { name: 'color-bg', value: '#faf9f7' },
+        { name: 'color-text', value: '#2d3748' },
+        { name: 'color-primary', value: '#8fa382' },
+        { name: 'color-secondary', value: '#68725a' },
+        { name: 'color-accent', value: '#c4a265' },
+      ],
+      bgColor: '#faf9f7',
+      textColor: '#2d3748',
+      accentColor: '#8fa382',
+    },
+    {
+      siteName: 'Downstreet Cafe',
+      styleName: 'Dark Roast',
+      direction: 'Rich, moody atmosphere with dark backgrounds and warm amber highlights. Bold sans-serif headings against deep espresso tones. Feels like a late-night jazz cafe.',
+      fonts: ['DM Sans', 'Inter'],
+      colors: [
+        { name: 'color-bg', value: '#1a1512' },
+        { name: 'color-text', value: '#f5f0eb' },
+        { name: 'color-primary', value: '#d4a24e' },
+        { name: 'color-secondary', value: '#8b7355' },
+        { name: 'color-accent', value: '#e63946' },
+      ],
+      bgColor: '#1a1512',
+      textColor: '#f5f0eb',
+      accentColor: '#d4a24e',
+    },
+    {
+      siteName: 'Downstreet Cafe',
+      styleName: 'Punch',
+      direction: 'Saturated and playful with bold colors and geometric energy. Chunky type and high-contrast blocks give it a modern poster vibe that pops off the screen.',
+      fonts: ['Space Grotesk', 'IBM Plex Sans'],
+      colors: [
+        { name: 'color-bg', value: '#f0fdf4' },
+        { name: 'color-text', value: '#1a2e1a' },
+        { name: 'color-primary', value: '#16a34a' },
+        { name: 'color-secondary', value: '#7c3aed' },
+        { name: 'color-accent', value: '#f59e0b' },
+      ],
+      bgColor: '#f0fdf4',
+      textColor: '#1a2e1a',
+      accentColor: '#16a34a',
+    },
+  ],
 }
 
 const cardStates: CardUiState[] = ['default', 'loading', 'complete', 'error', 'disabled']
@@ -352,7 +406,6 @@ const cardStates: CardUiState[] = ['default', 'loading', 'complete', 'error', 'd
         <thead><tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
         <tbody>
           <tr><td><code>data</code></td><td><code>PageCardData</code></td><td>—</td><td>Page info: <code>title</code>, <code>slug</code>, <code>template?</code>, <code>status</code>, <code>excerpt?</code>, <code>actions?</code></td></tr>
-          <tr><td><code>compact</code></td><td><code>boolean</code></td><td><code>false</code></td><td>Single line with title + status badge only</td></tr>
           <tr><td><code>state</code></td><td><code>CardUiState</code></td><td><code>'default'</code></td><td>Visual state</td></tr>
         </tbody>
       </table>
@@ -373,11 +426,6 @@ const cardStates: CardUiState[] = ['default', 'loading', 'complete', 'error', 'd
     <h3>Published page</h3>
     <div class="example-section">
       <PageCard :data="pagePublished" />
-    </div>
-
-    <h3>Compact mode</h3>
-    <div class="example-section">
-      <PageCard :data="pageData" :compact="true" />
     </div>
   </section>
 
@@ -418,6 +466,34 @@ const cardStates: CardUiState[] = ['default', 'loading', 'complete', 'error', 'd
     <h3>Compact mode</h3>
     <div class="example-section">
       <PostDraftCard :data="postDraftData" :compact="true" />
+    </div>
+  </section>
+
+  <!-- DesignBriefPickerCard -->
+  <section id="design-brief-picker-card">
+    <h2>DesignBriefPickerCard</h2>
+    <p class="section-desc">Displays a horizontal row of design brief options, each showing a style name, site name rendered in the brief's heading font, and color swatches. Used during onboarding to let the user pick a visual direction for their site.</p>
+
+    <div class="props-table">
+      <h3>Props</h3>
+      <table>
+        <thead><tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>data</code></td><td><code>DesignBriefPickerCardData</code></td><td>&mdash;</td><td>Picker data: <code>briefs[]</code> (each with <code>siteName</code>, <code>styleName</code>, <code>direction</code>, <code>fonts</code>, <code>colors</code>, <code>bgColor</code>, <code>textColor</code>, <code>accentColor</code>), <code>actions?</code></td></tr>
+          <tr><td><code>compact</code></td><td><code>boolean</code></td><td><code>false</code></td><td>Compact mode</td></tr>
+          <tr><td><code>state</code></td><td><code>CardUiState</code></td><td><code>'default'</code></td><td>Visual state</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Three briefs</h3>
+    <div class="example-section">
+      <DesignBriefPickerCard :data="designBriefPickerData" />
+    </div>
+
+    <h3>Disabled state</h3>
+    <div class="example-section">
+      <DesignBriefPickerCard :data="designBriefPickerData" state="disabled" />
     </div>
   </section>
 

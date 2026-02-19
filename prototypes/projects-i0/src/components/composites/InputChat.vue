@@ -2,6 +2,7 @@
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import Button from '@/components/primitives/Button.vue'
 import Dropdown from '@/components/primitives/Dropdown.vue'
+import ContextRing from '@/components/primitives/ContextRing.vue'
 import StyleTileCard from '@/components/composites/StyleTileCard.vue'
 import StylePreview from '@/components/composites/StylePreview.vue'
 import type { ActionButton, DesignBriefCardData } from '@/data/types'
@@ -211,7 +212,17 @@ function actionLabel(idx: number): string {
       @keydown="onKeydown"
     />
     <div class="input-toolbar hstack justify-between pt-xxs">
-      <Dropdown v-model="selectedModel" :groups="models" placement="above" :surface="props.surface" tooltip="Model" />
+      <div class="hstack gap-xxs align-center">
+        <Dropdown v-model="selectedModel" :groups="models" placement="above" :surface="props.surface" tooltip="Model" />
+        <ContextRing
+          :percent="42"
+          model="Claude Sonnet 4.5"
+          tokens="42,000 / 100,000"
+          cost="$0.12"
+          :messages="24"
+          :surface="props.surface"
+        />
+      </div>
       <Button
         variant="primary"
         label="Send"
@@ -354,5 +365,6 @@ function actionLabel(idx: number): string {
   line-height: 1;
   opacity: 0.4;
 }
+
 
 </style>

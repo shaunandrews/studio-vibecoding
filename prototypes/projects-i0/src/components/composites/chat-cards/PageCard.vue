@@ -6,13 +6,15 @@ import type { CardUiState, PageCardData } from '@/data/types'
 
 const props = withDefaults(defineProps<{
   data: PageCardData
-  compact?: boolean
   state?: CardUiState
 }>(), {
-  compact: false,
   state: 'default',
 })
 
+const displaySlug = computed(() => {
+  const raw = props.data.slug
+  return raw.startsWith('/') ? raw : `/${raw}`
+})
 
 const statusVariant = computed(() => {
   if (props.data.status === 'published') return 'success'
@@ -31,18 +33,18 @@ const statusLabel = computed(() => {
 </script>
 
 <template>
-  <ChatCard :compact="compact" :state="state">
+  <ChatCard :state="state">
     <template #header>
       <div class="hstack justify-between gap-xs">
         <div class="vstack gap-xxxs min-w-0">
           <strong class="page-title">{{ data.title }}</strong>
-          <span v-if="!compact" class="page-slug">/{{ data.slug }}</span>
+          <span class="page-slug">{{ displaySlug }}</span>
         </div>
         <Badge :label="statusLabel" :variant="statusVariant" />
       </div>
     </template>
 
-    <div v-if="!compact" class="vstack gap-xxs">
+    <div class="vstack gap-xxs">
       <span v-if="data.template" class="page-meta">Template: {{ data.template }}</span>
       <p v-if="data.excerpt" class="page-excerpt">{{ data.excerpt }}</p>
     </div>

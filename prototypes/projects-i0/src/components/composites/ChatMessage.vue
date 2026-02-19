@@ -85,7 +85,6 @@ const normalizedContent = computed<ContentBlock[]>(() =>
         <PageCard
           v-else-if="block.type === 'card' && block.card === 'page'"
           :data="block.data"
-          :compact="block.compact"
           :state="block.state"
         />
 

@@ -10,6 +10,7 @@ import Avatar from '@/components/primitives/Avatar.vue'
 import Badge from '@/components/primitives/Badge.vue'
 import BrowserBar from '@/components/primitives/BrowserBar.vue'
 import Tooltip from '@/components/primitives/Tooltip.vue'
+import ContextRing from '@/components/primitives/ContextRing.vue'
 import { cog, plus, upload, external, trash, pencil, chevronDown } from '@wordpress/icons'
 import '@/pages/components/components-docs.css'
 
@@ -203,6 +204,78 @@ const icons = Object.entries(wpIcons)
         <Button variant="tertiary" surface="dark" label="Small" size="small" />
         <Button variant="tertiary" surface="dark" label="Small" size="small" :icon="trash" />
         <Button variant="tertiary" surface="dark" :icon="chevronDown" size="small" />
+      </div>
+    </div>
+  </section>
+
+  <!-- ContextRing -->
+  <section id="context-ring">
+    <h2>ContextRing</h2>
+    <p class="section-desc">SVG ring indicator showing context window usage as a percentage arc. Click to reveal a popover with model, token, cost, and message stats. Turns red at 80% and pulses at 95%.</p>
+
+    <div class="props-table">
+      <h3>Props</h3>
+      <table>
+        <thead><tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>percent</code></td><td><code>number</code></td><td>&mdash;</td><td>Context window usage (0-100)</td></tr>
+          <tr><td><code>model</code></td><td><code>string</code></td><td><code>''</code></td><td>Model name shown in popover</td></tr>
+          <tr><td><code>tokens</code></td><td><code>string</code></td><td><code>''</code></td><td>Token usage string (e.g. "42,000 / 100,000")</td></tr>
+          <tr><td><code>cost</code></td><td><code>string</code></td><td><code>''</code></td><td>Estimated cost string</td></tr>
+          <tr><td><code>messages</code></td><td><code>number</code></td><td><code>0</code></td><td>Message count</td></tr>
+          <tr><td><code>surface</code></td><td><code>'light' | 'dark'</code></td><td><code>'light'</code></td><td>Background surface for theming</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Normal (~30%)</h3>
+    <div class="example-section">
+      <div class="hstack gap-m align-center">
+        <ContextRing
+          :percent="30"
+          model="Claude Sonnet 4.5"
+          tokens="30,000 / 100,000"
+          cost="$0.08"
+          :messages="12"
+        />
+        <Text variant="caption" color="muted">Neutral ring color, click for details</Text>
+      </div>
+    </div>
+
+    <h3>Warning (~80%)</h3>
+    <div class="example-section">
+      <div class="hstack gap-m align-center">
+        <ContextRing
+          :percent="80"
+          model="Claude Opus 4.6"
+          tokens="80,000 / 100,000"
+          cost="$0.52"
+          :messages="47"
+        />
+        <Text variant="caption" color="muted">Red ring at 80% capacity</Text>
+      </div>
+    </div>
+
+    <h3>Critical (~95%)</h3>
+    <div class="example-section">
+      <div class="hstack gap-m align-center">
+        <ContextRing
+          :percent="95"
+          model="Claude Opus 4.6"
+          tokens="95,000 / 100,000"
+          cost="$0.68"
+          :messages="63"
+        />
+        <Text variant="caption" color="muted">Red pulsing ring at 95% capacity</Text>
+      </div>
+    </div>
+
+    <h3>On dark surface</h3>
+    <div class="example-section example-section--dark">
+      <div class="hstack gap-l align-center" style="padding: var(--space-xs) 0;">
+        <ContextRing :percent="30" model="Sonnet 4.5" tokens="30k / 100k" cost="$0.08" :messages="12" surface="dark" />
+        <ContextRing :percent="80" model="Opus 4.6" tokens="80k / 100k" cost="$0.52" :messages="47" surface="dark" />
+        <ContextRing :percent="95" model="Opus 4.6" tokens="95k / 100k" cost="$0.68" :messages="63" surface="dark" />
       </div>
     </div>
   </section>

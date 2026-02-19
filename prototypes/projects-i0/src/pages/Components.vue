@@ -11,6 +11,7 @@ const categories = [
       { id: 'badge', label: 'Badge' },
       { id: 'browser-bar', label: 'BrowserBar' },
       { id: 'button', label: 'Button' },
+      { id: 'context-ring', label: 'ContextRing' },
       { id: 'dropdown', label: 'Dropdown' },
       { id: 'status-indicator', label: 'StatusIndicator' },
       { id: 'text', label: 'Text' },
