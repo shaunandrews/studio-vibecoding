@@ -34,7 +34,7 @@ withDefaults(defineProps<{
   border: 1px solid var(--color-surface-border);
   border-radius: var(--radius-m);
   background: var(--color-surface);
-  margin: var(--space-m) 0;
+  margin-block: var(--space-xs);
   margin-inline-start: calc(-1 * var(--space-s));
   overflow: hidden;
 }

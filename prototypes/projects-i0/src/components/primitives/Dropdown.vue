@@ -88,50 +88,48 @@ function positionMenu() {
 
   resolvedPlacement.value = placeAbove ? 'above' : 'below'
 
-  const style: Record<string, string> = {}
+  // Fixed positioning relative to viewport (teleported to body)
+  const style: Record<string, string> = {
+    position: 'fixed',
+  }
 
   // Vertical position
   if (placeAbove) {
-    let bottom = triggerRect.height + gap
-    // Constrain: menu top shouldn't go above viewport
-    const menuTop = triggerRect.top - gap - menuRect.height
-    if (menuTop < EDGE_PADDING) {
-      style.maxHeight = `${triggerRect.top - gap - EDGE_PADDING}px`
+    const bottom = vh - triggerRect.top + gap
+    const availableHeight = triggerRect.top - gap - EDGE_PADDING
+    if (menuRect.height > availableHeight) {
+      style.maxHeight = `${availableHeight}px`
       style.overflowY = 'auto'
-      bottom = triggerRect.height + gap
     }
     style.bottom = `${bottom}px`
     style.top = 'auto'
   } else {
-    let top = triggerRect.height + gap
-    // Constrain: menu bottom shouldn't go below viewport
-    const menuBottom = triggerRect.bottom + gap + menuRect.height
-    if (menuBottom > vh - EDGE_PADDING) {
-      style.maxHeight = `${vh - triggerRect.bottom - gap - EDGE_PADDING}px`
+    const top = triggerRect.bottom + gap
+    const availableHeight = vh - triggerRect.bottom - gap - EDGE_PADDING
+    if (menuRect.height > availableHeight) {
+      style.maxHeight = `${availableHeight}px`
       style.overflowY = 'auto'
     }
     style.top = `${top}px`
     style.bottom = 'auto'
   }
 
-  // Horizontal: start aligned left, shift if overflowing right, or flip to right-align
-  let left = 0
-  const menuLeft = triggerRect.left + left
-  const menuRight = menuLeft + menuRect.width
+  // Horizontal: align left edge to trigger, shift if overflowing
+  let left = triggerRect.left
+  const menuRight = left + menuRect.width
 
   if (menuRight > vw - EDGE_PADDING) {
-    // Try right-aligning to trigger
-    const rightAlignLeft = triggerRect.width - menuRect.width
-    const absLeft = triggerRect.left + rightAlignLeft
-    if (absLeft >= EDGE_PADDING) {
-      left = rightAlignLeft
+    // Try right-aligning to trigger's right edge
+    const rightAligned = triggerRect.right - menuRect.width
+    if (rightAligned >= EDGE_PADDING) {
+      left = rightAligned
     } else {
       // Pin to right edge of viewport
-      left = (vw - EDGE_PADDING - menuRect.width) - triggerRect.left
+      left = vw - EDGE_PADDING - menuRect.width
     }
   }
-  if (triggerRect.left + left < EDGE_PADDING) {
-    left = EDGE_PADDING - triggerRect.left
+  if (left < EDGE_PADDING) {
+    left = EDGE_PADDING
   }
 
   style.left = `${left}px`
@@ -156,7 +154,8 @@ function onScrollOrResize() {
 }
 
 function onClickOutside(e: MouseEvent) {
-  if (!triggerRef.value?.contains(e.target as Node)) {
+  const target = e.target as Node
+  if (!triggerRef.value?.contains(target) && !menuRef.value?.contains(target)) {
     open.value = false
   }
 }
@@ -182,29 +181,34 @@ onUnmounted(() => {
         <WPIcon v-if="showChevron" :icon="chevronDown" :size="16" />
       </button>
     </Tooltip>
-    <Transition name="dropdown">
-      <div
-        v-if="open"
-        ref="menuRef"
-        class="dropdown-menu vstack"
-        :class="resolvedPlacement === 'below' ? 'dropdown-menu--below' : 'dropdown-menu--above'"
-        :style="menuStyle"
-      >
-        <div v-for="group in groups" :key="group.label" class="dropdown-group">
-          <Text variant="label" color="muted" class="dropdown-group-label p-xs">{{ group.label }}</Text>
-          <button
-            v-for="option in group.options"
-            :key="normalize(option).value"
-            class="dropdown-option hstack gap-xxs p-xs"
-            :class="{ active: normalize(option).value === modelValue }"
-            @click="select(normalize(option).value)"
-          >
-            <WPIcon v-if="normalize(option).icon" :icon="normalize(option).icon" :size="18" />
-            <span>{{ normalize(option).label }}</span>
-          </button>
+    <Teleport to="body">
+      <Transition name="dropdown">
+        <div
+          v-if="open"
+          ref="menuRef"
+          class="dropdown-menu vstack"
+          :class="[
+            resolvedPlacement === 'below' ? 'dropdown-menu--below' : 'dropdown-menu--above',
+            { 'dropdown-menu--dark': surface === 'dark' },
+          ]"
+          :style="menuStyle"
+        >
+          <div v-for="group in groups" :key="group.label" class="dropdown-group">
+            <Text variant="label" color="muted" class="dropdown-group-label p-xs">{{ group.label }}</Text>
+            <button
+              v-for="option in group.options"
+              :key="normalize(option).value"
+              class="dropdown-option hstack gap-xxs p-xs"
+              :class="{ active: normalize(option).value === modelValue }"
+              @click="select(normalize(option).value)"
+            >
+              <WPIcon v-if="normalize(option).icon" :icon="normalize(option).icon" :size="18" />
+              <span>{{ normalize(option).label }}</span>
+            </button>
+          </div>
         </div>
-      </div>
-    </Transition>
+      </Transition>
+    </Teleport>
   </div>
 </template>
 
@@ -229,14 +233,27 @@ onUnmounted(() => {
   color: var(--color-text-secondary);
 }
 
+/* Dark surface trigger */
+.dropdown.surface-dark .dropdown-trigger {
+  color: var(--color-chrome-text-muted);
+}
+
+.dropdown.surface-dark .dropdown-trigger:hover {
+  background: var(--color-chrome-hover);
+  color: var(--color-chrome-text);
+}
+</style>
+
+<!-- Teleported menu styles (unscoped so they apply at body level) -->
+<style>
 .dropdown-menu {
-  position: absolute;
+  width: max-content;
   background: var(--color-surface);
   border: 1px solid var(--color-surface-border);
   border-radius: var(--radius-m);
   min-width: 180px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Elevation shadow — intentional */
-  z-index: 10;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  z-index: 9999;
 }
 
 .dropdown-group + .dropdown-group {
@@ -282,7 +299,7 @@ onUnmounted(() => {
 .dropdown-enter-from,
 .dropdown-leave-to {
   opacity: 0;
-  transform: translateY(4px); /* Subtle slide — intentional */
+  transform: translateY(4px);
 }
 
 .dropdown-menu--above.dropdown-enter-from,
@@ -291,38 +308,29 @@ onUnmounted(() => {
 }
 
 /* Dark surface variant */
-.dropdown.surface-dark .dropdown-trigger {
-  color: var(--color-chrome-text-muted);
-}
-
-.dropdown.surface-dark .dropdown-trigger:hover {
-  background: var(--color-chrome-hover);
-  color: var(--color-chrome-text);
-}
-
-.dropdown.surface-dark .dropdown-menu {
+.dropdown-menu--dark {
   background: var(--color-chrome);
   border-color: var(--color-chrome-subtle);
 }
 
-.dropdown.surface-dark .dropdown-group + .dropdown-group {
+.dropdown-menu--dark .dropdown-group + .dropdown-group {
   border-color: var(--color-chrome-border);
 }
 
-.dropdown.surface-dark .dropdown-group-label {
+.dropdown-menu--dark .dropdown-group-label {
   color: var(--color-chrome-text-muted);
 }
 
-.dropdown.surface-dark .dropdown-option {
+.dropdown-menu--dark .dropdown-option {
   color: var(--color-chrome-text);
 }
 
-.dropdown.surface-dark .dropdown-option:hover {
+.dropdown-menu--dark .dropdown-option:hover {
   background: var(--color-chrome-hover);
   color: var(--color-chrome-text);
 }
 
-.dropdown.surface-dark .dropdown-option.active {
+.dropdown-menu--dark .dropdown-option.active {
   color: var(--color-primary);
 }
 </style>

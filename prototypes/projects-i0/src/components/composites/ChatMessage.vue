@@ -51,7 +51,6 @@ const normalizedContent = computed<ContentBlock[]>(() =>
         <PluginCard
           v-else-if="block.type === 'card' && block.card === 'plugin'"
           :data="block.data"
-          :compact="block.compact"
           :state="block.state"
         />
 

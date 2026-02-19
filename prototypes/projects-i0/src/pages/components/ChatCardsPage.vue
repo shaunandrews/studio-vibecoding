@@ -32,7 +32,7 @@ const pluginActive: PluginCardData = {
   status: 'active',
 }
 
-const pluginCompact: PluginCardData = {
+const pluginInstalled: PluginCardData = {
   name: 'Akismet Anti-spam',
   slug: 'akismet/akismet.php',
   description: 'Used by millions, Akismet is quite possibly the best way in the world to protect your blog from spam.',
@@ -185,7 +185,6 @@ const cardStates: CardUiState[] = ['default', 'loading', 'complete', 'error', 'd
         <thead><tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
         <tbody>
           <tr><td><code>data</code></td><td><code>PluginCardData</code></td><td>—</td><td>Plugin info: <code>name</code>, <code>slug</code>, <code>description</code>, <code>status</code>, <code>rating?</code>, <code>activeInstalls?</code>, <code>action?</code></td></tr>
-          <tr><td><code>compact</code></td><td><code>boolean</code></td><td><code>false</code></td><td>Hides description</td></tr>
           <tr><td><code>state</code></td><td><code>CardUiState</code></td><td><code>'default'</code></td><td>Visual state</td></tr>
         </tbody>
       </table>
@@ -208,9 +207,9 @@ const cardStates: CardUiState[] = ['default', 'loading', 'complete', 'error', 'd
       <PluginCard :data="pluginActive" />
     </div>
 
-    <h3>Compact mode</h3>
+    <h3>Installed plugin</h3>
     <div class="example-section">
-      <PluginCard :data="pluginCompact" :compact="true" />
+      <PluginCard :data="pluginInstalled" />
     </div>
   </section>
 
