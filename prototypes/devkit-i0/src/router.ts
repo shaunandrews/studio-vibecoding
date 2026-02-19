@@ -23,38 +23,6 @@ const router = createRouter({
         if (!exists) return '/'
       },
     },
-    {
-      name: 'settings',
-      path: '/settings',
-      component: { render: () => null },
-      meta: { layout: 'main', mode: 'home' },
-    },
-    // Dev pages — bare layout (no app chrome)
-    {
-      name: 'design-system',
-      path: '/design-system',
-      component: () => import('@/pages/DesignSystem.vue'),
-      meta: { layout: 'bare' },
-    },
-    {
-      name: 'components',
-      path: '/components',
-      component: () => import('@/pages/Components.vue'),
-      meta: { layout: 'bare' },
-      redirect: '/components/primitives',
-      children: [
-        { name: 'components-primitives', path: 'primitives', component: () => import('@/pages/components/PrimitivesPage.vue'), meta: { layout: 'bare' } },
-        { name: 'components-composites', path: 'composites', component: () => import('@/pages/components/CompositesPage.vue'), meta: { layout: 'bare' } },
-        { name: 'components-features', path: 'features', component: () => import('@/pages/components/FeaturesPage.vue'), meta: { layout: 'bare' } },
-        { name: 'components-chat-cards', path: 'chat-cards', component: () => import('@/pages/components/ChatCardsPage.vue'), meta: { layout: 'bare' } },
-      ],
-    },
-    {
-      name: 'architecture',
-      path: '/architecture',
-      component: () => import('@/pages/ArchitecturePage.vue'),
-      meta: { layout: 'bare' },
-    },
     // Catch-all
     { path: '/:pathMatch(.*)*', redirect: '/' },
   ],

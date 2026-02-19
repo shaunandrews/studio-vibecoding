@@ -5,19 +5,16 @@ import Titlebar from '@/components/primitives/Titlebar.vue'
 import Button from '@/components/primitives/Button.vue'
 import ProjectList from '@/components/features/ProjectList.vue'
 import { useProjects } from '@/data/useProjects'
-import { useOnboarding } from '@/data/useOnboarding'
 import { useProjectTransition } from '@/data/useProjectTransition'
 
 const route = useRoute()
 const { createUntitledProject } = useProjects()
-const { startOnboarding } = useOnboarding()
 const { navigateToProject } = useProjectTransition()
 const mode = computed(() => (route.meta.mode as string) || 'home')
 
 async function handleNewProject() {
   const project = createUntitledProject()
   await navigateToProject(project.id)
-  startOnboarding(project.id)
 }
 </script>
 

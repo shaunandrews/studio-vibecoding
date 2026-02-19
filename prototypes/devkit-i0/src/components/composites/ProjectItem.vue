@@ -1,14 +1,9 @@
 <script setup lang="ts">
-import { computed, ref, onMounted, onUnmounted } from 'vue'
 import Text from '@/components/primitives/Text.vue'
 import StatusIndicator from '@/components/primitives/StatusIndicator.vue'
 import Tooltip from '@/components/primitives/Tooltip.vue'
 import type { Project } from '@/data/types'
-import { useSiteStore } from '@/data/useSiteStore'
-import { renderSite } from '@/data/site-renderer'
 import { transitionProjectId } from '@/data/useProjectTransition'
-
-const { getSite } = useSiteStore()
 
 const props = defineProps<{
   project: Project
@@ -20,22 +15,6 @@ defineEmits<{
   select: [id: string]
   'toggle-status': [id: string]
 }>()
-
-const darkQuery = window.matchMedia('(prefers-color-scheme: dark)')
-const systemDark = ref(darkQuery.matches)
-const onSchemeChange = (e: MediaQueryListEvent) => { systemDark.value = e.matches }
-onMounted(() => darkQuery.addEventListener('change', onSchemeChange))
-onUnmounted(() => darkQuery.removeEventListener('change', onSchemeChange))
-
-const previewHtml = computed(() => {
-  if (props.mode !== 'card') return ''
-  const site = getSite(props.project.id)
-  if (!site || site.pages.length === 0) return ''
-  const homepage = site.pages[0].slug
-  const colorMode = systemDark.value && site.theme.darkVariables ? 'dark' : 'light'
-  const html = renderSite(site, homepage, colorMode)
-  return html.replace(/<script[\s\S]*?<\/script>/gi, '')
-})
 </script>
 
 <template>
@@ -45,14 +24,6 @@ const previewHtml = computed(() => {
       :style="mode === 'card' && project.id === transitionProjectId ? { viewTransitionName: 'project-frame' } : {}"
       @click="$emit('select', project.id)"
     >
-      <div class="item-preview" v-if="mode === 'card' && previewHtml">
-        <iframe
-          :srcdoc="previewHtml"
-          class="preview-iframe"
-          tabindex="-1"
-          loading="lazy"
-        />
-      </div>
       <div class="item-header hstack gap-xs">
         <img class="item-favicon shrink-0" :src="project.favicon" alt="" />
         <div class="flex-1 min-w-0">
@@ -142,21 +113,5 @@ const previewHtml = computed(() => {
 .mode-row .item-url {
   opacity: 0;
   max-height: 0;
-}
-
-/* Preview iframe */
-.item-preview {
-  position: relative;
-  height: 200px;
-  overflow: hidden;
-}
-
-.preview-iframe {
-  width: 200%;
-  height: 200%;
-  border: none;
-  pointer-events: none;
-  transform: scale(0.5);
-  transform-origin: top left;
 }
 </style>

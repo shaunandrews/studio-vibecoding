@@ -65,7 +65,6 @@ export interface ActionButton {
   card?: {
     style: Record<string, string>
     content: string
-    briefData?: DesignBriefCardData
   }
   action: {
     type: 'send-message'
@@ -84,16 +83,10 @@ interface BaseCardBlock {
 
 export type CardBlock =
   | (BaseCardBlock & { card: 'plugin'; data: PluginCardData })
-  | (BaseCardBlock & { card: 'colorPalette'; data: ColorPaletteData })
   | (BaseCardBlock & { card: 'settings'; data: SettingsCardData })
   | (BaseCardBlock & { card: 'progress'; data: ProgressCardData })
-  | (BaseCardBlock & { card: 'themePicker'; data: ThemePickerCardData })
   | (BaseCardBlock & { card: 'page'; data: PageCardData })
   | (BaseCardBlock & { card: 'postDraft'; data: PostDraftCardData })
-  | (BaseCardBlock & { card: 'themeUpdate'; data: ThemeUpdateCardData })
-  | (BaseCardBlock & { card: 'sectionEdit'; data: SectionEditCardData })
-  | (BaseCardBlock & { card: 'themeEdit'; data: ThemeEditCardData })
-  | (BaseCardBlock & { card: 'designBriefPicker'; data: DesignBriefPickerCardData })
 
 export type ContentBlock =
   | { type: 'text'; text: string }
@@ -111,12 +104,6 @@ export interface PluginCardData {
   action?: ActionButton
 }
 
-export interface ColorPaletteData {
-  label: string
-  colors: { name: string; hex: string }[]
-  action?: ActionButton
-}
-
 export interface SettingsCardData {
   label: string
   settings: { key: string; current: string; proposed: string }[]
@@ -128,11 +115,6 @@ export interface ProgressCardData {
   steps: { name: string; status: 'pending' | 'running' | 'done' | 'error' }[]
 }
 
-export interface ThemePickerCardData {
-  themes: { name: string; slug: string; description?: string; colors?: string[] }[]
-  actions?: ActionButton[]
-}
-
 export interface PageCardData {
   title: string
   slug: string
@@ -140,22 +122,6 @@ export interface PageCardData {
   status: 'draft' | 'published' | 'scheduled'
   excerpt?: string
   actions?: ActionButton[]
-}
-
-export interface ThemeUpdateCardData {
-  label: string
-  changes: {
-    color?: {
-      palette?: { slug: string; name: string; hex: string }[]
-      background?: string
-      text?: string
-    }
-    typography?: {
-      fontFamily?: { heading?: string; body?: string }
-      fontSize?: Partial<Record<'small' | 'medium' | 'large' | 'xlarge' | 'hero', string>>
-    }
-  }
-  action?: ActionButton
 }
 
 export interface PostDraftCardData {
@@ -167,39 +133,3 @@ export interface PostDraftCardData {
   status: 'draft' | 'pending' | 'published'
   actions?: ActionButton[]
 }
-
-export interface SectionEditCardData {
-  label: string
-  sectionId: string
-  changeSummary: string
-  before: { html: string; css: string }
-  after: { html: string; css: string }
-}
-
-export interface ThemeEditCardData {
-  label: string
-  changeSummary: string
-  before: Record<string, string>  // old variables
-  after: Record<string, string>   // new variables
-}
-
-export type VariationHint = 'bold' | 'minimal' | 'warm'
-
-export interface DesignBriefCardData {
-  siteName: string
-  styleName: string
-  direction: string
-  fonts: string[]               // [heading, body, ...]
-  colors: { name: string; value: string }[]
-  bgColor: string               // extracted --color-bg or first dark color
-  textColor: string              // extracted --color-text or contrasting
-  accentColor: string            // extracted --color-primary or first accent
-  variationHint?: VariationHint  // layout composition hint for preview
-  styleTile?: string             // AI-generated HTML+CSS visual composition
-}
-
-export interface DesignBriefPickerCardData {
-  briefs: DesignBriefCardData[]
-  actions?: ActionButton[]
-}
-

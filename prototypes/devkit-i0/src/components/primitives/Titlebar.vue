@@ -102,11 +102,6 @@ const settingsOptions = [
   { label: 'Settings', options: [
     { label: 'API Key', value: '__api-key__' },
   ]},
-  { label: 'Dev Pages', options: [
-    { label: 'Components', value: 'components' },
-    { label: 'Design System', value: 'design-system' },
-    { label: 'Architecture', value: 'architecture' },
-  ]},
 ]
 
 // API key popover

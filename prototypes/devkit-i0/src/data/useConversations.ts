@@ -1,45 +1,14 @@
 import { ref, computed, type Ref, unref } from 'vue'
-import { seedConversations, seedMessages } from './seed-conversations'
 import { isAIConfigured, streamAI } from './ai-service'
 import { AI_SYSTEM_PROMPT } from './ai-system-prompt'
 import { useInputActions } from './useInputActions'
-import type { Conversation, Message, AgentId, ContentBlock, MessageContext, ActionButton, ThemeUpdateCardData } from './types'
+import type { Conversation, Message, AgentId, ContentBlock, MessageContext, ActionButton } from './types'
 
 const { pushActions } = useInputActions()
 
 // Module-level state (singleton)
-function cloneContentBlock(block: ContentBlock): ContentBlock {
-  if (block.type === 'text') return { ...block }
-  if (block.type === 'actions') {
-    return {
-      ...block,
-      actions: block.actions.map(action => ({
-        ...action,
-        action: {
-          ...action.action,
-          payload: action.action.payload ? { ...action.action.payload } : undefined,
-        },
-      })),
-    }
-  }
-  return { ...block }
-}
-
-function cloneMessage(message: Message): Message {
-  return {
-    ...message,
-    content: message.content.map(cloneContentBlock),
-    messageContext: message.messageContext
-      ? {
-          ...message.messageContext,
-          payload: message.messageContext.payload ? { ...message.messageContext.payload } : undefined,
-        }
-      : undefined,
-  }
-}
-
-const conversations = ref<Conversation[]>(seedConversations.map(conversation => ({ ...conversation })))
-const messages = ref<Message[]>(seedMessages.map(cloneMessage))
+const conversations = ref<Conversation[]>([])
+const messages = ref<Message[]>([])
 
 function textBlocks(text: string): ContentBlock[] {
   return [{ type: 'text', text }]
@@ -71,12 +40,12 @@ function getConversationAgent(conversationId: string): AgentId | undefined {
   return conversations.value.find(c => c.id === conversationId)?.agentId
 }
 
-function queueAgentResponse(conversationId: string, text: string, siteContext?: string) {
+function queueAgentResponse(conversationId: string, text: string) {
   const agentId = getConversationAgent(conversationId)
-  sendToAIWithIndicator(conversationId, text, agentId, siteContext)
+  sendToAIWithIndicator(conversationId, text, agentId)
 }
 
-async function sendToAIWithIndicator(conversationId: string, text: string, agentId?: AgentId, siteContext?: string) {
+async function sendToAIWithIndicator(conversationId: string, text: string, agentId?: AgentId) {
   if (!isAIConfigured()) {
     window.setTimeout(() => {
       appendMessage(
@@ -113,17 +82,13 @@ async function sendToAIWithIndicator(conversationId: string, text: string, agent
         .join('\n') || '(card response)',
     }))
 
-  const systemPrompt = siteContext
-    ? `${AI_SYSTEM_PROMPT}\n\n${siteContext}`
-    : undefined
-
   await streamAI(history, (blocks) => {
     // Update the message content in place — Vue reactivity handles re-render
     const idx = messages.value.findIndex(m => m.id === streamingId)
     if (idx !== -1) {
       messages.value[idx]!.content = blocks
     }
-  }, systemPrompt)
+  })
 
   // After AI finishes, extract any actionable cards and push as input actions
   const finalBlocks = messages.value.find(m => m.id === streamingId)?.content
@@ -139,62 +104,24 @@ async function sendToAIWithIndicator(conversationId: string, text: string, agent
 function extractCardActions(conversationId: string, blocks: ContentBlock[]) {
   const actions: ActionButton[] = []
 
-  // Collect all theme changes into a single bundled action
-  const themeChanges: { mode: string; changes: any; label: string }[] = []
   for (const block of blocks) {
     if (block.type !== 'card') continue
 
-    if (block.card === 'themeUpdate') {
-      const data = block.data as ThemeUpdateCardData & { mode?: string }
-      if (data.changes) {
-        themeChanges.push({
-          mode: data.mode === 'dark' ? 'dark' : 'light',
-          changes: data.changes,
-          label: data.label,
-        })
-      }
-    }
-
-    if (block.card === 'sectionEdit') {
-      const data = block.data as Record<string, any>
-      if (data.sectionId) {
+    if (block.card === 'plugin') {
+      const data = block.data
+      if (data.status === 'available') {
         actions.push({
-          id: `apply-section-${data.sectionId}-${Date.now()}`,
-          label: `Apply: ${data.label}`,
+          id: `install-${data.slug}-${Date.now()}`,
+          label: `Install ${data.name}`,
           variant: 'primary',
           action: {
             type: 'send-message',
-            message: `Apply section edit: ${data.label}`,
-            payload: {
-              applyType: 'sectionEdit',
-              sectionId: data.sectionId,
-              html: data.html ?? '',
-              css: data.css ?? '',
-            },
+            message: `Install the ${data.name} plugin`,
+            payload: { pluginSlug: data.slug },
           },
         })
       }
     }
-  }
-
-  // Bundle all theme cards into one "Apply" action
-  if (themeChanges.length > 0) {
-    const label = themeChanges.length === 1
-      ? themeChanges[0]!.label
-      : themeChanges[0]!.label.replace(/ - (Light|Dark) Mode$/i, '')
-    actions.unshift({
-      id: `apply-theme-${Date.now()}`,
-      label: `Apply: ${label}`,
-      variant: 'primary',
-      action: {
-        type: 'send-message',
-        message: `Apply the theme changes: ${label}`,
-        payload: {
-          applyType: 'themeBatch',
-          themeChanges: JSON.stringify(themeChanges),
-        },
-      },
-    })
   }
 
   if (actions.length > 0) {
@@ -249,7 +176,6 @@ export function useConversations() {
     content: string | ContentBlock[],
     agentId?: AgentId,
     messageContext?: MessageContext,
-    siteContext?: string,
   ) {
     appendMessage(conversationId, role, content, agentId, messageContext)
 
@@ -260,7 +186,7 @@ export function useConversations() {
           .filter(block => block.type === 'text')
           .map(block => block.text)
           .join('\n')
-      queueAgentResponse(conversationId, text, siteContext)
+      queueAgentResponse(conversationId, text)
     }
   }
 

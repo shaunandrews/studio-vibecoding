@@ -2,16 +2,10 @@
 import { computed } from 'vue'
 import MarkdownText from '@/components/composites/renderers/MarkdownText.vue'
 import PluginCard from '@/components/composites/chat-cards/PluginCard.vue'
-import ColorPaletteCard from '@/components/composites/chat-cards/ColorPaletteCard.vue'
 import SettingsCard from '@/components/composites/chat-cards/SettingsCard.vue'
 import ProgressCard from '@/components/composites/chat-cards/ProgressCard.vue'
-import ThemePickerCard from '@/components/composites/chat-cards/ThemePickerCard.vue'
 import PageCard from '@/components/composites/chat-cards/PageCard.vue'
 import PostDraftCard from '@/components/composites/chat-cards/PostDraftCard.vue'
-import ThemeUpdateCard from '@/components/composites/chat-cards/ThemeUpdateCard.vue'
-import SectionEditCard from '@/components/composites/chat-cards/SectionEditCard.vue'
-import ThemeEditCard from '@/components/composites/chat-cards/ThemeEditCard.vue'
-import DesignBriefPickerCard from '@/components/composites/chat-cards/DesignBriefPickerCard.vue'
 import type { ContentBlock, AgentId } from '@/data/types'
 
 const props = defineProps<{
@@ -54,13 +48,6 @@ const normalizedContent = computed<ContentBlock[]>(() =>
           :state="block.state"
         />
 
-        <ColorPaletteCard
-          v-else-if="block.type === 'card' && block.card === 'colorPalette'"
-          :data="block.data"
-          :compact="block.compact"
-          :state="block.state"
-        />
-
         <SettingsCard
           v-else-if="block.type === 'card' && block.card === 'settings'"
           :data="block.data"
@@ -75,13 +62,6 @@ const normalizedContent = computed<ContentBlock[]>(() =>
           :state="block.state"
         />
 
-        <ThemePickerCard
-          v-else-if="block.type === 'card' && block.card === 'themePicker'"
-          :data="block.data"
-          :compact="block.compact"
-          :state="block.state"
-        />
-
         <PageCard
           v-else-if="block.type === 'card' && block.card === 'page'"
           :data="block.data"
@@ -90,37 +70,6 @@ const normalizedContent = computed<ContentBlock[]>(() =>
 
         <PostDraftCard
           v-else-if="block.type === 'card' && block.card === 'postDraft'"
-          :data="block.data"
-          :compact="block.compact"
-          :state="block.state"
-        />
-
-        <ThemeUpdateCard
-          v-else-if="block.type === 'card' && block.card === 'themeUpdate'"
-          :data="block.data"
-          :compact="block.compact"
-          :state="block.state"
-        />
-
-        <SectionEditCard
-          v-else-if="block.type === 'card' && block.card === 'sectionEdit'"
-          :data="block.data"
-          :project-id="projectId || 'demo'"
-          :section-id="block.data.sectionId"
-          :compact="block.compact"
-          :state="block.state"
-        />
-
-        <ThemeEditCard
-          v-else-if="block.type === 'card' && block.card === 'themeEdit'"
-          :data="block.data"
-          :project-id="projectId || 'demo'"
-          :compact="block.compact"
-          :state="block.state"
-        />
-
-        <DesignBriefPickerCard
-          v-else-if="block.type === 'card' && block.card === 'designBriefPicker'"
           :data="block.data"
           :compact="block.compact"
           :state="block.state"
