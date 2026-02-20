@@ -1,6 +1,8 @@
-# Internal docs and session logs (not for public repo)
+# Internal docs, plans, and session logs (not for public repo)
 docs/
 logs/
+**/plans/
+*PLAN*.md
 
 # Studio app clone (separate repo)
 studio/
