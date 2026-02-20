@@ -355,6 +355,8 @@ function onTerminalAfterLeave() {
 /* ── Dashboard content ── */
 .dashboard__content {
   background: var(--color-surface);
+  container-type: inline-size;
+  container-name: dashboard;
 }
 
 /* ── Terminal resize handle ── */

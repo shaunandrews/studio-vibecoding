@@ -1,10 +1,13 @@
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount, nextTick, watch } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, nextTick, watch } from 'vue'
 import { plus, closeSmall, chevronDown } from '@wordpress/icons'
 import WPIcon from '@/components/primitives/WPIcon.vue'
 import Text from '@/components/primitives/Text.vue'
 import Button from '@/components/primitives/Button.vue'
 import Tooltip from '@/components/primitives/Tooltip.vue'
+import FlyoutMenu from '@/components/primitives/FlyoutMenu.vue'
+import type { FlyoutMenuGroup } from '@/components/primitives/FlyoutMenu.vue'
+
 export interface Tab {
   id: string
   label: string
@@ -22,23 +25,13 @@ const emit = defineEmits<{
   'add': []
 }>()
 
-const dropdownOpen = ref(false)
-const dropdownTriggerRef = ref<HTMLElement | null>(null)
-
-function toggleDropdown() {
-  dropdownOpen.value = !dropdownOpen.value
-}
-
-function selectFromDropdown(id: string) {
-  emit('update:activeId', id)
-  dropdownOpen.value = false
-}
-
-function onClickOutside(e: MouseEvent) {
-  if (dropdownTriggerRef.value && !dropdownTriggerRef.value.contains(e.target as Node)) {
-    dropdownOpen.value = false
-  }
-}
+const chatMenuGroups = computed<FlyoutMenuGroup[]>(() => [{
+  items: props.tabs.map(tab => ({
+    label: tab.messageCount ? `${tab.label}  ·  ${tab.messageCount}` : tab.label,
+    checked: tab.id === props.activeId,
+    action: () => emit('update:activeId', tab.id),
+  })),
+}])
 
 const scrollRef = ref<HTMLElement | null>(null)
 const canScrollLeft = ref(false)
@@ -57,12 +50,10 @@ onMounted(() => {
   updateScrollState()
   ro = new ResizeObserver(updateScrollState)
   if (scrollRef.value) ro.observe(scrollRef.value)
-  document.addEventListener('click', onClickOutside)
 })
 
 onBeforeUnmount(() => {
   ro?.disconnect()
-  document.removeEventListener('click', onClickOutside)
 })
 
 watch(() => props.tabs.length, () => {
@@ -92,26 +83,14 @@ watch(() => props.activeId, () => {
 
 <template>
   <div class="tab-bar hstack min-w-0 flex-1">
-    <div class="tab-bar__count" ref="dropdownTriggerRef">
-      <button class="tab-bar__count-btn hstack gap-xxxs" @click="toggleDropdown">
-        <Text variant="label" color="secondary">{{ tabs.length }} {{ tabs.length === 1 ? 'Chat' : 'Chats' }}</Text>
-        <WPIcon :icon="chevronDown" :size="16" class="tab-bar__chevron" :class="{ open: dropdownOpen }" />
-      </button>
-      <Transition name="dropdown">
-        <div v-if="dropdownOpen" class="tab-bar__dropdown vstack">
-          <button
-            v-for="tab in tabs"
-            :key="tab.id"
-            class="tab-bar__dropdown-item hstack gap-xxs"
-            :class="{ active: tab.id === activeId }"
-            @click="selectFromDropdown(tab.id)"
-          >
-            <span class="tab-bar__dropdown-label">{{ tab.label }}</span>
-            <Text v-if="tab.messageCount" variant="caption" color="muted">{{ tab.messageCount }}</Text>
-          </button>
-        </div>
-      </Transition>
-    </div>
+    <FlyoutMenu :groups="chatMenuGroups" align="start" class="tab-bar__count">
+      <template #trigger="{ toggle, open }">
+        <button class="tab-bar__count-btn hstack gap-xxxs" @click="toggle">
+          <Text variant="label" color="secondary">{{ tabs.length }} {{ tabs.length === 1 ? 'Chat' : 'Chats' }}</Text>
+          <WPIcon :icon="chevronDown" :size="16" class="tab-bar__chevron" :class="{ open }" />
+        </button>
+      </template>
+    </FlyoutMenu>
     <div class="tab-bar__scroll-wrapper">
       <div
         ref="scrollRef"
@@ -145,7 +124,6 @@ watch(() => props.activeId, () => {
 
 <style scoped>
 .tab-bar__count {
-  position: relative;
   flex-shrink: 0;
   margin-inline-end: var(--space-xxs);
 }
@@ -174,68 +152,6 @@ watch(() => props.activeId, () => {
 
 .tab-bar__chevron.open {
   transform: rotate(180deg);
-}
-
-.tab-bar__dropdown {
-  position: absolute;
-  top: calc(100% + 4px);
-  inset-inline-start: 0;
-  min-width: 200px;
-  max-width: 300px;
-  max-height: 320px;
-  overflow-y: auto;
-  background: var(--color-surface);
-  border: 1px solid var(--color-surface-border);
-  border-radius: var(--radius-m);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  z-index: 10;
-  padding: var(--space-xxxs);
-}
-
-.tab-bar__dropdown-item {
-  display: flex;
-  width: 100%;
-  padding: var(--space-xs) var(--space-s);
-  gap: var(--space-s);
-  background: none;
-  border: none;
-  border-radius: var(--radius-s);
-  cursor: pointer;
-  font-family: inherit;
-  font-size: var(--font-size-m);
-  color: var(--color-text-secondary);
-  text-align: start;
-  align-items: center;
-  transition: background var(--duration-instant) var(--ease-default), color var(--duration-instant) var(--ease-default);
-}
-
-.tab-bar__dropdown-item:hover {
-  background: var(--color-surface-secondary);
-  color: var(--color-text);
-}
-
-.tab-bar__dropdown-item.active {
-  color: var(--color-primary);
-  font-weight: var(--font-weight-medium);
-}
-
-.tab-bar__dropdown-label {
-  flex: 1;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-/* Dropdown transition */
-.dropdown-enter-active,
-.dropdown-leave-active {
-  transition: opacity var(--duration-instant) var(--ease-default), transform var(--duration-instant) var(--ease-default);
-}
-
-.dropdown-enter-from,
-.dropdown-leave-to {
-  opacity: 0;
-  transform: translateY(-4px);
 }
 
 .tab-bar__scroll-wrapper {

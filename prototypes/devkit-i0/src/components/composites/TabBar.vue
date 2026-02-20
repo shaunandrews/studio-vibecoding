@@ -1,10 +1,8 @@
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount, nextTick, watch } from 'vue'
-import { plus, closeSmall, chevronDown } from '@wordpress/icons'
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import { chevronDown } from '@wordpress/icons'
 import WPIcon from '@/components/primitives/WPIcon.vue'
 import Text from '@/components/primitives/Text.vue'
-import Button from '@/components/primitives/Button.vue'
-import Tooltip from '@/components/primitives/Tooltip.vue'
 export interface Tab {
   id: string
   label: string
@@ -18,9 +16,12 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   'update:activeId': [id: string]
-  'close': [id: string]
-  'add': []
 }>()
+
+const activeLabel = computed(() => {
+  const tab = props.tabs.find(t => t.id === props.activeId)
+  return tab?.label || 'New chat'
+})
 
 const dropdownOpen = ref(false)
 const dropdownTriggerRef = ref<HTMLElement | null>(null)
@@ -40,61 +41,20 @@ function onClickOutside(e: MouseEvent) {
   }
 }
 
-const scrollRef = ref<HTMLElement | null>(null)
-const canScrollLeft = ref(false)
-const canScrollRight = ref(false)
-
-function updateScrollState() {
-  const el = scrollRef.value
-  if (!el) return
-  canScrollLeft.value = el.scrollLeft > 1
-  canScrollRight.value = el.scrollLeft + el.clientWidth < el.scrollWidth - 1
-}
-
-let ro: ResizeObserver | null = null
-
 onMounted(() => {
-  updateScrollState()
-  ro = new ResizeObserver(updateScrollState)
-  if (scrollRef.value) ro.observe(scrollRef.value)
   document.addEventListener('click', onClickOutside)
 })
 
 onBeforeUnmount(() => {
-  ro?.disconnect()
   document.removeEventListener('click', onClickOutside)
-})
-
-watch(() => props.tabs.length, () => {
-  nextTick(updateScrollState)
-})
-
-const FADE_WIDTH = 28
-
-watch(() => props.activeId, () => {
-  nextTick(() => {
-    const container = scrollRef.value
-    if (!container) return
-    const btn = container.querySelector('.tab-bar__tab.active') as HTMLElement | null
-    if (!btn) return
-    const cRect = container.getBoundingClientRect()
-    const bRect = btn.getBoundingClientRect()
-    // Scroll left if tab is hidden behind the left fade
-    if (bRect.left < cRect.left + FADE_WIDTH) {
-      container.scrollTo({ left: container.scrollLeft - (cRect.left + FADE_WIDTH - bRect.left), behavior: 'smooth' })
-    // Scroll right if tab is hidden behind the right fade
-    } else if (bRect.right > cRect.right - FADE_WIDTH) {
-      container.scrollTo({ left: container.scrollLeft + (bRect.right - cRect.right + FADE_WIDTH), behavior: 'smooth' })
-    }
-  })
 })
 </script>
 
 <template>
   <div class="tab-bar hstack min-w-0 flex-1">
-    <div class="tab-bar__count" ref="dropdownTriggerRef">
-      <button class="tab-bar__count-btn hstack gap-xxxs" @click="toggleDropdown">
-        <Text variant="label" color="secondary">{{ tabs.length }} {{ tabs.length === 1 ? 'Chat' : 'Chats' }}</Text>
+    <div class="tab-bar__switcher" ref="dropdownTriggerRef">
+      <button class="tab-bar__trigger hstack gap-xxxs" @click="toggleDropdown">
+        <Text variant="label" color="secondary">{{ activeLabel }}</Text>
         <WPIcon :icon="chevronDown" :size="16" class="tab-bar__chevron" :class="{ open: dropdownOpen }" />
       </button>
       <Transition name="dropdown">
@@ -112,45 +72,16 @@ watch(() => props.activeId, () => {
         </div>
       </Transition>
     </div>
-    <div class="tab-bar__scroll-wrapper">
-      <div
-        ref="scrollRef"
-        class="tab-bar__scroll hstack gap-xxxs"
-        @scroll="updateScrollState"
-      >
-        <Tooltip v-for="tab in tabs" :key="tab.id" :text="tab.messageCount ? `${tab.messageCount} messages` : undefined">
-          <button
-            class="tab-bar__tab hstack gap-xxxs px-xs"
-            :class="{ active: tab.id === activeId }"
-            @click="emit('update:activeId', tab.id)"
-          >
-            <Text :color="tab.id === activeId ? 'default' : 'secondary'">{{ tab.label }}</Text>
-            <Button
-              v-if="tab.id === activeId"
-              variant="tertiary"
-              size="small"
-              :icon="closeSmall"
-              aria-label="Close tab"
-              @click.stop="emit('close', tab.id)"
-            />
-          </button>
-        </Tooltip>
-      </div>
-      <div class="tab-bar__fade-left" :class="{ visible: canScrollLeft }" />
-      <div class="tab-bar__fade-right" :class="{ visible: canScrollRight }" />
-    </div>
-    <Button class="tab-bar__add" variant="tertiary" :icon="plus" tooltip="New chat" @click="emit('add')" />
   </div>
 </template>
 
 <style scoped>
-.tab-bar__count {
+.tab-bar__switcher {
   position: relative;
   flex-shrink: 0;
-  margin-inline-end: var(--space-xxs);
 }
 
-.tab-bar__count-btn {
+.tab-bar__trigger {
   height: 35px;
   padding: 0 var(--space-xs);
   background: none;
@@ -163,7 +94,7 @@ watch(() => props.activeId, () => {
   transition: background var(--duration-instant) var(--ease-default);
 }
 
-.tab-bar__count-btn:hover {
+.tab-bar__trigger:hover {
   background: var(--color-surface-secondary);
 }
 
@@ -236,75 +167,5 @@ watch(() => props.activeId, () => {
 .dropdown-leave-to {
   opacity: 0;
   transform: translateY(-4px);
-}
-
-.tab-bar__scroll-wrapper {
-  position: relative;
-  overflow: clip;
-  overflow-clip-margin: 3px; /* room for focus ring */
-  min-width: 0;
-  flex: 0 1 auto;
-}
-
-.tab-bar__add {
-  flex-shrink: 0;
-  margin-inline-start: var(--space-xxs);
-}
-
-.tab-bar__scroll {
-  overflow-x: auto;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-
-.tab-bar__scroll::-webkit-scrollbar {
-  display: none;
-}
-
-.tab-bar__fade-left,
-.tab-bar__fade-right {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 28px;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity var(--duration-fast) var(--ease-default);
-}
-
-.tab-bar__fade-left.visible,
-.tab-bar__fade-right.visible {
-  opacity: 1;
-}
-
-.tab-bar__fade-left {
-  left: 0;
-  background: linear-gradient(to right, var(--color-surface), transparent);
-}
-
-.tab-bar__fade-right {
-  right: 0;
-  background: linear-gradient(to left, var(--color-surface), transparent);
-}
-
-.tab-bar__tab {
-  height: 35px;
-  background: none;
-  border: none;
-  border-radius: var(--radius-s);
-  cursor: pointer;
-  white-space: nowrap;
-  font-family: inherit;
-  transition: background var(--duration-instant) var(--ease-default);
-  align-items: center;
-}
-
-.tab-bar__tab:hover {
-  background: var(--color-surface-secondary);
-}
-
-.tab-bar__tab.active {
-  background: var(--color-surface-secondary);
-  padding-inline-end: var(--space-xxxs);
 }
 </style>

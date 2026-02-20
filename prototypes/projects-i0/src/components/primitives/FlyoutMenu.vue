@@ -21,9 +21,11 @@ const props = withDefaults(defineProps<{
   groups: FlyoutMenuGroup[]
   surface?: 'light' | 'dark'
   align?: 'start' | 'center' | 'end'
+  placement?: 'above' | 'below'
 }>(), {
   surface: 'light',
   align: 'center',
+  placement: 'below',
 })
 
 const emit = defineEmits<{
@@ -43,6 +45,8 @@ const flyoutStyles = ref<Record<string, Record<string, string>>>({})
 const flyoutRefs = ref<Record<string, HTMLElement | null>>({})
 // Track item refs for flyout positioning
 const itemRefs = ref<Record<string, HTMLElement | null>>({})
+
+const resolvedPlacement = ref<'above' | 'below'>('below')
 
 const EDGE_PADDING = 8
 const GAP = 4
@@ -85,17 +89,38 @@ function positionMenu() {
   const vw = window.innerWidth
   const vh = window.innerHeight
 
+  const spaceBelow = vh - rect.bottom - GAP - EDGE_PADDING
+  const spaceAbove = rect.top - GAP - EDGE_PADDING
+
+  // Resolve placement with flip
+  let placeAbove = props.placement === 'above'
+  if (placeAbove && spaceAbove < menuRect.height && spaceBelow > spaceAbove) {
+    placeAbove = false
+  } else if (!placeAbove && spaceBelow < menuRect.height && spaceAbove > spaceBelow) {
+    placeAbove = true
+  }
+  resolvedPlacement.value = placeAbove ? 'above' : 'below'
+
   const style: Record<string, string> = {
     position: 'fixed',
-    top: `${rect.bottom + GAP}px`,
     zIndex: '9999',
   }
 
-  // Constrain height
-  const available = vh - rect.bottom - GAP - EDGE_PADDING
-  if (menuRect.height > available) {
-    style.maxHeight = `${available}px`
-    style.overflowY = 'auto'
+  if (placeAbove) {
+    const bottom = vh - rect.top + GAP
+    if (menuRect.height > spaceAbove) {
+      style.maxHeight = `${spaceAbove}px`
+      style.overflowY = 'auto'
+    }
+    style.bottom = `${bottom}px`
+    style.top = 'auto'
+  } else {
+    style.top = `${rect.bottom + GAP}px`
+    style.bottom = 'auto'
+    if (menuRect.height > spaceBelow) {
+      style.maxHeight = `${spaceBelow}px`
+      style.overflowY = 'auto'
+    }
   }
 
   // Horizontal alignment
@@ -253,7 +278,7 @@ defineExpose({ toggle, close, open })
           v-if="open"
           ref="menuRef"
           class="flyout-menu vstack"
-          :class="surfaceClass"
+          :class="[surfaceClass, { 'flyout-menu--above': resolvedPlacement === 'above' }]"
           :style="menuStyle"
           @mouseleave="scheduleDeactivate"
         >
@@ -501,6 +526,11 @@ defineExpose({ toggle, close, open })
 .flyout-leave-to {
   opacity: 0;
   transform: translateY(-4px);
+}
+
+.flyout-menu--above.flyout-enter-from,
+.flyout-menu--above.flyout-leave-to {
+  transform: translateY(4px);
 }
 
 .flyout-sub-enter-active,

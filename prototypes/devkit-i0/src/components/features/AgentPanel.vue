@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, nextTick, onMounted } from 'vue'
-import { external } from '@wordpress/icons'
+import { external, plus } from '@wordpress/icons'
 import PanelToolbar from '@/components/composites/PanelToolbar.vue'
 import TabBar from '@/components/composites/TabBar.vue'
 import Button from '@/components/primitives/Button.vue'
@@ -155,15 +155,13 @@ function handleAction(action: ActionButton) {
   <div class="agent-panel vstack flex-1 overflow-hidden">
     <PanelToolbar>
       <template #start>
-        <span class="agent-panel__label">Kit</span>
-        <TabBar :tabs="openTabs" :active-id="activeConvoId" @update:active-id="setActiveTab" @add="handleAddTab" @close="handleCloseTab" />
+        <TabBar :tabs="openTabs" :active-id="activeConvoId" @update:active-id="setActiveTab" />
       </template>
       <template #end>
         <Button
           v-if="!isPopout"
           :icon="external"
           variant="tertiary"
-          size="small"
           tooltip="Pop out chat"
           @click="popOut(projectId ?? '')"
         />
@@ -171,9 +169,14 @@ function handleAction(action: ActionButton) {
           v-if="isPopout"
           :icon="external"
           variant="tertiary"
-          size="small"
           tooltip="Dock back"
           @click="dockBack()"
+        />
+        <Button
+          variant="tertiary"
+          :icon="plus"
+          tooltip="New chat"
+          @click="handleAddTab"
         />
       </template>
     </PanelToolbar>
@@ -189,18 +192,6 @@ function handleAction(action: ActionButton) {
 </template>
 
 <style scoped>
-.agent-panel__label {
-  font-size: var(--font-size-s);
-  font-weight: var(--font-weight-semibold);
-  color: var(--color-text-secondary);
-  padding-inline: var(--space-xs);
-  flex-shrink: 0;
-  border-inline-end: 1px solid var(--color-surface-border);
-  display: flex;
-  align-items: center;
-  align-self: stretch;
-}
-
 .agent-panel__input-inner {
   max-width: 720px;
   margin: 0 auto;
