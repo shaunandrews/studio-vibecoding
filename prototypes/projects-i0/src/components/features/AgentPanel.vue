@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ref, computed, nextTick, onMounted, onBeforeUnmount } from 'vue'
-import { drawerRight, external, plugins } from '@wordpress/icons'
+import { ref, computed, nextTick, onMounted } from 'vue'
+import { drawerRight, external } from '@wordpress/icons'
 import { renderSite } from '@/data/site-renderer'
 import Button from '@/components/primitives/Button.vue'
 import PanelToolbar from '@/components/composites/PanelToolbar.vue'
@@ -16,7 +16,6 @@ import { useInputActions } from '@/data/useInputActions'
 import { settingsToVariables } from '@/data/themes/settings-to-variables'
 import { buildSiteContext } from '@/data/ai-site-context'
 import { useSkills } from '@/data/useSkills'
-import SkillToggleMenu from '@/components/composites/SkillToggleMenu.vue'
 import type { ActionButton, Conversation, Skill } from '@/data/types'
 import type { Tab } from '@/components/composites/TabBar.vue'
 
@@ -148,14 +147,6 @@ function handleCloseTab(id: string) {
 
 const msgs = getMessages(activeConvoId)
 const inputChatRef = ref<InstanceType<typeof InputChat> | null>(null)
-const showSkillMenu = ref(false)
-
-function onClickOutsideSkillMenu(e: MouseEvent) {
-  const target = e.target as HTMLElement
-  if (showSkillMenu.value && !target.closest('.skill-menu-wrapper') && !target.closest('.skill-menu-popover')) {
-    showSkillMenu.value = false
-  }
-}
 
 const slashMatches = ref<Skill[]>([])
 
@@ -176,9 +167,7 @@ function handleSlashSelect(skill: Skill) {
 
 onMounted(() => {
   nextTick(() => inputChatRef.value?.focus())
-  document.addEventListener('click', onClickOutsideSkillMenu)
 })
-onBeforeUnmount(() => document.removeEventListener('click', onClickOutsideSkillMenu))
 
 // Per-conversation draft text
 const drafts = ref<Record<string, string>>({})
@@ -301,13 +290,6 @@ function handleAction(action: ActionButton) {
         <TabBar :tabs="openTabs" :active-id="activeConvoId" @update:active-id="setActiveTab" @add="handleAddTab" @close="handleCloseTab" />
       </template>
       <template #end>
-        <div class="skill-menu-wrapper" style="position: relative;">
-          <Button variant="tertiary" :icon="plugins"
-            :active="showSkillMenu" tooltip="Project skills" @click="showSkillMenu = !showSkillMenu" />
-          <div v-if="showSkillMenu && projectId" class="skill-menu-popover">
-            <SkillToggleMenu :project-id="projectId" />
-          </div>
-        </div>
         <Button v-if="browserMode === 'browser'" variant="tertiary" :icon="external"
           label="Open in browser" tooltip="Open in browser" @click="openInBrowser" />
         <Button v-else variant="tertiary" :icon="drawerRight"
@@ -322,6 +304,7 @@ function handleAction(action: ActionButton) {
         <InputChat
           ref="inputChatRef"
           v-model="currentDraft"
+          :project-id="projectId"
           :placeholder="inputPlaceholder"
           :actions="inputActions"
           :slash-matches="slashMatches"
@@ -339,12 +322,5 @@ function handleAction(action: ActionButton) {
 .agent-panel__input-inner {
   max-width: 720px;
   margin: 0 auto;
-}
-
-.skill-menu-popover {
-  position: absolute;
-  inset-block-start: calc(100% + var(--space-xxs));
-  inset-inline-end: 0;
-  z-index: 100;
 }
 </style>

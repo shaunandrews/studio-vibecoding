@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
+import { plugins } from '@wordpress/icons'
 import Button from '@/components/primitives/Button.vue'
 import Dropdown from '@/components/primitives/Dropdown.vue'
 import ContextRing from '@/components/primitives/ContextRing.vue'
 import StyleTileCard from '@/components/composites/StyleTileCard.vue'
 import StylePreview from '@/components/composites/StylePreview.vue'
 import SkillAutocomplete from '@/components/composites/SkillAutocomplete.vue'
+import SkillToggleMenu from '@/components/composites/SkillToggleMenu.vue'
 import type { ActionButton, DesignBriefCardData, Skill } from '@/data/types'
 
 const selectedModel = ref('Opus 4.6')
@@ -18,6 +20,7 @@ const models = [
 
 const props = withDefaults(defineProps<{
   surface?: 'light' | 'dark'
+  projectId?: string | null
   modelValue?: string
   placeholder?: string
   actions?: ActionButton[]
@@ -86,10 +89,12 @@ function onScroll() {
 
 onMounted(() => {
   window.addEventListener('scroll', onScroll, { capture: true, passive: true })
+  document.addEventListener('click', onClickOutsideSkillMenu)
 })
 
 onBeforeUnmount(() => {
   window.removeEventListener('scroll', onScroll, { capture: true })
+  document.removeEventListener('click', onClickOutsideSkillMenu)
   if (hideTimeout) clearTimeout(hideTimeout)
 })
 
@@ -156,6 +161,16 @@ watch(message, (val) => {
     emit('slash-input', '')
   }
 })
+
+// Skill toggle menu
+const showSkillMenu = ref(false)
+
+function onClickOutsideSkillMenu(e: MouseEvent) {
+  const target = e.target as HTMLElement
+  if (showSkillMenu.value && !target.closest('.skill-menu-wrapper') && !target.closest('.skill-menu-popover')) {
+    showSkillMenu.value = false
+  }
+}
 
 function focus() {
   textareaRef.value?.focus()
@@ -268,6 +283,13 @@ function actionLabel(idx: number): string {
     <div class="input-toolbar hstack justify-between pt-xxs">
       <div class="hstack gap-xxs align-center">
         <Dropdown v-model="selectedModel" :groups="models" placement="above" :surface="props.surface" tooltip="Model" />
+        <div v-if="projectId" class="skill-menu-wrapper" style="position: relative;">
+          <Button variant="tertiary" :icon="plugins" size="small"
+            :active="showSkillMenu" tooltip="Project skills" @click.stop="showSkillMenu = !showSkillMenu" />
+          <div v-if="showSkillMenu" class="skill-menu-popover">
+            <SkillToggleMenu :project-id="projectId" />
+          </div>
+        </div>
         <ContextRing
           :percent="42"
           model="Claude Sonnet 4.5"
@@ -420,5 +442,10 @@ function actionLabel(idx: number): string {
   opacity: 0.4;
 }
 
-
+.skill-menu-popover {
+  position: absolute;
+  inset-block-end: calc(100% + var(--space-xxs));
+  inset-inline-start: 0;
+  z-index: 100;
+}
 </style>
