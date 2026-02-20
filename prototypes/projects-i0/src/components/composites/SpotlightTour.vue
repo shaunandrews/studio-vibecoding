@@ -143,11 +143,11 @@ onBeforeUnmount(() => document.removeEventListener('keydown', onKeydown))
           <div class="tour-tooltip__footer hstack justify-between align-center">
             <span class="tour-tooltip__step">{{ currentIndex + 1 }} of {{ totalSteps }}</span>
             <div class="hstack gap-xxs">
-              <Button v-if="!isFirst" variant="tertiary" label="Back" size="small" @click="back" />
+              <Button v-if="isFirst" variant="tertiary" label="Skip" size="small" @click="stop" />
+              <Button v-else variant="tertiary" label="Back" size="small" @click="back" />
               <Button variant="primary" :label="isLast ? 'Done' : 'Next'" size="small" @click="next" />
             </div>
           </div>
-          <button class="tour-skip" @click="stop">Skip tour</button>
         </div>
       </div>
     </Transition>
@@ -191,22 +191,6 @@ onBeforeUnmount(() => document.removeEventListener('keydown', onKeydown))
 .tour-tooltip__step {
   font-size: var(--font-size-xs);
   color: var(--color-text-muted);
-}
-
-.tour-skip {
-  background: none;
-  border: none;
-  font-family: inherit;
-  font-size: var(--font-size-xs);
-  color: var(--color-text-muted);
-  cursor: pointer;
-  padding: 0;
-  text-align: center;
-  transition: color var(--duration-fast) var(--ease-default);
-}
-
-.tour-skip:hover {
-  color: var(--color-text-secondary);
 }
 
 /* Entry/exit transition for the entire overlay */
