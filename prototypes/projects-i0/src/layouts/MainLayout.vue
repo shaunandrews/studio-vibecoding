@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, onMounted, onBeforeUnmount } from 'vue'
 import { useRoute } from 'vue-router'
 import Titlebar from '@/components/primitives/Titlebar.vue'
 import Button from '@/components/primitives/Button.vue'
@@ -9,6 +9,7 @@ import SkillDirectory from '@/components/features/SkillDirectory.vue'
 import { useProjects } from '@/data/useProjects'
 import { useOnboarding } from '@/data/useOnboarding'
 import { useProjectTransition } from '@/data/useProjectTransition'
+import ShortcutsModal from '@/components/composites/ShortcutsModal.vue'
 
 const route = useRoute()
 const { createUntitledProject } = useProjects()
@@ -17,6 +18,26 @@ const { navigateToProject } = useProjectTransition()
 const mode = computed(() => (route.meta.mode as string) || 'home')
 const homeTab = ref<'projects' | 'skills'>('projects')
 const showBrowse = ref(false)
+const showShortcuts = ref(false)
+
+function startTour() {
+  // Will be wired in Task 7
+}
+
+function onGlobalKeydown(e: KeyboardEvent) {
+  if ((e.metaKey || e.ctrlKey) && e.key === '/') {
+    e.preventDefault()
+    showShortcuts.value = !showShortcuts.value
+  }
+}
+
+onMounted(() => {
+  document.addEventListener('keydown', onGlobalKeydown)
+})
+
+onBeforeUnmount(() => {
+  document.removeEventListener('keydown', onGlobalKeydown)
+})
 
 function handleBrowse() {
   showBrowse.value = true
@@ -35,7 +56,7 @@ async function handleNewProject() {
 
 <template>
   <div class="main-layout vstack">
-    <Titlebar />
+    <Titlebar @open-shortcuts="showShortcuts = true" @start-tour="startTour" />
     <div class="app-body flex-1 min-w-0 p-xs">
       <!-- Left column: full width on home, 210px on project -->
       <div
@@ -88,6 +109,7 @@ async function handleNewProject() {
         <router-view name="main" />
       </main>
     </div>
+    <ShortcutsModal :open="showShortcuts" @close="showShortcuts = false" />
   </div>
 </template>
 
