@@ -19,6 +19,14 @@
   --color-status-running: #4ab866;
   --color-status-stopped: #646970;
   --color-status-stop-hover: #e65054;
+  --color-status-warning: #d97706;
+
+  /* Data type accents */
+  --color-serialized: #8b5cf6;
+
+  /* Elevation */
+  --color-shadow: rgba(0, 0, 0, 0.12);
+  --color-shadow-heavy: rgba(0, 0, 0, 0.15);
 
   /* Surface (main content area) */
   --color-surface: #fff;
@@ -55,5 +63,15 @@
     --color-primary: #5b7bf3;
     --color-primary-hover: #7b90ff;
     --color-primary-text: #fff;
+
+    /* Status */
+    --color-status-warning: #e5a00d;
+
+    /* Data type accents */
+    --color-serialized: #a78bfa;
+
+    /* Elevation */
+    --color-shadow: rgba(0, 0, 0, 0.25);
+    --color-shadow-heavy: rgba(0, 0, 0, 0.35);
   }
 }

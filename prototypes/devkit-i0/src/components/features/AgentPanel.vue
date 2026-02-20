@@ -3,6 +3,7 @@ import { ref, computed, nextTick, onMounted } from 'vue'
 import { external, plus } from '@wordpress/icons'
 import PanelToolbar from '@/components/composites/PanelToolbar.vue'
 import TabBar from '@/components/composites/TabBar.vue'
+import AllChatsModal from '@/components/composites/AllChatsModal.vue'
 import Button from '@/components/primitives/Button.vue'
 import ChatMessageList from '@/components/composites/ChatMessageList.vue'
 import InputChat from '@/components/composites/InputChat.vue'
@@ -12,7 +13,7 @@ import { useChatPopout } from '@/data/useChatPopout'
 import type { ActionButton, Conversation } from '@/data/types'
 import type { Tab } from '@/components/composites/TabBar.vue'
 
-const { conversations, messages, getMessages, ensureConversation, sendMessage, postMessage } = useConversations()
+const { conversations, messages, getMessages, ensureConversation, sendMessage, postMessage, archiveConversation, unarchiveConversation } = useConversations()
 const { getActions, clearActions } = useInputActions()
 const { isPoppedOut, popOut, dockBack } = useChatPopout()
 
@@ -28,9 +29,9 @@ function getProjectKey(): string {
   return props.projectId ?? '__global__'
 }
 
-// Get conversations for this project
+// Get non-archived conversations for this project
 const projectConvos = computed(() =>
-  conversations.value.filter(c => c.projectId === (props.projectId ?? null))
+  conversations.value.filter(c => c.projectId === (props.projectId ?? null) && !c.archived)
 )
 
 function ensureTabState(): { openConvoIds: string[], activeConvoId: string } {
@@ -100,13 +101,55 @@ function handleAddTab() {
 function handleCloseTab(id: string) {
   const state = ensureTabState()
   const idx = state.openConvoIds.indexOf(id)
-  if (idx === -1 || state.openConvoIds.length <= 1) return
+  if (idx === -1) return
+
+  // Archive the conversation (soft delete)
+  archiveConversation(id)
   state.openConvoIds.splice(idx, 1)
-  if (state.activeConvoId === id) {
+
+  // If that was the last tab, create a fresh one
+  if (state.openConvoIds.length === 0) {
+    const conv: Conversation = {
+      id: `conv-${Date.now()}`,
+      projectId: props.projectId ?? null,
+      agentId: 'assistant',
+      createdAt: new Date().toISOString(),
+    }
+    conversations.value.push(conv)
+    state.openConvoIds.push(conv.id)
+    state.activeConvoId = conv.id
+  } else if (state.activeConvoId === id) {
     const nextId = state.openConvoIds[Math.min(idx, state.openConvoIds.length - 1)]
     state.activeConvoId = nextId ?? state.openConvoIds[0] ?? state.activeConvoId
   }
+
   tabStateMap.value = { ...tabStateMap.value }
+  nextTick(() => inputChatRef.value?.focus())
+}
+
+// ── All Chats modal ──
+const showAllChats = ref(false)
+
+function handleViewAllChats() {
+  showAllChats.value = true
+}
+
+function handleSelectChat(conversationId: string) {
+  const state = ensureTabState()
+
+  // Unarchive if needed
+  const conv = conversations.value.find(c => c.id === conversationId)
+  if (conv?.archived) unarchiveConversation(conversationId)
+
+  // Add to open tabs if not already there
+  if (!state.openConvoIds.includes(conversationId)) {
+    state.openConvoIds.push(conversationId)
+  }
+
+  state.activeConvoId = conversationId
+  tabStateMap.value = { ...tabStateMap.value }
+  showAllChats.value = false
+  nextTick(() => inputChatRef.value?.focus())
 }
 
 const msgs = getMessages(activeConvoId)
@@ -155,7 +198,13 @@ function handleAction(action: ActionButton) {
   <div class="agent-panel vstack flex-1 overflow-hidden">
     <PanelToolbar>
       <template #start>
-        <TabBar :tabs="openTabs" :active-id="activeConvoId" @update:active-id="setActiveTab" />
+        <TabBar
+          :tabs="openTabs"
+          :active-id="activeConvoId"
+          @update:active-id="setActiveTab"
+          @close="handleCloseTab"
+          @view-all="handleViewAllChats"
+        />
       </template>
       <template #end>
         <Button
@@ -173,8 +222,8 @@ function handleAction(action: ActionButton) {
           @click="dockBack()"
         />
         <Button
-          variant="tertiary"
           :icon="plus"
+          variant="tertiary"
           tooltip="New chat"
           @click="handleAddTab"
         />
@@ -188,6 +237,15 @@ function handleAction(action: ActionButton) {
         <InputChat ref="inputChatRef" v-model="currentDraft" placeholder="Ask anything..." :actions="inputActions" @send="handleSend" @action="handleAction" />
       </div>
     </div>
+
+    <AllChatsModal
+      v-if="projectId"
+      :project-id="projectId"
+      :open="showAllChats"
+      :active-convo-id="activeConvoId"
+      @close="showAllChats = false"
+      @select="handleSelectChat"
+    />
   </div>
 </template>
 

@@ -257,6 +257,16 @@ export function useConversations() {
     if (idx !== -1) messages.value.splice(idx, 1)
   }
 
+  function archiveConversation(id: string) {
+    const conv = conversations.value.find(c => c.id === id)
+    if (conv) conv.archived = true
+  }
+
+  function unarchiveConversation(id: string) {
+    const conv = conversations.value.find(c => c.id === id)
+    if (conv) conv.archived = false
+  }
+
   return {
     conversations,
     messages,
@@ -268,5 +278,7 @@ export function useConversations() {
     postMessage,
     removeMessage,
     streamAgentMessage,
+    archiveConversation,
+    unarchiveConversation,
   }
 }

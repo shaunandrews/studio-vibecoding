@@ -36,3 +36,4 @@ Thumbs.db
 # package-lock.json
 # pnpm-lock.yaml
 # composer.lock
+.vercel

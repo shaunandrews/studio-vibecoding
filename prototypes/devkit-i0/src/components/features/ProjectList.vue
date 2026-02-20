@@ -16,7 +16,10 @@ function selectProject(id: string) {
 
 function toggleStatus(id: string) {
   const p = projects.value.find(p => p.id === id)
-  if (p) setStatus(id, p.status === 'running' ? 'stopped' : 'running')
+  if (!p || p.status === 'loading') return
+  const target = p.status === 'running' ? 'stopped' : 'running'
+  setStatus(id, 'loading')
+  setTimeout(() => setStatus(id, target), 1200 + Math.random() * 800)
 }
 </script>
 
@@ -40,12 +43,20 @@ function toggleStatus(id: string) {
   height: 100%;
   overflow: auto;
   padding: var(--space-m);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .items-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  display: flex;
+  flex-wrap: wrap;
   gap: var(--space-m);
-  width: 100%;
+  justify-content: center;
+  align-content: center;
+}
+
+.items-grid > * {
+  width: var(--card-width, 300px);
 }
 </style>

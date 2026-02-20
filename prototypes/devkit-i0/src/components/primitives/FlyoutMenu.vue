@@ -1,12 +1,15 @@
 <script setup lang="ts">
 import { ref, watch, nextTick, onMounted, onBeforeUnmount, computed } from 'vue'
-import { chevronRight } from '@wordpress/icons'
+import { check, chevronRight } from '@wordpress/icons'
 import WPIcon from '@/components/primitives/WPIcon.vue'
 
 export interface FlyoutMenuItem {
   label: string
+  detail?: string
   icon?: any
+  iconUrl?: string
   destructive?: boolean
+  checked?: boolean
   children?: FlyoutMenuItem[]
   action?: () => void
 }
@@ -20,9 +23,12 @@ const props = withDefaults(defineProps<{
   groups: FlyoutMenuGroup[]
   surface?: 'light' | 'dark'
   align?: 'start' | 'center' | 'end'
+  placement?: 'above' | 'below'
+  maxWidth?: string
 }>(), {
   surface: 'light',
   align: 'center',
+  placement: 'below',
 })
 
 const emit = defineEmits<{
@@ -42,6 +48,8 @@ const flyoutStyles = ref<Record<string, Record<string, string>>>({})
 const flyoutRefs = ref<Record<string, HTMLElement | null>>({})
 // Track item refs for flyout positioning
 const itemRefs = ref<Record<string, HTMLElement | null>>({})
+
+const resolvedPlacement = ref<'above' | 'below'>('below')
 
 const EDGE_PADDING = 8
 const GAP = 4
@@ -84,20 +92,43 @@ function positionMenu() {
   const vw = window.innerWidth
   const vh = window.innerHeight
 
+  const spaceBelow = vh - rect.bottom - GAP - EDGE_PADDING
+  const spaceAbove = rect.top - GAP - EDGE_PADDING
+
+  // Resolve placement with flip
+  let placeAbove = props.placement === 'above'
+  if (placeAbove && spaceAbove < menuRect.height && spaceBelow > spaceAbove) {
+    placeAbove = false
+  } else if (!placeAbove && spaceBelow < menuRect.height && spaceAbove > spaceBelow) {
+    placeAbove = true
+  }
+  resolvedPlacement.value = placeAbove ? 'above' : 'below'
+
   const style: Record<string, string> = {
     position: 'fixed',
-    top: `${rect.bottom + GAP}px`,
     zIndex: '9999',
   }
+  if (props.maxWidth) style.maxWidth = props.maxWidth
 
-  // Constrain height
-  const available = vh - rect.bottom - GAP - EDGE_PADDING
-  if (menuRect.height > available) {
-    style.maxHeight = `${available}px`
-    style.overflowY = 'auto'
+  /* Viewport-coordinate positioning — physical properties required (getBoundingClientRect) */
+  if (placeAbove) {
+    const bottom = vh - rect.top + GAP
+    if (menuRect.height > spaceAbove) {
+      style.maxHeight = `${spaceAbove}px`
+      style.overflowY = 'auto'
+    }
+    style.bottom = `${bottom}px`
+    style.top = 'auto'
+  } else {
+    style.top = `${rect.bottom + GAP}px`
+    style.bottom = 'auto'
+    if (menuRect.height > spaceBelow) {
+      style.maxHeight = `${spaceBelow}px`
+      style.overflowY = 'auto'
+    }
   }
 
-  // Horizontal alignment
+  // Horizontal alignment — physical left/right required (viewport coordinates)
   let left: number
   if (props.align === 'end') {
     left = rect.right - menuRect.width
@@ -130,6 +161,7 @@ function positionFlyout(key: string) {
     zIndex: '10000',
   }
 
+  /* Viewport-coordinate positioning — physical properties required (getBoundingClientRect) */
   // Horizontal: try placing to the right of the parent menu
   const rightSpace = vw - menuRect.right - GAP - EDGE_PADDING
   const leftSpace = menuRect.left - GAP - EDGE_PADDING
@@ -240,6 +272,11 @@ onBeforeUnmount(() => {
 // Surface class for the dropdown panels
 const surfaceClass = computed(() => props.surface === 'dark' ? 'flyout--dark' : 'flyout--light')
 
+// Whether any item has a `checked` field — reserve checkmark column for all items
+const hasCheckedItems = computed(() =>
+  props.groups.some(g => g.items.some(i => i.checked !== undefined))
+)
+
 defineExpose({ toggle, close, open })
 </script>
 
@@ -252,7 +289,7 @@ defineExpose({ toggle, close, open })
           v-if="open"
           ref="menuRef"
           class="flyout-menu vstack"
-          :class="surfaceClass"
+          :class="[surfaceClass, { 'flyout-menu--above': resolvedPlacement === 'above' }]"
           :style="menuStyle"
           @mouseleave="scheduleDeactivate"
         >
@@ -275,8 +312,17 @@ defineExpose({ toggle, close, open })
               @mouseenter="onItemEnter(item, gi, ii)"
               @click="onItemClick(item)"
             >
-              <WPIcon v-if="item.icon" :icon="item.icon" :size="18" class="flyout-item-icon" />
+              <span v-if="item.detail" class="flyout-item-detail">{{ item.detail }}</span>
+              <img v-if="item.iconUrl" :src="item.iconUrl" class="flyout-item-icon flyout-item-icon--img" />
+              <WPIcon v-else-if="item.icon" :icon="item.icon" :size="18" class="flyout-item-icon" />
               <span class="flyout-item-label">{{ item.label }}</span>
+              <WPIcon
+                v-if="hasCheckedItems"
+                :icon="check"
+                :size="18"
+                class="flyout-item-check"
+                :class="{ 'flyout-item-check--hidden': !item.checked }"
+              />
               <WPIcon
                 v-if="item.children?.length"
                 :icon="chevronRight"
@@ -308,8 +354,16 @@ defineExpose({ toggle, close, open })
                 :class="{ 'flyout-item--destructive': child.destructive }"
                 @click="onChildClick(child)"
               >
-                <WPIcon v-if="child.icon" :icon="child.icon" :size="18" class="flyout-item-icon" />
+                <img v-if="child.iconUrl" :src="child.iconUrl" class="flyout-item-icon flyout-item-icon--img" />
+                <WPIcon v-else-if="child.icon" :icon="child.icon" :size="18" class="flyout-item-icon" />
                 <span class="flyout-item-label">{{ child.label }}</span>
+                <WPIcon
+                  v-if="item.children!.some(c => c.checked !== undefined)"
+                  :icon="check"
+                  :size="18"
+                  class="flyout-item-check"
+                  :class="{ 'flyout-item-check--hidden': !child.checked }"
+                />
               </button>
             </div>
           </Transition>
@@ -447,9 +501,37 @@ defineExpose({ toggle, close, open })
   transition: color var(--duration-instant) var(--ease-default);
 }
 
+.flyout-item-icon--img {
+  width: 18px;
+  height: 18px;
+  border-radius: var(--radius-s);
+  object-fit: cover;
+}
+
 .flyout-item-label {
   flex: 1;
   min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.flyout-item-detail {
+  flex-shrink: 0;
+  min-width: 20px;
+  font-size: var(--font-size-xs);
+  text-align: end;
+  opacity: 0.45;
+}
+
+.flyout-item-check {
+  flex-shrink: 0;
+  margin-inline-start: var(--space-xs);
+  opacity: 0.6;
+}
+
+.flyout-item-check--hidden {
+  visibility: hidden;
 }
 
 .flyout-item-chevron {
@@ -457,15 +539,7 @@ defineExpose({ toggle, close, open })
   margin-inline-start: var(--space-xs);
 }
 
-/* ── Destructive variant ── */
-.flyout-item--destructive {
-  color: #d63638;
-}
-
-.flyout-item--destructive .flyout-item-icon {
-  color: #d63638;
-}
-
+/* ── Destructive variant — normal at rest, red on hover ── */
 .flyout-item--destructive:hover,
 .flyout--dark .flyout-item--destructive:hover,
 .flyout--light .flyout-item--destructive:hover {
@@ -473,7 +547,9 @@ defineExpose({ toggle, close, open })
   color: #f86368;
 }
 
-.flyout-item--destructive:hover .flyout-item-icon {
+.flyout-item--destructive:hover .flyout-item-icon,
+.flyout--dark .flyout-item--destructive:hover .flyout-item-icon,
+.flyout--light .flyout-item--destructive:hover .flyout-item-icon {
   color: #f86368;
 }
 
@@ -488,6 +564,11 @@ defineExpose({ toggle, close, open })
 .flyout-leave-to {
   opacity: 0;
   transform: translateY(-4px);
+}
+
+.flyout-menu--above.flyout-enter-from,
+.flyout-menu--above.flyout-leave-to {
+  transform: translateY(4px);
 }
 
 .flyout-sub-enter-active,

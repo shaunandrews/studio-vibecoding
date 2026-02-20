@@ -32,10 +32,10 @@ import ActivityCard from './dashboard/ActivityCard.vue'
   min-height: 0;
 }
 
-/* Wide: 2 equal columns */
+/* Wide: Environment narrower, Activity gets more room */
 @container dashboard (min-width: 600px) {
   .dashboard-overview__cards {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 2fr 3fr;
     align-items: start;
   }
 }

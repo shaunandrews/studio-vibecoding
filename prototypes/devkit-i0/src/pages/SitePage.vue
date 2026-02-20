@@ -8,6 +8,11 @@ import StatusIndicator from '@/components/primitives/StatusIndicator.vue'
 import Text from '@/components/primitives/Text.vue'
 import DashboardOverview from '@/components/features/DashboardOverview.vue'
 import DashboardTerminal from '@/components/features/DashboardTerminal.vue'
+import DashboardDatabase from '@/components/features/DashboardDatabase.vue'
+import DashboardMail from '@/components/features/DashboardMail.vue'
+import DashboardPerformance from '@/components/features/DashboardPerformance.vue'
+import DashboardDocs from '@/components/features/DashboardDocs.vue'
+import Tooltip from '@/components/primitives/Tooltip.vue'
 import WPIcon from '@/components/primitives/WPIcon.vue'
 import { useProjects } from '@/data/useProjects'
 import { useChatPopout } from '@/data/useChatPopout'
@@ -25,18 +30,50 @@ watch(() => route.params.id as string, (newId) => {
   activeProjectId.value = newId
 }, { immediate: true })
 
-// ── Terminal panel ──
-const terminalOpen = ref(false)
+// ── Tool panel ──
+type ToolTab = 'terminal' | 'database' | 'mail' | 'performance' | 'docs'
 
-function toggleTerminal() {
+const TOOL_TABS: { id: ToolTab; label: string; tooltip: string; badge?: number }[] = [
+  { id: 'terminal',    label: 'Terminal',    tooltip: 'WP-CLI and shell commands' },
+  { id: 'database',    label: 'Database',    tooltip: 'Browse WordPress tables and run queries' },
+  { id: 'mail',        label: 'Mail',        tooltip: 'Catch outgoing emails from WordPress', badge: 3 },
+  { id: 'performance', label: 'Performance', tooltip: 'Query monitor and site health' },
+  { id: 'docs',        label: 'Docs',        tooltip: 'WordPress APIs, hooks, and block reference' },
+]
+
+const ACTIVE_TAB_KEY = 'toolPanelActiveTab'
+const panelOpen = ref(false)
+
+function loadActiveTabs(): Record<string, ToolTab> {
+  try { return JSON.parse(localStorage.getItem(ACTIVE_TAB_KEY) || '{}') }
+  catch { return {} }
+}
+
+const activeTabs = ref(loadActiveTabs())
+
+const activeTab = computed<ToolTab>({
+  get: () => activeTabs.value[projectId.value] ?? 'terminal',
+  set: (v: ToolTab) => {
+    activeTabs.value = { ...activeTabs.value, [projectId.value]: v }
+    localStorage.setItem(ACTIVE_TAB_KEY, JSON.stringify(activeTabs.value))
+  },
+})
+
+function onTabClick(tabId: ToolTab) {
   if (isAnimating.value) return
-  terminalOpen.value = !terminalOpen.value
+  if (panelOpen.value && activeTab.value === tabId) {
+    panelOpen.value = false
+  } else {
+    activeTab.value = tabId
+    if (!panelOpen.value) panelOpen.value = true
+  }
 }
 
 function onKeyDown(e: KeyboardEvent) {
   if (e.key === 'j' && e.metaKey) {
     e.preventDefault()
-    toggleTerminal()
+    if (isAnimating.value) return
+    panelOpen.value = !panelOpen.value
   }
 }
 
@@ -105,59 +142,59 @@ function onPointerUp() {
   document.removeEventListener('pointerup', onPointerUp)
 }
 
-// ── Terminal panel resize ──
-const TERMINAL_HEIGHTS_KEY = 'terminalPanelHeights'
-const DEFAULT_TERMINAL_HEIGHT = 200
-const MIN_TERMINAL_HEIGHT = 120
+// ── Tool panel resize ──
+const PANEL_HEIGHTS_KEY = 'toolPanelHeights'
+const DEFAULT_PANEL_HEIGHT = 200
+const MIN_PANEL_HEIGHT = 120
 
-function loadTerminalHeights(): Record<string, number> {
-  try { return JSON.parse(localStorage.getItem(TERMINAL_HEIGHTS_KEY) || '{}') }
+function loadPanelHeights(): Record<string, number> {
+  try { return JSON.parse(localStorage.getItem(PANEL_HEIGHTS_KEY) || '{}') }
   catch { return {} }
 }
 
-const terminalHeights = ref(loadTerminalHeights())
+const panelHeights = ref(loadPanelHeights())
 const dashboardRef = ref<HTMLElement | null>(null)
-const isTerminalDragging = ref(false)
+const isPanelDragging = ref(false)
 
-const terminalHeight = computed({
-  get: () => terminalHeights.value[projectId.value] ?? DEFAULT_TERMINAL_HEIGHT,
+const panelHeight = computed({
+  get: () => panelHeights.value[projectId.value] ?? DEFAULT_PANEL_HEIGHT,
   set: (v: number) => {
-    terminalHeights.value = { ...terminalHeights.value, [projectId.value]: v }
-    localStorage.setItem(TERMINAL_HEIGHTS_KEY, JSON.stringify(terminalHeights.value))
+    panelHeights.value = { ...panelHeights.value, [projectId.value]: v }
+    localStorage.setItem(PANEL_HEIGHTS_KEY, JSON.stringify(panelHeights.value))
   },
 })
 
 let cachedToolbarHeight = 40
 
-function onTerminalPointerDown(e: PointerEvent) {
+function onPanelPointerDown(e: PointerEvent) {
   e.preventDefault()
   ;(e.currentTarget as HTMLElement).setPointerCapture(e.pointerId)
-  isTerminalDragging.value = true
+  isPanelDragging.value = true
   const toolbar = dashboardRef.value?.querySelector('.dashboard__toolbar')
   if (toolbar) cachedToolbarHeight = toolbar.getBoundingClientRect().height
   document.body.style.cursor = 'row-resize'
   document.body.style.userSelect = 'none'
-  document.addEventListener('pointermove', onTerminalPointerMove)
-  document.addEventListener('pointerup', onTerminalPointerUp)
+  document.addEventListener('pointermove', onPanelPointerMove)
+  document.addEventListener('pointerup', onPanelPointerUp)
 }
 
-function onTerminalPointerMove(e: PointerEvent) {
-  if (!isTerminalDragging.value || !dashboardRef.value) return
+function onPanelPointerMove(e: PointerEvent) {
+  if (!isPanelDragging.value || !dashboardRef.value) return
   const rect = dashboardRef.value.getBoundingClientRect()
   const maxHeight = (rect.height - cachedToolbarHeight) * 0.7
   const rawHeight = rect.bottom - e.clientY - cachedToolbarHeight
-  terminalHeight.value = Math.round(Math.min(maxHeight, Math.max(MIN_TERMINAL_HEIGHT, rawHeight)))
+  panelHeight.value = Math.round(Math.min(maxHeight, Math.max(MIN_PANEL_HEIGHT, rawHeight)))
 }
 
-function onTerminalPointerUp() {
-  isTerminalDragging.value = false
+function onPanelPointerUp() {
+  isPanelDragging.value = false
   document.body.style.cursor = ''
   document.body.style.userSelect = ''
-  document.removeEventListener('pointermove', onTerminalPointerMove)
-  document.removeEventListener('pointerup', onTerminalPointerUp)
+  document.removeEventListener('pointermove', onPanelPointerMove)
+  document.removeEventListener('pointerup', onPanelPointerUp)
 }
 
-// ── Terminal animation ──
+// ── Panel animation ──
 const isAnimating = ref(false)
 const ANIM_DURATION = 150 // matches --duration-fast
 const ANIM_SAFETY = 50
@@ -173,7 +210,7 @@ function safeTransitionEnd(el: HTMLElement, done: () => void) {
   }, { once: true })
 }
 
-function onTerminalBeforeEnter(el: Element) {
+function onPanelBeforeEnter(el: Element) {
   const h = el as HTMLElement
   isAnimating.value = true
   h.style.transition = ''
@@ -181,23 +218,23 @@ function onTerminalBeforeEnter(el: Element) {
   h.style.overflow = 'hidden'
 }
 
-function onTerminalEnter(el: Element, done: () => void) {
+function onPanelEnter(el: Element, done: () => void) {
   const h = el as HTMLElement
   requestAnimationFrame(() => {
     h.style.transition = 'height var(--duration-fast) var(--ease-out)'
-    h.style.height = terminalHeight.value + 'px'
+    h.style.height = panelHeight.value + 'px'
     safeTransitionEnd(h, done)
   })
 }
 
-function onTerminalAfterEnter(el: Element) {
+function onPanelAfterEnter(el: Element) {
   const h = el as HTMLElement
   isAnimating.value = false
   h.style.transition = ''
   h.style.overflow = ''
 }
 
-function onTerminalLeave(el: Element, done: () => void) {
+function onPanelLeave(el: Element, done: () => void) {
   const h = el as HTMLElement
   isAnimating.value = true
   h.style.transition = ''
@@ -210,7 +247,7 @@ function onTerminalLeave(el: Element, done: () => void) {
   })
 }
 
-function onTerminalAfterLeave() {
+function onPanelAfterLeave() {
   isAnimating.value = false
 }
 </script>
@@ -219,7 +256,7 @@ function onTerminalAfterLeave() {
   <div
     ref="containerRef"
     class="site-page hstack align-stretch flex-1 min-w-0 min-h-0 overflow-hidden"
-    :class="{ 'is-dragging-chat': isDragging, 'is-dragging-terminal': isTerminalDragging }"
+    :class="{ 'is-dragging-chat': isDragging, 'is-dragging-panel': isPanelDragging }"
   >
     <!-- Left: dashboard -->
     <div ref="dashboardRef" class="dashboard vstack flex-1 min-w-0">
@@ -227,35 +264,43 @@ function onTerminalAfterLeave() {
         <DashboardOverview />
       </div>
 
-      <div v-if="terminalOpen" class="terminal-resize-handle" @pointerdown="onTerminalPointerDown" />
+      <div v-if="panelOpen" class="panel-resize-handle" @pointerdown="onPanelPointerDown" />
 
       <div class="dashboard__toolbar hstack">
+        <div class="dashboard__tabs hstack">
+          <Tooltip v-for="tab in TOOL_TABS" :key="tab.id" :text="tab.tooltip">
+            <button
+              class="dashboard__tab"
+              :class="{ active: panelOpen && activeTab === tab.id }"
+              @click="onTabClick(tab.id)"
+            >
+              {{ tab.label }}
+              <span v-if="tab.badge" class="dashboard__tab-badge">{{ tab.badge }}</span>
+            </button>
+          </Tooltip>
+        </div>
         <div class="dashboard__status hstack gap-xxs" v-if="project">
           <StatusIndicator :status="project.status" @toggle="toggleStatus" />
           <Text variant="caption" color="muted">
             {{ project.status === 'running' ? 'Running' : project.status === 'loading' ? 'Starting...' : 'Stopped' }}
           </Text>
-          <Text variant="caption" color="muted" class="dashboard__env">PHP 8.2</Text>
         </div>
-        <button
-          class="dashboard__terminal-toggle"
-          :class="{ active: terminalOpen }"
-          @click="toggleTerminal"
-        >
-          Terminal <kbd>⌘J</kbd>
-        </button>
       </div>
 
       <Transition
         :css="false"
-        @before-enter="onTerminalBeforeEnter"
-        @enter="onTerminalEnter"
-        @after-enter="onTerminalAfterEnter"
-        @leave="onTerminalLeave"
-        @after-leave="onTerminalAfterLeave"
+        @before-enter="onPanelBeforeEnter"
+        @enter="onPanelEnter"
+        @after-enter="onPanelAfterEnter"
+        @leave="onPanelLeave"
+        @after-leave="onPanelAfterLeave"
       >
-        <div v-if="terminalOpen" class="dashboard__terminal" :style="{ height: terminalHeight + 'px' }">
-          <DashboardTerminal />
+        <div v-if="panelOpen" class="dashboard__panel" :style="{ height: panelHeight + 'px' }">
+          <DashboardTerminal     v-if="activeTab === 'terminal'" />
+          <DashboardDatabase     v-if="activeTab === 'database'" />
+          <DashboardMail         v-if="activeTab === 'mail'" />
+          <DashboardPerformance  v-if="activeTab === 'performance'" />
+          <DashboardDocs         v-if="activeTab === 'docs'" />
         </div>
       </Transition>
     </div>
@@ -301,7 +346,14 @@ function onTerminalAfterLeave() {
   min-block-size: var(--space-xxl);
 }
 
-.dashboard__terminal-toggle {
+/* ── Tab strip ── */
+.dashboard__tabs {
+  display: flex;
+  gap: var(--space-xxxs);
+  align-items: center;
+}
+
+.dashboard__tab {
   display: flex;
   align-items: center;
   gap: var(--space-xxs);
@@ -316,40 +368,44 @@ function onTerminalAfterLeave() {
   transition: color var(--transition-hover), background var(--transition-hover);
 }
 
-.dashboard__terminal-toggle kbd {
-  font-family: inherit;
-  font-size: var(--font-size-xs);
-  color: var(--color-text-muted);
-}
-
-.dashboard__terminal-toggle:hover {
+.dashboard__tab:hover {
   color: var(--color-text);
   background: var(--color-surface-secondary);
 }
 
-.dashboard__terminal-toggle.active {
+.dashboard__tab.active {
   color: var(--color-surface);
   background: var(--color-text);
 }
 
-.dashboard__terminal-toggle.active kbd {
-  color: inherit;
-  opacity: 0.5;
+.dashboard__tab.active:hover {
+  background: var(--color-text-secondary);
 }
 
-.dashboard__terminal-toggle.active:hover {
-  background: var(--color-text-secondary);
+.dashboard__tab-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-inline-size: 15px;
+  block-size: 15px;
+  padding-inline: var(--space-xxxs);
+  border-radius: var(--radius-full);
+  background: var(--color-primary);
+  color: var(--color-surface);
+  font-size: 10px;
+  font-weight: var(--font-weight-medium);
+  line-height: 1;
+}
+
+.dashboard__tab.active .dashboard__tab-badge {
+  background: var(--color-surface);
+  color: var(--color-text);
 }
 
 /* ── Status area ── */
 .dashboard__status {
   align-items: center;
   padding-inline-end: var(--space-xxs);
-}
-
-.dashboard__env {
-  padding-inline-start: var(--space-xs);
-  border-inline-start: 1px solid var(--color-surface-border);
 }
 
 /* ── Dashboard content ── */
@@ -359,8 +415,8 @@ function onTerminalAfterLeave() {
   container-name: dashboard;
 }
 
-/* ── Terminal resize handle ── */
-.terminal-resize-handle {
+/* ── Panel resize handle ── */
+.panel-resize-handle {
   height: 5px;
   cursor: row-resize;
   flex-shrink: 0;
@@ -369,7 +425,7 @@ function onTerminalAfterLeave() {
   margin-block: -2px; /* Expand hitbox over adjacent borders */
 }
 
-.terminal-resize-handle::after {
+.panel-resize-handle::after {
   content: '';
   position: absolute;
   inset-inline: 0;
@@ -379,15 +435,15 @@ function onTerminalAfterLeave() {
   transition: background var(--transition-hover), height var(--transition-hover);
 }
 
-.terminal-resize-handle:hover::after,
-.is-dragging-terminal .terminal-resize-handle::after {
+.panel-resize-handle:hover::after,
+.is-dragging-panel .panel-resize-handle::after {
   height: 3px;
   margin-block-start: -1px;
   background: var(--color-primary);
 }
 
-/* ── Terminal panel ── */
-.dashboard__terminal {
+/* ── Tool panel ── */
+.dashboard__panel {
   display: flex;
   flex-direction: column;
   flex: none;
@@ -452,7 +508,7 @@ function onTerminalAfterLeave() {
 
 /* ── Drag state ── */
 .is-dragging-chat,
-.is-dragging-terminal {
+.is-dragging-panel {
   user-select: none;
 }
 </style>

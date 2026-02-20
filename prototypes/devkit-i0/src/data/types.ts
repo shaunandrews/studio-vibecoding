@@ -18,10 +18,6 @@ export interface Project {
   status: ProjectStatus
   url: string
   createdAt: string
-  description?: string
-  // Dev fields
-  phpVersion?: string
-  wpVersion?: string
 }
 
 export type AgentId = 'assistant' | 'code' | 'design'
@@ -39,6 +35,7 @@ export interface Conversation {
   agentId: AgentId
   title?: string
   createdAt: string
+  archived?: boolean
 }
 
 export interface Message {

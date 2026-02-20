@@ -147,10 +147,8 @@ function statusColor(status: 'clean' | 'error' | 'new') {
 .workspace-card__section-label {
   display: block;
   font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-semibold);
+  font-weight: var(--font-weight-medium);
   color: var(--color-text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
   margin-block-end: var(--space-xxs);
 }
 

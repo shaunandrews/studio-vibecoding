@@ -8,9 +8,6 @@ export const seedProjects: Project[] = [
     status: 'running',
     url: 'http://localhost:8881',
     createdAt: '2025-11-15T10:00:00Z',
-    description: 'Client site — restaurant with custom reservations, events, and loyalty plugins.',
-    phpVersion: '8.2',
-    wpVersion: '6.7',
   },
   {
     id: 'studio-meridian',
@@ -19,9 +16,6 @@ export const seedProjects: Project[] = [
     status: 'running',
     url: 'http://localhost:8882',
     createdAt: '2026-01-20T09:00:00Z',
-    description: 'Design studio portfolio — custom block theme development.',
-    phpVersion: '8.3',
-    wpVersion: '6.7',
   },
   {
     id: 'jetpack-feature',
@@ -30,9 +24,6 @@ export const seedProjects: Project[] = [
     status: 'running',
     url: 'http://localhost:8883',
     createdAt: '2026-02-01T14:00:00Z',
-    description: 'Jetpack module development — working on the sync module.',
-    phpVersion: '8.2',
-    wpVersion: '6.8-beta',
   },
   {
     id: 'block-playground',
@@ -41,8 +32,5 @@ export const seedProjects: Project[] = [
     status: 'stopped',
     url: 'http://localhost:8884',
     createdAt: '2026-02-10T11:00:00Z',
-    description: 'Experimental block development sandbox.',
-    phpVersion: '8.3',
-    wpVersion: '6.7',
   },
 ]

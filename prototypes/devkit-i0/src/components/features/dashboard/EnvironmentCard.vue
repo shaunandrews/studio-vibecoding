@@ -8,19 +8,23 @@ const debugLabels: Record<string, string> = {
   scriptDebug: 'SCRIPT_DEBUG',
   xdebug: 'Xdebug',
 }
+
+const debugDescriptions: Record<string, string> = {
+  wpDebug: 'Show PHP errors and warnings',
+  scriptDebug: 'Load unminified scripts and styles',
+  xdebug: 'Step-through debugging with breakpoints',
+}
 </script>
 
 <template>
   <div class="env-card">
     <div class="env-card__header">
       <span class="env-card__title">Environment</span>
+      <a class="env-card__url" :href="`http://${environment.siteUrl}`" target="_blank" rel="noopener">
+        {{ environment.siteUrl }}
+        <span class="env-card__url-arrow">↗</span>
+      </a>
     </div>
-
-    <!-- Site URL -->
-    <a class="env-card__url" :href="`http://${environment.siteUrl}`" target="_blank" rel="noopener">
-      {{ environment.siteUrl }}
-      <span class="env-card__url-arrow">↗</span>
-    </a>
 
     <!-- Stack -->
     <div class="env-card__section">
@@ -60,7 +64,10 @@ const debugLabels: Record<string, string> = {
           type="button"
           @click="toggleDebug(key as 'wpDebug' | 'scriptDebug' | 'xdebug')"
         >
-          <span class="env-card__toggle-label">{{ debugLabels[key] }}</span>
+          <div class="env-card__toggle-info">
+            <span class="env-card__toggle-label">{{ debugLabels[key] }}</span>
+            <span class="env-card__toggle-desc">{{ debugDescriptions[key] }}</span>
+          </div>
           <span class="env-card__toggle" :class="{ on: value }">
             <span class="env-card__toggle-knob" />
           </span>
@@ -90,16 +97,13 @@ const debugLabels: Record<string, string> = {
 </template>
 
 <style scoped>
-.env-card {
-  background: var(--color-surface);
-  border: 1px solid var(--color-surface-border);
-  border-radius: var(--radius-m);
-  padding: var(--space-m);
-}
-
 /* ── Header ── */
 .env-card__header {
-  margin-block-end: var(--space-xs);
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-xs);
+  margin-block-end: var(--space-s);
 }
 
 .env-card__title {
@@ -116,7 +120,6 @@ const debugLabels: Record<string, string> = {
   font-size: var(--font-size-s);
   color: var(--color-primary);
   text-decoration: none;
-  margin-block-end: var(--space-s);
   transition: color var(--transition-hover);
 }
 
@@ -131,21 +134,14 @@ const debugLabels: Record<string, string> = {
 
 /* ── Sections ── */
 .env-card__section {
-  padding-block-start: var(--space-s);
-  border-block-start: 1px solid var(--color-surface-border);
-}
-
-.env-card__section + .env-card__section {
-  margin-block-start: var(--space-s);
+  margin-block-start: var(--space-m);
 }
 
 .env-card__section-label {
   display: block;
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-semibold);
-  color: var(--color-text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  color: var(--color-text-secondary);
   margin-block-end: var(--space-xs);
 }
 
@@ -181,7 +177,9 @@ const debugLabels: Record<string, string> = {
 .env-card__toggles {
   display: flex;
   flex-direction: column;
-  gap: var(--space-xxs);
+  border: 1px solid var(--color-surface-border);
+  border-radius: var(--radius-s);
+  overflow: hidden;
 }
 
 .env-card__toggle-row {
@@ -189,17 +187,39 @@ const debugLabels: Record<string, string> = {
   justify-content: space-between;
   align-items: center;
   gap: var(--space-xs);
-  padding: var(--space-xxxs) 0;
+  padding: var(--space-xs);
   background: none;
   border: none;
   cursor: pointer;
   font-family: inherit;
+  transition: background var(--transition-hover);
+}
+
+.env-card__toggle-row:hover {
+  background: var(--color-surface-secondary);
+}
+
+.env-card__toggle-row + .env-card__toggle-row {
+  border-block-start: 1px solid var(--color-surface-border);
+}
+
+.env-card__toggle-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  text-align: start;
 }
 
 .env-card__toggle-label {
   font-size: var(--font-size-s);
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  color: var(--color-text-secondary);
+  color: var(--color-text);
+  font-weight: var(--font-weight-medium);
+}
+
+.env-card__toggle-desc {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
 }
 
 /* Toggle switch */

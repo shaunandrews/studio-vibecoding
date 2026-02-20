@@ -118,7 +118,6 @@ function runCommand() {
   flex: 1;
   min-height: 0;
   overflow: hidden;
-  border-block-start: 1px solid var(--color-surface-border);
 }
 
 .terminal__output {

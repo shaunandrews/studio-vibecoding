@@ -126,9 +126,27 @@ onUnmounted(() => {
 }
 
 .btn__shortcut {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   font-size: var(--font-size-xs);
-  opacity: 0.5;
+  line-height: 1;
+  padding: 2px var(--space-xxxs);
+  border-radius: var(--radius-s);
   margin-inline-start: var(--space-xxs);
+  flex-shrink: 0;
+}
+
+.btn--on-light .btn__shortcut {
+  background: rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  color: inherit;
+  opacity: 0.5;
+}
+
+.btn--on-dark .btn__shortcut {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: inherit;
+  opacity: 0.5;
 }
 
 /* Width */

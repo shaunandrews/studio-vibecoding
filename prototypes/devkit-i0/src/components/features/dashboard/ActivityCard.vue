@@ -1,27 +1,31 @@
 <script setup lang="ts">
+import { ref } from 'vue'
+import { copy } from '@wordpress/icons'
+import Button from '@/components/primitives/Button.vue'
 import { useActivity } from '@/data/useActivity'
 
 const { activity } = useActivity()
-
-const buildStatusLabel: Record<string, string> = {
-  watching: 'watching',
-  building: 'building...',
-  idle: 'idle',
-  error: 'build failed',
-}
-
-const buildStatusColor: Record<string, string> = {
-  watching: 'var(--color-status-running)',
-  building: 'var(--color-light-minimize)',
-  idle: 'var(--color-text-muted)',
-  error: 'var(--color-status-stop-hover)',
-}
 
 const errorTypeLabel: Record<string, string> = {
   warning: 'Warning',
   deprecated: 'Deprecated',
   notice: 'Notice',
   error: 'Error',
+}
+
+const fileStatusLabel: Record<string, string> = {
+  modified: 'M',
+  added: 'A',
+  deleted: 'D',
+  renamed: 'R',
+}
+
+const copiedIndex = ref<number | null>(null)
+
+function copyError(fullMessage: string, index: number) {
+  navigator.clipboard.writeText(fullMessage)
+  copiedIndex.value = index
+  setTimeout(() => { copiedIndex.value = null }, 1500)
 }
 </script>
 
@@ -34,24 +38,62 @@ const errorTypeLabel: Record<string, string> = {
     <!-- Git -->
     <div class="activity-card__section">
       <span class="activity-card__section-label">Git</span>
-      <div class="activity-card__git-branch hstack gap-xxs">
-        <span class="activity-card__branch-dot" />
-        <span class="activity-card__branch-name">{{ activity.git.branch }}</span>
-        <span v-if="activity.git.uncommittedCount > 0" class="activity-card__dirty">
-          +{{ activity.git.uncommittedCount }} uncommitted
-        </span>
+
+      <div class="activity-card__git-status">
+        <div class="activity-card__git-branch hstack gap-xxs">
+          <span class="activity-card__branch-dot" />
+          <span class="activity-card__branch-name">{{ activity.git.branch }}</span>
+          <span v-if="activity.git.ahead > 0 || activity.git.behind > 0" class="activity-card__sync">
+            <span v-if="activity.git.ahead > 0">↑{{ activity.git.ahead }}</span>
+            <span v-if="activity.git.behind > 0">↓{{ activity.git.behind }}</span>
+          </span>
+        </div>
       </div>
+
+      <!-- Uncommitted files -->
+      <div v-if="activity.git.uncommittedFiles.length > 0" class="activity-card__uncommitted">
+        <span class="activity-card__uncommitted-label">
+          {{ activity.git.uncommittedCount }} uncommitted
+        </span>
+        <ul class="activity-card__file-list">
+          <li
+            v-for="file in activity.git.uncommittedFiles"
+            :key="file.path"
+            class="activity-card__file"
+          >
+            <code class="activity-card__file-status" :class="`activity-card__file-status--${file.status}`">
+              {{ fileStatusLabel[file.status] }}
+            </code>
+            <code class="activity-card__file-path">{{ file.path }}</code>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Commit graph -->
       <ul class="activity-card__commits">
         <li
-          v-for="commit in activity.git.commits"
+          v-for="(commit, i) in activity.git.commits"
           :key="commit.hash"
           class="activity-card__commit"
         >
-          <div class="activity-card__commit-top hstack gap-xxs">
-            <code class="activity-card__hash">{{ commit.hash }}</code>
-            <span class="activity-card__commit-msg">{{ commit.message }}</span>
+          <div class="activity-card__graph">
+            <span class="activity-card__graph-dot" />
+            <span v-if="i < activity.git.commits.length - 1" class="activity-card__graph-line" />
           </div>
-          <span class="activity-card__commit-time">{{ commit.timeAgo }}</span>
+          <div class="activity-card__commit-body">
+            <div class="activity-card__commit-top">
+              <code class="activity-card__hash">{{ commit.hash }}</code>
+              <span class="activity-card__commit-msg">{{ commit.message }}</span>
+            </div>
+            <div class="activity-card__commit-meta hstack gap-xs">
+              <span class="activity-card__commit-time">{{ commit.timeAgo }}</span>
+              <span class="activity-card__commit-stats">
+                <span class="activity-card__stat-files">{{ commit.filesChanged }} file{{ commit.filesChanged !== 1 ? 's' : '' }}</span>
+                <span class="activity-card__stat-add">+{{ commit.insertions }}</span>
+                <span class="activity-card__stat-del">−{{ commit.deletions }}</span>
+              </span>
+            </div>
+          </div>
         </li>
       </ul>
     </div>
@@ -59,64 +101,64 @@ const errorTypeLabel: Record<string, string> = {
     <!-- Errors -->
     <div class="activity-card__section">
       <div class="activity-card__section-header hstack justify-between">
-        <span class="activity-card__section-label">Errors</span>
+        <span class="activity-card__section-label">
+          Errors
+          <span class="activity-card__error-total">{{ activity.errors.total }} total</span>
+        </span>
         <span v-if="activity.errors.newCount > 0" class="activity-card__error-badge">
           {{ activity.errors.newCount }} new
         </span>
       </div>
+
       <ul v-if="activity.errors.recent.length > 0" class="activity-card__errors">
         <li
           v-for="(error, i) in activity.errors.recent"
           :key="i"
           class="activity-card__error"
         >
-          <div class="activity-card__error-top hstack gap-xxs">
+          <div class="activity-card__error-header">
             <span class="activity-card__error-type" :class="`activity-card__error-type--${error.type}`">
               {{ errorTypeLabel[error.type] }}
             </span>
-            <span class="activity-card__error-msg">{{ error.message }}</span>
+            <span class="activity-card__error-timestamp">{{ error.timestamp }}</span>
           </div>
+
+          <span class="activity-card__error-msg">{{ error.message }}</span>
           <code class="activity-card__error-loc">{{ error.location }}</code>
+
+          <span v-if="error.context" class="activity-card__error-context">
+            {{ error.context }}
+          </span>
+
+          <div class="activity-card__error-footer hstack justify-between">
+            <span v-if="error.count && error.count > 1" class="activity-card__error-count">
+              ×{{ error.count }} occurrences
+            </span>
+            <span v-else />
+            <Button
+              :icon="copy"
+              :label="copiedIndex === i ? 'Copied' : 'Copy'"
+              variant="tertiary"
+              size="small"
+              :tooltip="'Copy full error to clipboard'"
+              @click="copyError(error.fullMessage, i)"
+            />
+          </div>
         </li>
       </ul>
       <span v-else class="activity-card__empty">No errors</span>
-      <button v-if="activity.errors.recent.length > 0" class="activity-card__link" type="button">
-        View all →
-      </button>
-    </div>
 
-    <!-- Build -->
-    <div class="activity-card__section">
-      <span class="activity-card__section-label">Build</span>
-      <div class="activity-card__build hstack gap-xxs">
-        <span
-          class="activity-card__build-dot"
-          :class="{ 'activity-card__build-dot--pulse': activity.build.status === 'watching' || activity.build.status === 'building' }"
-          :style="{ background: buildStatusColor[activity.build.status] }"
-        />
-        <span class="activity-card__build-tool">{{ activity.build.tool }}</span>
-        <span class="activity-card__build-status">{{ buildStatusLabel[activity.build.status] }}</span>
-      </div>
-      <span class="activity-card__build-meta">
-        last build {{ activity.build.lastBuild }}
-        <span v-if="activity.build.lastBuildSuccess" class="activity-card__build-ok">✓</span>
-        <span v-else class="activity-card__build-fail">✗</span>
-      </span>
+      <button v-if="activity.errors.recent.length > 0" class="activity-card__link" type="button">
+        View all {{ activity.errors.total }} errors →
+      </button>
     </div>
   </div>
 </template>
 
 <style scoped>
-.activity-card {
-  background: var(--color-surface);
-  border: 1px solid var(--color-surface-border);
-  border-radius: var(--radius-m);
-  padding: var(--space-m);
-}
-
 /* ── Header ── */
 .activity-card__header {
-  margin-block-end: var(--space-xs);
+  margin-block-end: var(--space-s);
 }
 
 .activity-card__title {
@@ -127,12 +169,7 @@ const errorTypeLabel: Record<string, string> = {
 
 /* ── Sections ── */
 .activity-card__section {
-  padding-block-start: var(--space-s);
-  border-block-start: 1px solid var(--color-surface-border);
-}
-
-.activity-card__section + .activity-card__section {
-  margin-block-start: var(--space-s);
+  margin-block-start: var(--space-m);
 }
 
 .activity-card__section-header {
@@ -143,9 +180,7 @@ const errorTypeLabel: Record<string, string> = {
   display: block;
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-semibold);
-  color: var(--color-text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  color: var(--color-text-secondary);
   margin-block-end: var(--space-xs);
 }
 
@@ -153,10 +188,19 @@ const errorTypeLabel: Record<string, string> = {
   margin-block-end: 0;
 }
 
-/* ── Git ── */
+.activity-card__error-total {
+  font-weight: var(--font-weight-normal);
+  color: var(--color-text-muted);
+  margin-inline-start: var(--space-xxs);
+}
+
+/* ── Git status ── */
+.activity-card__git-status {
+  margin-block-end: var(--space-xs);
+}
+
 .activity-card__git-branch {
   align-items: center;
-  margin-block-end: var(--space-xs);
 }
 
 .activity-card__branch-dot {
@@ -173,22 +217,120 @@ const errorTypeLabel: Record<string, string> = {
   color: var(--color-text);
 }
 
-.activity-card__dirty {
+.activity-card__sync {
   font-size: var(--font-size-xs);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   color: var(--color-text-muted);
+  display: flex;
+  gap: var(--space-xxxs);
 }
 
+/* ── Uncommitted files ── */
+.activity-card__uncommitted {
+  margin-block-end: var(--space-s);
+  padding: var(--space-xs);
+  background: var(--color-surface-secondary);
+  border-radius: var(--radius-s);
+  border: 1px solid var(--color-surface-border);
+}
+
+.activity-card__uncommitted-label {
+  display: block;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-secondary);
+  margin-block-end: var(--space-xxs);
+}
+
+.activity-card__file-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.activity-card__file {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-xxs);
+}
+
+.activity-card__file-status {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  width: 12px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.activity-card__file-status--modified { color: var(--color-light-minimize); }
+.activity-card__file-status--added { color: var(--color-status-running); }
+.activity-card__file-status--deleted { color: var(--color-status-stop-hover); }
+.activity-card__file-status--renamed { color: var(--color-primary); }
+
+.activity-card__file-path {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Commit graph ── */
 .activity-card__commits {
   list-style: none;
   margin: 0;
   padding: 0;
   display: flex;
   flex-direction: column;
+}
+
+.activity-card__commit {
+  display: flex;
   gap: var(--space-xs);
 }
 
+.activity-card__graph {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 12px;
+  flex-shrink: 0;
+  padding-block-start: 5px;
+}
+
+.activity-card__graph-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  flex-shrink: 0;
+  box-shadow: 0 0 0 2px var(--color-surface);
+  position: relative;
+  z-index: 1;
+}
+
+.activity-card__graph-line {
+  width: 1px;
+  flex: 1;
+  background: var(--color-text-muted);
+  opacity: 0.3;
+}
+
+.activity-card__commit-body {
+  flex: 1;
+  min-width: 0;
+  padding-block-end: var(--space-xs);
+}
+
 .activity-card__commit-top {
+  display: flex;
   align-items: baseline;
+  gap: var(--space-xxs);
 }
 
 .activity-card__hash {
@@ -206,9 +348,34 @@ const errorTypeLabel: Record<string, string> = {
   text-overflow: ellipsis;
 }
 
+.activity-card__commit-meta {
+  align-items: baseline;
+  margin-block-start: 2px;
+}
+
 .activity-card__commit-time {
   font-size: var(--font-size-xs);
   color: var(--color-text-muted);
+}
+
+.activity-card__commit-stats {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  display: flex;
+  gap: var(--space-xxs);
+}
+
+.activity-card__stat-files {
+  color: var(--color-text-muted);
+}
+
+.activity-card__stat-add {
+  color: var(--color-status-running);
+}
+
+.activity-card__stat-del {
+  color: var(--color-status-stop-hover);
 }
 
 /* ── Errors ── */
@@ -227,11 +394,23 @@ const errorTypeLabel: Record<string, string> = {
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: var(--space-xs);
+  gap: var(--space-xxs);
 }
 
-.activity-card__error-top {
-  align-items: baseline;
+.activity-card__error {
+  padding: var(--space-xs);
+  background: var(--color-surface-secondary);
+  border-radius: var(--radius-s);
+  border: 1px solid var(--color-surface-border);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xxxs);
+}
+
+.activity-card__error-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .activity-card__error-type {
@@ -245,16 +424,35 @@ const errorTypeLabel: Record<string, string> = {
 .activity-card__error-type--notice { color: var(--color-text-muted); }
 .activity-card__error-type--error { color: var(--color-status-stop-hover); }
 
+.activity-card__error-timestamp {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
 .activity-card__error-msg {
   font-size: var(--font-size-s);
   color: var(--color-text);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  font-weight: var(--font-weight-medium);
 }
 
 .activity-card__error-loc {
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+.activity-card__error-context {
+  font-size: var(--font-size-xs);
+  color: var(--color-primary);
+  font-style: italic;
+}
+
+.activity-card__error-footer {
+  align-items: center;
+  margin-block-start: var(--space-xxxs);
+}
+
+.activity-card__error-count {
   font-size: var(--font-size-xs);
   color: var(--color-text-muted);
 }
@@ -282,46 +480,4 @@ const errorTypeLabel: Record<string, string> = {
 .activity-card__link:hover {
   color: var(--color-text-secondary);
 }
-
-/* ── Build ── */
-.activity-card__build {
-  align-items: center;
-}
-
-.activity-card__build-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-
-.activity-card__build-dot--pulse {
-  animation: pulse 2s ease-in-out infinite;
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.4; }
-}
-
-.activity-card__build-tool {
-  font-size: var(--font-size-s);
-  font-weight: var(--font-weight-medium);
-  color: var(--color-text);
-}
-
-.activity-card__build-status {
-  font-size: var(--font-size-s);
-  color: var(--color-text-secondary);
-}
-
-.activity-card__build-meta {
-  display: block;
-  font-size: var(--font-size-xs);
-  color: var(--color-text-muted);
-  margin-block-start: var(--space-xxxs);
-}
-
-.activity-card__build-ok { color: var(--color-status-running); }
-.activity-card__build-fail { color: var(--color-status-stop-hover); }
 </style>
