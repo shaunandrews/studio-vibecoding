@@ -503,6 +503,8 @@ defineExpose({ toggle, close, open })
   font-size: var(--font-size-xs);
   text-align: end;
   opacity: 0.45;
+  order: 99;
+  margin-inline-start: auto;
 }
 
 .flyout-item-check {
