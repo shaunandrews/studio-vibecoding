@@ -29,11 +29,13 @@ const actions = [
 <style scoped>
 .quick-actions {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: var(--space-xxs);
 }
 
 .quick-actions :deep(.btn) {
   border-radius: var(--radius-s);
+  width: 100%;
+  justify-content: flex-start;
 }
 </style>

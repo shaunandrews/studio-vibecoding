@@ -260,7 +260,7 @@ function onPanelAfterLeave() {
   >
     <!-- Left: dashboard -->
     <div ref="dashboardRef" class="dashboard vstack flex-1 min-w-0">
-      <div class="dashboard__content flex-1 min-h-0 overflow-auto">
+      <div class="dashboard__content flex-1 min-h-0 overflow-hidden">
         <DashboardOverview />
       </div>
 
@@ -410,9 +410,8 @@ function onPanelAfterLeave() {
 
 /* ── Dashboard content ── */
 .dashboard__content {
+  display: flex;
   background: var(--color-surface);
-  container-type: inline-size;
-  container-name: dashboard;
 }
 
 /* ── Panel resize handle ── */

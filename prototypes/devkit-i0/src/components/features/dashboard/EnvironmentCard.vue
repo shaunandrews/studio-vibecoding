@@ -18,14 +18,6 @@ const debugDescriptions: Record<string, string> = {
 
 <template>
   <div class="env-card">
-    <div class="env-card__header">
-      <span class="env-card__title">Environment</span>
-      <a class="env-card__url" :href="`http://${environment.siteUrl}`" target="_blank" rel="noopener">
-        {{ environment.siteUrl }}
-        <span class="env-card__url-arrow">↗</span>
-      </a>
-    </div>
-
     <!-- Stack -->
     <div class="env-card__section">
       <span class="env-card__section-label">Stack</span>
@@ -97,43 +89,8 @@ const debugDescriptions: Record<string, string> = {
 </template>
 
 <style scoped>
-/* ── Header ── */
-.env-card__header {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: var(--space-xs);
-  margin-block-end: var(--space-s);
-}
-
-.env-card__title {
-  font-size: var(--font-size-m);
-  font-weight: var(--font-weight-semibold);
-  color: var(--color-text);
-}
-
-/* ── Site URL ── */
-.env-card__url {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-xxxs);
-  font-size: var(--font-size-s);
-  color: var(--color-primary);
-  text-decoration: none;
-  transition: color var(--transition-hover);
-}
-
-.env-card__url:hover {
-  color: var(--color-primary-hover, var(--color-text));
-}
-
-.env-card__url-arrow {
-  font-size: var(--font-size-xs);
-  opacity: 0.6;
-}
-
 /* ── Sections ── */
-.env-card__section {
+.env-card__section + .env-card__section {
   margin-block-start: var(--space-m);
 }
 
