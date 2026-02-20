@@ -16,17 +16,19 @@ import { useInputActions } from '@/data/useInputActions'
 import { settingsToVariables } from '@/data/themes/settings-to-variables'
 import { buildSiteContext } from '@/data/ai-site-context'
 import { useSkills } from '@/data/useSkills'
+import { useChatGreeting } from '@/data/useChatGreeting'
 import AllChatsModal from '@/components/composites/AllChatsModal.vue'
 import type { ActionButton, Conversation, Skill } from '@/data/types'
 import type { Tab } from '@/components/composites/TabBar.vue'
 
-const { conversations, messages, getMessages, ensureConversation, sendMessage, postMessage, archiveConversation, unarchiveConversation } = useConversations()
+const { conversations, messages, getMessages, ensureConversation, sendMessage, postMessage, streamAgentMessage, archiveConversation, unarchiveConversation } = useConversations()
 const siteStore = useSiteStore()
 const { updateTheme } = useSiteThemes()
 const { selectBrief, regenerateBriefs, buildPage } = useBuildProgress()
 const { isOnboarding, getOnboardingStep, resolveInput } = useOnboarding()
-const { getActions, clearActions } = useInputActions()
+const { getActions, clearActions, pushActions } = useInputActions()
 const { getSkillPrompt, matchSlashCommand } = useSkills()
+const { generateGreeting } = useChatGreeting()
 
 const props = defineProps<{
   projectId?: string | null
@@ -132,6 +134,8 @@ function handleAddTab() {
   state.openConvoIds.push(conv.id)
   state.activeConvoId = conv.id
   tabStateMap.value = { ...tabStateMap.value }
+
+  streamGreeting(conv.id)
   nextTick(() => inputChatRef.value?.focus())
 }
 
@@ -154,6 +158,7 @@ function handleCloseTab(id: string) {
     conversations.value.push(conv)
     state.openConvoIds.push(conv.id)
     state.activeConvoId = conv.id
+    streamGreeting(conv.id)
   } else if (state.activeConvoId === id) {
     const nextId = state.openConvoIds[Math.min(idx, state.openConvoIds.length - 1)]
     state.activeConvoId = nextId ?? state.openConvoIds[0] ?? state.activeConvoId
@@ -161,6 +166,23 @@ function handleCloseTab(id: string) {
 
   tabStateMap.value = { ...tabStateMap.value }
   nextTick(() => inputChatRef.value?.focus())
+}
+
+async function streamGreeting(conversationId: string) {
+  if (!props.projectId) return
+  const site = siteStore.getSite(props.projectId)
+  if (!site) return
+
+  const greeting = generateGreeting(site)
+  for (const msg of greeting.messages) {
+    await streamAgentMessage(conversationId, msg, 'assistant')
+  }
+  pushActions({
+    id: `greeting-${conversationId}`,
+    conversationId,
+    actions: greeting.actions,
+    sourceRef: 'chat-greeting',
+  })
 }
 
 const msgs = getMessages(activeConvoId)
