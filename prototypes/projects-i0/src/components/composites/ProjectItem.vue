@@ -14,6 +14,7 @@ const props = defineProps<{
   project: Project
   mode: 'card' | 'row'
   active?: boolean
+  collapsed?: boolean
 }>()
 
 defineEmits<{
@@ -39,9 +40,10 @@ const previewHtml = computed(() => {
 </script>
 
 <template>
+  <Tooltip :text="collapsed ? project.name : undefined" placement="right">
     <div
       class="project-item"
-      :class="[`mode-${mode}`, { active }]"
+      :class="[`mode-${mode}`, { active, collapsed }]"
       :style="mode === 'card' && project.id === transitionProjectId ? { viewTransitionName: 'project-frame' } : {}"
       @click="$emit('select', project.id)"
     >
@@ -55,15 +57,18 @@ const previewHtml = computed(() => {
       </div>
       <div class="item-header hstack gap-xs">
         <img class="item-favicon shrink-0" :src="project.favicon" alt="" />
-        <div class="flex-1 min-w-0">
-          <div class="item-name">{{ project.name }}</div>
-          <div class="item-url"><Text variant="caption" color="muted">{{ project.url }}</Text></div>
-        </div>
-        <Tooltip :text="project.status === 'running' ? 'Running — click to stop' : project.status === 'loading' ? 'Starting…' : 'Stopped — click to start'">
-          <StatusIndicator :status="project.status" @toggle.stop="$emit('toggle-status', project.id)" />
-        </Tooltip>
+        <template v-if="!collapsed">
+          <div class="flex-1 min-w-0">
+            <div class="item-name">{{ project.name }}</div>
+            <div class="item-url"><Text variant="caption" color="muted">{{ project.url }}</Text></div>
+          </div>
+          <Tooltip :text="project.status === 'running' ? 'Running — click to stop' : project.status === 'loading' ? 'Starting…' : 'Stopped — click to start'">
+            <StatusIndicator :status="project.status" @toggle.stop="$emit('toggle-status', project.id)" />
+          </Tooltip>
+        </template>
       </div>
     </div>
+  </Tooltip>
 </template>
 
 <style scoped>
@@ -158,5 +163,28 @@ const previewHtml = computed(() => {
   pointer-events: none;
   transform: scale(0.5);
   transform-origin: top left;
+}
+
+/* Collapsed row — favicon only, centered */
+.project-item.mode-row.collapsed {
+  display: flex;
+  justify-content: center;
+  padding: var(--space-xs) 0;
+}
+
+.project-item.mode-row.collapsed .item-header {
+  justify-content: center;
+  gap: 0;
+}
+
+.project-item.mode-row.collapsed .item-favicon {
+  width: 24px;
+  height: 24px;
+}
+
+.project-item.mode-row.collapsed.active {
+  background: var(--color-chrome-active);
+  border-radius: var(--radius-s);
+  margin-inline: var(--space-xxxs);
 }
 </style>
