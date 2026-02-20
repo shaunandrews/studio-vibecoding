@@ -19,7 +19,7 @@ export interface TourStep {
 const STEPS: TourStep[] = [
   {
     id: 'sidebar',
-    selector: '.project-list.mode-list',
+    selector: '.project-list.mode-list .project-item',
     title: 'Your projects',
     description: 'Your projects live here. Click to switch between them.',
   },
