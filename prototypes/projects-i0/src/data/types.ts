@@ -36,6 +36,7 @@ export interface Conversation {
   agentId: AgentId
   title?: string
   createdAt: string
+  archived?: boolean
 }
 
 export interface Message {
@@ -95,6 +96,7 @@ export type CardBlock =
   | (BaseCardBlock & { card: 'themeEdit'; data: ThemeEditCardData })
   | (BaseCardBlock & { card: 'designBriefPicker'; data: DesignBriefPickerCardData })
   | (BaseCardBlock & { card: 'skillBanner'; data: SkillBannerCardData })
+  | (BaseCardBlock & { card: 'pageCreate'; data: PageCreateCardData })
 
 export type ContentBlock =
   | { type: 'text'; text: string }
@@ -173,8 +175,8 @@ export interface SectionEditCardData {
   label: string
   sectionId: string
   changeSummary: string
-  before: { html: string; css: string }
-  after: { html: string; css: string }
+  html: string
+  css: string
 }
 
 export interface ThemeEditCardData {
@@ -227,5 +229,16 @@ export interface SkillBannerCardData {
   skillName: string
   skillIcon: string
   category: SkillCategory
+}
+
+export interface PageCreateCardData {
+  title: string
+  slug: string
+  description: string
+  sections: {
+    role: string
+    description: string
+    reuse?: string
+  }[]
 }
 

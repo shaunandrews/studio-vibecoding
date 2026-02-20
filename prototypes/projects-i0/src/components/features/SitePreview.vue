@@ -7,12 +7,14 @@ import PanelToolbar from '@/components/composites/PanelToolbar.vue'
 import Text from '@/components/primitives/Text.vue'
 import { renderSite, sendPageUpdate, sendSectionUpdate, sendThemeUpdate } from '@/data/site-renderer'
 import { useSiteStore } from '@/data/useSiteStore'
+import { usePreviewState } from '@/data/usePreviewState'
 
 const props = defineProps<{
   projectId?: string | null
 }>()
 
 const siteStore = useSiteStore()
+const { navTarget } = usePreviewState()
 
 // Navigation state
 const currentPage = ref('/')
@@ -215,6 +217,19 @@ watch(currentPage, (newPage) => {
     srcdoc.value = renderSite(site.value, newPage, colorMode.value)
   }
 })
+
+// External navigation requests (e.g. buildPage navigating to new page)
+watch(
+  () => props.projectId ? navTarget.value[props.projectId] : undefined,
+  (slug) => {
+    if (slug && props.projectId) {
+      navigateTo(slug)
+      // Clear the request
+      const { [props.projectId]: _, ...rest } = navTarget.value
+      navTarget.value = rest
+    }
+  },
+)
 
 function applyColorMode(mode: 'light' | 'dark') {
   if (!site.value || !iframeRef.value || !iframeReady.value) return

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, nextTick, onMounted } from 'vue'
+import { ref, computed, nextTick, onMounted, onUnmounted } from 'vue'
 import { drawerRight, external } from '@wordpress/icons'
 import { renderSite } from '@/data/site-renderer'
 import Button from '@/components/primitives/Button.vue'
@@ -16,13 +16,14 @@ import { useInputActions } from '@/data/useInputActions'
 import { settingsToVariables } from '@/data/themes/settings-to-variables'
 import { buildSiteContext } from '@/data/ai-site-context'
 import { useSkills } from '@/data/useSkills'
+import AllChatsModal from '@/components/composites/AllChatsModal.vue'
 import type { ActionButton, Conversation, Skill } from '@/data/types'
 import type { Tab } from '@/components/composites/TabBar.vue'
 
-const { conversations, messages, getMessages, ensureConversation, sendMessage, postMessage } = useConversations()
+const { conversations, messages, getMessages, ensureConversation, sendMessage, postMessage, archiveConversation, unarchiveConversation } = useConversations()
 const siteStore = useSiteStore()
 const { updateTheme } = useSiteThemes()
-const { selectBrief, regenerateBriefs } = useBuildProgress()
+const { selectBrief, regenerateBriefs, buildPage } = useBuildProgress()
 const { isOnboarding, getOnboardingStep, resolveInput } = useOnboarding()
 const { getActions, clearActions } = useInputActions()
 const { getSkillPrompt, matchSlashCommand } = useSkills()
@@ -74,7 +75,8 @@ function ensureTabState(): { openConvoIds: string[], activeConvoId: string } {
   const existing = tabStateMap.value[key]
   if (existing) return existing
 
-  const convoIds = projectConvos.value.map(c => c.id)
+  // Only show non-archived conversations as initial tabs
+  const convoIds = projectConvos.value.filter(c => !c.archived).map(c => c.id)
   const openIds = convoIds.length > 0 ? convoIds : []
   // If no convos exist, create one
   if (openIds.length === 0) {
@@ -136,17 +138,56 @@ function handleAddTab() {
 function handleCloseTab(id: string) {
   const state = ensureTabState()
   const idx = state.openConvoIds.indexOf(id)
-  if (idx === -1 || state.openConvoIds.length <= 1) return
+  if (idx === -1) return
+
+  archiveConversation(id)
   state.openConvoIds.splice(idx, 1)
-  if (state.activeConvoId === id) {
+
+  // If that was the last tab, create a fresh conversation
+  if (state.openConvoIds.length === 0) {
+    const conv: Conversation = {
+      id: `conv-${Date.now()}`,
+      projectId: props.projectId ?? null,
+      agentId: 'assistant',
+      createdAt: new Date().toISOString(),
+    }
+    conversations.value.push(conv)
+    state.openConvoIds.push(conv.id)
+    state.activeConvoId = conv.id
+  } else if (state.activeConvoId === id) {
     const nextId = state.openConvoIds[Math.min(idx, state.openConvoIds.length - 1)]
     state.activeConvoId = nextId ?? state.openConvoIds[0] ?? state.activeConvoId
   }
+
   tabStateMap.value = { ...tabStateMap.value }
+  nextTick(() => inputChatRef.value?.focus())
 }
 
 const msgs = getMessages(activeConvoId)
 const inputChatRef = ref<InstanceType<typeof InputChat> | null>(null)
+
+const showAllChats = ref(false)
+
+function handleViewAllChats() {
+  showAllChats.value = true
+}
+
+function handleSelectChat(conversationId: string) {
+  const state = ensureTabState()
+
+  // Unarchive if needed
+  unarchiveConversation(conversationId)
+
+  // Add to open tabs if not already there
+  if (!state.openConvoIds.includes(conversationId)) {
+    state.openConvoIds.push(conversationId)
+  }
+
+  state.activeConvoId = conversationId
+  tabStateMap.value = { ...tabStateMap.value }
+  showAllChats.value = false
+  nextTick(() => inputChatRef.value?.focus())
+}
 
 const slashMatches = ref<Skill[]>([])
 
@@ -165,8 +206,19 @@ function handleSlashSelect(skill: Skill) {
   slashMatches.value = []
 }
 
+function onGlobalKeydown(e: KeyboardEvent) {
+  if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key === 'k') {
+    e.preventDefault()
+    handleAddTab()
+  }
+}
+
 onMounted(() => {
   nextTick(() => inputChatRef.value?.focus())
+  document.addEventListener('keydown', onGlobalKeydown)
+})
+onUnmounted(() => {
+  document.removeEventListener('keydown', onGlobalKeydown)
 })
 
 // Per-conversation draft text
@@ -247,6 +299,11 @@ function handleAction(action: ActionButton) {
     const applyType = action.action.payload.applyType
 
     if (applyType === 'themeBatch' && action.action.payload.themeChanges) {
+      postMessage(activeConvoId.value, 'user', action.action.message, undefined, {
+        source: 'action',
+        actionId: action.id,
+        payload: action.action.payload,
+      })
       try {
         const batch = JSON.parse(action.action.payload.themeChanges) as { mode: string; changes: any }[]
         for (const entry of batch) {
@@ -255,15 +312,36 @@ function handleAction(action: ActionButton) {
           siteStore.updateThemeVariables(props.projectId, overrides, mode)
         }
       } catch { /* ignore parse errors */ }
+      return
     }
 
     if (applyType === 'sectionEdit' && action.action.payload.sectionId) {
+      postMessage(activeConvoId.value, 'user', action.action.message, undefined, {
+        source: 'action',
+        actionId: action.id,
+        payload: action.action.payload,
+      })
       siteStore.updateSection(
         props.projectId,
         action.action.payload.sectionId,
         action.action.payload.html ?? '',
         action.action.payload.css ?? '',
       )
+      return
+    }
+
+    if (applyType === 'pageCreate' && action.action.payload.pageCreateData) {
+      try {
+        const pageData = JSON.parse(action.action.payload.pageCreateData)
+        // Post user message manually — don't trigger AI response, buildPage handles all feedback
+        postMessage(activeConvoId.value, 'user', action.action.message, undefined, {
+          source: 'action',
+          actionId: action.id,
+          payload: action.action.payload,
+        })
+        buildPage(props.projectId, pageData, activeConvoId.value)
+      } catch { /* ignore parse errors */ }
+      return
     }
   }
 
@@ -287,7 +365,7 @@ function handleAction(action: ActionButton) {
   <div class="agent-panel vstack flex-1 overflow-hidden">
     <PanelToolbar>
       <template #start>
-        <TabBar :tabs="openTabs" :active-id="activeConvoId" @update:active-id="setActiveTab" @add="handleAddTab" @close="handleCloseTab" />
+        <TabBar :tabs="openTabs" :active-id="activeConvoId" @update:active-id="setActiveTab" @add="handleAddTab" @close="handleCloseTab" @view-all="handleViewAllChats" />
       </template>
       <template #end>
         <Button v-if="browserMode === 'browser'" variant="tertiary" :icon="external"
@@ -315,6 +393,15 @@ function handleAction(action: ActionButton) {
         />
       </div>
     </div>
+
+    <AllChatsModal
+      v-if="projectId"
+      :project-id="projectId"
+      :open="showAllChats"
+      :active-convo-id="activeConvoId"
+      @close="showAllChats = false"
+      @select="handleSelectChat"
+    />
   </div>
 </template>
 

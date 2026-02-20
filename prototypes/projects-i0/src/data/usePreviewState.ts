@@ -11,6 +11,9 @@ import { ref, computed } from 'vue'
 const STORAGE_KEY = 'previewState'
 const MODE_KEY = 'previewBrowserMode'
 
+// Navigation requests — buildPage sets this, SitePreview watches it
+const navTarget = ref<Record<string, string>>({})
+
 type BrowserMode = 'app' | 'browser'
 
 function load(): Record<string, boolean> {
@@ -87,5 +90,9 @@ export function usePreviewState() {
     })
   }
 
-  return { isVisible, show, hide, toggle, visibleComputed, getBrowserMode, setBrowserMode, toggleBrowserMode, browserModeComputed }
+  function requestNavigation(projectId: string, slug: string) {
+    navTarget.value = { ...navTarget.value, [projectId]: slug }
+  }
+
+  return { isVisible, show, hide, toggle, visibleComputed, getBrowserMode, setBrowserMode, toggleBrowserMode, browserModeComputed, navTarget, requestNavigation }
 }

@@ -141,6 +141,28 @@ export function useSiteStore() {
     },
 
     /**
+     * Add a new page to a site.
+     * Returns false if the slug already exists (duplicate guard).
+     */
+    addPage(projectId: string, slug: string, title: string, sectionIds: string[]): boolean {
+      const site = sites[projectId]
+      if (!site) return false
+
+      // Normalize slug — ensure leading /
+      const normalizedSlug = slug.startsWith('/') ? slug : `/${slug}`
+
+      // Duplicate guard
+      if (site.pages.some(p => p.slug === normalizedSlug)) return false
+
+      site.pages.push({
+        slug: normalizedSlug,
+        title,
+        sections: sectionIds,
+      })
+      return true
+    },
+
+    /**
      * Get all sites (for debugging)
      */
     getAllSites(): Record<string, Site> {

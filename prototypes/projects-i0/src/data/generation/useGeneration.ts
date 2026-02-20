@@ -481,12 +481,79 @@ function abort(): void {
   progress.value.error = 'Generation cancelled'
 }
 
+// ---- Page Section Generation ----
+
+/**
+ * Generate sections for a new page using the site's existing theme.
+ * Reconstructs a pseudo-DesignBrief from the site's current variables and fonts,
+ * then generates all new sections in parallel.
+ */
+async function generatePageSections(
+  site: Site,
+  projectId: string,
+  pageTitle: string,
+  sections: { role: string; description: string }[],
+  onEvent?: GenerationEventCallback,
+): Promise<void> {
+  const siteStore = useSiteStore()
+
+  // Reconstruct a pseudo-brief from the site's current theme
+  const varsBlock = Object.entries(site.theme.variables)
+    .map(([k, v]) => `  ${k}: ${v};`)
+    .join('\n')
+  const brief: DesignBrief = {
+    cssVariables: `:root {\n${varsBlock}\n}`,
+    styleName: site.theme.name,
+    direction: `Maintain the existing design language of ${site.name}`,
+    fonts: site.theme.fonts,
+  }
+
+  const failedSections: string[] = []
+  const contextInfo = [`Page: ${pageTitle}`, `Existing site: ${site.name}`, 'Match the established design patterns']
+
+  const sectionPromises = sections.map(async (section) => {
+    // Collision guard: if section ID already exists, prefix with page slug
+    let sectionId = section.role
+    if (site.sections[sectionId]) {
+      const prefix = pageTitle.toLowerCase().replace(/\s+/g, '-')
+      sectionId = `${prefix}-${section.role}`
+    }
+
+    try {
+      const { css, html } = await generateSectionWithRetry(
+        brief,
+        section.role,
+        pageTitle,
+        [...contextInfo, `Section purpose: ${section.description}`],
+        site.name,
+        undefined,
+        site.description,
+      )
+
+      siteStore.updateSection(projectId, sectionId, html, css)
+      // Use original role for event (not collision-prefixed sectionId) so progress card matching works
+      onEvent?.({ type: 'section-done', sectionId: section.role, pageSlug: '', sectionsComplete: 0, sectionsTotal: sections.length })
+      return sectionId
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : 'Unknown error'
+      console.error(`[Gen] Page section ${sectionId} failed:`, msg)
+      failedSections.push(section.role)
+      onEvent?.({ type: 'section-error', sectionId: section.role, error: msg })
+      return null
+    }
+  })
+
+  await Promise.all(sectionPromises)
+  onEvent?.({ type: 'complete', failed: failedSections })
+}
+
 // ---- Export ----
 
 export function useGeneration() {
   return {
     generateSite,
     generateDesignBrief,
+    generatePageSections,
     progress,
     abort,
   }

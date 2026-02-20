@@ -13,8 +13,8 @@ export interface SectionEditCardData {
   label: string
   sectionId: string
   changeSummary: string
-  before: { html: string; css: string }
-  after: { html: string; css: string }
+  html: string
+  css: string
 }
 
 export interface ThemeEditCardData {

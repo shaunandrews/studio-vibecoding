@@ -54,5 +54,38 @@ export function buildSiteContext(site: Site): string {
     lines.push(`${page.slug} (${page.title}): ${sectionList}`)
   }
 
+  // Explicit slug list for duplicate detection
+  lines.push('')
+  lines.push(`Existing page slugs: ${site.pages.map(p => p.slug).join(', ')}`)
+
+  // Include HTML/CSS for shared sections (used on 2+ pages) so AI can propose edits
+  const sectionPageCount: Record<string, number> = {}
+  for (const page of site.pages) {
+    for (const sid of page.sections) {
+      sectionPageCount[sid] = (sectionPageCount[sid] || 0) + 1
+    }
+  }
+  const sharedIds = Object.entries(sectionPageCount)
+    .filter(([, count]) => count >= 2)
+    .map(([id]) => id)
+
+  if (sharedIds.length > 0) {
+    lines.push('')
+    lines.push('### Shared Section Content')
+    lines.push('These sections appear on multiple pages. When editing them (e.g. updating navigation links), use their current HTML and CSS as the base for your card:sectionEdit.')
+    for (const id of sharedIds) {
+      const section = site.sections[id]
+      if (!section) continue
+      lines.push('')
+      lines.push(`#### ${id}`)
+      lines.push('```html')
+      lines.push(section.html)
+      lines.push('```')
+      lines.push('```css')
+      lines.push(section.css)
+      lines.push('```')
+    }
+  }
+
   return lines.join('\n')
 }

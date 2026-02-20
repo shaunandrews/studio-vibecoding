@@ -23,15 +23,24 @@ const emit = defineEmits<{
   'update:activeId': [id: string]
   'close': [id: string]
   'add': []
+  'view-all': []
 }>()
 
-const chatMenuGroups = computed<FlyoutMenuGroup[]>(() => [{
-  items: props.tabs.map(tab => ({
-    label: tab.messageCount ? `${tab.label}  ·  ${tab.messageCount}` : tab.label,
-    checked: tab.id === props.activeId,
-    action: () => emit('update:activeId', tab.id),
-  })),
-}])
+const chatMenuGroups = computed<FlyoutMenuGroup[]>(() => [
+  {
+    items: props.tabs.map(tab => ({
+      label: tab.label,
+      checked: tab.id === props.activeId,
+      action: () => emit('update:activeId', tab.id),
+    })),
+  },
+  {
+    items: [{
+      label: 'View all chats',
+      action: () => emit('view-all'),
+    }],
+  },
+])
 
 const scrollRef = ref<HTMLElement | null>(null)
 const canScrollLeft = ref(false)
@@ -83,7 +92,7 @@ watch(() => props.activeId, () => {
 
 <template>
   <div class="tab-bar hstack min-w-0 flex-1">
-    <FlyoutMenu :groups="chatMenuGroups" align="start" class="tab-bar__count">
+    <FlyoutMenu :groups="chatMenuGroups" align="start" max-width="300px" class="tab-bar__count">
       <template #trigger="{ toggle, open }">
         <button class="tab-bar__count-btn hstack gap-xxxs" @click="toggle">
           <Text variant="label" color="secondary">{{ tabs.length }} {{ tabs.length === 1 ? 'Chat' : 'Chats' }}</Text>

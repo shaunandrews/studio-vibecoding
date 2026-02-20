@@ -13,6 +13,7 @@ import SectionEditCard from '@/components/composites/chat-cards/SectionEditCard.
 import ThemeEditCard from '@/components/composites/chat-cards/ThemeEditCard.vue'
 import DesignBriefPickerCard from '@/components/composites/chat-cards/DesignBriefPickerCard.vue'
 import SkillBannerCard from '@/components/composites/chat-cards/SkillBannerCard.vue'
+import PageCreateCard from '@/components/composites/chat-cards/PageCreateCard.vue'
 import type { ContentBlock, AgentId } from '@/data/types'
 
 const props = defineProps<{
@@ -103,14 +104,7 @@ const normalizedContent = computed<ContentBlock[]>(() =>
           :state="block.state"
         />
 
-        <SectionEditCard
-          v-else-if="block.type === 'card' && block.card === 'sectionEdit'"
-          :data="block.data"
-          :project-id="projectId || 'demo'"
-          :section-id="block.data.sectionId"
-          :compact="block.compact"
-          :state="block.state"
-        />
+        <!-- sectionEdit cards are silent — the Apply action in the input strip is sufficient -->
 
         <ThemeEditCard
           v-else-if="block.type === 'card' && block.card === 'themeEdit'"
@@ -130,6 +124,13 @@ const normalizedContent = computed<ContentBlock[]>(() =>
         <SkillBannerCard
           v-else-if="block.type === 'card' && block.card === 'skillBanner'"
           :data="block.data"
+          :state="block.state"
+        />
+
+        <PageCreateCard
+          v-else-if="block.type === 'card' && block.card === 'pageCreate'"
+          :data="block.data"
+          :compact="block.compact"
           :state="block.state"
         />
 

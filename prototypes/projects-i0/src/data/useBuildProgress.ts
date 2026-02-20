@@ -16,7 +16,8 @@ import { useProjects } from './useProjects'
 import { useConversations } from './useConversations'
 import { usePreviewState } from './usePreviewState'
 import { useInputActions } from './useInputActions'
-import type { ProjectBrief, ProjectType, ContentBlock, VariationHint } from './types'
+import { useSiteStore } from './useSiteStore'
+import type { ProjectBrief, ProjectType, ContentBlock, VariationHint, PageCreateCardData } from './types'
 import type { DesignBrief, GenerationEvent } from './generation/types'
 
 // ---- Page Configs per Project Type ----
@@ -277,8 +278,9 @@ export function useBuildProgress() {
   const { generateSite, generateDesignBrief, progress, abort } = useGeneration()
   const { setStatus } = useProjects()
   const { ensureConversation, sendMessage, streamAgentMessage, postMessage, messages } = useConversations()
-  const { hide, show } = usePreviewState()
+  const { hide, show, requestNavigation } = usePreviewState()
   const { pushActions, clearBySource } = useInputActions()
+  const siteStore = useSiteStore()
 
   /**
    * Generate briefs and show them as style tile cards in the input area.
@@ -626,6 +628,171 @@ export function useBuildProgress() {
         buildStates[projectId] = { status: 'error', error: message }
         setStatus(projectId, 'stopped')
       }
+    },
+
+    async buildPage(projectId: string, pageData: PageCreateCardData, conversationId?: string): Promise<void> {
+      const { generatePageSections } = useGeneration()
+      const site = siteStore.getSite(projectId)
+      if (!site) return
+
+      const convoId = conversationId ?? ensureConversation(projectId, 'assistant').id
+
+      // 1. Validate slug — check for duplicates
+      const normalizedSlug = pageData.slug.startsWith('/') ? pageData.slug : `/${pageData.slug}`
+      if (site.pages.some(p => p.slug === normalizedSlug)) {
+        await streamAgentMessage(
+          convoId,
+          `A page at **${normalizedSlug}** already exists. Try a different slug.`,
+          'assistant',
+        )
+        return
+      }
+
+      // 2. Separate reused sections from new ones to generate
+      const reusedSections: { role: string; existingId: string }[] = []
+      const sectionsToGenerate: { role: string; description: string }[] = []
+
+      for (const section of pageData.sections) {
+        if (section.reuse) {
+          if (site.sections[section.reuse]) {
+            reusedSections.push({ role: section.role, existingId: section.reuse })
+          } else {
+            // AI referenced a section that doesn't exist — move to generate list
+            console.warn(`[BuildPage] Reused section "${section.reuse}" not found, will generate instead`)
+            sectionsToGenerate.push({ role: section.role, description: section.description })
+          }
+        } else {
+          sectionsToGenerate.push({ role: section.role, description: section.description })
+        }
+      }
+
+      // 3. Build section ID list for the page
+      const sectionIds = pageData.sections.map(s => {
+        if (s.reuse && site.sections[s.reuse]) return s.reuse
+        // For new sections, check collision with existing IDs
+        if (site.sections[s.role]) {
+          const prefix = pageData.title.toLowerCase().replace(/\s+/g, '-')
+          return `${prefix}-${s.role}`
+        }
+        return s.role
+      })
+
+      // 4. Add the page to the site and navigate the preview to it
+      siteStore.addPage(projectId, normalizedSlug, pageData.title, sectionIds)
+      requestNavigation(projectId, normalizedSlug)
+
+      // 5. Short-circuit if all sections are reused
+      if (sectionsToGenerate.length === 0) {
+        await streamAgentMessage(
+          convoId,
+          `**${pageData.title}** page is ready at \`${normalizedSlug}\` — all sections reused from existing pages. You might want to update the header navigation to include a link to it.`,
+          'assistant',
+        )
+        return
+      }
+
+      // 6. Post progress card
+      const allSteps = sectionsToGenerate.map(s => ({
+        name: humanizeRole(s.role),
+        status: 'running' as 'pending' | 'running' | 'done' | 'error',
+      }))
+
+      const buildIntro: ContentBlock[] = [
+        { type: 'text', text: `Building **${pageData.title}** page — ${sectionsToGenerate.length} new section${sectionsToGenerate.length > 1 ? 's' : ''} to generate.` },
+        {
+          type: 'card',
+          card: 'progress',
+          data: { label: `Building ${pageData.title}`, steps: allSteps.map(s => ({ name: s.name, status: s.status })) },
+        },
+      ]
+      postMessage(convoId, 'agent', buildIntro, 'assistant')
+
+      const progressMsgId = messages.value[messages.value.length - 1]?.id ?? null
+
+      function updateProgressCard(updater: (steps: typeof allSteps) => void) {
+        if (!progressMsgId) return
+        const msg = messages.value.find(m => m.id === progressMsgId)
+        if (!msg) return
+        const cardBlock = msg.content.find(
+          (b): b is Extract<ContentBlock, { type: 'card' }> => b.type === 'card' && b.card === 'progress'
+        )
+        if (!cardBlock || cardBlock.card !== 'progress') return
+        updater(cardBlock.data.steps as typeof allSteps)
+        msg.content = [...msg.content]
+      }
+
+      // 7. Generate sections with event handler
+      const onEvent = (event: GenerationEvent) => {
+        switch (event.type) {
+          case 'section-done': {
+            updateProgressCard(steps => {
+              const step = steps.find(s =>
+                s.name.includes(humanizeRole(event.sectionId)) && s.status === 'running'
+              )
+              if (step) step.status = 'done'
+            })
+            break
+          }
+          case 'section-error': {
+            updateProgressCard(steps => {
+              const step = steps.find(s =>
+                s.name.includes(humanizeRole(event.sectionId)) && s.status === 'running'
+              )
+              if (step) step.status = 'error'
+            })
+            break
+          }
+          case 'complete': {
+            updateProgressCard(steps => {
+              steps.forEach(s => {
+                if (s.status === 'running') s.status = 'done'
+              })
+            })
+
+            const succeeded = sectionsToGenerate.length - event.failed.length
+            if (event.failed.length === 0) {
+              streamAgentMessage(
+                convoId,
+                `**${pageData.title}** page is ready at \`${normalizedSlug}\`!`,
+                'assistant',
+              ).then(() => {
+                pushActions({
+                  id: `nav-update-${normalizedSlug}`,
+                  conversationId: convoId,
+                  actions: [{
+                    id: `update-nav-${Date.now()}`,
+                    label: `Add ${pageData.title} to navigation`,
+                    variant: 'primary',
+                    action: {
+                      type: 'send-message',
+                      message: `Update the header navigation to include a link to the new ${pageData.title} page at ${normalizedSlug}`,
+                    },
+                  }],
+                  sourceRef: 'page-build-nav',
+                })
+              })
+            } else {
+              streamAgentMessage(
+                convoId,
+                `**${pageData.title}** page is mostly ready — ${succeeded} of ${sectionsToGenerate.length} sections built. You can ask me to regenerate the failed ones.`,
+                'assistant',
+              )
+            }
+            break
+          }
+          case 'error': {
+            updateProgressCard(steps => {
+              steps.forEach(s => {
+                if (s.status === 'running') s.status = 'error'
+              })
+            })
+            streamAgentMessage(convoId, `Something went wrong building the page: ${event.error}`, 'assistant')
+            break
+          }
+        }
+      }
+
+      await generatePageSections(site, projectId, pageData.title, sectionsToGenerate, onEvent)
     },
 
     stopBuild(projectId: string): void {

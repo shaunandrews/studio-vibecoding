@@ -96,6 +96,7 @@ const LISTENER_SCRIPT = `
         });
       } else {
         section.innerHTML = msg.html;
+        if (typeof msg.order === 'number') section.setAttribute('data-order', String(msg.order));
 
         // Update section CSS
         var sectionStyle = document.getElementById('section-' + msg.sectionId);
@@ -142,10 +143,11 @@ const LISTENER_SCRIPT = `
       // Replace body content (keep script tag)
       var scriptTag = body.querySelector('script');
       while (body.firstChild) body.removeChild(body.firstChild);
-      msg.sections.forEach(function(s) {
+      msg.sections.forEach(function(s, i) {
         var div = document.createElement('div');
         div.setAttribute('data-section', s.id);
         if (s.role) div.setAttribute('data-role', s.role);
+        div.setAttribute('data-order', String(typeof s.order === 'number' ? s.order : i));
         div.innerHTML = s.html;
         body.appendChild(div);
       });
@@ -250,11 +252,12 @@ export function renderSite(site: Site, pageSlug: string, colorMode?: 'light' | '
   // Body with sections
   parts.push('<body>')
   
-  for (const sectionId of page.sections) {
+  for (let i = 0; i < page.sections.length; i++) {
+    const sectionId = page.sections[i]!
     const section = site.sections[sectionId]
     if (section) {
       const roleAttr = section.role ? ` data-role="${escapeAttr(section.role)}"` : ''
-      parts.push(`<div data-section="${escapeAttr(sectionId)}"${roleAttr}>`)
+      parts.push(`<div data-section="${escapeAttr(sectionId)}"${roleAttr} data-order="${i}">`)
       parts.push(section.html)
       parts.push('</div>')
     }
@@ -316,9 +319,11 @@ export function getPageData(site: Site, pageSlug: string): {
   if (!page) return null
 
   const sections = page.sections
-    .map(id => site.sections[id])
-    .filter(Boolean)
-    .map(s => ({ id: s.id, html: s.html, css: s.css, role: s.role }))
+    .map((id, index) => {
+      const s = site.sections[id]
+      return s ? { id: s.id, html: s.html, css: s.css, role: s.role, order: index } : null
+    })
+    .filter((s): s is NonNullable<typeof s> => s !== null)
 
   return { title: `${page.title} - ${site.name}`, sections }
 }

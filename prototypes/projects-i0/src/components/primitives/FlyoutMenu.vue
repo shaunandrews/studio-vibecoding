@@ -5,6 +5,7 @@ import WPIcon from '@/components/primitives/WPIcon.vue'
 
 export interface FlyoutMenuItem {
   label: string
+  detail?: string
   icon?: any
   destructive?: boolean
   checked?: boolean
@@ -22,6 +23,7 @@ const props = withDefaults(defineProps<{
   surface?: 'light' | 'dark'
   align?: 'start' | 'center' | 'end'
   placement?: 'above' | 'below'
+  maxWidth?: string
 }>(), {
   surface: 'light',
   align: 'center',
@@ -105,6 +107,7 @@ function positionMenu() {
     position: 'fixed',
     zIndex: '9999',
   }
+  if (props.maxWidth) style.maxWidth = props.maxWidth
 
   if (placeAbove) {
     const bottom = vh - rect.top + GAP
@@ -266,6 +269,11 @@ onBeforeUnmount(() => {
 // Surface class for the dropdown panels
 const surfaceClass = computed(() => props.surface === 'dark' ? 'flyout--dark' : 'flyout--light')
 
+// Whether any item has a `checked` field — reserve checkmark column for all items
+const hasCheckedItems = computed(() =>
+  props.groups.some(g => g.items.some(i => i.checked !== undefined))
+)
+
 defineExpose({ toggle, close, open })
 </script>
 
@@ -301,13 +309,15 @@ defineExpose({ toggle, close, open })
               @mouseenter="onItemEnter(item, gi, ii)"
               @click="onItemClick(item)"
             >
+              <span v-if="item.detail" class="flyout-item-detail">{{ item.detail }}</span>
               <WPIcon v-if="item.icon" :icon="item.icon" :size="18" class="flyout-item-icon" />
               <span class="flyout-item-label">{{ item.label }}</span>
               <WPIcon
-                v-if="item.checked"
+                v-if="hasCheckedItems"
                 :icon="check"
                 :size="18"
                 class="flyout-item-check"
+                :class="{ 'flyout-item-check--hidden': !item.checked }"
               />
               <WPIcon
                 v-if="item.children?.length"
@@ -482,12 +492,27 @@ defineExpose({ toggle, close, open })
 .flyout-item-label {
   flex: 1;
   min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.flyout-item-detail {
+  flex-shrink: 0;
+  min-width: 20px;
+  font-size: var(--font-size-xs);
+  text-align: end;
+  opacity: 0.45;
 }
 
 .flyout-item-check {
   flex-shrink: 0;
   margin-inline-start: var(--space-xs);
   opacity: 0.6;
+}
+
+.flyout-item-check--hidden {
+  visibility: hidden;
 }
 
 .flyout-item-chevron {

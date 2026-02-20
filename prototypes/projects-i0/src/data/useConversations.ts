@@ -3,7 +3,7 @@ import { seedConversations, seedMessages } from './seed-conversations'
 import { isAIConfigured, streamAI } from './ai-service'
 import { AI_SYSTEM_PROMPT } from './ai-system-prompt'
 import { useInputActions } from './useInputActions'
-import type { Conversation, Message, AgentId, ContentBlock, MessageContext, ActionButton, ThemeUpdateCardData } from './types'
+import type { Conversation, Message, AgentId, ContentBlock, MessageContext, ActionButton, ThemeUpdateCardData, PageCreateCardData } from './types'
 
 const { pushActions } = useInputActions()
 
@@ -175,6 +175,23 @@ function extractCardActions(conversationId: string, blocks: ContentBlock[]) {
         })
       }
     }
+
+    if (block.card === 'pageCreate') {
+      const data = block.data as PageCreateCardData
+      actions.push({
+        id: `build-page-${data.slug}-${Date.now()}`,
+        label: `Build: ${data.title} page`,
+        variant: 'primary',
+        action: {
+          type: 'send-message',
+          message: `Build the ${data.title} page`,
+          payload: {
+            applyType: 'pageCreate',
+            pageCreateData: JSON.stringify(data),
+          },
+        },
+      })
+    }
   }
 
   // Bundle all theme cards into one "Apply" action
@@ -330,6 +347,16 @@ export function useConversations() {
     if (idx !== -1) messages.value.splice(idx, 1)
   }
 
+  function archiveConversation(id: string) {
+    const conv = conversations.value.find(c => c.id === id)
+    if (conv) conv.archived = true
+  }
+
+  function unarchiveConversation(id: string) {
+    const conv = conversations.value.find(c => c.id === id)
+    if (conv) conv.archived = false
+  }
+
   return {
     conversations,
     messages,
@@ -341,5 +368,7 @@ export function useConversations() {
     postMessage,
     removeMessage,
     streamAgentMessage,
+    archiveConversation,
+    unarchiveConversation,
   }
 }
