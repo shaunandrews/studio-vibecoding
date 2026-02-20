@@ -192,6 +192,20 @@ Home grid thumbnails (ProjectItem) reactively follow `prefers-color-scheme` — 
 
 **"Inverted" sections (e.g. dark footers):** Use dedicated variables like `--color-footer-bg`, `--color-footer-text` rather than repurposing `--color-primary`/`--color-background`, which swap meaning between modes.
 
+## Deployment (Vercel)
+
+Production URL: https://projects-i0.vercel.app/
+
+**Deploy command:** `npm run deploy` — copies `../shared` into `./shared`, runs `vercel --prod`, then cleans up.
+
+**How it works:**
+- `vite.config.ts` resolves `@shared` to `./shared` (Vercel) or `../shared` (local dev) via `existsSync` check
+- `.vercelignore` excludes build artifacts but keeps `shared/` so Vercel uploads it
+- `.gitignore` has `shared` to prevent accidental commit of the deploy copy
+- CSS `@import` must use the `@shared` alias (e.g. `@import '@shared/styles/colors.css'`), NOT relative paths like `../../shared/...` — relative paths break on Vercel where the sibling directory doesn't exist
+
+**Important:** When adding new shared CSS imports, always use `@shared/...` not `../../shared/...`.
+
 ## Don't
 
 - Don't rewrite entire files when Shaun has made edits. Surgical edits only.
