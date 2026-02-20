@@ -9,6 +9,7 @@ const props = defineProps<{
   variant?: 'primary' | 'secondary' | 'tertiary'
   surface?: 'light' | 'dark'
   size?: 'small' | 'default'
+  iconOnly?: boolean
   width?: 'hug' | 'full'
   shortcut?: string
   active?: boolean
@@ -67,7 +68,7 @@ onUnmounted(() => {
         `btn--${size || 'default'}`,
         `btn--on-${surface || 'light'}`,
         `btn--${width || 'hug'}`,
-        { 'btn--icon-only': icon && !label, 'btn--active': active, 'btn--active-rotate': active && activeRotate }
+        { 'btn--icon-only': iconOnly || (icon && !label), 'btn--active': active, 'btn--active-rotate': active && activeRotate }
       ]"
       :disabled="disabled"
     >
@@ -194,7 +195,7 @@ onUnmounted(() => {
 }
 
 .btn--tertiary.btn--on-light:hover {
-  background: var(--color-surface-secondary);
+  background: var(--color-surface);
   color: var(--color-text);
 }
 

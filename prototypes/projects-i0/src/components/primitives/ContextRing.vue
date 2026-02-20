@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue'
-import Tooltip from '@/components/primitives/Tooltip.vue'
+import Button from '@/components/primitives/Button.vue'
 
 const props = withDefaults(defineProps<{
   percent: number
@@ -103,25 +103,25 @@ onBeforeUnmount(() => {
 
 <template>
   <div ref="triggerRef" class="context-ring-wrap" :class="[`surface-${surface}`]">
-    <Tooltip :text="open ? undefined : `Context: ${percent}% used`" placement="bottom">
-      <button
-        class="context-ring-trigger"
-        :class="{ active: open, warning: isWarning, critical: isCritical }"
-        aria-label="Context window usage"
-        @click.stop="toggle"
-      >
-        <svg width="16" height="16" viewBox="0 0 16 16">
-          <circle class="context-ring__track" cx="8" cy="8" r="6" />
-          <circle
-            class="context-ring__fill"
-            :class="{ warning: isWarning, critical: isCritical }"
-            cx="8" cy="8" r="6"
-            :stroke-dasharray="circumference"
-            :stroke-dashoffset="dashoffset"
-          />
-        </svg>
-      </button>
-    </Tooltip>
+    <Button
+      variant="tertiary"
+      size="small"
+      icon-only
+      :surface="surface"
+      :tooltip="open ? undefined : `Context: ${percent}% used`"
+      @click.stop="toggle"
+    >
+      <svg width="16" height="16" viewBox="0 0 16 16">
+        <circle class="context-ring__track" cx="8" cy="8" r="6" />
+        <circle
+          class="context-ring__fill"
+          :class="{ warning: isWarning, critical: isCritical }"
+          cx="8" cy="8" r="6"
+          :stroke-dasharray="circumference"
+          :stroke-dashoffset="dashoffset"
+        />
+      </svg>
+    </Button>
 
     <!-- Details popover -->
     <Teleport to="body">
@@ -159,27 +159,7 @@ onBeforeUnmount(() => {
   display: inline-flex;
 }
 
-.context-ring-trigger {
-  display: inline-flex;
-  align-items: center;
-  background: none;
-  border: none;
-  border-radius: var(--radius-s);
-  padding: var(--space-xxxs);
-  cursor: pointer;
-  transition: background var(--duration-instant) var(--ease-default);
-}
-
-.context-ring-trigger:hover {
-  background: var(--color-surface);
-}
-
-.context-ring-trigger.active {
-  background: var(--color-surface);
-}
-
-.context-ring-trigger svg {
-  display: block;
+.context-ring-wrap :deep(svg) {
   transform: rotate(-90deg); /* Start arc from 12 o'clock */
 }
 
@@ -214,11 +194,6 @@ onBeforeUnmount(() => {
 }
 
 /* Dark surface variants */
-.surface-dark .context-ring-trigger:hover,
-.surface-dark .context-ring-trigger.active {
-  background: var(--color-chrome-hover);
-}
-
 .surface-dark .context-ring__track {
   stroke: var(--color-chrome-border);
 }
