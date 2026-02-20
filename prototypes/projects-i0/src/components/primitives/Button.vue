@@ -16,6 +16,7 @@ const props = defineProps<{
   activeRotate?: boolean
   disabled?: boolean
   tooltip?: string
+  tooltipPlacement?: 'top' | 'bottom' | 'left' | 'right'
 }>()
 
 // No custom click emit — native click falls through via inheritAttrs
@@ -59,7 +60,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <Tooltip :text="tooltip">
+  <Tooltip :text="tooltip" :placement="tooltipPlacement">
     <button
       ref="btnRef"
       class="btn"

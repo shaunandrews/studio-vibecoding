@@ -1,8 +1,6 @@
 <script setup lang="ts">
-import { chevronLeft } from '@wordpress/icons'
+import { chevronLeft, drawerLeft } from '@wordpress/icons'
 import WPIcon from '@shared/primitives/WPIcon.vue'
-import Text from '@shared/primitives/Text.vue'
-import Tooltip from '@shared/primitives/Tooltip.vue'
 import Button from '@/components/primitives/Button.vue'
 import ProjectItem from '@/components/composites/ProjectItem.vue'
 import { useProjects } from '@/data/useProjects'
@@ -40,19 +38,39 @@ function toggleStatus(id: string) {
 
 <template>
   <div class="project-list vstack" :class="`mode-${mode}`">
-    <!-- Back link (list mode only) -->
-    <div v-if="mode === 'list'" class="all-projects hstack" :class="{ 'is-collapsed': collapsed }" @click="collapsed ? toggleSidebar() : goHome()">
-      <Tooltip :text="collapsed ? 'All projects' : undefined" placement="right">
-        <WPIcon :icon="chevronLeft" :size="20" class="back-icon shrink-0" />
-      </Tooltip>
-      <span v-if="!collapsed" class="back-label flex-1 min-w-0">All projects</span>
-      <button
-        v-if="!collapsed"
-        class="collapse-toggle"
-        @click.stop="toggleSidebar()"
-      >
-        <WPIcon :icon="chevronLeft" :size="16" />
-      </button>
+    <!-- Sidebar header (list mode only) -->
+    <div v-if="mode === 'list'" class="sidebar-header" :class="{ 'is-collapsed': collapsed }">
+      <template v-if="!collapsed">
+        <button class="all-projects hstack" @click="goHome()">
+          <WPIcon :icon="chevronLeft" :size="20" class="back-icon shrink-0" />
+          <span class="back-label">All projects</span>
+        </button>
+        <Button
+          variant="tertiary"
+          surface="dark"
+          :icon="drawerLeft"
+          tooltip="Collapse sidebar"
+          @click="toggleSidebar()"
+        />
+      </template>
+      <template v-else>
+        <Button
+          variant="tertiary"
+          surface="dark"
+          :icon="drawerLeft"
+          tooltip="Expand sidebar"
+          tooltipPlacement="right"
+          @click="toggleSidebar()"
+        />
+        <Button
+          variant="tertiary"
+          surface="dark"
+          :icon="chevronLeft"
+          tooltip="All projects"
+          tooltipPlacement="right"
+          @click="goHome()"
+        />
+      </template>
     </div>
 
     <!-- Items -->
@@ -101,33 +119,44 @@ function toggleStatus(id: string) {
   gap: var(--space-xxs);
 }
 
-/* Override Tooltip's inline-flex wrapper so items respect parent width */
-.items-stack :deep(.tooltip-trigger) {
+/* Override Tooltip's inline-flex wrapper so items fill parent width */
+.items-container :deep(.tooltip-trigger) {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.sidebar-header {
   display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sidebar-header.is-collapsed {
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-xxs);
 }
 
 .all-projects {
+  display: flex;
   align-items: center;
   gap: var(--space-xs);
+  border: none;
+  background: none;
   border-radius: var(--radius-s);
   cursor: pointer;
   color: var(--color-chrome-text-secondary);
-  transition: background var(--transition-hover);
-  padding: var(--space-xxs);
-}
-
-.all-projects.is-collapsed {
-  justify-content: center;
-  padding: var(--space-xs) 0;
+  transition: color var(--transition-hover);
+  padding: 0;
 }
 
 .all-projects:hover {
-  background: var(--color-chrome-hover);
   color: var(--color-chrome-text);
 }
 
 .back-icon {
   opacity: 0.6;
+  transition: opacity var(--transition-hover);
 }
 
 .all-projects:hover .back-icon {
@@ -138,27 +167,7 @@ function toggleStatus(id: string) {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  transition: opacity var(--duration-fast) var(--ease-default);
 }
 
-.collapse-toggle {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  width: 20px;
-  height: 20px;
-  border: none;
-  background: none;
-  color: var(--color-chrome-text-muted);
-  cursor: pointer;
-  border-radius: var(--radius-s);
-  transition: color var(--transition-hover), background var(--transition-hover);
-}
-
-.collapse-toggle:hover {
-  color: var(--color-chrome-text);
-  background: var(--color-chrome-hover);
-}
 
 </style>

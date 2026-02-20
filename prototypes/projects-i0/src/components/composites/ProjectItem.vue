@@ -47,13 +47,17 @@ const previewHtml = computed(() => {
       :style="mode === 'card' && project.id === transitionProjectId ? { viewTransitionName: 'project-frame' } : {}"
       @click="$emit('select', project.id)"
     >
-      <div class="item-preview" v-if="mode === 'card' && previewHtml">
+      <div class="item-preview" v-if="mode === 'card'">
         <iframe
+          v-if="previewHtml"
           :srcdoc="previewHtml"
           class="preview-iframe"
           tabindex="-1"
           loading="lazy"
         />
+        <div v-else class="preview-placeholder">
+          <img :src="project.favicon" alt="" class="placeholder-favicon" />
+        </div>
       </div>
       <div class="item-header hstack gap-xs">
         <img class="item-favicon shrink-0" :src="project.favicon" alt="" />
@@ -163,6 +167,22 @@ const previewHtml = computed(() => {
   pointer-events: none;
   transform: scale(0.5);
   transform-origin: top left;
+}
+
+.preview-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  background: var(--color-chrome-hover);
+}
+
+.placeholder-favicon {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-m);
+  opacity: 0.5;
 }
 
 /* Collapsed row — favicon only, centered */
