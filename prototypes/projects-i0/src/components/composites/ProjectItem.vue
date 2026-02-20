@@ -169,7 +169,7 @@ const previewHtml = computed(() => {
 .project-item.mode-row.collapsed {
   display: flex;
   justify-content: center;
-  padding: var(--space-xs) 0;
+  padding: var(--space-xxs);
 }
 
 .project-item.mode-row.collapsed .item-header {
@@ -178,13 +178,7 @@ const previewHtml = computed(() => {
 }
 
 .project-item.mode-row.collapsed .item-favicon {
-  width: 24px;
-  height: 24px;
-}
-
-.project-item.mode-row.collapsed.active {
-  background: var(--color-chrome-active);
-  border-radius: var(--radius-s);
-  margin-inline: var(--space-xxxs);
+  width: 28px;
+  height: 28px;
 }
 </style>

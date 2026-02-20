@@ -189,7 +189,7 @@ async function handleNewProject() {
 }
 
 .left-column.is-collapsed {
-  width: 45px;
+  width: 50px;
 }
 
 .new-project-footer {
@@ -221,7 +221,7 @@ async function handleNewProject() {
 }
 
 .app-body:has(.is-collapsed) .frame {
-  left: calc(45px + var(--space-xs) + var(--space-xs)); /* Physical: app chrome edge */
+  left: calc(50px + var(--space-xs) + var(--space-xs)); /* Physical: app chrome edge */
 }
 
 .frame.frame-visible {
@@ -230,7 +230,7 @@ async function handleNewProject() {
 }
 
 .is-collapsed .new-project-footer {
-  max-width: 45px;
+  max-width: 50px;
   justify-content: center;
 }
 

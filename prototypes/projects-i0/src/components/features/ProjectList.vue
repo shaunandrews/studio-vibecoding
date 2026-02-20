@@ -101,13 +101,18 @@ function toggleStatus(id: string) {
   gap: var(--space-xxs);
 }
 
+/* Override Tooltip's inline-flex wrapper so items respect parent width */
+.items-stack :deep(.tooltip-trigger) {
+  display: flex;
+}
+
 .all-projects {
+  align-items: center;
   gap: var(--space-xs);
   border-radius: var(--radius-s);
   cursor: pointer;
   color: var(--color-chrome-text-secondary);
   transition: background var(--transition-hover);
-  position: relative;
   padding: var(--space-xxs);
 }
 
@@ -137,11 +142,10 @@ function toggleStatus(id: string) {
 }
 
 .collapse-toggle {
-  position: absolute;
-  inset-inline-end: var(--space-xxs);
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
   width: 20px;
   height: 20px;
   border: none;
@@ -149,12 +153,7 @@ function toggleStatus(id: string) {
   color: var(--color-chrome-text-muted);
   cursor: pointer;
   border-radius: var(--radius-s);
-  opacity: 0;
-  transition: opacity var(--transition-hover), color var(--transition-hover), background var(--transition-hover);
-}
-
-.all-projects:hover .collapse-toggle {
-  opacity: 1;
+  transition: color var(--transition-hover), background var(--transition-hover);
 }
 
 .collapse-toggle:hover {

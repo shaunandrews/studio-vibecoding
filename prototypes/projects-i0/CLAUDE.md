@@ -4,6 +4,19 @@
 
 Interactive prototype for Studio's AI interface concepts. Vue 3 + Vite + TypeScript.
 
+## Shared library (`../shared/`)
+
+This prototype imports shared components, tokens, and data from `prototypes/shared/` via the `@shared` Vite alias. See `shared/CLAUDE.md` for the full inventory.
+
+**Imports:** `import Text from '@shared/primitives/Text.vue'`, `import { type Site } from '@shared/data/site-types'`, etc.
+
+**Overriding shared components:** Some shared composites import prototype-specific deps via `@/` (e.g. Button, FlyoutMenu, ChatMessage). This is intentional dependency inversion — `@/` resolves to *this* prototype's `src/`, so shared components get our local versions. If you need to diverge a shared component, copy it from `shared/` into `src/` and update imports.
+
+**Local overrides (intentionally diverged from devkit-i0):**
+- Primitives: Button, ContextRing, Dropdown, FlyoutMenu, Titlebar
+- Composites: ChatMessage, InputChat, ProjectItem, TabBar
+- CSS: `styles/motion-overrides.css` (sidebar slide transitions)
+
 ## Dev server
 
 ```bash
@@ -32,7 +45,7 @@ src/
     features/        # ProjectList, AgentPanel, SitePreview, OnboardingEmpty, SkillsList, SkillDirectory
   layouts/           # MainLayout (app shell), BareLayout (standalone pages)
   pages/             # ProjectPage, DesignSystem, Components, Settings, Architecture
-  data/              # State (useProjects, useConversations, useSiteStore, useBuildProgress, useOnboarding, useInputActions, useProjectTransition, useSkills)
+  data/              # State (useProjects, useConversations, useSiteStore, useBuildProgress, useOnboarding, useInputActions, useProjectTransition, useSkills, useSidebarCollapse)
     generation/      # AI prompts and generation loop (useGeneration, design-brief-prompt, etc.)
     seed-sites/      # Hardcoded demo sites (downstreet-cafe, portfolio)
     seed-skills.ts   # 15 built-in skill definitions
@@ -47,7 +60,7 @@ src/
 - **WPIcon** — Vue wrapper for `@wordpress/icons`. Props: `icon`, `size`
 - **StatusIndicator** — `status` (stopped/loading/running). Emits `toggle`. Clip-path morph animation on hover.
 - **Titlebar** — App titlebar with traffic lights, sidebar toggle, greeting, settings/help
-- **ProjectList** — Project list in two modes: `grid` (home view, full width) and `list` (sidebar, 210px). New Project button lives in MainLayout below this component, not inside it.
+- **ProjectList** — Project list in two modes: `grid` (home view, full width) and `list` (sidebar, 210px). Accepts `collapsed` prop for icon-only sidebar mode. New Project button lives in MainLayout below this component, not inside it. Overrides Tooltip's `inline-flex` wrapper with `.items-stack :deep(.tooltip-trigger) { display: flex; }` to prevent overflow.
 - **InputChat** — Chat input with model selector and action strip. Props: `surface`, `modelValue`, `placeholder`, `actions` (ActionButton[]), `slashMatches` (Skill[]). Three action rendering modes: (1) **brief cards** when `ActionButton.card.briefData` is present — 3-column grid of StyleTileCard components with StylePreview hover popups, (2) **card actions** when `ActionButton.card` is present — styled buttons with caller-provided inline styles/content, (3) **text buttons** — default, numbered Button components. Number keys (1-9, 0 for 10th) trigger actions when input is empty. Enter sends, Cmd+Enter for newline. Slash command autocomplete: typing `/` shows a `SkillAutocomplete` dropdown of matching skills for the current project. Arrow keys navigate, Tab/Enter selects, Escape dismisses.
 - **StyleTileCard** — Compact card showing style name in the brief's heading font + accent color stripe. Emits `preview-enter`/`preview-leave` with DOM rect for hover preview positioning.
 - **StylePreview** — Floating 400×250px preview panel (teleported to body). Renders AI-generated style tile HTML via `v-html`, or a fallback type specimen if no tile. Viewport-clamped positioning, scale-in animation, scroll-to-dismiss.
@@ -97,6 +110,24 @@ Navigation between home and project uses the View Transitions API via `useProjec
 - Project-to-project navigation (already in project mode) skips view transitions entirely — instant swap.
 - `transitionProjectId` ref tracks which card is mid-morph. Only one card gets `view-transition-name` at a time.
 - Animation CSS lives in `motion.css` under `::view-transition-*` pseudo-elements with `vt-` prefixed keyframes.
+
+## Collapsible sidebar
+
+The project sidebar (210px in list mode) collapses to a 50px icon rail. Managed by `useSidebarCollapse()` singleton composable (`src/data/useSidebarCollapse.ts`) with localStorage persistence.
+
+**Toggle:** `Cmd+B` keyboard shortcut (project mode only). Also a `chevronLeft` button at the end of the "All projects" row (always visible, regular flex child). When collapsed, clicking the back-chevron area expands the sidebar.
+
+**Collapsed content:** Back chevron (click to expand), project favicons (28px, centered, tooltip shows name), `+` icon-only Button for new project.
+
+**CSS architecture:**
+- `.left-column.is-sidebar` — `width: 210px` + `transition: width`
+- `.left-column.is-collapsed` — `width: 50px`
+- `.app-body:has(.is-collapsed) .frame` — adjusts frame's `left` offset
+- `.is-collapsed .new-project-footer` — constrains footer width
+
+**Tooltip wrapper gotcha:** Tooltip wraps ProjectItem in `span.tooltip-trigger` with `inline-flex`, breaking width. ProjectList overrides: `.items-stack :deep(.tooltip-trigger) { display: flex; }`.
+
+**Not affected:** Home mode grid view, view transitions, titlebar.
 
 ## AI site editing
 
