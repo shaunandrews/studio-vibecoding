@@ -1,15 +1,15 @@
 <script setup lang="ts">
 import QuickActions from './dashboard/QuickActions.vue'
 import EnvironmentCard from './dashboard/EnvironmentCard.vue'
-import ActivityCard from './dashboard/ActivityCard.vue'
+import TimelineCard from './dashboard/TimelineCard.vue'
 </script>
 
 <template>
   <div class="dashboard-overview p-m">
     <QuickActions />
-    <div class="dashboard-overview__cards">
+    <div class="dashboard-overview__layout">
+      <TimelineCard />
       <EnvironmentCard />
-      <ActivityCard />
     </div>
   </div>
 </template>
@@ -22,20 +22,15 @@ import ActivityCard from './dashboard/ActivityCard.vue'
   padding-block-end: var(--space-xl);
 }
 
-.dashboard-overview__cards {
+.dashboard-overview__layout {
   display: grid;
-  gap: var(--space-m);
+  gap: var(--space-xl);
 }
 
-/* Cards fill their grid cells */
-.dashboard-overview__cards > :deep(*) {
-  min-height: 0;
-}
-
-/* Wide: Environment narrower, Activity gets more room */
+/* Wide: Timeline takes the lead, Environment is a compact sidebar */
 @container dashboard (min-width: 600px) {
-  .dashboard-overview__cards {
-    grid-template-columns: 2fr 3fr;
+  .dashboard-overview__layout {
+    grid-template-columns: 3fr minmax(200px, 1fr);
     align-items: start;
   }
 }
