@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, watch, onBeforeUnmount } from 'vue'
+import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
 import { useRoute } from 'vue-router'
 import { external } from '@wordpress/icons'
 import Panel from '@/components/composites/Panel.vue'
@@ -7,7 +7,6 @@ import AgentPanel from '@/components/features/AgentPanel.vue'
 import StatusIndicator from '@/components/primitives/StatusIndicator.vue'
 import Text from '@/components/primitives/Text.vue'
 import DashboardOverview from '@/components/features/DashboardOverview.vue'
-import DashboardCode from '@/components/features/DashboardCode.vue'
 import DashboardTerminal from '@/components/features/DashboardTerminal.vue'
 import WPIcon from '@/components/primitives/WPIcon.vue'
 import { useProjects } from '@/data/useProjects'
@@ -26,20 +25,29 @@ watch(() => route.params.id as string, (newId) => {
   activeProjectId.value = newId
 }, { immediate: true })
 
-onBeforeUnmount(() => {
-  activeProjectId.value = null
+// ── Terminal panel ──
+const terminalOpen = ref(false)
+
+function toggleTerminal() {
+  if (isAnimating.value) return
+  terminalOpen.value = !terminalOpen.value
+}
+
+function onKeyDown(e: KeyboardEvent) {
+  if (e.key === 'j' && e.metaKey) {
+    e.preventDefault()
+    toggleTerminal()
+  }
+}
+
+onMounted(() => {
+  document.addEventListener('keydown', onKeyDown)
 })
 
-// ── Dashboard tabs ──
-type DashboardTab = 'overview' | 'code' | 'terminal'
-
-const tabs: { id: DashboardTab; label: string }[] = [
-  { id: 'overview', label: 'Overview' },
-  { id: 'code', label: 'Code' },
-  { id: 'terminal', label: 'Terminal' },
-]
-
-const activeTab = ref<DashboardTab>('overview')
+onBeforeUnmount(() => {
+  activeProjectId.value = null
+  document.removeEventListener('keydown', onKeyDown)
+})
 
 function toggleStatus() {
   if (!project.value) return
@@ -96,28 +104,132 @@ function onPointerUp() {
   document.removeEventListener('pointermove', onPointerMove)
   document.removeEventListener('pointerup', onPointerUp)
 }
+
+// ── Terminal panel resize ──
+const TERMINAL_HEIGHTS_KEY = 'terminalPanelHeights'
+const DEFAULT_TERMINAL_HEIGHT = 200
+const MIN_TERMINAL_HEIGHT = 120
+
+function loadTerminalHeights(): Record<string, number> {
+  try { return JSON.parse(localStorage.getItem(TERMINAL_HEIGHTS_KEY) || '{}') }
+  catch { return {} }
+}
+
+const terminalHeights = ref(loadTerminalHeights())
+const dashboardRef = ref<HTMLElement | null>(null)
+const isTerminalDragging = ref(false)
+
+const terminalHeight = computed({
+  get: () => terminalHeights.value[projectId.value] ?? DEFAULT_TERMINAL_HEIGHT,
+  set: (v: number) => {
+    terminalHeights.value = { ...terminalHeights.value, [projectId.value]: v }
+    localStorage.setItem(TERMINAL_HEIGHTS_KEY, JSON.stringify(terminalHeights.value))
+  },
+})
+
+let cachedToolbarHeight = 40
+
+function onTerminalPointerDown(e: PointerEvent) {
+  e.preventDefault()
+  ;(e.currentTarget as HTMLElement).setPointerCapture(e.pointerId)
+  isTerminalDragging.value = true
+  const toolbar = dashboardRef.value?.querySelector('.dashboard__toolbar')
+  if (toolbar) cachedToolbarHeight = toolbar.getBoundingClientRect().height
+  document.body.style.cursor = 'row-resize'
+  document.body.style.userSelect = 'none'
+  document.addEventListener('pointermove', onTerminalPointerMove)
+  document.addEventListener('pointerup', onTerminalPointerUp)
+}
+
+function onTerminalPointerMove(e: PointerEvent) {
+  if (!isTerminalDragging.value || !dashboardRef.value) return
+  const rect = dashboardRef.value.getBoundingClientRect()
+  const maxHeight = (rect.height - cachedToolbarHeight) * 0.7
+  const rawHeight = rect.bottom - e.clientY - cachedToolbarHeight
+  terminalHeight.value = Math.round(Math.min(maxHeight, Math.max(MIN_TERMINAL_HEIGHT, rawHeight)))
+}
+
+function onTerminalPointerUp() {
+  isTerminalDragging.value = false
+  document.body.style.cursor = ''
+  document.body.style.userSelect = ''
+  document.removeEventListener('pointermove', onTerminalPointerMove)
+  document.removeEventListener('pointerup', onTerminalPointerUp)
+}
+
+// ── Terminal animation ──
+const isAnimating = ref(false)
+const ANIM_DURATION = 150 // matches --duration-fast
+const ANIM_SAFETY = 50
+
+function safeTransitionEnd(el: HTMLElement, done: () => void) {
+  let called = false
+  const finish = () => { if (!called) { called = true; done() } }
+  const fallback = setTimeout(finish, ANIM_DURATION + ANIM_SAFETY)
+  el.addEventListener('transitionend', (e) => {
+    if (e.propertyName !== 'height') return
+    clearTimeout(fallback)
+    finish()
+  }, { once: true })
+}
+
+function onTerminalBeforeEnter(el: Element) {
+  const h = el as HTMLElement
+  isAnimating.value = true
+  h.style.transition = ''
+  h.style.height = '0'
+  h.style.overflow = 'hidden'
+}
+
+function onTerminalEnter(el: Element, done: () => void) {
+  const h = el as HTMLElement
+  requestAnimationFrame(() => {
+    h.style.transition = 'height var(--duration-fast) var(--ease-out)'
+    h.style.height = terminalHeight.value + 'px'
+    safeTransitionEnd(h, done)
+  })
+}
+
+function onTerminalAfterEnter(el: Element) {
+  const h = el as HTMLElement
+  isAnimating.value = false
+  h.style.transition = ''
+  h.style.overflow = ''
+}
+
+function onTerminalLeave(el: Element, done: () => void) {
+  const h = el as HTMLElement
+  isAnimating.value = true
+  h.style.transition = ''
+  h.style.height = h.offsetHeight + 'px'
+  h.style.overflow = 'hidden'
+  requestAnimationFrame(() => {
+    h.style.transition = 'height var(--duration-fast) var(--ease-in)'
+    h.style.height = '0'
+    safeTransitionEnd(h, done)
+  })
+}
+
+function onTerminalAfterLeave() {
+  isAnimating.value = false
+}
 </script>
 
 <template>
   <div
     ref="containerRef"
     class="site-page hstack align-stretch flex-1 min-w-0 min-h-0 overflow-hidden"
-    :class="{ 'is-dragging': isDragging }"
+    :class="{ 'is-dragging-chat': isDragging, 'is-dragging-terminal': isTerminalDragging }"
   >
-    <!-- Left: tabbed dashboard -->
-    <div class="dashboard vstack flex-1 min-w-0">
+    <!-- Left: dashboard -->
+    <div ref="dashboardRef" class="dashboard vstack flex-1 min-w-0">
+      <div class="dashboard__content flex-1 min-h-0 overflow-auto">
+        <DashboardOverview />
+      </div>
+
+      <div v-if="terminalOpen" class="terminal-resize-handle" @pointerdown="onTerminalPointerDown" />
+
       <div class="dashboard__toolbar hstack">
-        <div class="dashboard__tabs hstack">
-          <button
-            v-for="tab in tabs"
-            :key="tab.id"
-            class="dashboard__tab"
-            :class="{ active: tab.id === activeTab }"
-            @click="activeTab = tab.id"
-          >
-            {{ tab.label }}
-          </button>
-        </div>
         <div class="dashboard__status hstack gap-xxs" v-if="project">
           <StatusIndicator :status="project.status" @toggle="toggleStatus" />
           <Text variant="caption" color="muted">
@@ -125,13 +237,27 @@ function onPointerUp() {
           </Text>
           <Text variant="caption" color="muted" class="dashboard__env">PHP 8.2</Text>
         </div>
+        <button
+          class="dashboard__terminal-toggle"
+          :class="{ active: terminalOpen }"
+          @click="toggleTerminal"
+        >
+          Terminal <kbd>⌘J</kbd>
+        </button>
       </div>
 
-      <div class="dashboard__content flex-1 min-h-0 overflow-auto">
-        <DashboardOverview v-if="activeTab === 'overview'" />
-        <DashboardCode v-if="activeTab === 'code'" />
-        <DashboardTerminal v-if="activeTab === 'terminal'" />
-      </div>
+      <Transition
+        :css="false"
+        @before-enter="onTerminalBeforeEnter"
+        @enter="onTerminalEnter"
+        @after-enter="onTerminalAfterEnter"
+        @leave="onTerminalLeave"
+        @after-leave="onTerminalAfterLeave"
+      >
+        <div v-if="terminalOpen" class="dashboard__terminal" :style="{ height: terminalHeight + 'px' }">
+          <DashboardTerminal />
+        </div>
+      </Transition>
     </div>
 
     <!-- Resize handle -->
@@ -165,49 +291,54 @@ function onPointerUp() {
   overflow: hidden;
 }
 
-/* ── Tab bar ── */
+/* ── Toolbar ── */
 .dashboard__toolbar {
-  border-block-end: 1px solid var(--color-surface-border);
+  border-block-start: 1px solid var(--color-surface-border);
   flex-shrink: 0;
-  padding-inline: var(--space-xs);
+  padding-inline: var(--space-xxs);
   justify-content: space-between;
-  align-items: stretch;
+  align-items: center;
+  min-block-size: var(--space-xxl);
 }
 
-.dashboard__tabs {
+.dashboard__terminal-toggle {
+  display: flex;
+  align-items: center;
   gap: var(--space-xxs);
-  align-items: stretch;
-}
-
-.dashboard__tab {
-  position: relative;
-  padding: var(--space-xs) var(--space-xs);
+  padding: var(--space-xxs) var(--space-xs);
   background: none;
   border: none;
+  border-radius: var(--radius-s);
   cursor: pointer;
   font-family: inherit;
-  font-size: var(--font-size-m);
+  font-size: var(--font-size-s);
   color: var(--color-text-secondary);
-  transition: color var(--duration-instant) var(--ease-default);
+  transition: color var(--transition-hover), background var(--transition-hover);
 }
 
-.dashboard__tab:hover {
+.dashboard__terminal-toggle kbd {
+  font-family: inherit;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+.dashboard__terminal-toggle:hover {
   color: var(--color-text);
+  background: var(--color-surface-secondary);
 }
 
-.dashboard__tab.active {
-  color: var(--color-text);
-  font-weight: var(--font-weight-medium);
+.dashboard__terminal-toggle.active {
+  color: var(--color-surface);
+  background: var(--color-text);
 }
 
-.dashboard__tab.active::after {
-  content: '';
-  position: absolute;
-  inset-inline: var(--space-xs);
-  block-size: 2px;
-  inset-block-end: -1px;
-  background: var(--color-primary);
-  border-radius: 1px;
+.dashboard__terminal-toggle.active kbd {
+  color: inherit;
+  opacity: 0.5;
+}
+
+.dashboard__terminal-toggle.active:hover {
+  background: var(--color-text-secondary);
 }
 
 /* ── Status area ── */
@@ -224,6 +355,41 @@ function onPointerUp() {
 /* ── Dashboard content ── */
 .dashboard__content {
   background: var(--color-surface);
+}
+
+/* ── Terminal resize handle ── */
+.terminal-resize-handle {
+  height: 5px;
+  cursor: row-resize;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+  margin-block: -2px; /* Expand hitbox over adjacent borders */
+}
+
+.terminal-resize-handle::after {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  inset-block-start: 50%;
+  height: 1px;
+  background: var(--color-surface-border);
+  transition: background var(--transition-hover), height var(--transition-hover);
+}
+
+.terminal-resize-handle:hover::after,
+.is-dragging-terminal .terminal-resize-handle::after {
+  height: 3px;
+  margin-block-start: -1px;
+  background: var(--color-primary);
+}
+
+/* ── Terminal panel ── */
+.dashboard__terminal {
+  display: flex;
+  flex-direction: column;
+  flex: none;
+  overflow: hidden;
 }
 
 /* ── Resize handle ── */
@@ -243,11 +409,11 @@ function onPointerUp() {
   inset-inline-start: 50%;
   width: 1px;
   background: var(--color-surface-border);
-  transition: background var(--duration-fast) var(--ease-default), width var(--duration-fast) var(--ease-default);
+  transition: background var(--transition-hover), width var(--transition-hover);
 }
 
 .resize-handle:hover::after,
-.is-dragging .resize-handle::after {
+.is-dragging-chat .resize-handle::after {
   width: 3px;
   margin-inline-start: -1px;
   background: var(--color-primary);
@@ -274,8 +440,7 @@ function onPointerUp() {
   font-family: inherit;
   font-size: var(--font-size-s);
   cursor: pointer;
-  transition: background var(--duration-fast) var(--ease-default),
-              color var(--duration-fast) var(--ease-default);
+  transition: background var(--transition-hover), color var(--transition-hover);
 }
 
 .dock-back:hover {
@@ -284,7 +449,8 @@ function onPointerUp() {
 }
 
 /* ── Drag state ── */
-.is-dragging {
+.is-dragging-chat,
+.is-dragging-terminal {
   user-select: none;
 }
 </style>

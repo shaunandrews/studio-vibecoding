@@ -86,6 +86,7 @@ const settingsValue = ref('')
 const settingsOptions = [
   { label: 'Settings', options: [
     { label: 'API Key', value: '__api-key__' },
+    { label: 'Design System', value: 'design-system' },
   ]},
 ]
 

@@ -29,6 +29,12 @@ const router = createRouter({
       component: () => import('@/pages/ChatPopout.vue'),
       meta: { layout: 'bare', mode: 'popout' },
     },
+    {
+      name: 'design-system',
+      path: '/design-system',
+      component: () => import('@/pages/DesignSystem.vue'),
+      meta: { layout: 'bare' },
+    },
     // Catch-all
     { path: '/:pathMatch(.*)*', redirect: '/' },
   ],
