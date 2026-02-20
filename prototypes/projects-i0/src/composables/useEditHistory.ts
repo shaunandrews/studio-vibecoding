@@ -1,6 +1,6 @@
 import { ref, computed } from 'vue'
 import type { SiteSnapshot, EditOperation } from '@/data/edit-types'
-import type { Site } from '@/data/site-types'
+import type { Site } from '@shared/data/site-types'
 import { useSiteStore } from '@/data/useSiteStore'
 
 const snapshots = ref<SiteSnapshot[]>([])

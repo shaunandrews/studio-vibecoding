@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import ChatCard from './ChatCard.vue'
+import ChatCard from '@shared/composites/chat-cards/ChatCard.vue'
 import ColorSwatches from '@/components/primitives/ColorSwatches.vue'
 import type { CardUiState, ColorPaletteData } from '@/data/types'
 

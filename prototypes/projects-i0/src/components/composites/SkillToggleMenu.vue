@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import Text from '@/components/primitives/Text.vue'
-import WPIcon from '@/components/primitives/WPIcon.vue'
+import Text from '@shared/primitives/Text.vue'
+import WPIcon from '@shared/primitives/WPIcon.vue'
 import * as wpIcons from '@wordpress/icons'
 import { useSkills } from '@/data/useSkills'
 

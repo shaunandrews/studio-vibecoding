@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import ChatMessageList from '@/components/composites/ChatMessageList.vue'
+import ChatMessageList from '@shared/composites/ChatMessageList.vue'
 import InputChat from '@/components/composites/InputChat.vue'
 import { useConversations } from '@/data/useConversations'
 import type { AgentId } from '@/data/types'

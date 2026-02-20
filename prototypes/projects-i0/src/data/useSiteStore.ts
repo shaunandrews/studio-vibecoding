@@ -6,7 +6,7 @@
  */
 
 import { reactive } from 'vue'
-import type { Site, Section, Theme } from './site-types'
+import type { Site, Section, Theme } from '@shared/data/site-types'
 import { seedSites } from './seed-sites'
 
 // ---- Reactive Store ----

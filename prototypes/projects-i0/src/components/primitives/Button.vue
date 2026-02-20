@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref } from 'vue'
-import WPIcon from '@/components/primitives/WPIcon.vue'
-import Tooltip from '@/components/primitives/Tooltip.vue'
+import WPIcon from '@shared/primitives/WPIcon.vue'
+import Tooltip from '@shared/primitives/Tooltip.vue'
 
 const props = defineProps<{
   icon?: any
@@ -68,7 +68,7 @@ onUnmounted(() => {
         `btn--${size || 'default'}`,
         `btn--on-${surface || 'light'}`,
         `btn--${width || 'hug'}`,
-        { 'btn--icon-only': iconOnly || (icon && !label), 'btn--active': active, 'btn--active-rotate': active && activeRotate }
+        { 'btn--icon-only': icon && !label, 'btn--active': active, 'btn--active-rotate': active && activeRotate }
       ]"
       :disabled="disabled"
     >
@@ -127,9 +127,27 @@ onUnmounted(() => {
 }
 
 .btn__shortcut {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   font-size: var(--font-size-xs);
-  opacity: 0.5;
+  line-height: 1;
+  padding: 2px var(--space-xxxs);
+  border-radius: var(--radius-s);
   margin-inline-start: var(--space-xxs);
+  flex-shrink: 0;
+}
+
+.btn--on-light .btn__shortcut {
+  background: rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  color: inherit;
+  opacity: 0.5;
+}
+
+.btn--on-dark .btn__shortcut {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: inherit;
+  opacity: 0.5;
 }
 
 /* Width */

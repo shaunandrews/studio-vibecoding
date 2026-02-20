@@ -8,7 +8,7 @@ import SkillsList from '@/components/features/SkillsList.vue'
 import SkillDirectory from '@/components/features/SkillDirectory.vue'
 import { useProjects } from '@/data/useProjects'
 import { useOnboarding } from '@/data/useOnboarding'
-import { useProjectTransition } from '@/data/useProjectTransition'
+import { useProjectTransition } from '@shared/data/useProjectTransition'
 import ShortcutsModal from '@/components/composites/ShortcutsModal.vue'
 import SpotlightTour from '@/components/composites/SpotlightTour.vue'
 import { useTour } from '@/data/useTour'
@@ -17,7 +17,7 @@ import { usePreviewState } from '@/data/usePreviewState'
 const route = useRoute()
 const { createUntitledProject, projects } = useProjects()
 const { startOnboarding } = useOnboarding()
-const { navigateToProject } = useProjectTransition()
+const { navigateToProject } = useProjectTransition('project')
 const { start: startTourFn } = useTour()
 const { show: showPreview } = usePreviewState()
 const mode = computed(() => (route.meta.mode as string) || 'home')

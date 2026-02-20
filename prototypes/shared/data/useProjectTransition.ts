@@ -4,28 +4,32 @@ import { useRouter } from 'vue-router'
 // Module-level state (singleton — shared across all components)
 const transitionProjectId = ref<string | null>(null)
 
-export function useProjectTransition() {
+/**
+ * View Transitions composable for home ↔ project navigation.
+ * @param projectRouteName — the route name for project views (e.g. 'project' or 'site')
+ */
+export function useProjectTransition(projectRouteName = 'project') {
   const router = useRouter()
 
   async function navigateToProject(projectId: string) {
     // Already viewing a project — just swap, no transition
     const currentMode = router.currentRoute.value.meta.mode
     if (currentMode === 'project') {
-      router.push({ name: 'project', params: { id: projectId } })
+      router.push({ name: projectRouteName, params: { id: projectId } })
       return
     }
 
     transitionProjectId.value = projectId
 
     if (!(document as any).startViewTransition) {
-      router.push({ name: 'project', params: { id: projectId } })
+      router.push({ name: projectRouteName, params: { id: projectId } })
       return
     }
 
     await nextTick() // card gets view-transition-name before capture
 
     const transition = (document as any).startViewTransition(async () => {
-      await router.push({ name: 'project', params: { id: projectId } })
+      await router.push({ name: projectRouteName, params: { id: projectId } })
       await nextTick()
     })
 

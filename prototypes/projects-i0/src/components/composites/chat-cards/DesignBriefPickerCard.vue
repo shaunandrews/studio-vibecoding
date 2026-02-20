@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { styles } from '@wordpress/icons'
-import WPIcon from '@/components/primitives/WPIcon.vue'
+import WPIcon from '@shared/primitives/WPIcon.vue'
 import ColorSwatches from '@/components/primitives/ColorSwatches.vue'
 import type { CardUiState, DesignBriefCardData, DesignBriefPickerCardData } from '@/data/types'
 

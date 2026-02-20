@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { chevronLeft } from '@wordpress/icons'
-import WPIcon from '@/components/primitives/WPIcon.vue'
-import Text from '@/components/primitives/Text.vue'
+import WPIcon from '@shared/primitives/WPIcon.vue'
+import Text from '@shared/primitives/Text.vue'
 import ProjectItem from '@/components/composites/ProjectItem.vue'
 import { useProjects } from '@/data/useProjects'
-import { useProjectTransition } from '@/data/useProjectTransition'
+import { useProjectTransition } from '@shared/data/useProjectTransition'
 
 const props = defineProps<{
   mode: 'grid' | 'list'
@@ -15,7 +15,7 @@ const emit = defineEmits<{
 }>()
 
 const { projects, activeProjectId, setStatus } = useProjects()
-const { navigateToProject, navigateHome } = useProjectTransition()
+const { navigateToProject, navigateHome } = useProjectTransition('project')
 
 function selectProject(id: string) {
   navigateToProject(id)

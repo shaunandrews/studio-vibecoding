@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref } from 'vue'
-import WPIcon from '@/components/primitives/WPIcon.vue'
-import Tooltip from '@/components/primitives/Tooltip.vue'
+import WPIcon from '@shared/primitives/WPIcon.vue'
+import Tooltip from '@shared/primitives/Tooltip.vue'
 
 const props = defineProps<{
   icon?: any

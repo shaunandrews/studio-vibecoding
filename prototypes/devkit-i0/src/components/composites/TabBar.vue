@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { chevronDown } from '@wordpress/icons'
-import WPIcon from '@/components/primitives/WPIcon.vue'
-import Text from '@/components/primitives/Text.vue'
+import WPIcon from '@shared/primitives/WPIcon.vue'
+import Text from '@shared/primitives/Text.vue'
 import FlyoutMenu from '@/components/primitives/FlyoutMenu.vue'
 import type { FlyoutMenuGroup } from '@/components/primitives/FlyoutMenu.vue'
 
@@ -23,6 +23,8 @@ const emit = defineEmits<{
   'add': []
   'view-all': []
 }>()
+
+const activeTab = computed(() => props.tabs.find(t => t.id === props.activeId))
 
 const chatMenuGroups = computed<FlyoutMenuGroup[]>(() => [
   {
@@ -46,7 +48,7 @@ const chatMenuGroups = computed<FlyoutMenuGroup[]>(() => [
     <FlyoutMenu :groups="chatMenuGroups" align="start" max-width="300px" class="tab-bar__count">
       <template #trigger="{ toggle, open }">
         <button class="tab-bar__count-btn hstack gap-xxxs" @click="toggle">
-          <Text variant="label" color="secondary">{{ tabs.length }} {{ tabs.length === 1 ? 'Chat' : 'Chats' }}</Text>
+          <Text variant="caption" class="tab-bar__label">{{ activeTab?.label ?? 'Chat' }}</Text>
           <WPIcon :icon="chevronDown" :size="16" class="tab-bar__chevron" :class="{ open }" />
         </button>
       </template>
@@ -70,6 +72,13 @@ const chatMenuGroups = computed<FlyoutMenuGroup[]>(() => [
 
 .tab-bar__count-btn:hover {
   background: var(--color-surface-secondary);
+}
+
+.tab-bar__label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-inline-size: 260px;
 }
 
 .tab-bar__chevron {

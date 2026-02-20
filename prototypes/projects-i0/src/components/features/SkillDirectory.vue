@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { chevronLeft } from '@wordpress/icons'
-import WPIcon from '@/components/primitives/WPIcon.vue'
-import Text from '@/components/primitives/Text.vue'
+import WPIcon from '@shared/primitives/WPIcon.vue'
+import Text from '@shared/primitives/Text.vue'
 import SkillCard from '@/components/composites/SkillCard.vue'
 import { useSkills } from '@/data/useSkills'
 import type { SkillCategory } from '@/data/types'

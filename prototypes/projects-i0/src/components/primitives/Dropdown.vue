@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { chevronDown } from '@wordpress/icons'
-import WPIcon from '@/components/primitives/WPIcon.vue'
-import Tooltip from '@/components/primitives/Tooltip.vue'
+import WPIcon from '@shared/primitives/WPIcon.vue'
+import Tooltip from '@shared/primitives/Tooltip.vue'
 import FlyoutMenu from '@/components/primitives/FlyoutMenu.vue'
 import type { FlyoutMenuGroup } from '@/components/primitives/FlyoutMenu.vue'
 
@@ -25,10 +25,12 @@ const props = withDefaults(defineProps<{
   triggerIcon?: any
   showChevron?: boolean
   surface?: 'light' | 'dark'
+  size?: 'small' | 'default'
   tooltip?: string
 }>(), {
   showChevron: true,
   surface: 'light',
+  size: 'small',
 })
 
 const emit = defineEmits<{
@@ -74,7 +76,7 @@ const flyoutGroups = computed<FlyoutMenuGroup[]>(() =>
     <template #trigger="{ toggle, open }">
       <div class="dropdown" :class="{ 'surface-dark': surface === 'dark' }">
         <Tooltip :text="open ? undefined : tooltip">
-          <button class="dropdown-trigger hstack gap-xxxs px-xxs py-xxxs" @click="toggle">
+          <button class="dropdown-trigger hstack" :class="[`dropdown-trigger--${size}`]" @click="toggle">
             <WPIcon v-if="triggerIcon" :icon="currentOption()?.icon || triggerIcon" :size="18" />
             <span v-else class="dropdown-label">{{ currentOption()?.label || modelValue }}</span>
             <WPIcon v-if="showChevron" :icon="chevronDown" :size="16" />
@@ -91,15 +93,28 @@ const flyoutGroups = computed<FlyoutMenuGroup[]>(() =>
 }
 
 .dropdown-trigger {
-  height: 25px; /* Match small Button height */
   background: none;
   border: none;
   font-family: inherit;
-  font-size: var(--font-size-s);
   color: var(--color-text-muted);
-  border-radius: var(--radius-s);
   cursor: pointer;
   transition: background var(--duration-instant) var(--ease-default), color var(--duration-instant) var(--ease-default);
+}
+
+.dropdown-trigger--small {
+  font-size: var(--font-size-s);
+  border-radius: var(--radius-s);
+  gap: var(--space-xxxs);
+  padding: var(--space-xxxs) var(--space-xxs);
+}
+
+.dropdown-trigger--default {
+  font-size: var(--font-size-m);
+  border-radius: var(--radius-m);
+  gap: var(--space-xxs);
+  height: 35px;
+  width: 35px;
+  justify-content: center;
 }
 
 .dropdown-trigger:hover {

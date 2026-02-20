@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, watch, nextTick, onMounted, onBeforeUnmount } from 'vue'
 import { search as searchIcon } from '@wordpress/icons'
-import WPIcon from '@/components/primitives/WPIcon.vue'
+import WPIcon from '@shared/primitives/WPIcon.vue'
 import { useCommandPalette, type Command } from '@/data/useCommandPalette'
 
 const { isOpen, searchQuery, close } = useCommandPalette()

@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { moreVertical } from '@wordpress/icons'
-import Badge from '@/components/primitives/Badge.vue'
+import Badge from '../../primitives/Badge.vue'
 import Button from '@/components/primitives/Button.vue'
 import FlyoutMenu from '@/components/primitives/FlyoutMenu.vue'
-import WPIcon from '@/components/primitives/WPIcon.vue'
+import WPIcon from '../../primitives/WPIcon.vue'
 import ChatCard from './ChatCard.vue'
 import type { CardUiState, PluginCardData } from '@/data/types'
 import type { FlyoutMenuGroup } from '@/components/primitives/FlyoutMenu.vue'

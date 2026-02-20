@@ -4,14 +4,14 @@ import {
   pencil, copy, trash, download, upload,
   globe, styles, navigation, layout, page, post,
 } from '@wordpress/icons'
-import Text from '@/components/primitives/Text.vue'
-import StatusIndicator from '@/components/primitives/StatusIndicator.vue'
+import Text from '@shared/primitives/Text.vue'
+import StatusIndicator from '@shared/primitives/StatusIndicator.vue'
 import FlyoutMenu from '@/components/primitives/FlyoutMenu.vue'
 import type { FlyoutMenuGroup } from '@/components/primitives/FlyoutMenu.vue'
 import type { Project } from '@/data/types'
 import { useSiteStore } from '@/data/useSiteStore'
-import { renderSite } from '@/data/site-renderer'
-import { transitionProjectId } from '@/data/useProjectTransition'
+import { renderSite } from '@shared/data/site-renderer'
+import { transitionProjectId } from '@shared/data/useProjectTransition'
 
 const { getSite } = useSiteStore()
 

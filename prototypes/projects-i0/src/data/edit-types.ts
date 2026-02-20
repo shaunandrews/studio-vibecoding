@@ -1,4 +1,4 @@
-import type { Site, Section } from './site-types'
+import type { Site, Section } from '@shared/data/site-types'
 
 export type CardState = 'proposed' | 'trying' | 'applying' | 'complete' | 'error' | 'dismissed'
 

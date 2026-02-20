@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { useProjects } from '@/data/useProjects'
-import StatusIndicator from '@/components/primitives/StatusIndicator.vue'
+import StatusIndicator from '@shared/primitives/StatusIndicator.vue'
 
 const route = useRoute()
 const { projects, setStatus } = useProjects()

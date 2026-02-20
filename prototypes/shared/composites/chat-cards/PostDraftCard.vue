@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import Badge from '@/components/primitives/Badge.vue'
+import Badge from '../../primitives/Badge.vue'
 import ChatCard from './ChatCard.vue'
 import type { CardUiState, PostDraftCardData } from '@/data/types'
 

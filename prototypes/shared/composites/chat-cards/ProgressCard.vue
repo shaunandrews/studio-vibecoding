@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { check, chevronDown } from '@wordpress/icons'
-import WPIcon from '@/components/primitives/WPIcon.vue'
+import WPIcon from '../../primitives/WPIcon.vue'
 import ChatCard from './ChatCard.vue'
 import type { CardUiState, ProgressCardData } from '@/data/types'
 

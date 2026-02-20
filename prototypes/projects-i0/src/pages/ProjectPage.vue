@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, watch, onBeforeUnmount } from 'vue'
 import { useRoute } from 'vue-router'
-import Panel from '@/components/composites/Panel.vue'
+import Panel from '@shared/composites/Panel.vue'
 import AgentPanel from '@/components/features/AgentPanel.vue'
 import SitePreview from '@/components/features/SitePreview.vue'
 import { useProjects } from '@/data/useProjects'

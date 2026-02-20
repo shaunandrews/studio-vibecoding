@@ -1,4 +1,4 @@
-import type { Site } from '../site-types'
+import type { Site } from '@shared/data/site-types'
 
 export const portfolio: Site = {
   name: "Studio Meridian",

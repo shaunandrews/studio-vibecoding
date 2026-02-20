@@ -10,16 +10,16 @@ import Button from '@/components/primitives/Button.vue'
 import Dropdown from '@/components/primitives/Dropdown.vue'
 import FlyoutMenu from '@/components/primitives/FlyoutMenu.vue'
 import type { FlyoutMenuGroup } from '@/components/primitives/FlyoutMenu.vue'
-import Text from '@/components/primitives/Text.vue'
-import WPIcon from '@/components/primitives/WPIcon.vue'
+import Text from '@shared/primitives/Text.vue'
+import WPIcon from '@shared/primitives/WPIcon.vue'
 import { useProjects } from '@/data/useProjects'
-import { useProjectTransition } from '@/data/useProjectTransition'
+import { useProjectTransition } from '@shared/data/useProjectTransition'
 import { isAIConfigured, getAPIKey, setAPIKey } from '@/data/ai-service'
 
 const router = useRouter()
 const route = useRoute()
 const { projects } = useProjects()
-const { navigateHome } = useProjectTransition()
+const { navigateHome } = useProjectTransition('site')
 
 const emit = defineEmits<{
   'open-search': []

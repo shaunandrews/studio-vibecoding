@@ -5,7 +5,7 @@
  * when a user creates a new chat in an existing project.
  */
 
-import type { Site } from './site-types'
+import type { Site } from '@shared/data/site-types'
 import type { ActionButton } from './types'
 
 /**

@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import ProjectItem from '@/components/composites/ProjectItem.vue'
 import { useProjects } from '@/data/useProjects'
-import { useProjectTransition } from '@/data/useProjectTransition'
+import { useProjectTransition } from '@shared/data/useProjectTransition'
 
 const emit = defineEmits<{
   'new-project': []
 }>()
 
 const { projects, setStatus } = useProjects()
-const { navigateToProject } = useProjectTransition()
+const { navigateToProject } = useProjectTransition('site')
 
 function selectProject(id: string) {
   navigateToProject(id)

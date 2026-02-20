@@ -2,7 +2,7 @@ import { downstreetCafe } from './downstreet-cafe'
 import { portfolio } from './portfolio'
 import { jetpackDev } from './jetpack-dev'
 import { blockPlayground } from './block-playground'
-import type { Site } from '../site-types'
+import type { Site } from '@shared/data/site-types'
 
 export const seedSites: Record<string, Site> = {
   'downstreet-cafe': downstreetCafe,

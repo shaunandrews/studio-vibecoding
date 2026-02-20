@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useSkills } from '@/data/useSkills'
 import { tool } from '@wordpress/icons'
-import WPIcon from '@/components/primitives/WPIcon.vue'
+import WPIcon from '@shared/primitives/WPIcon.vue'
 
 const { skills, aiPlugins, skillCount, activePluginCount } = useSkills()
 </script>

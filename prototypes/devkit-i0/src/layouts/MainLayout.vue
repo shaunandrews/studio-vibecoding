@@ -5,12 +5,12 @@ import Titlebar from '@/components/primitives/Titlebar.vue'
 import Button from '@/components/primitives/Button.vue'
 import ProjectList from '@/components/features/ProjectList.vue'
 import { useProjects } from '@/data/useProjects'
-import { useProjectTransition } from '@/data/useProjectTransition'
+import { useProjectTransition } from '@shared/data/useProjectTransition'
 import { useCommandPalette } from '@/data/useCommandPalette'
 
 const route = useRoute()
 const { createUntitledProject } = useProjects()
-const { navigateToProject } = useProjectTransition()
+const { navigateToProject } = useProjectTransition('site')
 const { open: openCommandPalette } = useCommandPalette()
 const mode = computed(() => (route.meta.mode as string) || 'home')
 

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import ChatCard from './ChatCard.vue'
+import ChatCard from '@shared/composites/chat-cards/ChatCard.vue'
 import type { CardUiState, SectionEditCardData } from '@/data/types'
 
 const props = withDefaults(defineProps<{

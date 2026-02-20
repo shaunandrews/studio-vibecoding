@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import Button from '@/components/primitives/Button.vue'
-import ChatCard from './ChatCard.vue'
+import ChatCard from '@shared/composites/chat-cards/ChatCard.vue'
 import type { CardUiState, ThemeEditCardData } from '@/data/types'
 import type { EditOperation } from '@/data/edit-types'
 import { useEditCard } from '@/composables/useEditCard'

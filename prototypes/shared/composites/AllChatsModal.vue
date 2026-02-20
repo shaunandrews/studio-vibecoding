@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { search as searchIcon } from '@wordpress/icons'
-import Modal from '@/components/primitives/Modal.vue'
-import Text from '@/components/primitives/Text.vue'
-import WPIcon from '@/components/primitives/WPIcon.vue'
+import Modal from '../primitives/Modal.vue'
+import Text from '../primitives/Text.vue'
+import WPIcon from '../primitives/WPIcon.vue'
 import { useConversations } from '@/data/useConversations'
 
 const props = defineProps<{

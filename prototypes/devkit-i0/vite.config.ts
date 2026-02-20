@@ -8,9 +8,14 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
+      '@shared': fileURLToPath(new URL('../shared', import.meta.url)),
     },
+    dedupe: ['vue', 'vue-router', '@wordpress/icons'],
   },
   server: {
     port: 3011,
+    fs: {
+      allow: ['..'],
+    },
   },
 })

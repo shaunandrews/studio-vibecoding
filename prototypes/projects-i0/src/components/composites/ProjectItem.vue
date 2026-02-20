@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { computed, ref, onMounted, onUnmounted } from 'vue'
-import Text from '@/components/primitives/Text.vue'
-import StatusIndicator from '@/components/primitives/StatusIndicator.vue'
-import Tooltip from '@/components/primitives/Tooltip.vue'
+import Text from '@shared/primitives/Text.vue'
+import StatusIndicator from '@shared/primitives/StatusIndicator.vue'
+import Tooltip from '@shared/primitives/Tooltip.vue'
 import type { Project } from '@/data/types'
 import { useSiteStore } from '@/data/useSiteStore'
-import { renderSite } from '@/data/site-renderer'
-import { transitionProjectId } from '@/data/useProjectTransition'
+import { renderSite } from '@shared/data/site-renderer'
+import { transitionProjectId } from '@shared/data/useProjectTransition'
 
 const { getSite } = useSiteStore()
 

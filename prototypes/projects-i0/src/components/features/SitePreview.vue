@@ -4,8 +4,8 @@ import { chevronLeft, chevronRight, rotateRight, external, styles } from '@wordp
 import Button from '@/components/primitives/Button.vue'
 import BrowserBar from '@/components/primitives/BrowserBar.vue'
 import PanelToolbar from '@/components/composites/PanelToolbar.vue'
-import Text from '@/components/primitives/Text.vue'
-import { renderSite, sendPageUpdate, sendSectionUpdate, sendThemeUpdate } from '@/data/site-renderer'
+import Text from '@shared/primitives/Text.vue'
+import { renderSite, sendPageUpdate, sendSectionUpdate, sendThemeUpdate } from '@shared/data/site-renderer'
 import { useSiteStore } from '@/data/useSiteStore'
 import { usePreviewState } from '@/data/usePreviewState'
 

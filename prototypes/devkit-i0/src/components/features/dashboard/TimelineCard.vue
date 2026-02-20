@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { copy, post, cog, plugins as pluginsIcon, page, brush } from '@wordpress/icons'
-import WPIcon from '@/components/primitives/WPIcon.vue'
+import WPIcon from '@shared/primitives/WPIcon.vue'
 import Button from '@/components/primitives/Button.vue'
 import { useTimeline, type TimelineEvent } from '@/data/useTimeline'
 

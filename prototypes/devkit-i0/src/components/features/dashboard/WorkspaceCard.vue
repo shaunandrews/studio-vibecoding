@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useWorkspace } from '@/data/useWorkspace'
-import Badge from '@/components/primitives/Badge.vue'
+import Badge from '@shared/primitives/Badge.vue'
 
 const { plugins, theme, blocks, itemCounts, errorCount } = useWorkspace()
 

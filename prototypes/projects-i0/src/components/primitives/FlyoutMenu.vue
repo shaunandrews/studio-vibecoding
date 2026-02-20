@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { ref, watch, nextTick, onMounted, onBeforeUnmount, computed } from 'vue'
 import { check, chevronRight } from '@wordpress/icons'
-import WPIcon from '@/components/primitives/WPIcon.vue'
+import WPIcon from '@shared/primitives/WPIcon.vue'
 
 export interface FlyoutMenuItem {
   label: string
   detail?: string
   icon?: any
+  iconUrl?: string
   destructive?: boolean
   checked?: boolean
   children?: FlyoutMenuItem[]
@@ -310,7 +311,8 @@ defineExpose({ toggle, close, open })
               @click="onItemClick(item)"
             >
               <span v-if="item.detail" class="flyout-item-detail">{{ item.detail }}</span>
-              <WPIcon v-if="item.icon" :icon="item.icon" :size="18" class="flyout-item-icon" />
+              <img v-if="item.iconUrl" :src="item.iconUrl" class="flyout-item-icon flyout-item-icon--img" />
+              <WPIcon v-else-if="item.icon" :icon="item.icon" :size="18" class="flyout-item-icon" />
               <span class="flyout-item-label">{{ item.label }}</span>
               <WPIcon
                 v-if="hasCheckedItems"
@@ -350,7 +352,8 @@ defineExpose({ toggle, close, open })
                 :class="{ 'flyout-item--destructive': child.destructive }"
                 @click="onChildClick(child)"
               >
-                <WPIcon v-if="child.icon" :icon="child.icon" :size="18" class="flyout-item-icon" />
+                <img v-if="child.iconUrl" :src="child.iconUrl" class="flyout-item-icon flyout-item-icon--img" />
+                <WPIcon v-else-if="child.icon" :icon="child.icon" :size="18" class="flyout-item-icon" />
                 <span class="flyout-item-label">{{ child.label }}</span>
               </button>
             </div>
@@ -386,9 +389,9 @@ defineExpose({ toggle, close, open })
 }
 
 .flyout--light .flyout-group + .flyout-group {
-  border-top: 1px solid var(--color-surface-border);
-  margin-top: var(--space-xxxs);
-  padding-top: var(--space-xxxs);
+  border-block-start: 1px solid var(--color-surface-border);
+  margin-block-start: var(--space-xxxs);
+  padding-block-start: var(--space-xxxs);
 }
 
 .flyout--light .flyout-group-label {
@@ -425,9 +428,9 @@ defineExpose({ toggle, close, open })
 }
 
 .flyout--dark .flyout-group + .flyout-group {
-  border-top: 1px solid var(--color-chrome-border);
-  margin-top: var(--space-xxxs);
-  padding-top: var(--space-xxxs);
+  border-block-start: 1px solid var(--color-chrome-border);
+  margin-block-start: var(--space-xxxs);
+  padding-block-start: var(--space-xxxs);
 }
 
 .flyout--dark .flyout-group-label {
@@ -489,6 +492,13 @@ defineExpose({ toggle, close, open })
   transition: color var(--duration-instant) var(--ease-default);
 }
 
+.flyout-item-icon--img {
+  width: 18px;
+  height: 18px;
+  border-radius: var(--radius-s);
+  object-fit: cover;
+}
+
 .flyout-item-label {
   flex: 1;
   min-width: 0;
@@ -522,15 +532,7 @@ defineExpose({ toggle, close, open })
   margin-inline-start: var(--space-xs);
 }
 
-/* ── Destructive variant ── */
-.flyout-item--destructive {
-  color: #d63638;
-}
-
-.flyout-item--destructive .flyout-item-icon {
-  color: #d63638;
-}
-
+/* ── Destructive variant — normal at rest, red on hover ── */
 .flyout-item--destructive:hover,
 .flyout--dark .flyout-item--destructive:hover,
 .flyout--light .flyout-item--destructive:hover {
@@ -538,7 +540,9 @@ defineExpose({ toggle, close, open })
   color: #f86368;
 }
 
-.flyout-item--destructive:hover .flyout-item-icon {
+.flyout-item--destructive:hover .flyout-item-icon,
+.flyout--dark .flyout-item--destructive:hover .flyout-item-icon,
+.flyout--light .flyout-item--destructive:hover .flyout-item-icon {
   color: #f86368;
 }
 

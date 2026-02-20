@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
-import ChatCard from './ChatCard.vue'
+import ChatCard from '@shared/composites/chat-cards/ChatCard.vue'
 import { useSiteThemes } from '@/data/themes/useSiteThemes'
 import type { CardUiState, ThemeUpdateCardData } from '@/data/types'
 

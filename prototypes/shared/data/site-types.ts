@@ -1,6 +1,3 @@
-// Phase B: Simple Site Data Model
-// These types replace the complex section system with a simple, flat structure
-
 export interface Section {
   id: string
   html: string

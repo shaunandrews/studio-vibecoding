@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, reactive, nextTick, onMounted, onUnmounted } from 'vue'
 import { chevronRight, chevronDown, arrowUp, arrowDown } from '@wordpress/icons'
-import WPIcon from '@/components/primitives/WPIcon.vue'
+import WPIcon from '@shared/primitives/WPIcon.vue'
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -910,7 +910,6 @@ function selectTable(name: string) {
   min-height: 0;
   overflow: hidden;
   background: var(--color-surface);
-  border-block-start: 1px solid var(--color-surface-border);
 }
 
 /* -- Sidebar --------------------------------------------------------------- */

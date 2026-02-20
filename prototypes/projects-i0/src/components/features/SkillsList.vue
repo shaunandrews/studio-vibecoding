@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import Text from '@/components/primitives/Text.vue'
+import Text from '@shared/primitives/Text.vue'
 import Button from '@/components/primitives/Button.vue'
 import SkillCard from '@/components/composites/SkillCard.vue'
 import { useSkills } from '@/data/useSkills'

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Skill } from '@/data/types'
-import WPIcon from '@/components/primitives/WPIcon.vue'
-import Text from '@/components/primitives/Text.vue'
+import WPIcon from '@shared/primitives/WPIcon.vue'
+import Text from '@shared/primitives/Text.vue'
 import * as wpIcons from '@wordpress/icons'
 
 const props = defineProps<{

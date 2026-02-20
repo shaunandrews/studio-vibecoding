@@ -7,45 +7,17 @@ import {
   external as externalIcon,
 } from '@wordpress/icons'
 
-// Simple monochrome app icons for "Open in..." submenu (WPIcon-compatible format)
-const h = (type: string, props: Record<string, any>) => ({ type, props })
-
-const iconFinder = { props: { viewBox: '0 0 24 24', children: [
-  h('rect', { x: '3', y: '3', width: '18', height: '18', rx: '4', fill: 'none', stroke: 'currentColor', strokeWidth: '1.5' }),
-  h('circle', { cx: '9.5', cy: '11', r: '1.5', fill: 'currentColor' }),
-  h('circle', { cx: '14.5', cy: '11', r: '1.5', fill: 'currentColor' }),
-  h('path', { d: 'M12 3v18', fill: 'none', stroke: 'currentColor', strokeWidth: '1' }),
-  h('path', { d: 'M9 16c0 0 1.5 1.5 3 1.5s3-1.5 3-1.5', fill: 'none', stroke: 'currentColor', strokeWidth: '1.2', strokeLinecap: 'round' }),
-] } }
-
-const iconCursor = { props: { viewBox: '0 0 24 24', children: [
-  h('rect', { x: '3', y: '3', width: '18', height: '18', rx: '4', fill: 'none', stroke: 'currentColor', strokeWidth: '1.5' }),
-  h('path', { d: 'M8 7l4 10 1.5-4 4-1.5L8 7z', fill: 'currentColor' }),
-] } }
-
-const iconVSCode = { props: { viewBox: '0 0 24 24', children: [
-  h('path', { d: 'M16.5 3L17.5 3.5V20.5L16.5 21L3 12.5L4.5 11L16.5 3Z', fill: 'none', stroke: 'currentColor', strokeWidth: '1.3', strokeLinejoin: 'round' }),
-  h('path', { d: 'M4.5 11L13 5.5', fill: 'none', stroke: 'currentColor', strokeWidth: '1.3', strokeLinecap: 'round' }),
-  h('path', { d: 'M4.5 13L13 18.5', fill: 'none', stroke: 'currentColor', strokeWidth: '1.3', strokeLinecap: 'round' }),
-  h('path', { d: 'M17.5 3.5L21 5V19L17.5 20.5', fill: 'none', stroke: 'currentColor', strokeWidth: '1.3', strokeLinejoin: 'round' }),
-] } }
-
-const iconTerminal = { props: { viewBox: '0 0 24 24', children: [
-  h('rect', { x: '3', y: '4', width: '18', height: '16', rx: '3', fill: 'none', stroke: 'currentColor', strokeWidth: '1.5' }),
-  h('path', { d: 'M7 9l3 3-3 3', fill: 'none', stroke: 'currentColor', strokeWidth: '1.5', strokeLinecap: 'round', strokeLinejoin: 'round' }),
-  h('path', { d: 'M13 15h4', fill: 'none', stroke: 'currentColor', strokeWidth: '1.5', strokeLinecap: 'round' }),
-] } }
 import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import Button from '@/components/primitives/Button.vue'
 import Dropdown from '@/components/primitives/Dropdown.vue'
 import FlyoutMenu from '@/components/primitives/FlyoutMenu.vue'
-import Text from '@/components/primitives/Text.vue'
-import WPIcon from '@/components/primitives/WPIcon.vue'
+import Text from '@shared/primitives/Text.vue'
+import WPIcon from '@shared/primitives/WPIcon.vue'
 import { useProjects } from '@/data/useProjects'
 import { usePreviewState } from '@/data/usePreviewState'
 import { useSiteStore } from '@/data/useSiteStore'
-import { renderSite } from '@/data/site-renderer'
+import { renderSite } from '@shared/data/site-renderer'
 import { isAIConfigured, getAPIKey, setAPIKey } from '@/data/ai-service'
 import type { FlyoutMenuGroup } from '@/components/primitives/FlyoutMenu.vue'
 
@@ -109,10 +81,10 @@ const projectMenuGroups = computed<FlyoutMenuGroup[]>(() => [
       {
         label: 'Open in\u2026',
         children: [
-          { label: 'Finder', icon: iconFinder, action: () => {} },
-          { label: 'Cursor', icon: iconCursor, action: () => {} },
-          { label: 'VS Code', icon: iconVSCode, action: () => {} },
-          { label: 'Terminal', icon: iconTerminal, action: () => {} },
+          { label: 'Finder', iconUrl: 'https://symbl.revend.group/img/appicon/Finder.png', action: () => {} },
+          { label: 'Cursor', iconUrl: 'https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/cursor-ai-code-icon.svg', action: () => {} },
+          { label: 'VS Code', iconUrl: 'https://icon.icepanel.io/Technology/svg/Visual-Studio-Code-%28VS-Code%29.svg', action: () => {} },
+          { label: 'Terminal', iconUrl: 'https://symbl.revend.group/img/appicon/Terminal.png', action: () => {} },
         ],
       },
     ],

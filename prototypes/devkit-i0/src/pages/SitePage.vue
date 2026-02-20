@@ -2,18 +2,18 @@
 import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
 import { useRoute } from 'vue-router'
 import { external } from '@wordpress/icons'
-import Panel from '@/components/composites/Panel.vue'
+import Panel from '@shared/composites/Panel.vue'
 import AgentPanel from '@/components/features/AgentPanel.vue'
-import StatusIndicator from '@/components/primitives/StatusIndicator.vue'
-import Text from '@/components/primitives/Text.vue'
+import StatusIndicator from '@shared/primitives/StatusIndicator.vue'
+import Text from '@shared/primitives/Text.vue'
 import DashboardOverview from '@/components/features/DashboardOverview.vue'
 import DashboardTerminal from '@/components/features/DashboardTerminal.vue'
 import DashboardDatabase from '@/components/features/DashboardDatabase.vue'
 import DashboardMail from '@/components/features/DashboardMail.vue'
 import DashboardPerformance from '@/components/features/DashboardPerformance.vue'
 import DashboardDocs from '@/components/features/DashboardDocs.vue'
-import Tooltip from '@/components/primitives/Tooltip.vue'
-import WPIcon from '@/components/primitives/WPIcon.vue'
+import Tooltip from '@shared/primitives/Tooltip.vue'
+import WPIcon from '@shared/primitives/WPIcon.vue'
 import { useProjects } from '@/data/useProjects'
 import { useChatPopout } from '@/data/useChatPopout'
 
@@ -266,9 +266,9 @@ function onPanelAfterLeave() {
 
       <div v-if="panelOpen" class="panel-resize-handle" @pointerdown="onPanelPointerDown" />
 
-      <div class="dashboard__toolbar hstack">
+      <div class="dashboard__toolbar hstack" :class="{ 'panel-open': panelOpen }">
         <div class="dashboard__tabs hstack">
-          <Tooltip v-for="tab in TOOL_TABS" :key="tab.id" :text="tab.tooltip">
+          <Tooltip v-for="tab in TOOL_TABS" :key="tab.id" :text="tab.tooltip" placement="top">
             <button
               class="dashboard__tab"
               :class="{ active: panelOpen && activeTab === tab.id }"
@@ -344,6 +344,10 @@ function onPanelAfterLeave() {
   justify-content: space-between;
   align-items: center;
   min-block-size: var(--space-xxl);
+}
+
+.dashboard__toolbar.panel-open {
+  border-block-end: 1px solid var(--color-surface-border);
 }
 
 /* ── Tab strip ── */

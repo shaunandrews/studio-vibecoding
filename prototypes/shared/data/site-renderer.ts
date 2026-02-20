@@ -1,14 +1,13 @@
 /**
- * Phase B: Simple Site Renderer
- * 
- * Renders complete sites using the new simple Site data model.
- * Replaces the complex pipeline progressive renderer with a clean,
- * straightforward HTML document generator.
+ * Site Renderer
+ *
+ * Renders complete sites using the Site data model.
+ * Produces full HTML documents from structured site data.
  */
 
 import type { Site } from './site-types'
 
-// ---- Listener Script (reused from progressive-renderer) ----
+// ---- Listener Script ----
 
 const LISTENER_SCRIPT = `
 <script>
@@ -185,7 +184,7 @@ function escapeAttr(str: string): string {
 
 /**
  * Render a complete HTML document for a site page.
- * 
+ *
  * This produces a full HTML document by:
  * 1. Creating the document shell
  * 2. Adding Google Fonts links from theme.fonts
@@ -251,7 +250,7 @@ export function renderSite(site: Site, pageSlug: string, colorMode?: 'light' | '
 
   // Body with sections
   parts.push('<body>')
-  
+
   for (let i = 0; i < page.sections.length; i++) {
     const sectionId = page.sections[i]!
     const section = site.sections[sectionId]
@@ -265,7 +264,7 @@ export function renderSite(site: Site, pageSlug: string, colorMode?: 'light' | '
 
   // PostMessage listener script
   parts.push(LISTENER_SCRIPT)
-  
+
   parts.push('</body>')
   parts.push('</html>')
 
@@ -309,7 +308,7 @@ export function sendThemeUpdate(
  */
 export function getPageData(site: Site, pageSlug: string): {
   title: string
-  sections: { id: string; html: string; css: string; role?: string }[]
+  sections: { id: string; html: string; css: string; role?: string; order: number }[]
 } | null {
   const normalizedSlug = pageSlug === '/' ? '' : pageSlug.replace(/^\//, '')
   const page = site.pages.find(p => {

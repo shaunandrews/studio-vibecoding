@@ -20,5 +20,6 @@
 .panel-toolbar {
   border-block-end: 1px solid var(--color-surface-border);
   flex-shrink: 0;
+  align-items: center;
 }
 </style>

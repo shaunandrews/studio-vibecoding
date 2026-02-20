@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useDevAgents } from '@/data/useDevAgents'
-import Badge from '@/components/primitives/Badge.vue'
+import Badge from '@shared/primitives/Badge.vue'
 
 const { agents, attentionCount } = useDevAgents()
 

@@ -1,5 +1,5 @@
 import { reactive } from 'vue'
-import type { Site, Theme } from './site-types'
+import type { Site, Theme } from '@shared/data/site-types'
 import { seedSites } from './seed-sites'
 
 const sites: Record<string, Site> = reactive({ ...seedSites })
