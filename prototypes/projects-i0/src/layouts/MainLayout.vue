@@ -10,18 +10,41 @@ import { useProjects } from '@/data/useProjects'
 import { useOnboarding } from '@/data/useOnboarding'
 import { useProjectTransition } from '@/data/useProjectTransition'
 import ShortcutsModal from '@/components/composites/ShortcutsModal.vue'
+import SpotlightTour from '@/components/composites/SpotlightTour.vue'
+import { useTour } from '@/data/useTour'
+import { usePreviewState } from '@/data/usePreviewState'
 
 const route = useRoute()
-const { createUntitledProject } = useProjects()
+const { createUntitledProject, projects } = useProjects()
 const { startOnboarding } = useOnboarding()
 const { navigateToProject } = useProjectTransition()
+const { start: startTourFn } = useTour()
+const { show: showPreview } = usePreviewState()
 const mode = computed(() => (route.meta.mode as string) || 'home')
 const homeTab = ref<'projects' | 'skills'>('projects')
 const showBrowse = ref(false)
 const showShortcuts = ref(false)
 
 function startTour() {
-  // Will be wired in Task 7
+  if (mode.value === 'home') {
+    // Need a project open — navigate to the first seed project
+    const firstProject = projects.value[0]
+    if (firstProject) {
+      navigateToProject(firstProject.id).then(() => {
+        // Ensure preview is visible for tour
+        showPreview(firstProject.id)
+        // Wait for DOM to settle after navigation
+        setTimeout(() => startTourFn(), 400)
+      })
+    }
+    return
+  }
+  // Already in project view
+  const projectId = route.params.id as string
+  if (projectId) {
+    showPreview(projectId)
+  }
+  startTourFn()
 }
 
 function onGlobalKeydown(e: KeyboardEvent) {
@@ -111,6 +134,7 @@ async function handleNewProject() {
       </main>
     </div>
     <ShortcutsModal :open="showShortcuts" @close="showShortcuts = false" />
+    <SpotlightTour />
   </div>
 </template>
 
