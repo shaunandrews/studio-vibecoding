@@ -8,13 +8,28 @@
  * massive box-shadow (9999px) that covers the entire viewport, creating a
  * dimming effect everywhere EXCEPT over the target element.
  */
-import { computed, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed, watch, nextTick, onMounted, onBeforeUnmount } from 'vue'
 import Button from '@/components/primitives/Button.vue'
 import { useTour } from '@/data/useTour'
 
 const { active, currentStep, currentIndex, totalSteps, targetRect, isFirst, isLast, next, back, stop } = useTour()
 
-const PAD = 8 // px padding around target element
+const PAD = 8   // px padding around target element in the cutout
+const GAP = 12  // px gap between cutout edge and tooltip
+const EDGE = 16 // px minimum distance from viewport edges
+const TOOLTIP_W = 320
+
+// Measure the actual tooltip height after render
+const tooltipRef = ref<HTMLElement | null>(null)
+const tooltipH = ref(180) // sensible default before first measure
+
+watch([currentIndex, active], () => {
+  nextTick(() => {
+    if (tooltipRef.value) {
+      tooltipH.value = tooltipRef.value.offsetHeight
+    }
+  })
+})
 
 // Cutout position derived from targetRect
 const cutoutStyle = computed(() => {
@@ -35,32 +50,66 @@ const cutoutStyle = computed(() => {
   }
 })
 
-// Tooltip position: below target preferred, above as fallback
+type Placement = 'bottom' | 'top' | 'right' | 'left'
+
+/**
+ * Pick the best side for the tooltip: bottom → right → top → left.
+ * Uses the first side where the tooltip actually fits. If none fit,
+ * picks whichever has the most relative room.
+ */
+function bestPlacement(r: DOMRect): Placement {
+  const vw = window.innerWidth
+  const vh = window.innerHeight
+  const th = tooltipH.value
+
+  const candidates: { p: Placement; space: number; needed: number }[] = [
+    { p: 'bottom', space: vh - r.bottom - PAD,  needed: th + GAP },
+    { p: 'right',  space: vw - r.right - PAD,   needed: TOOLTIP_W + GAP },
+    { p: 'top',    space: r.top - PAD,           needed: th + GAP },
+    { p: 'left',   space: r.left - PAD,          needed: TOOLTIP_W + GAP },
+  ]
+
+  const fits = candidates.find(c => c.space >= c.needed)
+  if (fits) return fits.p
+
+  // Nothing fits perfectly — pick the one with the best ratio
+  candidates.sort((a, b) => (b.space / b.needed) - (a.space / a.needed))
+  return candidates[0].p
+}
+
+/** Clamp a value between min and max */
+function clamp(v: number, min: number, max: number) { return Math.max(min, Math.min(max, v)) }
+
+// Tooltip position — tries all 4 sides, picks the best fit
 const tooltipStyle = computed(() => {
   if (!targetRect.value) return {}
   const r = targetRect.value
+  const vw = window.innerWidth
+  const vh = window.innerHeight
+  const th = tooltipH.value
+  const placement = bestPlacement(r)
+
   const style: Record<string, string> = {
     position: 'fixed',
     zIndex: '10001',
-    width: '320px',
+    width: `${TOOLTIP_W}px`,
+    transition: 'top var(--duration-slow) var(--ease-in-out), left var(--duration-slow) var(--ease-in-out)',
   }
 
-  const spaceBelow = window.innerHeight - (r.bottom + PAD)
-  const spaceAbove = r.top - PAD
-
-  if (spaceBelow >= 200 || spaceBelow >= spaceAbove) {
-    // Place below — 12px gap from cutout edge
-    style.top = `${r.bottom + PAD + 12}px`
+  if (placement === 'bottom') {
+    style.top = `${r.bottom + PAD + GAP}px`
+    style.left = `${clamp(r.left + r.width / 2 - TOOLTIP_W / 2, EDGE, vw - EDGE - TOOLTIP_W)}px`
+  } else if (placement === 'top') {
+    style.top = `${clamp(r.top - PAD - GAP - th, EDGE, vh - EDGE - th)}px`
+    style.left = `${clamp(r.left + r.width / 2 - TOOLTIP_W / 2, EDGE, vw - EDGE - TOOLTIP_W)}px`
+  } else if (placement === 'right') {
+    style.left = `${r.right + PAD + GAP}px`
+    style.top = `${clamp(r.top + r.height / 2 - th / 2, EDGE, vh - EDGE - th)}px`
   } else {
-    // Place above
-    style.bottom = `${window.innerHeight - r.top + PAD + 12}px`
+    // left
+    style.left = `${clamp(r.left - PAD - GAP - TOOLTIP_W, EDGE, vw - EDGE - TOOLTIP_W)}px`
+    style.top = `${clamp(r.top + r.height / 2 - th / 2, EDGE, vh - EDGE - th)}px`
   }
-
-  // Horizontal: center on target, clamp to viewport edges
-  let left = r.left + r.width / 2 - 160
-  if (left + 320 > window.innerWidth - 16) left = window.innerWidth - 16 - 320
-  if (left < 16) left = 16
-  style.left = `${left}px`
 
   return style
 })
@@ -88,7 +137,7 @@ onBeforeUnmount(() => document.removeEventListener('keydown', onKeydown))
     <Transition name="tour">
       <div v-if="active && targetRect" class="tour-overlay" @click.self="stop">
         <div class="tour-cutout" :style="cutoutStyle" />
-        <div class="tour-tooltip vstack gap-xs" :style="tooltipStyle">
+        <div ref="tooltipRef" class="tour-tooltip vstack gap-xs" :style="tooltipStyle">
           <div class="tour-tooltip__title">{{ currentStep?.title }}</div>
           <div class="tour-tooltip__desc">{{ currentStep?.description }}</div>
           <div class="tour-tooltip__footer hstack justify-between align-center">
@@ -120,8 +169,7 @@ onBeforeUnmount(() => document.removeEventListener('keydown', onKeydown))
   padding: var(--space-m);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
   transition: top var(--duration-slow) var(--ease-in-out),
-    left var(--duration-slow) var(--ease-in-out),
-    bottom var(--duration-slow) var(--ease-in-out);
+    left var(--duration-slow) var(--ease-in-out);
 }
 
 .tour-tooltip__title {
