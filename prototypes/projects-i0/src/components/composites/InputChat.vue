@@ -293,16 +293,19 @@ function actionLabel(idx: number): string {
     />
     <div class="input-toolbar hstack justify-between pt-xxs">
       <div class="hstack gap-xxs align-center">
-        <Dropdown v-model="selectedModel" :groups="models" placement="above" :surface="props.surface" tooltip="Model" />
-        <Dropdown
-          v-if="projectId && skillDropdownGroups.length"
-          v-model="skillDropdownValue"
-          :groups="skillDropdownGroups"
-          placement="above"
-          :surface="props.surface"
-          tooltip="Project skills"
-          @update:model-value="onSkillSelect"
-        />
+        <span data-tour="model">
+          <Dropdown v-model="selectedModel" :groups="models" placement="above" :surface="props.surface" tooltip="Model" />
+        </span>
+        <span v-if="projectId && skillDropdownGroups.length" data-tour="skills">
+          <Dropdown
+            v-model="skillDropdownValue"
+            :groups="skillDropdownGroups"
+            placement="above"
+            :surface="props.surface"
+            tooltip="Project skills"
+            @update:model-value="onSkillSelect"
+          />
+        </span>
       </div>
       <div class="hstack gap-xxs align-center">
         <ContextRing

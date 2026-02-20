@@ -63,6 +63,7 @@ async function handleNewProject() {
         class="left-column vstack"
         :class="{ 'is-sidebar': mode === 'project' }"
         :style="{ viewTransitionName: mode === 'project' ? 'sidebar' : 'project-grid' }"
+        data-tour="sidebar"
       >
         <!-- Tab switch (home mode only) -->
         <div v-if="mode === 'home'" class="home-tabs hstack gap-xxs px-m pt-s pb-xxs">

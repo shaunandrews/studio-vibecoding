@@ -246,7 +246,7 @@ function toggleColorMode() {
 </script>
 
 <template>
-  <div class="site-preview vstack flex-1 overflow-hidden">
+  <div class="site-preview vstack flex-1 overflow-hidden" data-tour="preview">
     <PanelToolbar>
       <template #start>
         <Button variant="tertiary" :icon="chevronLeft" :disabled="!canGoBack" tooltip="Back" @click="goBack" />

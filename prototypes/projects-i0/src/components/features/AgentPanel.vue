@@ -397,9 +397,9 @@ function handleAction(action: ActionButton) {
       </template>
     </PanelToolbar>
 
-    <ChatMessageList :messages="msgs" :project-id="projectId" />
+    <ChatMessageList :messages="msgs" :project-id="projectId" data-tour="chat" />
 
-    <div class="agent-panel__input shrink-0 px-s pb-s">
+    <div class="agent-panel__input shrink-0 px-s pb-s" data-tour="input">
       <div class="agent-panel__input-inner">
         <InputChat
           ref="inputChatRef"
