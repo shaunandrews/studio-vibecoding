@@ -4,6 +4,7 @@ import {
   pencil, copy, trash,
   dashboard, styles, navigation, layout, pages, post,
   download, upload, cloudUpload,
+  external as externalIcon,
 } from '@wordpress/icons'
 
 // Simple monochrome app icons for "Open in..." submenu (WPIcon-compatible format)
@@ -47,6 +48,11 @@ import { useSiteStore } from '@/data/useSiteStore'
 import { renderSite } from '@/data/site-renderer'
 import { isAIConfigured, getAPIKey, setAPIKey } from '@/data/ai-service'
 import type { FlyoutMenuGroup } from '@/components/primitives/FlyoutMenu.vue'
+
+const emit = defineEmits<{
+  'open-shortcuts': []
+  'start-tour': []
+}>()
 
 const router = useRouter()
 const route = useRoute()
@@ -143,6 +149,23 @@ const projectMenuGroups = computed<FlyoutMenuGroup[]>(() => [
           { label: 'Publish', icon: cloudUpload, action: () => {} },
         ],
       },
+    ],
+  },
+])
+
+// ── Help menu ──
+const helpMenuGroups = computed<FlyoutMenuGroup[]>(() => [
+  {
+    items: [
+      { label: 'Take a Tour', action: () => emit('start-tour') },
+      { label: 'Keyboard Shortcuts', detail: '⌘/', action: () => emit('open-shortcuts') },
+    ],
+  },
+  {
+    items: [
+      { label: 'Help', icon: externalIcon, action: () => window.open('https://developer.wordpress.org/studio/', '_blank') },
+      { label: 'Community', icon: externalIcon, action: () => window.open('https://wordpress.org/support/forum/', '_blank') },
+      { label: 'Report a Bug', icon: externalIcon, action: () => window.open('https://github.com/Automattic/studio/issues', '_blank') },
     ],
   },
 ])
@@ -251,7 +274,12 @@ function onSettingsSelect(value: string) {
         tooltip="Settings"
         @update:model-value="onSettingsSelect"
       />
-      <Button variant="tertiary" surface="dark" :icon="help" size="small" tooltip="Help" />
+      <FlyoutMenu :groups="helpMenuGroups" surface="dark" align="end">
+        <template #trigger="{ toggle, open: menuOpen }">
+          <Button variant="tertiary" surface="dark" :icon="help" size="small"
+            :tooltip="menuOpen ? undefined : 'Help'" @click="toggle" />
+        </template>
+      </FlyoutMenu>
     </div>
     <div v-if="showKeySettings" ref="keyPopoverRef" class="key-popover" @click.stop>
       <div class="key-popover__status">
