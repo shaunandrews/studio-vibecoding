@@ -39,6 +39,7 @@ const groups = computed<ShortcutGroup[]>(() => [
   {
     title: 'Navigation',
     shortcuts: [
+      { label: 'Toggle sidebar', keys: [mod.value, 'B'] },
       { label: 'Keyboard shortcuts', keys: [mod.value, '/'] },
     ],
   },
