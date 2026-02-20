@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, nextTick, onMounted, onBeforeUnmount } from 'vue'
-import { drawerRight, plugins } from '@wordpress/icons'
+import { drawerRight, external, plugins } from '@wordpress/icons'
+import { renderSite } from '@/data/site-renderer'
 import Button from '@/components/primitives/Button.vue'
 import PanelToolbar from '@/components/composites/PanelToolbar.vue'
 import TabBar from '@/components/composites/TabBar.vue'
@@ -30,11 +31,21 @@ const { getSkillPrompt, matchSlashCommand } = useSkills()
 const props = defineProps<{
   projectId?: string | null
   previewVisible?: boolean
+  browserMode?: 'app' | 'browser'
 }>()
 
 const emit = defineEmits<{
   'toggle-preview': []
 }>()
+
+function openInBrowser() {
+  if (!props.projectId) return
+  const site = siteStore.getSite(props.projectId)
+  if (!site) { window.open('about:blank', '_blank', 'width=1200,height=800'); return }
+  const html = renderSite(site, '/')
+  const popup = window.open('', '_blank', 'width=1200,height=800')
+  if (popup) popup.document.write(html)
+}
 
 // Build site context for AI system prompt augmentation
 const siteContext = computed(() => {
@@ -296,7 +307,9 @@ function handleAction(action: ActionButton) {
             <SkillToggleMenu :project-id="projectId" />
           </div>
         </div>
-        <Button variant="tertiary" :icon="drawerRight"
+        <Button v-if="browserMode === 'browser'" variant="tertiary" :icon="external"
+          label="Open in browser" tooltip="Open in browser" @click="openInBrowser" />
+        <Button v-else variant="tertiary" :icon="drawerRight"
           :active="previewVisible" :tooltip="previewVisible ? 'Hide preview' : 'Show preview'" @click="$emit('toggle-preview')" />
       </template>
     </PanelToolbar>

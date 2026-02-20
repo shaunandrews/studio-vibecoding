@@ -8,8 +8,12 @@ import { useProjects } from '@/data/useProjects'
 import { usePreviewState } from '@/data/usePreviewState'
 
 const route = useRoute()
-const { visibleComputed } = usePreviewState()
+const { visibleComputed, browserModeComputed } = usePreviewState()
 const showPreview = visibleComputed(() => route.params.id as string)
+const browserMode = browserModeComputed(() => route.params.id as string)
+
+// Effective preview visibility — hidden when browser mode is active
+const effectivePreview = computed(() => browserMode.value === 'app' && showPreview.value)
 // Per-project panel width (fraction 0-1, default 0.5)
 const WIDTHS_KEY = 'panelWidths'
 
@@ -65,8 +69,8 @@ function onPointerUp(e: PointerEvent) {
 const isAnimating = ref(false)
 let animationTimeout: ReturnType<typeof setTimeout> | null = null
 
-// Animate on any visibility change (toggle button or programmatic via usePreviewState)
-watch(showPreview, () => {
+// Animate on any visibility change (toggle button, browser mode, or programmatic via usePreviewState)
+watch(effectivePreview, () => {
   isAnimating.value = true
   if (animationTimeout) clearTimeout(animationTimeout)
   animationTimeout = setTimeout(() => { isAnimating.value = false }, 300)
@@ -89,11 +93,11 @@ onBeforeUnmount(() => {
 
 <template>
   <div ref="containerRef" class="panels hstack align-stretch flex-1 min-w-0 min-h-0 overflow-hidden" :class="{ 'is-dragging': isDragging, 'is-animating': isAnimating }">
-    <Panel class="chat-panel" :style="{ width: showPreview ? (chatFraction * 100) + '%' : '100%', flex: 'none', minWidth: MIN_CHAT_PX + 'px' }">
-      <AgentPanel :project-id="activeProjectId" :preview-visible="showPreview" @toggle-preview="togglePreview" />
+    <Panel class="chat-panel" :style="{ width: effectivePreview ? (chatFraction * 100) + '%' : '100%', flex: 'none', minWidth: MIN_CHAT_PX + 'px' }">
+      <AgentPanel :project-id="activeProjectId" :preview-visible="effectivePreview" :browser-mode="browserMode" @toggle-preview="togglePreview" />
     </Panel>
-    <div class="resize-handle" :class="{ 'resize-handle--hidden': !showPreview }" @pointerdown="onPointerDown" />
-    <Panel class="preview-panel" :class="{ 'preview-panel--hidden': !showPreview }">
+    <div class="resize-handle" :class="{ 'resize-handle--hidden': !effectivePreview }" @pointerdown="onPointerDown" />
+    <Panel class="preview-panel" :class="{ 'preview-panel--hidden': !effectivePreview }">
       <SitePreview :project-id="activeProjectId" />
     </Panel>
   </div>

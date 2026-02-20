@@ -3,10 +3,37 @@ import {
   cog, help, chevronDown,
   pencil, copy, trash,
   dashboard, styles, navigation, layout, pages, post,
-  external,
-  desktop, code,
   download, upload, cloudUpload,
 } from '@wordpress/icons'
+
+// Simple monochrome app icons for "Open in..." submenu (WPIcon-compatible format)
+const h = (type: string, props: Record<string, any>) => ({ type, props })
+
+const iconFinder = { props: { viewBox: '0 0 24 24', children: [
+  h('rect', { x: '3', y: '3', width: '18', height: '18', rx: '4', fill: 'none', stroke: 'currentColor', strokeWidth: '1.5' }),
+  h('circle', { cx: '9.5', cy: '11', r: '1.5', fill: 'currentColor' }),
+  h('circle', { cx: '14.5', cy: '11', r: '1.5', fill: 'currentColor' }),
+  h('path', { d: 'M12 3v18', fill: 'none', stroke: 'currentColor', strokeWidth: '1' }),
+  h('path', { d: 'M9 16c0 0 1.5 1.5 3 1.5s3-1.5 3-1.5', fill: 'none', stroke: 'currentColor', strokeWidth: '1.2', strokeLinecap: 'round' }),
+] } }
+
+const iconCursor = { props: { viewBox: '0 0 24 24', children: [
+  h('rect', { x: '3', y: '3', width: '18', height: '18', rx: '4', fill: 'none', stroke: 'currentColor', strokeWidth: '1.5' }),
+  h('path', { d: 'M8 7l4 10 1.5-4 4-1.5L8 7z', fill: 'currentColor' }),
+] } }
+
+const iconVSCode = { props: { viewBox: '0 0 24 24', children: [
+  h('path', { d: 'M16.5 3L17.5 3.5V20.5L16.5 21L3 12.5L4.5 11L16.5 3Z', fill: 'none', stroke: 'currentColor', strokeWidth: '1.3', strokeLinejoin: 'round' }),
+  h('path', { d: 'M4.5 11L13 5.5', fill: 'none', stroke: 'currentColor', strokeWidth: '1.3', strokeLinecap: 'round' }),
+  h('path', { d: 'M4.5 13L13 18.5', fill: 'none', stroke: 'currentColor', strokeWidth: '1.3', strokeLinecap: 'round' }),
+  h('path', { d: 'M17.5 3.5L21 5V19L17.5 20.5', fill: 'none', stroke: 'currentColor', strokeWidth: '1.3', strokeLinejoin: 'round' }),
+] } }
+
+const iconTerminal = { props: { viewBox: '0 0 24 24', children: [
+  h('rect', { x: '3', y: '4', width: '18', height: '16', rx: '3', fill: 'none', stroke: 'currentColor', strokeWidth: '1.5' }),
+  h('path', { d: 'M7 9l3 3-3 3', fill: 'none', stroke: 'currentColor', strokeWidth: '1.5', strokeLinecap: 'round', strokeLinejoin: 'round' }),
+  h('path', { d: 'M13 15h4', fill: 'none', stroke: 'currentColor', strokeWidth: '1.5', strokeLinecap: 'round' }),
+] } }
 import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import Button from '@/components/primitives/Button.vue'
@@ -15,12 +42,25 @@ import FlyoutMenu from '@/components/primitives/FlyoutMenu.vue'
 import Text from '@/components/primitives/Text.vue'
 import WPIcon from '@/components/primitives/WPIcon.vue'
 import { useProjects } from '@/data/useProjects'
+import { usePreviewState } from '@/data/usePreviewState'
+import { useSiteStore } from '@/data/useSiteStore'
+import { renderSite } from '@/data/site-renderer'
 import { isAIConfigured, getAPIKey, setAPIKey } from '@/data/ai-service'
 import type { FlyoutMenuGroup } from '@/components/primitives/FlyoutMenu.vue'
 
 const router = useRouter()
 const route = useRoute()
 const { projects } = useProjects()
+const { setBrowserMode, getBrowserMode } = usePreviewState()
+const siteStore = useSiteStore()
+
+function openSiteInWindow(projectId: string) {
+  const site = siteStore.getSite(projectId)
+  if (!site) return
+  const html = renderSite(site, '/')
+  const popup = window.open('', '_blank', 'width=1200,height=800')
+  if (popup) popup.document.write(html)
+}
 
 const currentProject = computed(() => {
   const projectId = route.params.id as string | undefined
@@ -42,7 +82,6 @@ const projectMenuGroups = computed<FlyoutMenuGroup[]>(() => [
     items: [
       {
         label: 'Project',
-        icon: pencil,
         children: [
           { label: 'Rename', icon: pencil, action: () => {} },
           { label: 'Duplicate', icon: copy, action: () => {} },
@@ -51,7 +90,6 @@ const projectMenuGroups = computed<FlyoutMenuGroup[]>(() => [
       },
       {
         label: 'WordPress Admin',
-        icon: dashboard,
         children: [
           { label: 'WP Admin', icon: dashboard, action: () => {} },
           { label: 'Styles', icon: styles, action: () => {} },
@@ -62,21 +100,35 @@ const projectMenuGroups = computed<FlyoutMenuGroup[]>(() => [
         ],
       },
       {
-        label: 'View',
-        icon: external,
+        label: 'Open in\u2026',
         children: [
-          { label: 'Open in browser', icon: external, action: () => {} },
+          { label: 'Finder', icon: iconFinder, action: () => {} },
+          { label: 'Cursor', icon: iconCursor, action: () => {} },
+          { label: 'VS Code', icon: iconVSCode, action: () => {} },
+          { label: 'Terminal', icon: iconTerminal, action: () => {} },
         ],
       },
+    ],
+  },
+  {
+    label: 'Browser',
+    items: [
       {
-        label: 'Open in\u2026',
-        icon: desktop,
-        children: [
-          { label: 'Finder', icon: desktop, action: () => {} },
-          { label: 'Cursor', icon: code, action: () => {} },
-          { label: 'VS Code', icon: code, action: () => {} },
-          { label: 'Terminal', action: () => {} },
-        ],
+        label: 'In-app preview',
+        checked: !currentProject.value || getBrowserMode(currentProject.value.id) === 'app',
+        action: () => {
+          if (currentProject.value) setBrowserMode(currentProject.value.id, 'app')
+        },
+      },
+      {
+        label: 'Default browser',
+        checked: !!currentProject.value && getBrowserMode(currentProject.value.id) === 'browser',
+        action: () => {
+          if (currentProject.value) {
+            setBrowserMode(currentProject.value.id, 'browser')
+            openSiteInWindow(currentProject.value.id)
+          }
+        },
       },
     ],
   },
@@ -84,7 +136,6 @@ const projectMenuGroups = computed<FlyoutMenuGroup[]>(() => [
     items: [
       {
         label: 'More',
-        icon: download,
         children: [
           { label: 'Import', icon: download, action: () => {} },
           { label: 'Export', icon: upload, action: () => {} },

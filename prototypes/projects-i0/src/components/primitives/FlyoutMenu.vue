@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { ref, watch, nextTick, onMounted, onBeforeUnmount, computed } from 'vue'
-import { chevronRight } from '@wordpress/icons'
+import { check, chevronRight } from '@wordpress/icons'
 import WPIcon from '@/components/primitives/WPIcon.vue'
 
 export interface FlyoutMenuItem {
   label: string
   icon?: any
   destructive?: boolean
+  checked?: boolean
   children?: FlyoutMenuItem[]
   action?: () => void
 }
@@ -278,6 +279,12 @@ defineExpose({ toggle, close, open })
               <WPIcon v-if="item.icon" :icon="item.icon" :size="18" class="flyout-item-icon" />
               <span class="flyout-item-label">{{ item.label }}</span>
               <WPIcon
+                v-if="item.checked"
+                :icon="check"
+                :size="18"
+                class="flyout-item-check"
+              />
+              <WPIcon
                 v-if="item.children?.length"
                 :icon="chevronRight"
                 :size="16"
@@ -450,6 +457,12 @@ defineExpose({ toggle, close, open })
 .flyout-item-label {
   flex: 1;
   min-width: 0;
+}
+
+.flyout-item-check {
+  flex-shrink: 0;
+  margin-inline-start: var(--space-xs);
+  opacity: 0.6;
 }
 
 .flyout-item-chevron {

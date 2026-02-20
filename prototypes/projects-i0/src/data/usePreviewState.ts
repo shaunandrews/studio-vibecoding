@@ -9,16 +9,29 @@
 import { ref, computed } from 'vue'
 
 const STORAGE_KEY = 'previewState'
+const MODE_KEY = 'previewBrowserMode'
+
+type BrowserMode = 'app' | 'browser'
 
 function load(): Record<string, boolean> {
   try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}') }
   catch { return {} }
 }
 
+function loadMode(): Record<string, BrowserMode> {
+  try { return JSON.parse(localStorage.getItem(MODE_KEY) || '{}') }
+  catch { return {} }
+}
+
 const state = ref(load())
+const modeState = ref(loadMode())
 
 function persist() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state.value))
+}
+
+function persistMode() {
+  localStorage.setItem(MODE_KEY, JSON.stringify(modeState.value))
 }
 
 export function usePreviewState() {
@@ -52,5 +65,27 @@ export function usePreviewState() {
     })
   }
 
-  return { isVisible, show, hide, toggle, visibleComputed }
+  // Browser mode: 'app' = in-app preview, 'browser' = external browser
+  function getBrowserMode(projectId: string): BrowserMode {
+    return modeState.value[projectId] ?? 'app'
+  }
+
+  function setBrowserMode(projectId: string, mode: BrowserMode) {
+    modeState.value = { ...modeState.value, [projectId]: mode }
+    persistMode()
+  }
+
+  function toggleBrowserMode(projectId: string) {
+    const current = getBrowserMode(projectId)
+    setBrowserMode(projectId, current === 'app' ? 'browser' : 'app')
+  }
+
+  function browserModeComputed(projectId: () => string) {
+    return computed({
+      get: () => getBrowserMode(projectId()),
+      set: (v: BrowserMode) => setBrowserMode(projectId(), v),
+    })
+  }
+
+  return { isVisible, show, hide, toggle, visibleComputed, getBrowserMode, setBrowserMode, toggleBrowserMode, browserModeComputed }
 }
