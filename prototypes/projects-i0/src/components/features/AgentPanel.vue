@@ -41,8 +41,9 @@ const emit = defineEmits<{
 function openInBrowser() {
   if (!props.projectId) return
   const site = siteStore.getSite(props.projectId)
-  if (!site) { window.open('about:blank', '_blank', 'width=1200,height=800'); return }
+  if (!site) return
   const html = renderSite(site, '/')
+  const blob = new Blob([html], { type: 'text/html' })
   const popup = window.open('', '_blank', 'width=1200,height=800')
   if (popup) popup.document.write(html)
 }

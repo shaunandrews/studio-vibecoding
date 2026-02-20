@@ -58,6 +58,7 @@ function openSiteInWindow(projectId: string) {
   const site = siteStore.getSite(projectId)
   if (!site) return
   const html = renderSite(site, '/')
+  const blob = new Blob([html], { type: 'text/html' })
   const popup = window.open('', '_blank', 'width=1200,height=800')
   if (popup) popup.document.write(html)
 }
