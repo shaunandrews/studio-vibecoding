@@ -9,6 +9,8 @@ import SkillDirectory from '@/components/features/SkillDirectory.vue'
 import { useProjects } from '@/data/useProjects'
 import { useOnboarding } from '@/data/useOnboarding'
 import { useProjectTransition } from '@shared/data/useProjectTransition'
+import { useSidebarCollapse } from '@/data/useSidebarCollapse'
+import { plus } from '@wordpress/icons'
 import ShortcutsModal from '@/components/composites/ShortcutsModal.vue'
 import SpotlightTour from '@/components/composites/SpotlightTour.vue'
 import { useTour } from '@/data/useTour'
@@ -20,6 +22,7 @@ const { startOnboarding } = useOnboarding()
 const { navigateToProject } = useProjectTransition('project')
 const { start: startTourFn } = useTour()
 const { show: showPreview } = usePreviewState()
+const { collapsed, toggle: toggleSidebar } = useSidebarCollapse()
 const mode = computed(() => (route.meta.mode as string) || 'home')
 const homeTab = ref<'projects' | 'skills'>('projects')
 const showBrowse = ref(false)
@@ -51,6 +54,10 @@ function onGlobalKeydown(e: KeyboardEvent) {
   if ((e.metaKey || e.ctrlKey) && e.key === '/') {
     e.preventDefault()
     showShortcuts.value = !showShortcuts.value
+  }
+  if ((e.metaKey || e.ctrlKey) && e.key === 'b' && mode.value === 'project') {
+    e.preventDefault()
+    toggleSidebar()
   }
 }
 
@@ -84,7 +91,7 @@ async function handleNewProject() {
       <!-- Left column: full width on home, 210px on project -->
       <div
         class="left-column vstack"
-        :class="{ 'is-sidebar': mode === 'project' }"
+        :class="{ 'is-sidebar': mode === 'project', 'is-collapsed': mode === 'project' && collapsed }"
         :style="{ viewTransitionName: mode === 'project' ? 'sidebar' : 'project-grid' }"
       >
         <!-- Tab switch (home mode only) -->
@@ -109,7 +116,7 @@ async function handleNewProject() {
         </template>
 
         <!-- Project: Sidebar list -->
-        <ProjectList v-else class="flex-1 min-h-0" mode="list" @new-project="handleNewProject" />
+        <ProjectList v-else class="flex-1 min-h-0" mode="list" :collapsed="collapsed" @new-project="handleNewProject" />
 
         <div class="new-project-footer" v-if="mode === 'home' && homeTab === 'projects' && !showBrowse">
           <Button variant="secondary" surface="dark" label="New project" width="full" @click="handleNewProject" />
@@ -120,7 +127,22 @@ async function handleNewProject() {
           </div>
         </div>
         <div class="new-project-footer" v-else-if="mode === 'project'">
-          <Button variant="secondary" surface="dark" label="New project" width="full" @click="handleNewProject" />
+          <Button
+            v-if="collapsed"
+            variant="secondary"
+            surface="dark"
+            :icon="plus"
+            tooltip="New project"
+            @click="handleNewProject"
+          />
+          <Button
+            v-else
+            variant="secondary"
+            surface="dark"
+            label="New project"
+            width="full"
+            @click="handleNewProject"
+          />
         </div>
       </div>
       <!-- Frame: slides in from right as a solid block -->
@@ -163,6 +185,11 @@ async function handleNewProject() {
 
 .left-column.is-sidebar {
   width: 210px;
+  transition: width var(--duration-slow) cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.left-column.is-collapsed {
+  width: 45px;
 }
 
 .new-project-footer {
@@ -181,7 +208,8 @@ async function handleNewProject() {
   top: var(--space-xs);
   bottom: var(--space-xs);
   right: var(--space-xs);
-  left: calc(210px + var(--space-xs) + var(--space-xs));
+  left: calc(210px + var(--space-xs) + var(--space-xs)); /* Physical: app chrome edge */
+  transition: left var(--duration-slow) cubic-bezier(0.4, 0, 0.2, 1);
   background: var(--color-surface);
   border-radius: var(--radius-m);
   color: var(--color-text);
@@ -192,9 +220,18 @@ async function handleNewProject() {
   pointer-events: none;
 }
 
+.app-body:has(.is-collapsed) .frame {
+  left: calc(45px + var(--space-xs) + var(--space-xs)); /* Physical: app chrome edge */
+}
+
 .frame.frame-visible {
   opacity: 1;
   pointer-events: auto;
+}
+
+.is-collapsed .new-project-footer {
+  max-width: 45px;
+  justify-content: center;
 }
 
 .home-tabs {
