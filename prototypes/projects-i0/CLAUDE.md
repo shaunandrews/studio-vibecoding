@@ -28,13 +28,14 @@ src/
   styles/            # Design tokens (colors, space, radius)
   components/
     primitives/      # Button, Tooltip, WPIcon, Text, StatusIndicator, Titlebar, etc.
-    composites/      # ChatMessage, InputChat, ProjectItem, TabBar, Panel, StyleTileCard, StylePreview, chat-cards/
-    features/        # ProjectList, AgentPanel, SitePreview, OnboardingEmpty
+    composites/      # ChatMessage, InputChat, ProjectItem, TabBar, Panel, StyleTileCard, StylePreview, SkillCard, SkillAutocomplete, SkillToggleMenu, chat-cards/
+    features/        # ProjectList, AgentPanel, SitePreview, OnboardingEmpty, SkillsList, SkillDirectory
   layouts/           # MainLayout (app shell), BareLayout (standalone pages)
   pages/             # ProjectPage, DesignSystem, Components, Settings, Architecture
-  data/              # State (useProjects, useConversations, useSiteStore, useBuildProgress, useOnboarding, useInputActions, useProjectTransition)
+  data/              # State (useProjects, useConversations, useSiteStore, useBuildProgress, useOnboarding, useInputActions, useProjectTransition, useSkills)
     generation/      # AI prompts and generation loop (useGeneration, design-brief-prompt, etc.)
     seed-sites/      # Hardcoded demo sites (downstreet-cafe, portfolio)
+    seed-skills.ts   # 15 built-in skill definitions
     themes/          # Theme definitions and utilities
   router.ts
 ```
@@ -47,9 +48,12 @@ src/
 - **StatusIndicator** — `status` (stopped/loading/running). Emits `toggle`. Clip-path morph animation on hover.
 - **Titlebar** — App titlebar with traffic lights, sidebar toggle, greeting, settings/help
 - **ProjectList** — Project list in two modes: `grid` (home view, full width) and `list` (sidebar, 210px). New Project button lives in MainLayout below this component, not inside it.
-- **InputChat** — Chat input with model selector and action strip. Props: `surface`, `modelValue`, `placeholder`, `actions` (ActionButton[]). Three rendering modes: (1) **brief cards** when `ActionButton.card.briefData` is present — 3-column grid of StyleTileCard components with StylePreview hover popups, (2) **card actions** when `ActionButton.card` is present — styled buttons with caller-provided inline styles/content, (3) **text buttons** — default, numbered Button components. Number keys (1-9, 0 for 10th) trigger actions when input is empty. Enter sends, Cmd+Enter for newline.
+- **InputChat** — Chat input with model selector and action strip. Props: `surface`, `modelValue`, `placeholder`, `actions` (ActionButton[]), `slashMatches` (Skill[]). Three action rendering modes: (1) **brief cards** when `ActionButton.card.briefData` is present — 3-column grid of StyleTileCard components with StylePreview hover popups, (2) **card actions** when `ActionButton.card` is present — styled buttons with caller-provided inline styles/content, (3) **text buttons** — default, numbered Button components. Number keys (1-9, 0 for 10th) trigger actions when input is empty. Enter sends, Cmd+Enter for newline. Slash command autocomplete: typing `/` shows a `SkillAutocomplete` dropdown of matching skills for the current project. Arrow keys navigate, Tab/Enter selects, Escape dismisses.
 - **StyleTileCard** — Compact card showing style name in the brief's heading font + accent color stripe. Emits `preview-enter`/`preview-leave` with DOM rect for hover preview positioning.
 - **StylePreview** — Floating 400×250px preview panel (teleported to body). Renders AI-generated style tile HTML via `v-html`, or a fallback type specimen if no tile. Viewport-clamped positioning, scale-in animation, scroll-to-dismiss.
+- **SkillCard** — Card for displaying skills in grids. Props: `skill`, `mode` (card/compact), `showInstall`, `activeCount`. Shows icon (resolved from @wordpress/icons), name, category badge with color, slash command monospace pill, description (2-line clamp). Emits `select`, `install`, `uninstall`.
+- **SkillAutocomplete** — Compact dropdown for slash command autocomplete. Props: `matches` (Skill[]), `selectedIndex`. Renders icon + `/command` + skill name per row. Uses `mousedown.prevent` to avoid blur before selection.
+- **SkillToggleMenu** — Per-project skill toggle dropdown. Props: `projectId`. Lists installed skills with checkboxes. Self-contained — calls `useSkills()` internally.
 
 ## New project flow
 
@@ -124,6 +128,30 @@ User asks for change → AI gets site context in system prompt
 **Two theme systems exist:**
 - `SiteTheme` (`themes/types.ts`) — structured design data (palette entries, font families). Used by `useSiteThemes.ts` and the theme design UI.
 - `Site.theme` (`site-types.ts`) — flat CSS vars (`--color-primary`, `--font-heading`). Used by the iframe. `settingsToVariables()` bridges them.
+
+## AI Skills system
+
+Skills are layered: a prompt template (changes Kit's behavior) + optional structured capabilities (slash commands, custom card types). Managed globally, toggled per-project.
+
+**Data model:** `Skill` type in `types.ts` — id, name, description, icon, category (content/design/commerce/performance/security/developer), author, source (built-in/directory/custom), systemPrompt, optional slashCommand, installed flag, activeProjectIds array.
+
+**Composable:** `useSkills()` singleton in `data/useSkills.ts`. Module-level `ref<Skill[]>` initialized from `seed-skills.ts` (15 built-in skills, 4 pre-installed). Key methods: `installSkill`, `uninstallSkill`, `toggleSkillForProject`, `getActiveSkills(projectId)`, `getSkillPrompt(projectId)` (builds system prompt injection), `matchSlashCommand(input, projectId)` (autocomplete).
+
+**Home view:** MainLayout has a Projects | Skills tab switch (home mode only). Skills tab shows `SkillsList` (My Skills grid). "Browse Skills" button opens `SkillDirectory` (all 15 skills with category filter chips, search bar, install/uninstall buttons).
+
+**Per-project toggle:** Puzzle-piece icon (`plugins` from @wordpress/icons) in AgentPanel's PanelToolbar opens a `SkillToggleMenu` popover. Checkboxes toggle skills on/off for the current project. Click-outside dismisses.
+
+**System prompt injection:** `AgentPanel`'s `siteContext` computed concatenates `getSkillPrompt(projectId)` after the base site context. Active skills' `systemPrompt` fields are injected with instructions to output `card:skillBanner` fences when using a skill.
+
+**Slash commands:** User types `/` → InputChat watcher emits `slash-input` → AgentPanel calls `matchSlashCommand` → results flow back via `slashMatches` prop → `SkillAutocomplete` dropdown renders above textarea. Arrow keys navigate, Tab/Enter selects (replaces input with `/command `), Escape dismisses. When autocomplete is open, Enter selects (doesn't send).
+
+**Banner card:** `card:skillBanner` registered in `CARD_TYPES`. `SkillBannerCard.vue` renders a compact accent-striped banner: icon + "Using [Skill Name]". Category colors: content=primary, design=#8b5cf6, commerce=#059669, performance=#d97706, security=#dc2626, developer=#6366f1.
+
+**Category color map** (shared between SkillCard, SkillBannerCard):
+```
+content: var(--color-primary), design: #8b5cf6, commerce: #059669,
+performance: #d97706, security: #dc2626, developer: #6366f1
+```
 
 ## Site preview dark mode
 
