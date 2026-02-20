@@ -1,13 +1,25 @@
-# CLAUDE.md — Studio Prototype (projects-i0)
+# CLAUDE.md — Studio Prototype (devkit-i0)
 
 ## What is this
 
 Interactive prototype for Studio's AI interface concepts. Vue 3 + Vite + TypeScript.
 
+## Shared library (`../shared/`)
+
+This prototype imports shared components, tokens, and data from `prototypes/shared/` via the `@shared` Vite alias. See `shared/CLAUDE.md` for the full inventory.
+
+**Imports:** `import Text from '@shared/primitives/Text.vue'`, `import { type Site } from '@shared/data/site-types'`, etc.
+
+**Overriding shared components:** Some shared composites import prototype-specific deps via `@/` (e.g. Button, FlyoutMenu, ChatMessage). This is intentional dependency inversion — `@/` resolves to *this* prototype's `src/`, so shared components get our local versions. If you need to diverge a shared component, copy it from `shared/` into `src/` and update imports.
+
+**Local overrides (intentionally diverged from projects-i0):**
+- Primitives: Button, ContextRing, Dropdown, FlyoutMenu, Titlebar
+- Composites: ChatMessage, InputChat, ProjectItem, TabBar
+
 ## Dev server
 
 ```bash
-npm run dev  # http://localhost:3600
+npm run dev  # http://localhost:3011
 ```
 
 ## Design system rules
@@ -32,7 +44,7 @@ src/
     features/        # ProjectList, AgentPanel, SitePreview, OnboardingEmpty
   layouts/           # MainLayout (app shell), BareLayout (standalone pages)
   pages/             # ProjectPage, DesignSystem, Components, Settings, Architecture
-  data/              # State (useProjects, useConversations, useSiteStore, useBuildProgress, useOnboarding, useInputActions, useProjectTransition)
+  data/              # State (useProjects, useConversations, useSiteStore, useBuildProgress, useOnboarding, useInputActions, useProjectTransition, useSourceControl, useTimeline)
     generation/      # AI prompts and generation loop (useGeneration, design-brief-prompt, etc.)
     seed-sites/      # Hardcoded demo sites (downstreet-cafe, portfolio)
     themes/          # Theme definitions and utilities
@@ -124,6 +136,22 @@ User asks for change → AI gets site context in system prompt
 **Two theme systems exist:**
 - `SiteTheme` (`themes/types.ts`) — structured design data (palette entries, font families). Used by `useSiteThemes.ts` and the theme design UI.
 - `Site.theme` (`site-types.ts`) — flat CSS vars (`--color-primary`, `--font-heading`). Used by the iframe. `settingsToVariables()` bridges them.
+
+## Dashboard overview layout
+
+`DashboardOverview` is a two-column layout: sidebar (site info, quick actions, environment) and main area. The main area is vertically stacked into two panes separated by a 1px divider: **Source Control** on top, **Timeline** below. Each pane has its own scrolling container.
+
+## Source control
+
+`SourceControlCard.vue` — VSCode-style git controls above the Timeline. Collapsible via header chevron with animated height transition.
+
+**Structure (top to bottom):**
+- **Header:** "Source Control" title (clickable to collapse), branch pill, pull/push icon buttons with ahead/behind counts
+- **Commit area:** auto-growing textarea with "AI" button to generate message, full-width "Commit" primary button, ⌘Enter shortcut
+- **Staged Changes:** collapsible section (hidden when empty), file rows with monospace paths, colored M/A/D/U badges, hover unstage button
+- **Changes (unstaged):** same layout, hover reveals stage (+) and discard (↩) buttons
+
+**Data:** `useSourceControl.ts` singleton composable with reactive seed data (branch, staged/unstaged files, ahead/behind counts) and actions (stage, unstage, commit, push, pull, AI message generation). All prototype-level — no real git.
 
 ## Site preview dark mode
 

@@ -7,6 +7,7 @@ import { renderSite } from '@shared/data/site-renderer'
 import StatusIndicator from '@shared/primitives/StatusIndicator.vue'
 import QuickActions from './dashboard/QuickActions.vue'
 import EnvironmentCard from './dashboard/EnvironmentCard.vue'
+import SourceControlCard from './dashboard/SourceControlCard.vue'
 import TimelineCard from './dashboard/TimelineCard.vue'
 
 const route = useRoute()
@@ -123,10 +124,19 @@ function onPointerUp() {
     <div class="dashboard-overview__handle" @pointerdown="onPointerDown" />
 
     <div class="dashboard-overview__main">
-      <div class="dashboard-overview__main-scroll">
-        <TimelineCard />
+      <div class="dashboard-overview__pane dashboard-overview__pane--sc">
+        <div class="dashboard-overview__pane-scroll">
+          <SourceControlCard />
+        </div>
+      </div>
+      <div class="dashboard-overview__pane-divider" />
+      <div class="dashboard-overview__pane dashboard-overview__pane--timeline">
+        <div class="dashboard-overview__pane-scroll">
+          <TimelineCard />
+        </div>
       </div>
     </div>
+
   </div>
 </template>
 
@@ -187,7 +197,7 @@ function onPointerUp() {
   background: var(--color-primary);
 }
 
-/* ── Main panel (timeline) ── */
+/* ── Main panel (stacked panes) ── */
 .dashboard-overview__main {
   flex: 1;
   min-width: 0;
@@ -196,10 +206,31 @@ function onPointerUp() {
   overflow: hidden;
 }
 
-.dashboard-overview__main-scroll {
+.dashboard-overview__pane {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.dashboard-overview__pane--sc {
+  flex: none;
+}
+
+.dashboard-overview__pane--timeline {
+  flex: 1;
+}
+
+.dashboard-overview__pane-scroll {
   flex: 1;
   overflow-y: auto;
   padding: var(--space-m);
+}
+
+.dashboard-overview__pane-divider {
+  height: 1px;
+  flex-shrink: 0;
+  background: var(--color-surface-border);
 }
 
 /* ── Site info ── */
@@ -207,6 +238,7 @@ function onPointerUp() {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  flex-shrink: 0;
 }
 
 .site-info__header {
