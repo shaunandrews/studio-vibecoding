@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Studio — Settings</title>
+  <link rel="stylesheet" href="base.css">
+  <style>
+    .content {
+      padding: var(--spacing-8);
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--spacing-4);
+    }
+
+    .section-title {
+      font-size: var(--font-size-sm);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-text-primary);
+    }
+
+    .section-title-row {
+      padding-top: var(--spacing-4);
+    }
+
+    .section-title-row th {
+      padding-bottom: var(--spacing-4);
+    }
+
+    .helper-text {
+      font-size: var(--font-size-xs);
+      color: var(--color-text-secondary);
+      margin-top: var(--spacing-1);
+      max-width: 380px;
+    }
+
+    .badge {
+      display: inline;
+      font-size: var(--font-size-sm);
+      font-weight: var(--font-weight-normal);
+      color: var(--color-text-secondary);
+    }
+
+    /* Toggle switch */
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-3);
+    }
+
+    .toggle {
+      position: relative;
+      width: 36px;
+      height: 20px;
+      flex-shrink: 0;
+    }
+
+    .toggle-track {
+      width: 36px;
+      height: 20px;
+      border-radius: var(--radius-full);
+      background: var(--color-primary);
+      cursor: pointer;
+      transition: background var(--transition-fast);
+    }
+
+    .toggle-track.off {
+      background: var(--color-gray-20);
+    }
+
+    .toggle-knob {
+      position: absolute;
+      top: 2px;
+      left: 18px;
+      width: 16px;
+      height: 16px;
+      border-radius: var(--radius-full);
+      background: var(--color-white);
+      box-shadow: var(--shadow-sm);
+      transition: left var(--transition-fast);
+    }
+
+    .toggle-track.off + .toggle-knob {
+      left: 2px;
+    }
+
+    .toggle-label {
+      font-size: var(--font-size-sm);
+      color: var(--color-text-primary);
+    }
+
+    /* Code preview */
+    .code-preview {
+      margin-top: var(--spacing-3);
+      background: var(--color-gray-0);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+    }
+
+    .code-preview pre {
+      margin: 0;
+      padding: var(--spacing-3) var(--spacing-4);
+      font-family: var(--font-family-mono);
+      font-size: var(--font-size-xxs);
+      line-height: 1.6;
+      color: var(--color-text-primary);
+      white-space: pre;
+      overflow-x: auto;
+    }
+
+    .code-preview .code-comment {
+      color: var(--color-text-muted);
+    }
+
+    .code-preview .code-heading {
+      color: var(--color-blue-60);
+      font-weight: var(--font-weight-medium);
+    }
+
+    .customize-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      margin-top: var(--spacing-2);
+      font-size: var(--font-size-xs);
+      color: var(--color-primary);
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .customize-link:hover {
+      text-decoration: underline;
+    }
+
+    .customize-link svg {
+      width: 12px;
+      height: 12px;
+      fill: currentColor;
+    }
+
+    /* Agents section description */
+    .agents-desc {
+      font-size: var(--font-size-xs);
+      color: var(--color-text-secondary);
+      line-height: 1.4;
+      margin-bottom: var(--spacing-3);
+      max-width: 460px;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <!-- Titlebar -->
+    <div class="titlebar">
+      <div class="titlebar-controls">
+        <button class="titlebar-button close"></button>
+        <button class="titlebar-button minimize"></button>
+        <button class="titlebar-button maximize"></button>
+      </div>
+    </div>
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-content">
+        <ul class="site-list">
+          <li class="site-item">
+            <span class="site-name">Downstreet Cafe</span>
+            <span class="site-status running" data-tooltip="Stop site"></span>
+          </li>
+          <li class="site-item active">
+            <span class="site-name">Shaun's Blog</span>
+            <span class="site-status stopped" data-tooltip="Start site"></span>
+          </li>
+          <li class="site-item">
+            <span class="site-name">Sporadic Thoughts</span>
+            <span class="site-status running" data-tooltip="Stop site"></span>
+          </li>
+          <li class="site-item">
+            <span class="site-name">UI Portfolio</span>
+            <span class="site-status running" data-tooltip="Stop site"></span>
+          </li>
+        </ul>
+      </div>
+      <div class="sidebar-footer">
+        <div class="sidebar-meta">3 sites running · <a href="#">Stop all</a></div>
+        <button class="add-site-btn">Add site</button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main">
+      <!-- Header -->
+      <header class="header">
+        <div class="header-left">
+          <h1 class="header-title">Shaun's Blog</h1>
+          <div class="header-links">
+            <a href="#" class="header-link">WP admin ↗</a>
+            <a href="#" class="header-link">Open site ↗</a>
+          </div>
+        </div>
+        <div class="header-actions">
+          <button class="btn btn-primary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 19V5M5 12l7-7 7 7"/>
+            </svg>
+            Publish site
+          </button>
+          <button class="btn btn-secondary">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M8 5v14l11-7z"/>
+            </svg>
+            Start
+          </button>
+        </div>
+      </header>
+
+      <!-- Tabs -->
+      <nav class="tabs">
+        <div class="tabs-scrollable">
+          <a href="overview.html" class="tab">Overview</a>
+          <a href="sync.html" class="tab">Sync</a>
+          <a href="previews.html" class="tab">Previews</a>
+          <a href="import-export.html" class="tab">Import / Export</a>
+          <a href="agent-suite-settings.html" class="tab active">Settings</a>
+        </div>
+        <a href="agent-suite-chat.html" class="tab tab-assistant">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="4" width="20" height="16" rx="2"/>
+            <path d="M6 12h.01M10 12h.01"/>
+            <path d="M14 12h4"/>
+            <path d="M6 8h12"/>
+          </svg>
+          Agents
+        </a>
+      </nav>
+
+      <!-- Content -->
+      <div class="content">
+        <div class="section-header">
+          <h2 class="section-title">Site details</h2>
+          <div style="display: flex; align-items: center; gap: 4px;">
+            <button class="btn btn-secondary">Edit site</button>
+            <button class="btn-icon" aria-label="More options">
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <circle cx="12" cy="5" r="1.5"/>
+                <circle cx="12" cy="12" r="1.5"/>
+                <circle cx="12" cy="19" r="1.5"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <table class="details-table">
+          <tbody>
+            <tr>
+              <th>Site name</th>
+              <td>Shaun's Blog</td>
+            </tr>
+            <tr>
+              <th>Site URL</th>
+              <td>
+                <a href="#" class="copy-value">
+                  localhost:8881
+                  <svg class="copy-icon" viewBox="0 0 24 24">
+                    <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+                  </svg>
+                </a>
+              </td>
+            </tr>
+            <tr>
+              <th>HTTPS</th>
+              <td>Disabled</td>
+            </tr>
+            <tr>
+              <th>Local path</th>
+              <td>
+                <a href="#" class="copy-value">
+                  /Users/shaun/Studio/shauns-blog
+                  <svg class="copy-icon" viewBox="0 0 24 24">
+                    <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+                  </svg>
+                </a>
+              </td>
+            </tr>
+            <tr>
+              <th>WordPress version</th>
+              <td>6.9.1</td>
+            </tr>
+            <tr>
+              <th>PHP version</th>
+              <td>8.3</td>
+            </tr>
+            <tr>
+              <th>Hot Reload</th>
+              <td>
+                <div>
+                  <span>Disabled</span>
+                  <span class="badge">(Experimental)</span>
+                </div>
+                <div class="helper-text">
+                  Automatically reload the site when files change. Instantly see updates to CSS/JS, and smart reload for PHP changes.
+                </div>
+              </td>
+            </tr>
+
+            <tr class="section-title-row">
+              <th colspan="2">
+                <h3 class="section-title" style="margin-top: var(--spacing-4);">WP Admin</h3>
+              </th>
+            </tr>
+
+            <tr>
+              <th>Username</th>
+              <td>
+                <a href="#" class="copy-value">
+                  admin
+                  <svg class="copy-icon" viewBox="0 0 24 24">
+                    <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+                  </svg>
+                </a>
+              </td>
+            </tr>
+            <tr>
+              <th>Password</th>
+              <td>
+                <a href="#" class="copy-value">
+                  ************
+                  <svg class="copy-icon" viewBox="0 0 24 24">
+                    <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+                  </svg>
+                </a>
+              </td>
+            </tr>
+            <tr>
+              <th>Admin URL</th>
+              <td>
+                <a href="#" class="copy-value">
+                  localhost:8881/wp-admin
+                  <svg class="copy-icon" viewBox="0 0 24 24">
+                    <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+                  </svg>
+                </a>
+              </td>
+            </tr>
+
+            <!-- AGENTS.md Section -->
+            <tr class="section-title-row">
+              <th colspan="2">
+                <h3 class="section-title" style="margin-top: var(--spacing-4);">AGENTS.md</h3>
+              </th>
+            </tr>
+
+            <tr>
+              <th></th>
+              <td>
+                <p class="agents-desc">Instructions that guide AI agents working on this site. This file is automatically generated and placed in the site root.</p>
+
+                <div class="toggle-row">
+                  <div class="toggle">
+                    <div class="toggle-track"></div>
+                    <div class="toggle-knob"></div>
+                  </div>
+                  <span class="toggle-label">Include AGENTS.md</span>
+                </div>
+
+                <div class="code-preview">
+                  <pre><span class="code-heading"># WordPress Studio Site</span>
+
+<span class="code-heading">## Stack</span>
+- WordPress with SQLite database
+- Theme: flavor (block theme)
+
+<span class="code-heading">## Studio CLI</span>
+Use `studio wp` to run WP-CLI commands.
+
+<span class="code-heading">## Important Paths</span>
+- Theme: wp-content/themes/flavor/
+- Plugins: wp-content/plugins/
+- Uploads: wp-content/uploads/</pre>
+                </div>
+
+                <a href="#" class="customize-link">
+                  Customize
+                  <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+                </a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

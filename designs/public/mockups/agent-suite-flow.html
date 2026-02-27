@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent Suite — User Flow</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #fafafa;
+    color: #1a1a1a;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 48px 24px 80px;
+  }
+
+  h1 {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .subtitle {
+    font-size: 13px;
+    color: #666;
+    margin-bottom: 40px;
+  }
+
+  /* ── Flow container ── */
+  .flow {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    width: 100%;
+    max-width: 780px;
+  }
+
+  /* ── Shared node base ── */
+  .node {
+    position: relative;
+    z-index: 1;
+  }
+  .node a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 20px;
+    border-radius: 10px;
+    text-decoration: none;
+    color: inherit;
+    border: 1.5px solid;
+    background: #fff;
+    min-width: 200px;
+    transition: box-shadow 0.15s, transform 0.15s;
+  }
+  .node a:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  }
+  .node .label {
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.3;
+  }
+  .node .desc {
+    font-size: 11px;
+    opacity: 0.7;
+    line-height: 1.3;
+  }
+  .node .icon {
+    font-size: 20px;
+    flex-shrink: 0;
+    width: 28px;
+    text-align: center;
+  }
+
+  /* ── Color phases ── */
+  .phase-entry a    { border-color: #d1d5db; background: #f9fafb; }
+  .phase-setup a    { border-color: #fbbf24; background: #fffbeb; }
+  .phase-chat a     { border-color: #60a5fa; background: #eff6ff; }
+  .phase-tool a     { border-color: #34d399; background: #ecfdf5; }
+  .phase-perm a     { border-color: #f59e0b; background: #fffbeb; }
+  .phase-settings a { border-color: #a78bfa; background: #f5f3ff; }
+
+  /* ── Decision diamonds ── */
+  .diamond {
+    position: relative;
+    z-index: 1;
+    width: 180px;
+    height: 90px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .diamond-shape {
+    position: absolute;
+    inset: 0;
+    background: #fff;
+    border: 1.5px solid #d1d5db;
+    transform: skewX(-20deg);
+    border-radius: 6px;
+  }
+  .diamond-text {
+    position: relative;
+    z-index: 1;
+    font-size: 12px;
+    font-weight: 600;
+    text-align: center;
+    color: #374151;
+    padding: 0 12px;
+  }
+
+  /* ── Connectors ── */
+  .connector {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    z-index: 0;
+  }
+  .line-v {
+    width: 2px;
+    background: #d1d5db;
+    height: 28px;
+  }
+  .arrow-down {
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 6px solid #d1d5db;
+  }
+
+  /* ── Branch rows ── */
+  .branch-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 60px;
+    position: relative;
+    width: 100%;
+  }
+  .branch-row .branch {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .branch-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #9ca3af;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 8px;
+  }
+
+  /* ── Horizontal connector between branches ── */
+  .h-connector {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 260px;
+    height: 2px;
+    background: #d1d5db;
+  }
+
+  /* ── Chat loop section ── */
+  .chat-loop {
+    border: 2px dashed #bfdbfe;
+    border-radius: 16px;
+    padding: 32px 28px 28px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    background: rgba(239, 246, 255, 0.3);
+  }
+  .chat-loop-label {
+    position: absolute;
+    top: -11px;
+    left: 24px;
+    background: #fafafa;
+    padding: 0 10px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #60a5fa;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  /* ── Side nodes (settings/skills floating off to the side) ── */
+  .side-panel {
+    display: flex;
+    gap: 20px;
+    margin-top: 12px;
+  }
+
+  /* ── Merge connector ── */
+  .merge-label {
+    font-size: 11px;
+    color: #9ca3af;
+    font-weight: 500;
+    margin-top: 4px;
+    margin-bottom: 4px;
+  }
+
+  /* ── Return arrow (loop back) ── */
+  .loop-return {
+    position: absolute;
+    right: -32px;
+    top: 20px;
+    bottom: 20px;
+    width: 32px;
+    border: 2px solid #60a5fa;
+    border-left: none;
+    border-radius: 0 10px 10px 0;
+  }
+  .loop-return::after {
+    content: '';
+    position: absolute;
+    left: -6px;
+    top: -1px;
+    width: 0;
+    height: 0;
+    border-bottom: 5px solid transparent;
+    border-top: 5px solid transparent;
+    border-right: 6px solid #60a5fa;
+  }
+
+  /* ── Legend ── */
+  .legend {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 48px;
+    padding-top: 24px;
+    border-top: 1px solid #e5e7eb;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: #666;
+  }
+  .legend-swatch {
+    width: 14px;
+    height: 14px;
+    border-radius: 4px;
+    border: 1.5px solid;
+  }
+  .sw-entry    { border-color: #d1d5db; background: #f9fafb; }
+  .sw-setup    { border-color: #fbbf24; background: #fffbeb; }
+  .sw-chat     { border-color: #60a5fa; background: #eff6ff; }
+  .sw-tool     { border-color: #34d399; background: #ecfdf5; }
+  .sw-perm     { border-color: #f59e0b; background: #fffbeb; }
+  .sw-settings { border-color: #a78bfa; background: #f5f3ff; }
+</style>
+</head>
+<body>
+
+<h1>Agent Suite — User Flow</h1>
+<p class="subtitle">Full user journey from first open to active agent use</p>
+
+<div class="flow">
+
+  <!-- 1. Entry -->
+  <div class="node phase-entry">
+    <a href="agent-suite-chat.html">
+      <span class="icon">🚀</span>
+      <span><span class="label">Open Agents Tab</span><br><span class="desc">User clicks into the Agents tab</span></span>
+    </a>
+  </div>
+
+  <div class="connector"><div class="line-v"></div><div class="arrow-down"></div></div>
+
+  <!-- 2. Decision: configured? -->
+  <div class="diamond">
+    <div class="diamond-shape"></div>
+    <span class="diamond-text">Any agent<br>configured?</span>
+  </div>
+
+  <div class="connector"><div class="line-v" style="height: 12px;"></div></div>
+
+  <!-- 3. Branch: No / Yes -->
+  <div class="branch-row">
+    <div class="h-connector"></div>
+
+    <div class="branch">
+      <span class="branch-label">No</span>
+      <div class="node phase-entry">
+        <a href="agent-suite-first-run.html">
+          <span class="icon">👋</span>
+          <span><span class="label">First Run</span><br><span class="desc">Choose from agent cards</span></span>
+        </a>
+      </div>
+
+      <div class="connector"><div class="line-v"></div><div class="arrow-down"></div></div>
+
+      <div class="diamond">
+        <div class="diamond-shape"></div>
+        <span class="diamond-text">Needs<br>setup?</span>
+      </div>
+
+      <div class="connector"><div class="line-v" style="height: 12px;"></div></div>
+
+      <div class="branch-row" style="gap: 40px;">
+        <div class="h-connector" style="width: 180px;"></div>
+
+        <div class="branch">
+          <span class="branch-label">Yes</span>
+          <div class="node phase-setup">
+            <a href="agent-suite-setup-apikey.html">
+              <span class="icon">🔑</span>
+              <span><span class="label">Setup Flow</span><br><span class="desc">API key / install agent</span></span>
+            </a>
+          </div>
+        </div>
+
+        <div class="branch">
+          <span class="branch-label">No</span>
+          <div class="node phase-entry" style="opacity: 0.6;">
+            <a href="agent-suite-chat.html" style="min-width: 140px;">
+              <span class="icon">✓</span>
+              <span><span class="label">Already installed</span></span>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <div class="connector"><div class="line-v" style="height: 16px;"></div></div>
+      <span class="merge-label">Agent ready →</span>
+    </div>
+
+    <div class="branch">
+      <span class="branch-label">Yes</span>
+      <div class="connector"><div class="line-v" style="height: 108px;"></div><div class="arrow-down"></div></div>
+      <span class="merge-label">Skip to chat ↓</span>
+    </div>
+  </div>
+
+  <div class="connector"><div class="line-v" style="height: 20px;"></div><div class="arrow-down"></div></div>
+
+  <!-- 4. Chat View (main hub) -->
+  <div class="chat-loop">
+    <span class="chat-loop-label">Chat Loop</span>
+
+    <div class="node phase-chat">
+      <a href="agent-suite-chat.html">
+        <span class="icon">💬</span>
+        <span><span class="label">Chat View</span><br><span class="desc">Active agent session</span></span>
+      </a>
+    </div>
+
+    <div class="connector"><div class="line-v"></div><div class="arrow-down"></div></div>
+
+    <!-- Send message → tool use -->
+    <div class="node phase-tool">
+      <a href="agent-suite-chat.html">
+        <span class="icon">🔧</span>
+        <span><span class="label">Tool Use</span><br><span class="desc">Read / write / run commands</span></span>
+      </a>
+    </div>
+
+    <div class="connector"><div class="line-v"></div><div class="arrow-down"></div></div>
+
+    <!-- Decision: needs approval? -->
+    <div class="diamond">
+      <div class="diamond-shape"></div>
+      <span class="diamond-text">Needs<br>approval?</span>
+    </div>
+
+    <div class="connector"><div class="line-v" style="height: 12px;"></div></div>
+
+    <div class="branch-row" style="gap: 40px;">
+      <div class="h-connector" style="width: 180px;"></div>
+
+      <div class="branch">
+        <span class="branch-label">Yes</span>
+        <div class="node phase-perm">
+          <a href="agent-suite-chat.html">
+            <span class="icon">⚠️</span>
+            <span><span class="label">Permission Prompt</span><br><span class="desc">Allow or deny action</span></span>
+          </a>
+        </div>
+      </div>
+
+      <div class="branch">
+        <span class="branch-label">No</span>
+        <div class="node phase-tool" style="opacity: 0.6;">
+          <a href="agent-suite-chat.html" style="min-width: 120px;">
+            <span class="icon">✓</span>
+            <span><span class="label">Auto-approved</span></span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="connector"><div class="line-v" style="height: 16px;"></div><div class="arrow-down"></div></div>
+
+    <!-- Response -->
+    <div class="node phase-chat">
+      <a href="agent-suite-chat.html">
+        <span class="icon">↩</span>
+        <span><span class="label">Response</span><br><span class="desc">Continue chat loop</span></span>
+      </a>
+    </div>
+
+    <!-- Loop-back arrow -->
+    <div class="loop-return"></div>
+  </div>
+
+  <div class="connector"><div class="line-v" style="height: 24px;"></div><div class="arrow-down"></div></div>
+
+  <!-- 5. Switch agent -->
+  <div class="diamond">
+    <div class="diamond-shape"></div>
+    <span class="diamond-text">Switch<br>agent?</span>
+  </div>
+
+  <div class="connector"><div class="line-v"></div><div class="arrow-down"></div></div>
+
+  <div class="node phase-entry">
+    <a href="agent-suite-selector-open.html">
+      <span class="icon">🔄</span>
+      <span><span class="label">Agent Selector</span><br><span class="desc">Switch between configured agents</span></span>
+    </a>
+  </div>
+
+  <div class="connector"><div class="line-v" style="height: 12px;"></div></div>
+  <span class="merge-label">↑ Returns to Chat View</span>
+
+  <!-- 6. Side panels -->
+  <div class="side-panel">
+    <div class="node phase-settings">
+      <a href="agent-suite-skills.html">
+        <span class="icon">🧩</span>
+        <span><span class="label">Skills Panel</span><br><span class="desc">Manage & install skills</span></span>
+      </a>
+    </div>
+
+    <div class="node phase-settings">
+      <a href="agent-suite-settings.html">
+        <span class="icon">⚙️</span>
+        <span><span class="label">Settings</span><br><span class="desc">AGENTS.md configuration</span></span>
+      </a>
+    </div>
+  </div>
+
+</div>
+
+<!-- Legend -->
+<div class="legend">
+  <div class="legend-item"><div class="legend-swatch sw-entry"></div> Entry / Selection</div>
+  <div class="legend-item"><div class="legend-swatch sw-setup"></div> Setup</div>
+  <div class="legend-item"><div class="legend-swatch sw-chat"></div> Chat / Active Use</div>
+  <div class="legend-item"><div class="legend-swatch sw-tool"></div> Tools</div>
+  <div class="legend-item"><div class="legend-swatch sw-perm"></div> Permissions</div>
+  <div class="legend-item"><div class="legend-swatch sw-settings"></div> Settings / Skills</div>
+</div>
+
+</body>
+</html>

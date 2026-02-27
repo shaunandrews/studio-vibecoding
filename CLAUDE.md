@@ -48,4 +48,16 @@ Requires Node 22.x, npm 10.x (npm 11 works with warnings).
 
 ### Studio Architecture
 
-Studio uses the Electron 3-process model. See `studio/docs/ai-instructions.md` for detailed architecture, IPC patterns, and conventions.
+Studio uses the Electron 3-process model. See `studio/AGENTS.md` for detailed architecture, IPC patterns, and conventions.
+
+### Studio Interface Anatomy
+
+See `docs/studio-anatomy.html` for a visual reference of Studio's UI composition:
+
+- **Layout**: Dark chrome shell (`bg-chrome`, `rgba(30,30,30,1)`) with white rounded content area. Two-column: sidebar (210px, collapsible) + main content with tab navigation.
+- **Components**: Built on `@wordpress/components` (Button, TabPanel, Modal, Icon, Spinner, SelectControl, etc.) — some wrapped with custom variants. ~60 React components total.
+- **Design Tokens**: `@automattic/color-studio` (200+ shades) mapped to Tailwind as `a8c-{name}-{shade}`. 15 typography scales via Tailwind plugin (`.a8c-title-large` through `.a8c-section-heading`). System UI font stack.
+- **Styling**: Tailwind CSS 3.3 for layout/utilities, WP component overrides in `index.css` targeting `.components-*` classes. No dark mode toggle — sidebar is permanently dark, content permanently white.
+- **State**: Redux Toolkit + RTK Query (8 slices, 4+ APIs), 13 React Context providers.
+- **Navigation**: Tab-based via `@wordpress/components.TabPanel` — no router. 6 tabs: Overview, Sync, Previews, Import/Export, Settings, Assistant.
+- **Key files**: `app.tsx` (layout), `root.tsx` (providers), `tailwind.config.js` (tokens), `ipc-handlers.ts` (IPC), `site-content-tabs.tsx` (navigation).

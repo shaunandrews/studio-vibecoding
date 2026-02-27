@@ -8,10 +8,18 @@ interface Mockup {
   title: string
   description: string
   file: string
-  category: 'current' | 'concept' | 'iteration2'
+  category: 'current' | 'concept' | 'iteration2' | 'agent-suite'
 }
 
 const mockups: Mockup[] = [
+  // Agent Suite
+  { id: 'agent-first-run', title: 'First Run', description: 'Empty state, agent cards, connect/install', file: 'agent-suite-first-run.html', category: 'agent-suite' },
+  { id: 'agent-setup-apikey', title: 'API Key Setup', description: 'Modal for Claude API key configuration', file: 'agent-suite-setup-apikey.html', category: 'agent-suite' },
+  { id: 'agent-chat', title: 'Chat Session', description: 'Active chat with tool use blocks and diffs', file: 'agent-suite-chat.html', category: 'agent-suite' },
+  { id: 'agent-selector', title: 'Agent Selector', description: 'Dropdown to switch between agents', file: 'agent-suite-selector-open.html', category: 'agent-suite' },
+  { id: 'agent-settings', title: 'Settings + AGENTS.md', description: 'AGENTS.md management in Settings tab', file: 'agent-suite-settings.html', category: 'agent-suite' },
+  { id: 'agent-skills', title: 'Skills Panel', description: 'Installed skills management and discovery', file: 'agent-suite-skills.html', category: 'agent-suite' },
+  { id: 'agent-flow', title: 'User Flow', description: 'Full user journey through the agent suite', file: 'agent-suite-flow.html', category: 'agent-suite' },
   // Current UI
   { id: 'overview', title: 'Overview', description: 'Theme preview, Customize actions', file: 'overview.html', category: 'current' },
   { id: 'settings', title: 'Settings', description: 'Site details, paths, versions', file: 'settings.html', category: 'current' },
@@ -112,6 +120,7 @@ function MockupViewer() {
 }
 
 function Gallery() {
+  const agentSuiteMockups = mockups.filter(m => m.category === 'agent-suite')
   const currentMockups = mockups.filter(m => m.category === 'current')
   const conceptMockups = mockups.filter(m => m.category === 'concept')
   const iteration2Mockups = mockups.filter(m => m.category === 'iteration2')
@@ -122,6 +131,27 @@ function Gallery() {
         <h1>Studio Vibe Coding</h1>
         <p>Design mockups and explorations</p>
       </header>
+
+      <section className="mockup-section">
+        <h2>Agent Suite</h2>
+        <div className="mockup-grid">
+          {agentSuiteMockups.map(mockup => (
+            <Link
+              key={mockup.id}
+              className="mockup-card"
+              to={`/${mockup.id}`}
+            >
+              <div className="mockup-preview">
+                <iframe src={`/mockups/${mockup.file}`} tabIndex={-1} />
+              </div>
+              <div className="mockup-info">
+                <h3>{mockup.title}</h3>
+                <p>{mockup.description}</p>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </section>
 
       <section className="mockup-section">
         <h2>Iteration 2 — Refined Concepts</h2>

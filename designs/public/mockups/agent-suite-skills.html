@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Studio — Agents — Skills</title>
+  <link rel="stylesheet" href="base.css">
+  <style>
+    /* Make main a flex column for panel layout */
+    .main {
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Agent toolbar (from chat mockup) */
+    .agent-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 var(--spacing-4);
+      height: 36px;
+      border-bottom: 1px solid var(--color-border);
+      background: var(--color-gray-0);
+      flex-shrink: 0;
+    }
+
+    .agent-toolbar-left {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-2);
+    }
+
+    .agent-toolbar-selector {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 6px;
+      border: none;
+      border-radius: var(--radius-md);
+      background: transparent;
+      font-size: var(--font-size-sm);
+      font-weight: var(--font-weight-medium);
+      color: var(--color-text-primary);
+      cursor: pointer;
+      transition: background var(--transition-fast);
+    }
+
+    .agent-toolbar-selector:hover {
+      background: rgba(0, 0, 0, 0.06);
+    }
+
+    .agent-toolbar-icon {
+      width: 18px;
+      height: 18px;
+      border-radius: var(--radius-sm);
+      background: #D4A27F;
+      flex-shrink: 0;
+    }
+
+    .agent-toolbar-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: var(--radius-full);
+      background: var(--color-status-running);
+      flex-shrink: 0;
+    }
+
+    .agent-toolbar-chevron {
+      width: 12px;
+      height: 12px;
+      fill: var(--color-text-secondary);
+    }
+
+    .agent-toolbar-right {
+      display: flex;
+      align-items: center;
+    }
+
+    .model-selector-btn {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 8px;
+      border: none;
+      border-radius: var(--radius-md);
+      background: transparent;
+      font-size: var(--font-size-xs);
+      font-family: var(--font-family-mono);
+      color: var(--color-text-secondary);
+      cursor: pointer;
+      transition: background var(--transition-fast);
+    }
+
+    .model-selector-btn:hover {
+      background: rgba(0, 0, 0, 0.06);
+    }
+
+    .model-chevron {
+      width: 12px;
+      height: 12px;
+      fill: var(--color-text-muted);
+    }
+
+    .toolbar-sep {
+      width: 1px;
+      height: 16px;
+      background: var(--color-border);
+      margin: 0 var(--spacing-1);
+    }
+
+    /* Skills panel */
+    .skills-panel {
+      flex: 1;
+      overflow-y: auto;
+      padding: var(--spacing-6) var(--spacing-8);
+    }
+
+    .skills-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--spacing-5);
+    }
+
+    .skills-header-left {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-1);
+    }
+
+    .skills-title {
+      font-size: var(--font-size-lg);
+      font-weight: var(--font-weight-normal);
+      color: var(--color-text-primary);
+    }
+
+    .skills-count {
+      font-size: var(--font-size-sm);
+      color: var(--color-text-secondary);
+    }
+
+    .btn-install {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: var(--spacing-2) var(--spacing-4);
+      font-size: var(--font-size-sm);
+      font-weight: var(--font-weight-medium);
+      border-radius: var(--radius-md);
+      border: 1px solid var(--color-border);
+      background: var(--color-white);
+      color: var(--color-text-primary);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      white-space: nowrap;
+    }
+
+    .btn-install:hover {
+      background: var(--color-gray-0);
+      border-color: var(--color-gray-10);
+    }
+
+    .btn-install svg {
+      width: 14px;
+      height: 14px;
+      fill: currentColor;
+    }
+
+    /* Skill cards */
+    .skills-list {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-3);
+    }
+
+    .skill-card {
+      display: flex;
+      gap: var(--spacing-3);
+      padding: var(--spacing-4);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-xl);
+      background: transparent;
+      transition: border-color var(--transition-fast);
+    }
+
+    .skill-card:hover {
+      border-color: var(--color-gray-10);
+    }
+
+    .skill-icon {
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+      border-radius: var(--radius-lg);
+      background: var(--color-gray-0);
+    }
+
+    .skill-body {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .skill-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--spacing-3);
+      margin-bottom: var(--spacing-1);
+    }
+
+    .skill-name {
+      font-size: var(--font-size-sm);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-text-primary);
+    }
+
+    .skill-toggle {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-2);
+      flex-shrink: 0;
+    }
+
+    .skill-toggle-label {
+      font-size: var(--font-size-xs);
+      color: var(--color-text-secondary);
+    }
+
+    /* Toggle switch */
+    .toggle {
+      position: relative;
+      width: 36px;
+      height: 20px;
+      flex-shrink: 0;
+    }
+
+    .toggle-track {
+      width: 36px;
+      height: 20px;
+      border-radius: var(--radius-full);
+      background: var(--color-primary);
+      cursor: pointer;
+      transition: background var(--transition-fast);
+    }
+
+    .toggle-track.off {
+      background: var(--color-gray-20);
+    }
+
+    .toggle-knob {
+      position: absolute;
+      top: 2px;
+      left: 18px;
+      width: 16px;
+      height: 16px;
+      border-radius: var(--radius-full);
+      background: var(--color-white);
+      box-shadow: var(--shadow-sm);
+      transition: left var(--transition-fast);
+    }
+
+    .toggle-track.off + .toggle-knob {
+      left: 2px;
+    }
+
+    .skill-description {
+      font-size: var(--font-size-xs);
+      color: var(--color-text-secondary);
+      line-height: 1.4;
+      margin-bottom: var(--spacing-2);
+    }
+
+    .skill-slug {
+      font-family: var(--font-family-mono);
+      font-size: var(--font-size-xxs);
+      color: var(--color-text-muted);
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <!-- Titlebar -->
+    <div class="titlebar">
+      <div class="titlebar-controls">
+        <button class="titlebar-button close"></button>
+        <button class="titlebar-button minimize"></button>
+        <button class="titlebar-button maximize"></button>
+      </div>
+    </div>
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-content">
+        <ul class="site-list">
+          <li class="site-item">
+            <span class="site-name">Downstreet Cafe</span>
+            <span class="site-status running" data-tooltip="Stop site"></span>
+          </li>
+          <li class="site-item active">
+            <span class="site-name">Shaun's Blog</span>
+            <span class="site-status stopped" data-tooltip="Start site"></span>
+          </li>
+          <li class="site-item">
+            <span class="site-name">Sporadic Thoughts</span>
+            <span class="site-status running" data-tooltip="Stop site"></span>
+          </li>
+          <li class="site-item">
+            <span class="site-name">UI Portfolio</span>
+            <span class="site-status running" data-tooltip="Stop site"></span>
+          </li>
+        </ul>
+      </div>
+      <div class="sidebar-footer">
+        <div class="sidebar-meta">3 sites running · <a href="#">Stop all</a></div>
+        <button class="add-site-btn">Add site</button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main">
+      <!-- Header -->
+      <header class="header">
+        <div class="header-left">
+          <h1 class="header-title">Shaun's Blog</h1>
+          <div class="header-links">
+            <a href="#" class="header-link">WP admin ↗</a>
+            <a href="#" class="header-link">Open site ↗</a>
+          </div>
+        </div>
+        <div class="header-actions">
+          <button class="btn btn-primary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 19V5M5 12l7-7 7 7"/>
+            </svg>
+            Publish site
+          </button>
+          <button class="btn btn-secondary">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M8 5v14l11-7z"/>
+            </svg>
+            Start
+          </button>
+        </div>
+      </header>
+
+      <!-- Tabs -->
+      <nav class="tabs">
+        <div class="tabs-scrollable">
+          <a href="overview.html" class="tab">Overview</a>
+          <a href="sync.html" class="tab">Sync</a>
+          <a href="previews.html" class="tab">Previews</a>
+          <a href="import-export.html" class="tab">Import / Export</a>
+          <a href="agent-suite-settings.html" class="tab">Settings</a>
+        </div>
+        <a href="agent-suite-chat.html" class="tab tab-assistant active">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="4" width="20" height="16" rx="2"/>
+            <path d="M6 12h.01M10 12h.01"/>
+            <path d="M14 12h4"/>
+            <path d="M6 8h12"/>
+          </svg>
+          Agents
+        </a>
+      </nav>
+
+      <!-- Agent Toolbar -->
+      <div class="agent-toolbar">
+        <div class="agent-toolbar-left">
+          <button class="agent-toolbar-selector">
+            <span class="agent-toolbar-icon"></span>
+            <span class="agent-toolbar-dot"></span>
+            Claude Code
+            <svg class="agent-toolbar-chevron" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>
+          </button>
+        </div>
+        <div class="agent-toolbar-right">
+          <button class="model-selector-btn">
+            claude-sonnet-4-6
+            <svg class="model-chevron" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Skills Panel -->
+      <div class="skills-panel">
+        <div class="skills-header">
+          <div class="skills-header-left">
+            <h2 class="skills-title">Skills</h2>
+            <span class="skills-count">Installed (3)</span>
+          </div>
+          <button class="btn-install">
+            <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+            Install Skill
+          </button>
+        </div>
+
+        <div class="skills-list">
+          <!-- Skill: WordPress Block Themes -->
+          <div class="skill-card">
+            <div class="skill-icon">&#127912;</div>
+            <div class="skill-body">
+              <div class="skill-header">
+                <span class="skill-name">WordPress Block Themes</span>
+                <div class="skill-toggle">
+                  <span class="skill-toggle-label">Enabled</span>
+                  <div class="toggle">
+                    <div class="toggle-track"></div>
+                    <div class="toggle-knob"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="skill-description">Build and customize block themes with patterns, templates, and theme.json</div>
+              <div class="skill-slug">wp-block-themes</div>
+            </div>
+          </div>
+
+          <!-- Skill: WP-CLI Commands -->
+          <div class="skill-card">
+            <div class="skill-icon">&#128295;</div>
+            <div class="skill-body">
+              <div class="skill-header">
+                <span class="skill-name">WP-CLI Commands</span>
+                <div class="skill-toggle">
+                  <span class="skill-toggle-label">Enabled</span>
+                  <div class="toggle">
+                    <div class="toggle-track"></div>
+                    <div class="toggle-knob"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="skill-description">WordPress command-line interface for managing plugins, themes, users, and site configuration</div>
+              <div class="skill-slug">wp-cli</div>
+            </div>
+          </div>
+
+          <!-- Skill: Design Mockups -->
+          <div class="skill-card">
+            <div class="skill-icon">&#128208;</div>
+            <div class="skill-body">
+              <div class="skill-header">
+                <span class="skill-name">Design Mockups</span>
+                <div class="skill-toggle">
+                  <span class="skill-toggle-label">Enabled</span>
+                  <div class="toggle">
+                    <div class="toggle-track"></div>
+                    <div class="toggle-knob"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="skill-description">Build and present HTML/CSS design mockups with a local preview server</div>
+              <div class="skill-slug">design-mockups</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</body>
+</html>
